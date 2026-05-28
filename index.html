@@ -17,7 +17,9 @@
             <img src="images/logo-cbs.png" alt="ЦБС" style="height: 50px;">
             <img src="images/logo-rost.png" alt="РОСТ" style="height: 50px; margin-left: 15px;">
         </div>
-        <div class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></div>
+        <div class="menu-toggle" id="menuToggle">
+            <i class="fas fa-bars"></i>
+        </div>
         <nav class="nav" id="nav">
             <ul>
                 <li><a href="index.html">Главная</a></li>
@@ -45,9 +47,9 @@
 <section class="section">
     <div class="container">
         <h2 class="section-title">О проекте</h2>
-        <div class="about-short">
+        <div class="about-short" style="max-width: 800px; margin: 0 auto; text-align: center;">
             <p>Проект объединяет два направления: спидкубинг и настольные игры, создавая на базе библиотеки место встречи, тренировок, обмена опытом и проведения масштабных событий.</p>
-            <a href="about.html" class="btn btn-outline">Подробнее</a>
+            <a href="about.html" class="btn btn-outline" style="margin-top: 1rem;">Подробнее</a>
         </div>
     </div>
 </section>
@@ -55,7 +57,7 @@
 <section class="section bg-light">
     <div class="container">
         <h2 class="section-title">Ближайшие события</h2>
-        <div class="events-grid" id="main-events">
+        <div class="events-grid">
             <div class="event-card">
                 <div class="event-date">17 июня 15:00-19:00</div>
                 <h3>Игротека «Книжные грани»</h3>
@@ -116,7 +118,7 @@
             </div>
         </div>
         <div class="footer-bottom">
-            <p>© 2026 Книжные грани | ЦБС Выборгского района</p>
+            <p>© <span id="current-year"></span> Книжные грани | ЦБС Выборгского района</p>
         </div>
     </div>
 </footer>
