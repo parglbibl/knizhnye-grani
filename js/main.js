@@ -1,41 +1,48 @@
-// main.js — Книжные грани
+// main.js — Книжные грани (с правильными путями для любого уровня)
 
 document.addEventListener('DOMContentLoaded', function() {
 
-    // ===== МЕНЮ С ВЫПАДАЮЩИМИ СПИСКАМИ =====
+    // ===== ОПРЕДЕЛЯЕМ ГЛУБИНУ ВЛОЖЕННОСТИ =====
+    const path = window.location.pathname;
+    let prefix = '';
+    
+    // Если мы в подпапке (например, /boardgames/ или /speedcubing/)
+    if (path.includes('/boardgames/') || path.includes('/speedcubing/')) {
+        prefix = '../';
+    }
+
     const nav = document.getElementById('nav');
     const menuToggle = document.getElementById('menuToggle');
 
     if (nav) {
-        const currentPath = window.location.pathname.split('/').pop() || 'index.html';
+        const currentFile = path.split('/').pop() || 'index.html';
         
-        // ГЛАВНЫЕ КАТЕГОРИИ И ПУНКТЫ
         const menuData = [
             {
                 title: 'О проекте',
                 icon: 'fas fa-info-circle',
                 items: [
-                    { name: 'О проекте', href: 'about.html' },
-                    { name: 'Организаторы', href: 'organizers.html' },
-                    { name: 'Команда', href: 'team.html' }
+                    { name: 'О проекте', href: prefix + 'about.html' },
+                    { name: 'Организаторы', href: prefix + 'organizers.html' },
+                    { name: 'Команда', href: prefix + 'team.html' }
                 ]
             },
             {
                 title: 'Мероприятия',
                 icon: 'fas fa-calendar-alt',
                 items: [
-                    { name: 'Афиша', href: 'events.html' },
-                    { name: 'Настольные игры', href: 'boardgames/index.html' },
-                    { name: 'Спидкубинг', href: 'speedcubing/index.html' }
+                    { name: 'Афиша', href: prefix + 'events.html' },
+                    { name: 'Настольные игры', href: prefix + 'boardgames/index.html' },
+                    { name: 'Спидкубинг', href: prefix + 'speedcubing/index.html' }
                 ]
             },
             {
                 title: 'Участие',
                 icon: 'fas fa-handshake',
                 items: [
-                    { name: 'Партнёры', href: 'partners.html' },
-                    { name: 'Контакты', href: 'contacts.html' },
-                    { name: 'FAQ', href: 'faq.html' }
+                    { name: 'Партнёры', href: prefix + 'partners.html' },
+                    { name: 'Контакты', href: prefix + 'contacts.html' },
+                    { name: 'FAQ', href: prefix + 'faq.html' }
                 ]
             }
         ];
@@ -43,10 +50,10 @@ document.addEventListener('DOMContentLoaded', function() {
         let html = '<ul class="desktop-menu">';
         
         menuData.forEach(cat => {
-            // Проверяем, активна ли категория
             let isActive = false;
             cat.items.forEach(item => {
-                if (item.href === currentPath || (currentPath === '' && item.href === 'index.html')) {
+                const targetFile = item.href.split('/').pop();
+                if (targetFile === currentFile || (currentFile === '' && targetFile === 'index.html')) {
                     isActive = true;
                 }
             });
@@ -58,7 +65,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         <ul class="dropdown-menu">`;
             
             cat.items.forEach(item => {
-                const activeClass = (item.href === currentPath) ? 'active' : '';
+                const targetFile = item.href.split('/').pop();
+                const activeClass = (targetFile === currentFile) ? 'active' : '';
                 html += `<li><a href="${item.href}" class="${activeClass}">${item.name}</a></li>`;
             });
             
