@@ -1,8 +1,8 @@
-// main.js — Книжные грани 
+// main.js — Книжные грани
 
 document.addEventListener('DOMContentLoaded', function() {
 
-    // ===== КАТЕГОРИИ МЕНЮ  =====
+    // ===== КАТЕГОРИИ МЕНЮ =====
     const menuCategories = [
         {
             title: 'О проекте',
@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function() {
             icon: 'fas fa-calendar-alt',
             items: [
                 { name: 'Афиша', href: 'events.html', icon: 'fas fa-calendar-alt' },
-                { name: 'Настольные игры', href: 'board-games/index.html', icon: 'fas fa-dice-d6' },
+                { name: 'Настольные игры', href: 'boardgames/index.html', icon: 'fas fa-dice-d6' },
                 { name: 'Спидкубинг', href: 'speedcubing/index.html', icon: 'fas fa-cube' }
             ]
         },
@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     ];
 
-    // ===== ПОСТРОЕНИЕ МЕНЮ (ДЕСКТОП/МОБИЛЬНОЕ) =====
+    // ===== ПОСТРОЕНИЕ МЕНЮ =====
     const nav = document.getElementById('nav');
     const menuToggle = document.getElementById('menuToggle');
 
@@ -57,7 +57,6 @@ document.addEventListener('DOMContentLoaded', function() {
         html += `</ul>`;
         nav.innerHTML = html;
 
-        // Логика раскрытия по ховеру
         const categories = nav.querySelectorAll('.desktop-category');
         let closeTimeout;
         categories.forEach(category => {
@@ -126,17 +125,13 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // ===== ПОИСК В ШАПКЕ =====
+    // ===== ПОИСК =====
     const searchIcon = document.getElementById('searchIcon');
     const searchPopup = document.getElementById('searchPopup');
     if (searchIcon && searchPopup) {
         searchIcon.addEventListener('click', function(e) {
             e.stopPropagation();
             searchPopup.classList.toggle('active');
-            const searchInput = searchPopup.querySelector('input[type="text"]');
-            if (searchInput && searchPopup.classList.contains('active')) {
-                setTimeout(() => searchInput.focus(), 100);
-            }
         });
         document.addEventListener('click', function(event) {
             if (!searchIcon.contains(event.target) && !searchPopup.contains(event.target)) {
@@ -144,60 +139,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-
-    // ===== FAQ АККОРДЕОН =====
-    const faqQuestions = document.querySelectorAll('.faq-question');
-    faqQuestions.forEach(question => {
-        question.addEventListener('click', () => {
-            const answer = question.nextElementSibling;
-            const isActive = question.classList.contains('active');
-            faqQuestions.forEach(q => {
-                q.classList.remove('active');
-                if (q.nextElementSibling) q.nextElementSibling.classList.remove('show');
-            });
-            if (!isActive) {
-                question.classList.add('active');
-                if (answer) answer.classList.add('show');
-            }
-        });
-    });
-
-    // ===== КНОПКА "НАВЕРХ" =====
-    function initBackToTop() {
-        const backBtn = document.createElement('a');
-        backBtn.href = '#';
-        backBtn.className = 'back-to-top';
-        backBtn.innerHTML = '<i class="fas fa-chevron-up"></i>';
-        document.body.appendChild(backBtn);
-        
-        backBtn.style.cssText = `
-            position: fixed; bottom: 20px; right: 20px;
-            background: linear-gradient(135deg, #e5989b, #b5838d);
-            color: #fff; width: 50px; height: 50px;
-            border-radius: 50%; display: flex;
-            align-items: center; justify-content: center;
-            text-decoration: none; font-size: 24px;
-            opacity: 0; visibility: hidden;
-            transition: all 0.3s ease; z-index: 99999;
-            cursor: pointer; border: none;
-        `;
-        
-        window.addEventListener('scroll', () => {
-            if (window.pageYOffset > 100) {
-                backBtn.style.opacity = '1';
-                backBtn.style.visibility = 'visible';
-            } else {
-                backBtn.style.opacity = '0';
-                backBtn.style.visibility = 'hidden';
-            }
-        });
-        
-        backBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        });
-    }
-    initBackToTop();
 
     // ===== ТЕКУЩИЙ ГОД В ПОДВАЛЕ =====
     const yearSpan = document.getElementById('current-year');
