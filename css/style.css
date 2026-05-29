@@ -1,10 +1,8 @@
 /* КНИЖНЫЕ ГРАНИ — PREMIUM EDITORIAL DESIGN */
 :root {
     --bg-primary: #f8f8f6;
-    --bg-secondary: #f0f0ed;
     --accent-coral: #e85d4a;
     --accent-coral-light: #f5d6d1;
-    --accent-orange: #e09d5e;
     --text-dark: #1a1a1c;
     --text-medium: #4a4a4e;
     --text-light: #8a8a8e;
@@ -22,9 +20,9 @@
 body {
     background: var(--bg-primary);
     color: var(--text-dark);
-    font-family: 'Space Grotesk', 'Inter', sans-serif;
+    font-family: 'Space Grotesk', 'Inter', -apple-system, sans-serif;
     font-weight: 400;
-    line-height: 1.3;
+    line-height: 1.4;
 }
 
 .container {
@@ -37,7 +35,7 @@ body {
 h1, h2, h3, .title-large {
     font-weight: 600;
     letter-spacing: -0.02em;
-    line-height: 0.95;
+    line-height: 1;
 }
 
 .section-label {
@@ -166,19 +164,19 @@ header {
     color: var(--accent-coral);
 }
 
-/* ===== ГЕРОЙ (АСИММЕТРИЧНЫЙ) ===== */
+/* ===== ГЕРОЙ ===== */
 .hero {
-    padding: 6rem 0 4rem;
+    padding: 5rem 0;
 }
 
 .hero-grid {
     display: grid;
-    grid-template-columns: 1fr 0.9fr;
+    grid-template-columns: 1fr 0.8fr;
     gap: 4rem;
 }
 
 .hero h1 {
-    font-size: 4.5rem;
+    font-size: 4rem;
     font-weight: 650;
     margin-bottom: 1.5rem;
 }
@@ -186,15 +184,14 @@ header {
 .hero h1 span {
     color: var(--accent-coral);
     display: block;
-    font-size: 3rem;
 }
 
 .hero-lead {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     text-transform: uppercase;
     letter-spacing: 0.1em;
     color: var(--text-light);
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
     border-left: 2px solid var(--accent-coral);
     padding-left: 1rem;
 }
@@ -210,13 +207,14 @@ header {
 .hero-buttons {
     display: flex;
     gap: 1rem;
+    flex-wrap: wrap;
 }
 
-/* ВЕРТИКАЛЬНЫЙ ТЕКСТ */
+/* Вертикальный текст */
 .hero-vertical {
     text-align: right;
     writing-mode: vertical-rl;
-    rotate: 180deg;
+    transform: rotate(180deg);
     font-size: 0.7rem;
     letter-spacing: 0.15em;
     text-transform: uppercase;
@@ -228,7 +226,7 @@ header {
 /* ===== КНОПКИ ===== */
 .btn {
     display: inline-block;
-    padding: 0.7rem 1.8rem;
+    padding: 0.75rem 1.8rem;
     background: transparent;
     border: 1px solid var(--border-line);
     color: var(--text-dark);
@@ -237,7 +235,7 @@ header {
     font-size: 0.7rem;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    transition: all 0.3s;
+    transition: all 0.3s ease;
     cursor: pointer;
 }
 
@@ -259,7 +257,7 @@ header {
 
 /* ===== СЕКЦИИ ===== */
 .section {
-    padding: 5rem 0;
+    padding: 4rem 0;
     border-top: 1px solid var(--border-line);
 }
 
@@ -269,11 +267,11 @@ header {
     align-items: baseline;
     flex-wrap: wrap;
     gap: 1rem;
-    margin-bottom: 3rem;
+    margin-bottom: 2.5rem;
 }
 
 .section-title {
-    font-size: 2.8rem;
+    font-size: 2.5rem;
     font-weight: 600;
     letter-spacing: -0.02em;
 }
@@ -282,7 +280,6 @@ header {
     font-size: 0.9rem;
     color: var(--text-light);
     font-weight: 400;
-    letter-spacing: normal;
 }
 
 .section-link {
@@ -301,7 +298,7 @@ header {
     border-bottom-color: var(--accent-coral);
 }
 
-/* ===== КАРТОЧКИ (МИНИМАЛЬНЫЕ) ===== */
+/* ===== КАРТОЧКИ ===== */
 .events-grid,
 .directions-grid,
 .team-grid {
@@ -315,8 +312,8 @@ header {
 .team-card {
     background: var(--card-bg);
     border: 1px solid var(--border-line);
-    padding: 1.8rem;
-    transition: all 0.3s;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
 }
 
 .event-card:hover,
@@ -331,14 +328,14 @@ header {
     color: var(--accent-coral);
     letter-spacing: 0.15em;
     text-transform: uppercase;
-    margin-bottom: 1rem;
+    margin-bottom: 0.8rem;
 }
 
 .event-date {
     font-size: 0.7rem;
     color: var(--text-light);
     text-transform: uppercase;
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.7rem;
 }
 
 .event-card h3,
@@ -346,7 +343,7 @@ header {
 .team-card h3 {
     font-size: 1.2rem;
     font-weight: 550;
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.7rem;
 }
 
 .event-card p,
@@ -366,6 +363,8 @@ header {
 /* ===== КОМАНДА ===== */
 .team-card {
     text-align: center;
+    padding: 0 0 1.5rem 0;
+    overflow: hidden;
 }
 
 .team-card img {
@@ -425,7 +424,6 @@ header {
 
 .faq-item {
     border-bottom: 1px solid var(--border-line);
-    margin-bottom: 0;
 }
 
 .faq-question {
@@ -436,7 +434,6 @@ header {
     align-items: center;
     font-weight: 500;
     font-size: 0.9rem;
-    letter-spacing: -0.01em;
 }
 
 .faq-question i {
@@ -578,7 +575,6 @@ footer {
     }
     
     .hero h1 span {
-        font-size: 2rem;
         display: inline;
     }
     
@@ -586,8 +582,12 @@ footer {
         display: none;
     }
     
+    .hero-desc {
+        max-width: 100%;
+    }
+    
     .section-title {
-        font-size: 2.2rem;
+        font-size: 2rem;
     }
     
     .footer-grid {
@@ -596,10 +596,6 @@ footer {
 }
 
 @media (max-width: 768px) {
-    .container {
-        padding: 0 1.2rem;
-    }
-    
     .menu-toggle {
         display: block;
     }
@@ -653,34 +649,29 @@ footer {
     }
     
     .hero h1 {
-        font-size: 2.2rem;
-    }
-    
-    .hero-desc {
-        max-width: 100%;
-    }
-    
-    .hero-buttons {
-        flex-direction: column;
-        gap: 0.8rem;
-    }
-    
-    .btn {
-        text-align: center;
+        font-size: 2rem;
     }
     
     .section {
-        padding: 3rem 0;
+        padding: 2.5rem 0;
     }
     
     .section-title {
-        font-size: 1.8rem;
+        font-size: 1.6rem;
     }
     
     .events-grid,
     .directions-grid,
     .team-grid {
         grid-template-columns: 1fr;
+    }
+    
+    .hero-buttons {
+        flex-direction: column;
+    }
+    
+    .btn {
+        text-align: center;
     }
     
     .footer-grid {
@@ -695,14 +686,10 @@ footer {
 
 @media (max-width: 480px) {
     .hero h1 {
-        font-size: 1.8rem;
+        font-size: 1.6rem;
     }
     
     .section-title {
-        font-size: 1.5rem;
-    }
-    
-    .event-card h3 {
-        font-size: 1rem;
+        font-size: 1.3rem;
     }
 }
