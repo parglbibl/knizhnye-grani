@@ -2,7 +2,6 @@
 
 document.addEventListener('DOMContentLoaded', function() {
 
-    // ===== КАТЕГОРИИ МЕНЮ =====
     const menuCategories = [
         {
             title: 'О проекте',
@@ -33,7 +32,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     ];
 
-    // ===== ПОСТРОЕНИЕ МЕНЮ =====
     const nav = document.getElementById('nav');
     const menuToggle = document.getElementById('menuToggle');
 
@@ -125,22 +123,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // ===== ПОИСК =====
-    const searchIcon = document.getElementById('searchIcon');
-    const searchPopup = document.getElementById('searchPopup');
-    if (searchIcon && searchPopup) {
-        searchIcon.addEventListener('click', function(e) {
-            e.stopPropagation();
-            searchPopup.classList.toggle('active');
-        });
-        document.addEventListener('click', function(event) {
-            if (!searchIcon.contains(event.target) && !searchPopup.contains(event.target)) {
-                searchPopup.classList.remove('active');
-            }
-        });
-    }
-
-    // ===== ТЕКУЩИЙ ГОД В ПОДВАЛЕ =====
     const yearSpan = document.getElementById('current-year');
     if (yearSpan) yearSpan.textContent = new Date().getFullYear();
 
