@@ -1,24 +1,9 @@
-// main.js — Книжные грани (Cyber Brutalism)
+// main.js — Книжные грани (Premium Editorial Design)
 
 document.addEventListener('DOMContentLoaded', function() {
 
-    // ===== ДОБАВЛЯЕМ ЦИФРОВОЙ ШУМ, ГЛИТЧ И СЕТКУ АВТОМАТИЧЕСКИ =====
+    // ===== ДОБАВЛЯЕМ СЕТКУ АВТОМАТИЧЕСКИ =====
     (function() {
-        // Цифровой шум
-        if (!document.querySelector('.digital-noise')) {
-            const noise = document.createElement('div');
-            noise.className = 'digital-noise';
-            document.body.insertBefore(noise, document.body.firstChild);
-        }
-        
-        // Глитч-оверлей
-        if (!document.querySelector('.glitch-overlay')) {
-            const glitch = document.createElement('div');
-            glitch.className = 'glitch-overlay';
-            document.body.insertBefore(glitch, document.body.firstChild);
-        }
-        
-        // Сетка
         if (!document.querySelector('.grid-overlay')) {
             const grid = document.createElement('div');
             grid.className = 'grid-overlay';
@@ -107,18 +92,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // ===== GLITCH-ЭФФЕКТ ПРИ НАВЕДЕНИИ НА КНОПКИ =====
-    const glitchBtns = document.querySelectorAll('.btn');
-    glitchBtns.forEach(btn => {
-        btn.addEventListener('mouseenter', () => {
-            btn.style.transform = 'skewX(-2deg)';
-        });
-        btn.addEventListener('mouseleave', () => {
-            btn.style.transform = 'skewX(0)';
-        });
-    });
-
-    // ===== FADE-IN ПРИ СКРОЛЛЕ (ДЛЯ КАРТОЧЕК) =====
+    // ===== ПЛАВНОЕ ПОЯВЛЕНИЕ КАРТОЧЕК ПРИ СКРОЛЛЕ =====
     const fadeElements = document.querySelectorAll('.event-card, .direction-card, .team-card, .partner-item');
     
     const observer = new IntersectionObserver((entries) => {
@@ -129,13 +103,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 observer.unobserve(entry.target);
             }
         });
-    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+    }, { threshold: 0.1, rootMargin: '0px 0px -30px 0px' });
 
     fadeElements.forEach(el => {
         el.style.opacity = '0';
-        el.style.transform = 'translateY(30px)';
-        el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        el.style.transform = 'translateY(25px)';
+        el.style.transition = 'opacity 0.5s cubic-bezier(0.2, 0.9, 0.4, 1), transform 0.5s cubic-bezier(0.2, 0.9, 0.4, 1)';
         observer.observe(el);
+    });
+
+    // ===== ЛЁГКИЙ GLITCH ПРИ НАВЕДЕНИИ НА КНОПКИ =====
+    const glitchBtns = document.querySelectorAll('.btn');
+    glitchBtns.forEach(btn => {
+        btn.addEventListener('mouseenter', () => {
+            btn.style.transform = 'translateY(-2px)';
+        });
+        btn.addEventListener('mouseleave', () => {
+            btn.style.transform = 'translateY(0)';
+        });
     });
 
     // ===== FAQ АККОРДЕОН =====
@@ -209,14 +194,13 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // ===== ЭФФЕКТ ПЕЧАТИ ДЛЯ ЗАГОЛОВКОВ (по желанию) =====
+    // ===== АНИМАЦИЯ ПОЯВЛЕНИЯ ЗАГОЛОВКА =====
     const heroTitle = document.querySelector('.hero h1');
-    if (heroTitle && !heroTitle.hasAttribute('data-typed')) {
-        heroTitle.setAttribute('data-typed', 'true');
-        // Небольшой эффект появления для заголовка
+    if (heroTitle && !heroTitle.hasAttribute('data-animated')) {
+        heroTitle.setAttribute('data-animated', 'true');
         heroTitle.style.opacity = '0';
         heroTitle.style.transform = 'translateY(20px)';
-        heroTitle.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+        heroTitle.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
         setTimeout(() => {
             heroTitle.style.opacity = '1';
             heroTitle.style.transform = 'translateY(0)';
