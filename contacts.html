@@ -13,20 +13,23 @@
 <header>
     <div class="container header-inner">
         <div class="logo">
-            <img src="images/logo-cbs.png" alt="ЦБС" style="height: 50px;">
-            <img src="images/logo-rost.png" alt="РОСТ" style="height: 50px; margin-left: 15px;">
+            <div class="logo-box"></div>
+            <span class="logo-text">КНИЖНЫЕ ГРАНИ</span>
         </div>
-        <div class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></div>
-        <nav class="nav" id="nav">
-            <ul>
-                <li><a href="index.html">Главная</a></li>
-                <li><a href="about.html">О проекте</a></li>
-                <li><a href="organizers.html">Организаторы</a></li>
-                <li><a href="events.html">Мероприятия</a></li>
-                <li><a href="partners.html">Партнёры</a></li>
-                <li><a href="contacts.html">Контакты</a></li>
-            </ul>
-        </nav>
+        <div class="menu-toggle" id="menuToggle">
+            <i class="fas fa-bars"></i>
+        </div>
+        <div class="search-icon-container">
+            <i class="fas fa-search" id="searchIcon"></i>
+            <div class="search-popup" id="searchPopup">
+                <form action="https://yandex.ru/search/" method="get" target="_blank">
+                    <input type="hidden" name="site" value="knizhnye-grani">
+                    <input type="text" name="text" placeholder="Поиск по сайту...">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </form>
+            </div>
+        </div>
+        <nav class="nav" id="nav"></nav>
     </div>
 </header>
 
@@ -35,16 +38,15 @@
         <h1 class="section-title">Контакты</h1>
 
         <div style="max-width: 800px; margin: 0 auto;">
-            <div style="background: #fff; border-radius: 24px; padding: 2rem; margin-bottom: 2rem;">
-                <h2 style="color: #1e2a47; margin-bottom: 1.5rem;">Проектный офис «РОСТ»</h2>
-                <p style="margin-bottom: 1rem;"><i class="fas fa-map-marker-alt" style="color: #f5a623; width: 30px;"></i> пр. Просвещения, д. 43 (ТРК Парк-Молл, 2 этаж, библиотека «Мастерская»)</p>
-                <p style="margin-bottom: 1rem;"><i class="fas fa-phone-alt" style="color: #f5a623; width: 30px;"></i> +7 (812) 246-93-05</p>
-                <p style="margin-bottom: 1rem;"><i class="fas fa-envelope" style="color: #f5a623; width: 30px;"></i> pargolovo@cbsvib.ru</p>
-                <p style="margin-bottom: 1rem;"><i class="fab fa-vk" style="color: #f5a623; width: 30px;"></i> vk.com/pargolovskaya_library</p>
+            <div style="background: #fff; border-radius: 24px; padding: 2rem; margin-bottom: 2rem; border: 1px solid rgba(0,0,0,0.05);">
+                <h2 style="color: var(--neon-coral); margin-bottom: 1.5rem;">Проектный офис «РОСТ»</h2>
+                <p style="margin-bottom: 1rem;"><i class="fas fa-map-marker-alt" style="color: #ff2e5a; width: 30px;"></i> пр. Просвещения, д. 43 (ТРК Парк-Молл, 2 этаж, библиотека «Мастерская»)</p>
+                <p style="margin-bottom: 1rem;"><i class="fas fa-phone-alt" style="color: #ff2e5a; width: 30px;"></i> +7 (812) 246-93-05</p>
+                <p style="margin-bottom: 1rem;"><i class="fas fa-envelope" style="color: #ff2e5a; width: 30px;"></i> pargolovo@cbsvib.ru</p>
+                <p><i class="fab fa-vk" style="color: #ff2e5a; width: 30px;"></i> vk.com/pargolovskaya_library</p>
             </div>
 
-            <!-- Карта -->
-            <div style="background: #fff; border-radius: 24px; padding: 1rem;">
+            <div style="background: #fff; border-radius: 24px; padding: 1rem; border: 1px solid rgba(0,0,0,0.05);">
                 <h3 style="margin-bottom: 1rem; text-align: center;">Как нас найти</h3>
                 <div style="position: relative; overflow: hidden; border-radius: 16px;">
                     <iframe 
@@ -57,8 +59,7 @@
                 </div>
                 <p style="text-align: center; margin-top: 1rem;">
                     <a href="https://yandex.ru/maps/2/saint-petersburg/house/prospekt_prosveshcheniya_43/Z0kYdARmT0QFQFtjfXVycnhmYQ==/" 
-                       target="_blank" 
-                       style="color: #f5a623; text-decoration: none;">
+                       target="_blank" style="color: #ff2e5a; text-decoration: none;">
                         Открыть в Яндекс.Картах →
                     </a>
                 </p>
@@ -73,16 +74,24 @@
             <div class="footer-col">
                 <h3>Книжные грани</h3>
                 <p>Проект ЦБС Выборгского района</p>
-            </div>
-            <div class="footer-col">
-                <h3>Контакты</h3>
                 <p>пр. Просвещения, 43 (ТРК Парк-Молл)</p>
                 <p>+7 (812) 246-93-05</p>
                 <p>pargolovo@cbsvib.ru</p>
             </div>
             <div class="footer-col">
+                <h3>Разделы</h3>
+                <p><a href="index.html">Главная</a></p>
+                <p><a href="about.html">О проекте</a></p>
+                <p><a href="events.html">Мероприятия</a></p>
+                <p><a href="contacts.html">Контакты</a></p>
+            </div>
+            <div class="footer-col">
                 <h3>Мы в соцсетях</h3>
-                <a href="#"><i class="fab fa-vk"></i></a>
+                <div class="footer-social">
+                    <a href="https://vk.com/pargolovskaya_library" target="_blank"><i class="fab fa-vk"></i></a>
+                    <a href="#" target="_blank"><i class="fab fa-telegram"></i></a>
+                </div>
+                <p style="margin-top:1.5rem;">Подпишитесь на новости!</p>
             </div>
         </div>
         <div class="footer-bottom">
