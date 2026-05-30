@@ -13,20 +13,23 @@
 <header>
     <div class="container header-inner">
         <div class="logo">
-            <img src="../images/logo-cbs.png" alt="ЦБС" style="height: 50px;">
-            <img src="../images/logo-rost.png" alt="РОСТ" style="height: 50px; margin-left: 15px;">
+            <div class="logo-box"></div>
+            <span class="logo-text">КНИЖНЫЕ ГРАНИ</span>
         </div>
-        <div class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></div>
-        <nav class="nav" id="nav">
-            <ul>
-                <li><a href="../index.html">Главная</a></li>
-                <li><a href="../about.html">О проекте</a></li>
-                <li><a href="../organizers.html">Организаторы</a></li>
-                <li><a href="../events.html">Мероприятия</a></li>
-                <li><a href="../partners.html">Партнёры</a></li>
-                <li><a href="../contacts.html">Контакты</a></li>
-            </ul>
-        </nav>
+        <div class="menu-toggle" id="menuToggle">
+            <i class="fas fa-bars"></i>
+        </div>
+        <div class="search-icon-container">
+            <i class="fas fa-search" id="searchIcon"></i>
+            <div class="search-popup" id="searchPopup">
+                <form action="https://yandex.ru/search/" method="get" target="_blank">
+                    <input type="hidden" name="site" value="knizhnye-grani">
+                    <input type="text" name="text" placeholder="Поиск по сайту...">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </form>
+            </div>
+        </div>
+        <nav class="nav" id="nav"></nav>
     </div>
 </header>
 
@@ -36,16 +39,19 @@
 
         <div class="events-grid">
             <div class="event-card">
+                <div class="event-number">01</div>
                 <div class="event-date">Май 2026</div>
                 <h3>В коллекции +5 новых игр!</h3>
                 <p>Пополнили нашу игротеку. Теперь доступны: "Бэнг!", "Цитадели", "Свинтус", "Диксит" и "Манчкин: Апокалипсис". Ждём вас на субботних играх!</p>
             </div>
             <div class="event-card">
+                <div class="event-number">02</div>
                 <div class="event-date">Апрель 2026</div>
                 <h3>Турнир по «Колонизаторам»</h3>
                 <p>В субботу прошёл первый турнир по настольной стратегии. Участники получили дипломы и призы от партнёров. Следующий турнир — в июне!</p>
             </div>
             <div class="event-card">
+                <div class="event-number">03</div>
                 <div class="event-date">Март 2026</div>
                 <h3>Игротека расширяется</h3>
                 <p>Теперь мы открыты каждую субботу с 15:00 до 19:00. Приходите всей семьёй — вход свободный!</p>
@@ -60,16 +66,24 @@
             <div class="footer-col">
                 <h3>Книжные грани</h3>
                 <p>Проект ЦБС Выборгского района</p>
-            </div>
-            <div class="footer-col">
-                <h3>Контакты</h3>
                 <p>пр. Просвещения, 43 (ТРК Парк-Молл)</p>
                 <p>+7 (812) 246-93-05</p>
                 <p>pargolovo@cbsvib.ru</p>
             </div>
             <div class="footer-col">
+                <h3>Разделы</h3>
+                <p><a href="../index.html">Главная</a></p>
+                <p><a href="../about.html">О проекте</a></p>
+                <p><a href="../events.html">Мероприятия</a></p>
+                <p><a href="../contacts.html">Контакты</a></p>
+            </div>
+            <div class="footer-col">
                 <h3>Мы в соцсетях</h3>
-                <a href="#"><i class="fab fa-vk"></i></a>
+                <div class="footer-social">
+                    <a href="https://vk.com/pargolovskaya_library" target="_blank"><i class="fab fa-vk"></i></a>
+                    <a href="#" target="_blank"><i class="fab fa-telegram"></i></a>
+                </div>
+                <p style="margin-top:1.5rem;">Подпишитесь на новости!</p>
             </div>
         </div>
         <div class="footer-bottom">
