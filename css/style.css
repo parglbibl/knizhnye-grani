@@ -1,4 +1,4 @@
-/* КНИЖНЫЕ ГРАНИ — МОЛОЧНЫЙ ФОН, ТЁМНЫЕ КАРТОЧКИ, БЕЗ ШУМА */
+/* КНИЖНЫЕ ГРАНИ — МОЛОЧНЫЙ ФОН, ТЁМНЫЕ КАРТОЧКИ, УВЕЛИЧЕННЫЕ ОТСТУПЫ, ЕДИНЫЙ СТИЛЬ КНОПОК */
 :root {
     --neon-coral: #ff2e5a;
     --neon-coral-glow: rgba(255, 46, 90, 0.3);
@@ -196,7 +196,7 @@ header {
     font-size: 1.1rem;
     color: var(--text-secondary);
     max-width: 700px;
-    margin: 0 auto 3rem;
+    margin: 0 auto 4rem;  /* УВЕЛИЧЕНО расстояние до кнопок */
 }
 
 .hero-buttons {
@@ -206,7 +206,7 @@ header {
     flex-wrap: wrap;
 }
 
-/* ===== КНОПКИ ===== */
+/* ===== КНОПКИ (ЕДИНЫЙ СТИЛЬ — ТОЛЬКО ОБВОДКА, АНИМАЦИЯ ПРИ НАВЕДЕНИИ) ===== */
 .btn {
     display: inline-block;
     padding: 1rem 2.5rem;
@@ -222,6 +222,7 @@ header {
     cursor: pointer;
     position: relative;
     overflow: hidden;
+    z-index: 1;
 }
 
 .btn::before {
@@ -244,22 +245,33 @@ header {
     left: 0;
 }
 
+/* Убираем особый стиль для btn-primary, делаем все кнопки одинаковыми */
 .btn-primary {
-    background: var(--neon-coral);
-    color: #fff;
+    background: transparent;
+    color: var(--neon-coral);
 }
 
 .btn-primary::before {
-    display: none;
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: var(--neon-coral);
+    transition: left 0.3s;
+    z-index: -1;
 }
 
 .btn-primary:hover {
-    background: transparent;
-    color: var(--neon-coral);
-    box-shadow: 0 0 20px var(--neon-coral-glow);
+    color: #fff;
 }
 
-/* ===== СЕКЦИИ ===== */
+.btn-primary:hover::before {
+    left: 0;
+}
+
+/* ===== СЕКЦИИ (УВЕЛИЧЕНЫ ОТСТУПЫ) ===== */
 .section {
     padding: 7rem 0;
     border-top: 1px solid rgba(0,0,0,0.05);
@@ -636,7 +648,7 @@ footer {
     }
     .hero-desc {
         font-size: 1rem;
-        margin-bottom: 2rem;
+        margin-bottom: 2.5rem;
     }
     .hero-buttons {
         gap: 1rem;
