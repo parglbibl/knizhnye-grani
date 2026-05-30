@@ -356,8 +356,9 @@ header {
     }
     
     .search-icon-container {
-        margin-left: auto;
-        margin-right: 0.6rem;
+        display: block;
+        margin-left: 5.5rem;
+        margin-right: 0;
     }
 }
 
