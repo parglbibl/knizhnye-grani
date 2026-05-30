@@ -761,3 +761,14 @@ footer {
     opacity: 1;
     transform: translateY(0);
 }
+
+/* ===== ПРИБЛИЖАЕМ БУРГЕР К ПОИСКУ ===== */
+@media (max-width: 768px) {
+    .menu-toggle {
+        margin-right: 0.25rem;
+    }
+    
+    .search-icon-container {
+        margin-left: 0;
+    }
+}
