@@ -5,7 +5,7 @@
     --neon-blue: #00d4ff;
     --graphite-deep: #fef9f0;
     --graphite-dark: #1e2a3a;
-    --graphite-card: #0f1a2f;
+    --graphite-card: #1e2a47;
     --text-primary: #111111;
     --text-secondary: #555566;
     --card-text: #e0e4f0;
@@ -198,7 +198,7 @@ header {
     font-size: 1.1rem;
     color: var(--text-secondary);
     max-width: 700px;
-    margin: 0 auto 4rem;
+    margin: 0 auto 6rem;
 }
 
 .hero-buttons {
@@ -206,6 +206,7 @@ header {
     gap: 2rem;
     justify-content: center;
     flex-wrap: wrap;
+    margin-top: 1rem;
 }
 
 /* ===== КНОПКИ ===== */
