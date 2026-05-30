@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Книжные грани — спидкубинг и настольные игры в библиотеке</title>
+    <title>Книжные грани — спидкубинг и настольные игры</title>
     <meta name="description" content="Книжные грани — место встречи любителей настольных игр и спидкубинга. Бесплатно, без подготовки, без компании. Ждём вас!">
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -14,11 +14,21 @@
 <header>
     <div class="container header-inner">
         <div class="logo">
-            <img src="images/logo-cbs.png" alt="ЦБС" style="height: 50px;">
-            <img src="images/logo-rost.png" alt="РОСТ" style="height: 50px; margin-left: 15px;">
+            <div class="logo-box"></div>
+            <span class="logo-text">КНИЖНЫЕ ГРАНИ</span>
         </div>
         <div class="menu-toggle" id="menuToggle">
             <i class="fas fa-bars"></i>
+        </div>
+        <div class="search-icon-container">
+            <i class="fas fa-search" id="searchIcon"></i>
+            <div class="search-popup" id="searchPopup">
+                <form action="https://yandex.ru/search/" method="get" target="_blank">
+                    <input type="hidden" name="site" value="knizhnye-grani">
+                    <input type="text" name="text" placeholder="Поиск по сайту...">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </form>
+            </div>
         </div>
         <nav class="nav" id="nav"></nav>
     </div>
@@ -26,11 +36,12 @@
 
 <section class="hero">
     <div class="container">
-        <h1>Книжные грани</h1>
-        <p>Точка доступа к интеллектуальному досугу без финансового и социального порога</p>
+        <h1>КНИЖНЫЕ <span>ГРАНИ</span></h1>
+        <div class="hero-lead">Книжные грани</div>
+        <div class="hero-desc">Точка доступа к интеллектуальному досугу без финансового и социального порога</div>
         <div class="hero-buttons">
-            <a href="boardgames/index.html" class="btn btn-primary">Настольные игры</a>
-            <a href="speedcubing/index.html" class="btn btn-secondary">Кубик Рубика</a>
+            <a href="boardgames/index.html" class="btn btn-primary">НАСТОЛЬНЫЕ ИГРЫ</a>
+            <a href="speedcubing/index.html" class="btn btn-secondary">КУБИК РУБИКА</a>
         </div>
     </div>
 </section>
@@ -38,9 +49,11 @@
 <section class="section">
     <div class="container">
         <h2 class="section-title">О проекте</h2>
-        <div class="about-short" style="max-width: 800px; margin: 0 auto; text-align: center;">
+        <div class="section-text">
             <p>Проект объединяет два направления: спидкубинг и настольные игры, создавая на базе библиотеки место встречи, тренировок, обмена опытом и проведения масштабных событий.</p>
-            <a href="about.html" class="btn btn-outline" style="margin-top: 1rem;">Подробнее</a>
+        </div>
+        <div style="text-align: center;">
+            <a href="about.html" class="btn btn-outline">ПОДРОБНЕЕ</a>
         </div>
     </div>
 </section>
@@ -50,18 +63,24 @@
         <h2 class="section-title">Ближайшие события</h2>
         <div class="events-grid">
             <div class="event-card">
+                <div class="event-number">01</div>
                 <div class="event-date">17 июня 15:00-19:00</div>
                 <h3>Игротека «Книжные грани»</h3>
+                <p>Настольные игры для всех возрастов. Приходите с друзьями или одни — мы найдём компанию!</p>
                 <a href="events.html" class="btn btn-sm">Записаться</a>
             </div>
             <div class="event-card">
+                <div class="event-number">02</div>
                 <div class="event-date">1 июня 15:00-19:00</div>
                 <h3>Турнир по спидкубингу</h3>
+                <p>Соревнования по скоростной сборке кубика Рубика. Призы и подарки победителям!</p>
                 <a href="events.html" class="btn btn-sm">Записаться</a>
             </div>
             <div class="event-card">
+                <div class="event-number">03</div>
                 <div class="event-date">24 июня 15:00-19:00</div>
                 <h3>Мастер-класс по сборке кубика</h3>
+                <p>Научитесь собирать кубик Рубика за 1 день. Для начинающих и продолжающих.</p>
                 <a href="events.html" class="btn btn-sm">Записаться</a>
             </div>
         </div>
@@ -96,16 +115,24 @@
             <div class="footer-col">
                 <h3>Книжные грани</h3>
                 <p>Проект ЦБС Выборгского района</p>
-            </div>
-            <div class="footer-col">
-                <h3>Контакты</h3>
                 <p>пр. Просвещения, 43 (ТРК Парк-Молл)</p>
                 <p>+7 (812) 246-93-05</p>
                 <p>pargolovo@cbsvib.ru</p>
             </div>
             <div class="footer-col">
+                <h3>Разделы</h3>
+                <p><a href="index.html">Главная</a></p>
+                <p><a href="about.html">О проекте</a></p>
+                <p><a href="events.html">Мероприятия</a></p>
+                <p><a href="contacts.html">Контакты</a></p>
+            </div>
+            <div class="footer-col">
                 <h3>Мы в соцсетях</h3>
-                <a href="#"><i class="fab fa-vk"></i></a>
+                <div class="footer-social">
+                    <a href="https://vk.com/pargolovskaya_library" target="_blank"><i class="fab fa-vk"></i></a>
+                    <a href="#" target="_blank"><i class="fab fa-telegram"></i></a>
+                </div>
+                <p style="margin-top:1.5rem;">Подпишитесь на новости!</p>
             </div>
         </div>
         <div class="footer-bottom">
