@@ -352,6 +352,15 @@ header {
         background: transparent;
         color: var(--neon-coral);
     }
+    
+    /* ПРИБЛИЖАЕМ БУРГЕР К ПОИСКУ */
+    .menu-toggle {
+        margin-right: 0;
+    }
+    
+    .search-icon-container {
+        margin-left: 0;
+    }
 }
 
 /* ===== ОСТАЛЬНЫЕ СТИЛИ ===== */
@@ -760,15 +769,4 @@ footer {
 .event-card.visible, .direction-card.visible, .team-card.visible, .partner-item.visible {
     opacity: 1;
     transform: translateY(0);
-}
-
-/* ===== ПРИБЛИЖАЕМ БУРГЕР К ПОИСКУ ===== */
-@media (max-width: 768px) {
-    .menu-toggle {
-        margin-right: 0;
-    }
-    
-    .search-icon-container {
-        margin-left: 0;
-    }
 }
