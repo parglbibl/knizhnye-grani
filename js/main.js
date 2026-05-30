@@ -1,4 +1,4 @@
-// main.js — Книжные грани (финальная версия с простым пунктом Главная и иконками в подменю)
+// main.js — Книжные грани (финальная версия с Главной по центру)
 
 document.addEventListener('DOMContentLoaded', function() {
 
@@ -110,8 +110,8 @@ document.addEventListener('DOMContentLoaded', function() {
     if (navContainer) {
         const currentFile = path.split('/').pop() || 'index.html';
         
-        // Структура меню: простой пункт Главная + выпадающие списки с иконками
-        const menuData = [
+        // Структура меню: все пункты в одном списке (без отдельного simple-menu-item)
+        const menuItems = [
             {
                 type: 'simple',
                 title: 'Главная',
@@ -119,15 +119,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 href: prefix + 'index.html'
             },
             {
+                type: 'dropdown',
                 title: 'О проекте',
                 icon: 'fas fa-info-circle',
                 items: [
                     { name: 'О проекте', href: prefix + 'about.html', icon: 'fas fa-info-circle' },
-                    { name: 'Организатори', href: prefix + 'organizers.html', icon: 'fas fa-building' },
+                    { name: 'Организаторы', href: prefix + 'organizers.html', icon: 'fas fa-building' },
                     { name: 'Команда', href: prefix + 'team.html', icon: 'fas fa-users' }
                 ]
             },
             {
+                type: 'dropdown',
                 title: 'Мероприятия',
                 icon: 'fas fa-calendar-alt',
                 items: [
@@ -137,6 +139,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 ]
             },
             {
+                type: 'dropdown',
                 title: 'Участие',
                 icon: 'fas fa-handshake',
                 items: [
@@ -149,9 +152,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         let html = '<ul class="desktop-menu">';
         
-        menuData.forEach(item => {
+        menuItems.forEach(item => {
             if (item.type === 'simple') {
-                // Простой пункт меню без подменю
                 const isActive = (item.href === currentFile);
                 html += `<li class="simple-menu-item">
                             <a href="${item.href}" class="${isActive ? 'active' : ''}">
@@ -159,7 +161,6 @@ document.addEventListener('DOMContentLoaded', function() {
                             </a>
                         </li>`;
             } else {
-                // Выпадающий список
                 let isCategoryActive = item.items.some(sub => sub.href === currentFile);
                 html += `<li class="dropdown">
                             <div class="dropdown-title ${isCategoryActive ? 'active' : ''}">
@@ -179,9 +180,13 @@ document.addEventListener('DOMContentLoaded', function() {
         html += '</ul>';
         navContainer.innerHTML = html;
         
-        // Добавляем стили для простого пункта меню
+        // Стили для простого пункта, чтобы он был как все остальные
         const style = document.createElement('style');
         style.textContent = `
+            .simple-menu-item {
+                display: flex;
+                align-items: center;
+            }
             .simple-menu-item a {
                 display: flex;
                 align-items: center;
@@ -206,6 +211,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     padding: 0.8rem 0;
                     justify-content: space-between;
                     border-top: 1px solid rgba(0,0,0,0.05);
+                }
+                .simple-menu-item {
+                    width: 100%;
                 }
             }
         `;
