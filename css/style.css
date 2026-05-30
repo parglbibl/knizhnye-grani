@@ -1,4 +1,4 @@
-/* КНИЖНЫЕ ГРАНИ — ПОЛНАЯ ФИНАЛЬНАЯ ВЕРСИЯ С РАБОЧИМ БУРГЕРОМ */
+/* КНИЖНЫЕ ГРАНИ — СТИЛЬ КАК НА СТАРОМ САЙТЕ */
 :root {
     --neon-coral: #ff2e5a;
     --neon-coral-glow: rgba(255, 46, 90, 0.3);
@@ -167,7 +167,7 @@ header {
     cursor: pointer;
 }
 
-/* ===== МЕНЮ (ДЕСКТОП) ===== */
+/* ===== МЕНЮ ===== */
 .desktop-menu {
     display: flex;
     justify-content: center;
@@ -217,8 +217,7 @@ header {
 .dropdown-menu {
     position: absolute;
     top: 100%;
-    left: 50%;
-    transform: translateX(-50%);
+    left: 0;
     background: var(--graphite-dark);
     border: 1px solid var(--neon-coral);
     padding: 0.5rem 0;
@@ -226,7 +225,7 @@ header {
     list-style: none;
     opacity: 0;
     visibility: hidden;
-    transform: translateX(-50%) translateY(-10px);
+    transform: translateY(-10px);
     transition: all 0.2s;
     z-index: 100;
 }
@@ -234,7 +233,7 @@ header {
 .dropdown:hover .dropdown-menu {
     opacity: 1;
     visibility: visible;
-    transform: translateX(-50%) translateY(0);
+    transform: translateY(0);
 }
 
 .dropdown-menu li a {
@@ -253,31 +252,26 @@ header {
     color: #fff;
 }
 
-/* ===== МОБИЛЬНОЕ МЕНЮ ===== */
+/* ===== МОБИЛЬНОЕ МЕНЮ (КАК НА СТАРОМ САЙТЕ) ===== */
 @media (max-width: 768px) {
     .menu-toggle {
-        display: block !important;
+        display: block;
     }
     
     .nav {
-        display: none !important;
-        position: fixed;
-        top: 0;
+        display: none;
+        width: 100%;
+        position: absolute;
+        top: 100%;
         left: 0;
-        width: 100% !important;
-        height: 100vh !important;
-        background: var(--graphite-deep) !important;
-        z-index: 999 !important;
-        padding-top: 5rem !important;
-        overflow-y: auto !important;
+        background: var(--graphite-deep);
+        border-bottom: 1px solid var(--neon-coral);
+        padding: 1rem;
+        z-index: 999;
     }
     
     .nav.active {
-        display: block !important;
-    }
-    
-    .header-inner {
-        position: relative;
+        display: block;
     }
     
     .desktop-menu {
@@ -285,7 +279,7 @@ header {
         align-items: flex-start;
         gap: 0;
         width: 100%;
-        padding: 0 1.5rem;
+        padding: 0;
     }
     
     .simple-menu-item {
@@ -344,31 +338,9 @@ header {
         background: transparent;
         color: var(--neon-coral);
     }
-    
-    body.menu-open {
-        overflow: hidden;
-    }
-    
-    .menu-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.5);
-        z-index: 998;
-        opacity: 0;
-        visibility: hidden;
-        transition: opacity 0.3s;
-    }
-    
-    .menu-overlay.active {
-        opacity: 1;
-        visibility: visible;
-    }
 }
 
-/* ===== ГЛАВНЫЙ ЭКРАН ===== */
+/* ===== ОСТАЛЬНЫЕ СТИЛИ ===== */
 .hero {
     padding: 8rem 0 6rem;
     text-align: center;
@@ -438,7 +410,6 @@ header {
     }
 }
 
-/* ===== КНОПКИ ===== */
 .btn {
     display: inline-block;
     padding: 0.8rem 2rem;
@@ -469,7 +440,6 @@ header {
     }
 }
 
-/* ===== СЕКЦИИ ===== */
 .section {
     padding: 5rem 0;
     border-top: 1px solid rgba(0,0,0,0.05);
@@ -513,7 +483,6 @@ header {
     line-height: 1.6;
 }
 
-/* ===== КАРТОЧКИ ===== */
 .events-grid,
 .directions-grid,
 .team-grid {
@@ -592,7 +561,6 @@ header {
     }
 }
 
-/* ===== ПАРТНЁРЫ ===== */
 .partners-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
@@ -620,7 +588,6 @@ header {
     transform: scale(1.05);
 }
 
-/* ===== FAQ ===== */
 .faq-list {
     max-width: 800px;
     margin: 0 auto;
@@ -663,7 +630,6 @@ header {
     padding-bottom: 1rem;
 }
 
-/* ===== ПОДВАЛ ===== */
 footer {
     background: var(--graphite-deep);
     border-top: 1px solid rgba(0,0,0,0.1);
@@ -739,7 +705,6 @@ footer {
     color: var(--text-secondary);
 }
 
-/* ===== КНОПКА НАВЕРХ ===== */
 .back-to-top {
     position: fixed;
     bottom: 20px;
@@ -772,7 +737,6 @@ footer {
     visibility: visible;
 }
 
-/* ===== АНИМАЦИЯ КАРТОЧЕК ===== */
 .event-card, .direction-card, .team-card, .partner-item {
     opacity: 0;
     transform: translateY(20px);
