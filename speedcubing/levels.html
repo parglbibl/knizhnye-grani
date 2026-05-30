@@ -13,11 +13,21 @@
 <header>
     <div class="container header-inner">
         <div class="logo">
-            <img src="../images/logo-cbs.png" alt="ЦБС" style="height: 50px;">
-            <img src="../images/logo-rost.png" alt="РОСТ" style="height: 50px; margin-left: 15px;">
+            <div class="logo-box"></div>
+            <span class="logo-text">КНИЖНЫЕ ГРАНИ</span>
         </div>
         <div class="menu-toggle" id="menuToggle">
             <i class="fas fa-bars"></i>
+        </div>
+        <div class="search-icon-container">
+            <i class="fas fa-search" id="searchIcon"></i>
+            <div class="search-popup" id="searchPopup">
+                <form action="https://yandex.ru/search/" method="get" target="_blank">
+                    <input type="hidden" name="site" value="knizhnye-grani">
+                    <input type="text" name="text" placeholder="Поиск по сайту...">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </form>
+            </div>
         </div>
         <nav class="nav" id="nav"></nav>
     </div>
@@ -65,16 +75,24 @@
             <div class="footer-col">
                 <h3>Книжные грани</h3>
                 <p>Проект ЦБС Выборгского района</p>
-            </div>
-            <div class="footer-col">
-                <h3>Контакты</h3>
                 <p>пр. Просвещения, 43 (ТРК Парк-Молл)</p>
                 <p>+7 (812) 246-93-05</p>
                 <p>pargolovo@cbsvib.ru</p>
             </div>
             <div class="footer-col">
+                <h3>Разделы</h3>
+                <p><a href="../index.html">Главная</a></p>
+                <p><a href="../about.html">О проекте</a></p>
+                <p><a href="../events.html">Мероприятия</a></p>
+                <p><a href="../contacts.html">Контакты</a></p>
+            </div>
+            <div class="footer-col">
                 <h3>Мы в соцсетях</h3>
-                <a href="#"><i class="fab fa-vk"></i></a>
+                <div class="footer-social">
+                    <a href="https://vk.com/pargolovskaya_library" target="_blank"><i class="fab fa-vk"></i></a>
+                    <a href="#" target="_blank"><i class="fab fa-telegram"></i></a>
+                </div>
+                <p style="margin-top:1.5rem;">Подпишитесь на новости!</p>
             </div>
         </div>
         <div class="footer-bottom">
