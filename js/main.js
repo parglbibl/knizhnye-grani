@@ -1,57 +1,24 @@
-// main.js — Книжные грани (с рабочим бургер-меню)
+// main.js — Книжные грани (как на старом сайте parglbibl.ru)
 
 document.addEventListener('DOMContentLoaded', function() {
 
-    // ===== БУРГЕР-МЕНЮ (РАБОТАЕТ НА ВСЕХ ЭКРАНАХ) =====
+    // ===== БУРГЕР-МЕНЮ (ТОЧНО КАК НА СТАРОМ САЙТЕ) =====
     const menuToggle = document.getElementById('menuToggle');
     const nav = document.getElementById('nav');
 
     if (menuToggle && nav) {
-        // Убираем возможные inline-стили, которые мешают
-        nav.style.display = '';
-        
-        menuToggle.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
+        menuToggle.addEventListener('click', function() {
             nav.classList.toggle('active');
-            
-            // Для мобилок: меняем иконку (опционально)
-            const icon = menuToggle.querySelector('i');
-            if (icon) {
-                if (nav.classList.contains('active')) {
-                    icon.classList.remove('fa-bars');
-                    icon.classList.add('fa-times');
-                } else {
-                    icon.classList.remove('fa-times');
-                    icon.classList.add('fa-bars');
-                }
-            }
         });
     }
 
-    // ===== ССЫЛКА НА ГЛАВНУЮ ДЛЯ ЛОГОТИПА =====
+    // ===== МЕНЮ (ДИНАМИЧЕСКАЯ СБОРКА) =====
     const path = window.location.pathname;
     let prefix = '';
     if (path.includes('/boardgames/') || path.includes('/speedcubing/')) {
         prefix = '../';
     }
 
-    const logo = document.querySelector('.logo');
-    if (logo && !logo.querySelector('a')) {
-        const link = document.createElement('a');
-        link.href = prefix + 'index.html';
-        link.style.display = 'flex';
-        link.style.alignItems = 'center';
-        link.style.gap = '0.75rem';
-        link.style.textDecoration = 'none';
-        link.style.color = 'inherit';
-        while (logo.firstChild) {
-            link.appendChild(logo.firstChild);
-        }
-        logo.appendChild(link);
-    }
-
-    // ===== МЕНЮ (ДИНАМИЧЕСКАЯ СБОРКА) =====
     const navContainer = document.getElementById('nav');
     if (navContainer) {
         const currentFile = path.split('/').pop() || 'index.html';
@@ -96,31 +63,37 @@ document.addEventListener('DOMContentLoaded', function() {
         let html = '<ul class="desktop-menu">';
         
         menuData.forEach(cat => {
-            let isActive = false;
-            cat.items.forEach(item => {
-                const targetFile = item.href.split('/').pop();
-                if (targetFile === currentFile || (currentFile === '' && targetFile === 'index.html')) {
-                    isActive = true;
-                }
-            });
-            
+            let isCategoryActive = cat.items.some(item => item.href === currentFile);
             html += `<li class="dropdown">
-                        <div class="dropdown-title ${isActive ? 'active' : ''}">
+                        <div class="dropdown-title ${isCategoryActive ? 'active' : ''}">
                             <i class="${cat.icon}"></i> ${cat.title} <i class="fas fa-chevron-down"></i>
                         </div>
                         <ul class="dropdown-menu">`;
-            
             cat.items.forEach(item => {
-                const targetFile = item.href.split('/').pop();
-                const activeClass = (targetFile === currentFile) ? 'active' : '';
-                html += `<li><a href="${item.href}" class="${activeClass}">${item.name}</a></li>`;
+                const isActive = (item.href === currentFile);
+                html += `<li><a href="${item.href}" class="${isActive ? 'active' : ''}">${item.name}</a></li>`;
             });
-            
             html += `</ul></li>`;
         });
         
         html += '</ul>';
         navContainer.innerHTML = html;
+    }
+
+    // ===== ССЫЛКА НА ГЛАВНУЮ ДЛЯ ЛОГОТИПА =====
+    const logo = document.querySelector('.logo');
+    if (logo && !logo.querySelector('a')) {
+        const link = document.createElement('a');
+        link.href = prefix + 'index.html';
+        link.style.display = 'flex';
+        link.style.alignItems = 'center';
+        link.style.gap = '0.75rem';
+        link.style.textDecoration = 'none';
+        link.style.color = 'inherit';
+        while (logo.firstChild) {
+            link.appendChild(logo.firstChild);
+        }
+        logo.appendChild(link);
     }
 
     // ===== АНИМАЦИЯ КНОПОК =====
@@ -139,13 +112,17 @@ document.addEventListener('DOMContentLoaded', function() {
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
-                entry.target.classList.add('visible');
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
                 observer.unobserve(entry.target);
             }
         });
     }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
 
     fadeElements.forEach(el => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(30px)';
+        el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
         observer.observe(el);
     });
 
@@ -180,21 +157,18 @@ document.addEventListener('DOMContentLoaded', function() {
         backBtn.innerHTML = '<i class="fas fa-chevron-up"></i>';
         document.body.appendChild(backBtn);
         
-        function toggleButton() {
+        window.addEventListener('scroll', function() {
             if (window.pageYOffset > 300) {
                 backBtn.classList.add('show');
             } else {
                 backBtn.classList.remove('show');
             }
-        }
+        });
         
-        window.addEventListener('scroll', toggleButton);
         backBtn.addEventListener('click', function(e) {
             e.preventDefault();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         });
-        
-        toggleButton();
     }
     
     initBackToTop();
