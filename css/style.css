@@ -1,4 +1,4 @@
-/* КНИЖНЫЕ ГРАНИ — МОЛОЧНЫЙ ФОН, ТЁМНО-СИНИЕ КАРТОЧКИ, КРАСНОЕ СВЕЧЕНИЕ ПО ВСЕМУ БЛОКУ HERO */
+/* КНИЖНЫЕ ГРАНИ — ФИНАЛЬНАЯ ВЕРСИЯ (МОЛОЧНЫЙ ФОН, ТЁМНО-СИНИЕ КАРТОЧКИ, ЛИНЕЙНЫЙ ГРАДИЕНТ СВЕРХУ) */
 :root {
     --neon-coral: #ff2e5a;
     --neon-coral-glow: rgba(255, 46, 90, 0.3);
@@ -165,13 +165,12 @@ header {
     color: #fff;
 }
 
-/* ===== ГЛАВНЫЙ ЭКРАН (КРАСНОЕ СВЕЧЕНИЕ ПО ВСЕМУ БЛОКУ) ===== */
+/* ===== ГЛАВНЫЙ ЭКРАН (ЛИНЕЙНЫЙ ГРАДИЕНТ СВЕРХУ ВНИЗ) ===== */
 .hero {
     padding: 10rem 0 8rem;
     text-align: center;
     position: relative;
-    overflow: hidden;
-    background: radial-gradient(ellipse at 50% 40%, rgba(255,46,90,0.12) 0%, rgba(255,46,90,0) 70%), var(--graphite-deep);
+    background: linear-gradient(180deg, rgba(255,46,90,0.12) 0%, rgba(255,46,90,0) 70%), var(--graphite-deep);
 }
 
 .hero h1 {
@@ -182,7 +181,6 @@ header {
     margin-bottom: 2rem;
     letter-spacing: -0.03em;
     color: var(--text-primary);
-    position: relative;
 }
 
 .hero h1 span {
