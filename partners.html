@@ -13,20 +13,23 @@
 <header>
     <div class="container header-inner">
         <div class="logo">
-            <img src="images/logo-cbs.png" alt="ЦБС" style="height: 50px;">
-            <img src="images/logo-rost.png" alt="РОСТ" style="height: 50px; margin-left: 15px;">
+            <div class="logo-box"></div>
+            <span class="logo-text">КНИЖНЫЕ ГРАНИ</span>
         </div>
-        <div class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></div>
-        <nav class="nav" id="nav">
-            <ul>
-                <li><a href="index.html">Главная</a></li>
-                <li><a href="about.html">О проекте</a></li>
-                <li><a href="organizers.html">Организаторы</a></li>
-                <li><a href="events.html">Мероприятия</a></li>
-                <li><a href="partners.html">Партнёры</a></li>
-                <li><a href="contacts.html">Контакты</a></li>
-            </ul>
-        </nav>
+        <div class="menu-toggle" id="menuToggle">
+            <i class="fas fa-bars"></i>
+        </div>
+        <div class="search-icon-container">
+            <i class="fas fa-search" id="searchIcon"></i>
+            <div class="search-popup" id="searchPopup">
+                <form action="https://yandex.ru/search/" method="get" target="_blank">
+                    <input type="hidden" name="site" value="knizhnye-grani">
+                    <input type="text" name="text" placeholder="Поиск по сайту...">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </form>
+            </div>
+        </div>
+        <nav class="nav" id="nav"></nav>
     </div>
 </header>
 
@@ -61,21 +64,20 @@
             </div>
         </div>
 
-        <!-- Кнопка "Стать частью команды" -->
         <div style="text-align: center; margin-top: 3rem;">
-            <button id="becomePartnerBtn" class="btn btn-primary" style="font-size: 1.1rem;">Стать частью команды</button>
+            <button id="becomePartnerBtn" class="btn btn-primary" style="font-size: 1rem;">Стать частью команды</button>
         </div>
     </div>
 </section>
 
-<!-- Модальное окно с условиями сотрудничества -->
+<!-- Модальное окно -->
 <div id="partnerModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center;">
     <div style="background: #fff; max-width: 500px; padding: 2rem; border-radius: 24px; position: relative;">
         <span style="position: absolute; top: 15px; right: 20px; font-size: 28px; cursor: pointer;" id="closeModal">&times;</span>
-        <h3 style="margin-bottom: 1rem;">Условия сотрудничества</h3>
+        <h3 style="margin-bottom: 1rem; color: #1e2a47;">Условия сотрудничества</h3>
         <p style="margin-bottom: 1rem;">Мы открыты для партнёрства с компаниями и организациями, разделяющими наши ценности.</p>
         <p style="margin-bottom: 1rem;">По всем вопросам сотрудничества пишите на почту:</p>
-        <p style="margin-bottom: 1rem; font-weight: bold;">pargolovo@cbsvib.ru</p>
+        <p style="margin-bottom: 1rem; font-weight: bold; color: #ff2e5a;">pargolovo@cbsvib.ru</p>
         <p>Или звоните: <strong>+7 (812) 246-93-05</strong></p>
     </div>
 </div>
@@ -86,16 +88,24 @@
             <div class="footer-col">
                 <h3>Книжные грани</h3>
                 <p>Проект ЦБС Выборгского района</p>
-            </div>
-            <div class="footer-col">
-                <h3>Контакты</h3>
                 <p>пр. Просвещения, 43 (ТРК Парк-Молл)</p>
                 <p>+7 (812) 246-93-05</p>
                 <p>pargolovo@cbsvib.ru</p>
             </div>
             <div class="footer-col">
+                <h3>Разделы</h3>
+                <p><a href="index.html">Главная</a></p>
+                <p><a href="about.html">О проекте</a></p>
+                <p><a href="events.html">Мероприятия</a></p>
+                <p><a href="contacts.html">Контакты</a></p>
+            </div>
+            <div class="footer-col">
                 <h3>Мы в соцсетях</h3>
-                <a href="#"><i class="fab fa-vk"></i></a>
+                <div class="footer-social">
+                    <a href="https://vk.com/pargolovskaya_library" target="_blank"><i class="fab fa-vk"></i></a>
+                    <a href="#" target="_blank"><i class="fab fa-telegram"></i></a>
+                </div>
+                <p style="margin-top:1.5rem;">Подпишитесь на новости!</p>
             </div>
         </div>
         <div class="footer-bottom">
@@ -111,21 +121,13 @@
     const closeBtn = document.getElementById('closeModal');
 
     if (modalBtn) {
-        modalBtn.addEventListener('click', () => {
-            modal.style.display = 'flex';
-        });
+        modalBtn.addEventListener('click', () => { modal.style.display = 'flex'; });
     }
-
     if (closeBtn) {
-        closeBtn.addEventListener('click', () => {
-            modal.style.display = 'none';
-        });
+        closeBtn.addEventListener('click', () => { modal.style.display = 'none'; });
     }
-
     window.addEventListener('click', (e) => {
-        if (e.target === modal) {
-            modal.style.display = 'none';
-        }
+        if (e.target === modal) modal.style.display = 'none';
     });
 </script>
 </body>
