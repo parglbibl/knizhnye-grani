@@ -1,16 +1,13 @@
-/* КНИЖНЫЕ ГРАНИ — МОЛОЧНЫЙ ФОН + ТЁМНЫЕ КАРТОЧКИ + БОЛЬШЕ ВОЗДУХА */
+/* КНИЖНЫЕ ГРАНИ — МОЛОЧНЫЙ ФОН, ТЁМНЫЕ КАРТОЧКИ, БЕЗ ШУМА */
 :root {
     --neon-coral: #ff2e5a;
-    --neon-coral-glow: rgba(255, 46, 90, 0.4);
+    --neon-coral-glow: rgba(255, 46, 90, 0.3);
     --neon-blue: #00d4ff;
-    --neon-blue-glow: rgba(0, 212, 255, 0.2);
     --graphite-deep: #fef9f0;
     --graphite-dark: #2a2a30;
     --graphite-card: #1e1e24;
-    --accent-orange: #ff6b35;
     --text-primary: #111111;
     --text-secondary: #555566;
-    --border-glitch: rgba(255, 46, 90, 0.3);
 }
 
 * {
@@ -27,65 +24,6 @@ body {
     overflow-x: hidden;
 }
 
-/* ===== ЦИФРОВОЙ ШУМ + ГЛИТЧ ===== */
-.digital-noise {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 999;
-    opacity: 0.02;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-    background-repeat: repeat;
-    background-size: 120px;
-}
-
-.glitch-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 1000;
-    opacity: 0;
-    background: linear-gradient(90deg, transparent 50%, rgba(255,46,90,0.05) 50%);
-    background-size: 200% 100%;
-    animation: glitch-scan 8s infinite;
-}
-
-@keyframes glitch-scan {
-    0%, 100% { opacity: 0; background-position: 0% 0%; }
-    5% { opacity: 1; background-position: 100% 0%; }
-    6% { opacity: 0; background-position: 0% 0%; }
-}
-
-/* ===== СЕТКА ===== */
-.grid-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 997;
-}
-
-.grid-overlay::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image: 
-        repeating-linear-gradient(transparent 0px, transparent 39px, rgba(255,46,90,0.03) 40px),
-        repeating-linear-gradient(90deg, transparent 0px, transparent 39px, rgba(0,212,255,0.03) 40px);
-}
-
-/* ===== КОНТЕЙНЕР ===== */
 .container {
     max-width: 1400px;
     margin: 0 auto;
@@ -94,7 +32,7 @@ body {
 
 /* ===== ШАПКА ===== */
 header {
-    background: rgba(254, 249, 240, 0.9);
+    background: rgba(254, 249, 240, 0.95);
     backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--neon-coral);
     position: sticky;
@@ -116,6 +54,14 @@ header {
     display: flex;
     align-items: center;
     gap: 0.75rem;
+}
+
+.logo a {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+    color: inherit;
 }
 
 .logo-box {
@@ -177,7 +123,6 @@ header {
 
 .dropdown:hover .dropdown-title {
     color: var(--neon-coral);
-    text-shadow: 0 0 5px var(--neon-coral-glow);
 }
 
 .dropdown-menu {
@@ -205,7 +150,7 @@ header {
 .dropdown-menu li a {
     display: block;
     padding: 0.8rem 1.8rem;
-    color: var(--text-secondary);
+    color: #ccc;
     text-decoration: none;
     font-size: 0.8rem;
     text-transform: uppercase;
@@ -221,34 +166,7 @@ header {
 /* ===== ГЛАВНЫЙ ЭКРАН ===== */
 .hero {
     padding: 10rem 0 8rem;
-    position: relative;
-    overflow: hidden;
     text-align: center;
-}
-
-.hero::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 600px;
-    height: 600px;
-    background: radial-gradient(circle, rgba(255,46,90,0.08) 0%, transparent 70%);
-    transform: translate(-50%, -50%);
-    pointer-events: none;
-}
-
-.hero::after {
-    content: '// KNIZHNIE GRANI //';
-    position: absolute;
-    bottom: 2rem;
-    right: 2rem;
-    font-size: 0.6rem;
-    letter-spacing: 0.2em;
-    color: var(--text-secondary);
-    transform: rotate(-90deg) translateX(50%);
-    transform-origin: bottom right;
-    white-space: nowrap;
 }
 
 .hero h1 {
@@ -258,22 +176,12 @@ header {
     line-height: 1;
     margin-bottom: 2rem;
     letter-spacing: -0.03em;
-    text-align: center;
     color: var(--text-primary);
 }
 
 .hero h1 span {
     color: var(--neon-coral);
     display: inline-block;
-    animation: glitch-text 3s infinite;
-}
-
-@keyframes glitch-text {
-    0%, 100% { transform: skew(0deg); text-shadow: none; }
-    95% { transform: skew(0deg); text-shadow: none; }
-    96% { transform: skew(2deg); text-shadow: -2px 0 var(--neon-blue); }
-    97% { transform: skew(-2deg); text-shadow: 2px 0 var(--neon-coral); }
-    98% { transform: skew(0deg); text-shadow: none; }
 }
 
 .hero-lead {
@@ -282,7 +190,6 @@ header {
     text-transform: uppercase;
     letter-spacing: 0.1em;
     margin-bottom: 2rem;
-    text-align: center;
 }
 
 .hero-desc {
@@ -290,7 +197,6 @@ header {
     color: var(--text-secondary);
     max-width: 700px;
     margin: 0 auto 3rem;
-    text-align: center;
 }
 
 .hero-buttons {
@@ -316,7 +222,6 @@ header {
     cursor: pointer;
     position: relative;
     overflow: hidden;
-    background-color: transparent;
 }
 
 .btn::before {
@@ -357,7 +262,7 @@ header {
 /* ===== СЕКЦИИ ===== */
 .section {
     padding: 7rem 0;
-    border-top: 1px solid rgba(255,46,90,0.2);
+    border-top: 1px solid rgba(0,0,0,0.05);
 }
 
 .section-header {
@@ -500,7 +405,6 @@ header {
     filter: grayscale(100%) brightness(0.9);
     transition: all 0.3s;
     cursor: pointer;
-    background: transparent;
 }
 
 .partner-item:hover {
@@ -566,7 +470,7 @@ header {
 /* ===== ПОДВАЛ ===== */
 footer {
     background: var(--graphite-deep);
-    border-top: 1px solid var(--neon-coral);
+    border-top: 1px solid rgba(0,0,0,0.1);
     padding: 4rem 0 2rem;
     margin-top: 4rem;
     text-align: center;
