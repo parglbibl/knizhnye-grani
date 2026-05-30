@@ -1,8 +1,8 @@
-// main.js — Книжные грани (с активной ссылкой на главную через логотип)
+// main.js — Книжные грани (финальная версия, без шума и глитча)
 
 document.addEventListener('DOMContentLoaded', function() {
 
-    // ===== ДОБАВЛЯЕМ ССЫЛКУ НА ГЛАВНУЮ ДЛЯ ЛОГОТИПА =====
+    // ===== ССЫЛКА НА ГЛАВНУЮ ДЛЯ ЛОГОТИПА =====
     const path = window.location.pathname;
     let prefix = '';
     if (path.includes('/boardgames/') || path.includes('/speedcubing/')) {
@@ -18,31 +18,11 @@ document.addEventListener('DOMContentLoaded', function() {
         link.style.gap = '0.75rem';
         link.style.textDecoration = 'none';
         link.style.color = 'inherit';
-        // Переносим содержимое логотипа внутрь ссылки
         while (logo.firstChild) {
             link.appendChild(logo.firstChild);
         }
         logo.appendChild(link);
     }
-
-    // ===== ДОБАВЛЯЕМ ЦИФРОВОЙ ШУМ, ГЛИТЧ И СЕТКУ =====
-    (function() {
-        if (!document.querySelector('.digital-noise')) {
-            const noise = document.createElement('div');
-            noise.className = 'digital-noise';
-            document.body.insertBefore(noise, document.body.firstChild);
-        }
-        if (!document.querySelector('.glitch-overlay')) {
-            const glitch = document.createElement('div');
-            glitch.className = 'glitch-overlay';
-            document.body.insertBefore(glitch, document.body.firstChild);
-        }
-        if (!document.querySelector('.grid-overlay')) {
-            const grid = document.createElement('div');
-            grid.className = 'grid-overlay';
-            document.body.insertBefore(grid, document.body.firstChild);
-        }
-    })();
 
     // ===== МЕНЮ =====
     const nav = document.getElementById('nav');
@@ -125,7 +105,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // ===== GLITCH-ЭФФЕКТ НА КНОПКАХ =====
+    // ===== АНИМАЦИЯ КНОПОК (лёгкий наклон) =====
     const glitchBtns = document.querySelectorAll('.btn');
     glitchBtns.forEach(btn => {
         btn.addEventListener('mouseenter', () => {
@@ -136,7 +116,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // ===== АНИМАЦИЯ ПОЯВЛЕНИЯ КАРТОЧЕК =====
+    // ===== АНИМАЦИЯ ПОЯВЛЕНИЯ КАРТОЧЕК ПРИ СКРОЛЛЕ =====
     const fadeElements = document.querySelectorAll('.event-card, .direction-card, .team-card, .partner-item');
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
@@ -178,7 +158,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // ===== КНОПКА НАВЕРХ =====
+    // ===== КНОПКА "НАВЕРХ" =====
     function initBackToTop() {
         const backBtn = document.createElement('a');
         backBtn.href = '#';
@@ -211,7 +191,7 @@ document.addEventListener('DOMContentLoaded', function() {
         yearSpan.textContent = new Date().getFullYear();
     }
 
-    // ===== ПОИСК =====
+    // ===== ПОИСК (если есть на странице) =====
     const searchIcon = document.getElementById('searchIcon');
     const searchPopup = document.getElementById('searchPopup');
     if (searchIcon && searchPopup) {
@@ -226,7 +206,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // ===== АНИМАЦИЯ ЗАГОЛОВКА =====
+    // ===== АНИМАЦИЯ ЗАГОЛОВКА НА ГЛАВНОЙ =====
     const heroTitle = document.querySelector('.hero h1');
     if (heroTitle && !heroTitle.hasAttribute('data-animated')) {
         heroTitle.setAttribute('data-animated', 'true');
