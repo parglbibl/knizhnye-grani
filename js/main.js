@@ -1,4 +1,4 @@
-// main.js — Книжные грани (финальная версия)
+// main.js — Книжные грани (с иконками в подменю)
 
 document.addEventListener('DOMContentLoaded', function() {
 
@@ -35,9 +35,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 title: 'О проекте',
                 icon: 'fas fa-info-circle',
                 items: [
-                    { name: 'О проекте', href: prefix + 'about.html' },
-                    { name: 'Организаторы', href: prefix + 'organizers.html' },
-                    { name: 'Команда', href: prefix + 'team.html' }
+                    { name: 'О проекте', href: prefix + 'about.html', icon: 'fas fa-info-circle' },
+                    { name: 'Организаторы', href: prefix + 'organizers.html', icon: 'fas fa-building' },
+                    { name: 'Команда', href: prefix + 'team.html', icon: 'fas fa-users' }
                 ]
             },
             {
@@ -45,9 +45,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 title: 'Мероприятия',
                 icon: 'fas fa-calendar-alt',
                 items: [
-                    { name: 'Афиша', href: prefix + 'events.html' },
-                    { name: 'Настольные игры', href: prefix + 'boardgames/index.html' },
-                    { name: 'Спидкубинг', href: prefix + 'speedcubing/index.html' }
+                    { name: 'Афиша', href: prefix + 'events.html', icon: 'fas fa-calendar-alt' },
+                    { name: 'Настольные игры', href: prefix + 'boardgames/index.html', icon: 'fas fa-dice-d6' },
+                    { name: 'Спидкубинг', href: prefix + 'speedcubing/index.html', icon: 'fas fa-cube' }
                 ]
             },
             {
@@ -55,9 +55,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 title: 'Участие',
                 icon: 'fas fa-handshake',
                 items: [
-                    { name: 'Партнёры', href: prefix + 'partners.html' },
-                    { name: 'Контакты', href: prefix + 'contacts.html' },
-                    { name: 'FAQ', href: prefix + 'faq.html' }
+                    { name: 'Партнёры', href: prefix + 'partners.html', icon: 'fas fa-handshake' },
+                    { name: 'Контакты', href: prefix + 'contacts.html', icon: 'fas fa-phone-alt' },
+                    { name: 'FAQ', href: prefix + 'faq.html', icon: 'fas fa-question-circle' }
                 ]
             }
         ];
@@ -81,7 +81,9 @@ document.addEventListener('DOMContentLoaded', function() {
                             <ul class="dropdown-menu">`;
                 item.items.forEach(sub => {
                     const isActive = (sub.href === currentFile);
-                    html += `<li><a href="${sub.href}" class="${isActive ? 'active' : ''}">${sub.name}</a></li>`;
+                    html += `<li><a href="${sub.href}" class="${isActive ? 'active' : ''}">
+                                <i class="${sub.icon}"></i> ${sub.name}
+                            </a></li>`;
                 });
                 html += `</ul></li>`;
             }
