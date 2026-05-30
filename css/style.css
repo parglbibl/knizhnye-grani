@@ -1,13 +1,15 @@
-/* КНИЖНЫЕ ГРАНИ — МОЛОЧНЫЙ ФОН, ТЁМНЫЕ КАРТОЧКИ, УВЕЛИЧЕННЫЕ ОТСТУПЫ, ЕДИНЫЙ СТИЛЬ КНОПОК */
+/* КНИЖНЫЕ ГРАНИ — МОЛОЧНЫЙ ФОН, ТЁМНО-СИНИЕ КАРТОЧКИ */
 :root {
     --neon-coral: #ff2e5a;
     --neon-coral-glow: rgba(255, 46, 90, 0.3);
     --neon-blue: #00d4ff;
     --graphite-deep: #fef9f0;
-    --graphite-dark: #2a2a30;
-    --graphite-card: #1e1e24;
+    --graphite-dark: #1e2a3a;        /* тёмно-синий для выпадающих меню */
+    --graphite-card: #0f1a2f;         /* основной тёмно-синий для карточек */
     --text-primary: #111111;
     --text-secondary: #555566;
+    --card-text: #e0e4f0;             /* светлый текст на тёмно-синем */
+    --card-text-secondary: #a0a8c0;
 }
 
 * {
@@ -196,7 +198,7 @@ header {
     font-size: 1.1rem;
     color: var(--text-secondary);
     max-width: 700px;
-    margin: 0 auto 4rem;  /* УВЕЛИЧЕНО расстояние до кнопок */
+    margin: 0 auto 4rem;
 }
 
 .hero-buttons {
@@ -206,7 +208,7 @@ header {
     flex-wrap: wrap;
 }
 
-/* ===== КНОПКИ (ЕДИНЫЙ СТИЛЬ — ТОЛЬКО ОБВОДКА, АНИМАЦИЯ ПРИ НАВЕДЕНИИ) ===== */
+/* ===== КНОПКИ ===== */
 .btn {
     display: inline-block;
     padding: 1rem 2.5rem;
@@ -245,7 +247,6 @@ header {
     left: 0;
 }
 
-/* Убираем особый стиль для btn-primary, делаем все кнопки одинаковыми */
 .btn-primary {
     background: transparent;
     color: var(--neon-coral);
@@ -271,7 +272,7 @@ header {
     left: 0;
 }
 
-/* ===== СЕКЦИИ (УВЕЛИЧЕНЫ ОТСТУПЫ) ===== */
+/* ===== СЕКЦИИ ===== */
 .section {
     padding: 7rem 0;
     border-top: 1px solid rgba(0,0,0,0.05);
@@ -313,7 +314,7 @@ header {
     margin-top: 0.8rem;
 }
 
-/* ===== КАРТОЧКИ ===== */
+/* ===== КАРТОЧКИ (ТЁМНО-СИНИЕ) ===== */
 .events-grid,
 .directions-grid,
 .team-grid {
@@ -326,11 +327,11 @@ header {
 .direction-card,
 .team-card {
     background: var(--graphite-card);
-    border: 1px solid rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.1);
     padding: 2.5rem;
     transition: all 0.3s;
     text-align: center;
-    color: #f0f0f0;
+    color: var(--card-text);
 }
 
 .event-card:hover,
@@ -351,7 +352,7 @@ header {
 .event-date {
     font-size: 0.85rem;
     text-transform: uppercase;
-    color: #aaa;
+    color: var(--card-text-secondary);
     margin-bottom: 1.2rem;
 }
 
@@ -373,7 +374,7 @@ header {
 .event-card p,
 .direction-card p {
     font-size: 1rem;
-    color: #ccc;
+    color: var(--card-text-secondary);
     line-height: 1.5;
 }
 
@@ -388,6 +389,7 @@ header {
     height: 320px;
     object-fit: cover;
     margin-bottom: 1.5rem;
+    border-bottom: 2px solid var(--neon-coral);
 }
 
 .team-card h3 {
@@ -397,7 +399,7 @@ header {
 }
 
 .team-card p {
-    color: #aaa;
+    color: var(--card-text-secondary);
     font-size: 0.85rem;
     text-transform: uppercase;
     letter-spacing: 0.08em;
