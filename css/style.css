@@ -978,4 +978,47 @@ footer {
         opacity: 1;
         visibility: visible;
     }
+    
+/* ===== БУРГЕР-МЕНЮ (МОБИЛЬНАЯ ВЕРСИЯ) ===== */
+@media (max-width: 768px) {
+    .menu-toggle {
+        display: block !important;
+        position: absolute;
+        right: 1rem;
+        top: 0.5rem;
+        z-index: 102;
+        background: none;
+        border: none;
+        font-size: 1.8rem;
+        cursor: pointer;
+        color: var(--neon-coral);
+    }
+    
+    .nav {
+        display: none !important;
+        width: 100%;
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        background: var(--graphite-deep);
+        z-index: 100;
+        overflow-y: auto;
+        padding-top: 5rem;
+    }
+    
+    .nav.active {
+        display: block !important;
+    }
+    
+    .header-inner {
+        position: relative;
+        justify-content: flex-start;
+    }
+    
+    .logo {
+        z-index: 101;
+    }
+}
+
 }
