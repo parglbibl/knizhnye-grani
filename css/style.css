@@ -256,7 +256,7 @@ header {
 @media (max-width: 768px) {
     .menu-toggle {
     display: block;
-    margin-left: 3.5rem;
+    margin-left: 5.5rem;
     margin-right: 0;
 }
     
