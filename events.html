@@ -13,11 +13,21 @@
 <header>
     <div class="container header-inner">
         <div class="logo">
-            <img src="images/logo-cbs.png" alt="ЦБС" style="height: 50px;">
-            <img src="images/logo-rost.png" alt="РОСТ" style="height: 50px; margin-left: 15px;">
+            <div class="logo-box"></div>
+            <span class="logo-text">КНИЖНЫЕ ГРАНИ</span>
         </div>
         <div class="menu-toggle" id="menuToggle">
             <i class="fas fa-bars"></i>
+        </div>
+        <div class="search-icon-container">
+            <i class="fas fa-search" id="searchIcon"></i>
+            <div class="search-popup" id="searchPopup">
+                <form action="https://yandex.ru/search/" method="get" target="_blank">
+                    <input type="hidden" name="site" value="knizhnye-grani">
+                    <input type="text" name="text" placeholder="Поиск по сайту...">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </form>
+            </div>
         </div>
         <nav class="nav" id="nav"></nav>
     </div>
@@ -30,24 +40,46 @@
 
         <div class="events-grid">
             <div class="event-card">
+                <div class="event-number">01</div>
                 <div class="event-date">17 июня 15:00-19:00</div>
                 <h3>Игротека «Книжные грани»</h3>
                 <p>Настольные игры для всех возрастов. Приходите с друзьями или одни — мы найдём компанию!</p>
-                <a href="boardgames/index.html" class="btn btn-sm">Настольные игры</a>
+                <a href="#" class="btn btn-sm">Записаться</a>
             </div>
-
             <div class="event-card">
+                <div class="event-number">02</div>
                 <div class="event-date">1 июня 15:00-19:00</div>
                 <h3>Турнир по спидкубингу</h3>
                 <p>Соревнования по скоростной сборке кубика Рубика. Призы и подарки победителям!</p>
-                <a href="speedcubing/index.html" class="btn btn-sm">Спидкубинг</a>
+                <a href="#" class="btn btn-sm">Записаться</a>
             </div>
-
             <div class="event-card">
+                <div class="event-number">03</div>
                 <div class="event-date">24 июня 15:00-19:00</div>
                 <h3>Мастер-класс по сборке кубика</h3>
                 <p>Научитесь собирать кубик Рубика за 1 день. Для начинающих и продолжающих.</p>
-                <a href="speedcubing/levels.html" class="btn btn-sm">Подробнее</a>
+                <a href="#" class="btn btn-sm">Записаться</a>
+            </div>
+            <div class="event-card">
+                <div class="event-number">04</div>
+                <div class="event-date">8 июля 15:00-19:00</div>
+                <h3>Семейная игротека</h3>
+                <p>Игры для детей и родителей. Сладкие призы и хорошее настроение.</p>
+                <a href="#" class="btn btn-sm">Записаться</a>
+            </div>
+            <div class="event-card">
+                <div class="event-number">05</div>
+                <div class="event-date">22 июля 15:00-19:00</div>
+                <h3>Открытый турнир по настолкам</h3>
+                <p>Играем в «Колонизаторов», «Каркассон» и другие хиты. Запись открыта!</p>
+                <a href="#" class="btn btn-sm">Записаться</a>
+            </div>
+            <div class="event-card">
+                <div class="event-number">06</div>
+                <div class="event-date">5 августа 15:00-19:00</div>
+                <h3>Кубок Выборгского района по спидкубингу</h3>
+                <p>Главное событие лета. Приезжайте побороться за кубок!</p>
+                <a href="#" class="btn btn-sm">Записаться</a>
             </div>
         </div>
     </div>
@@ -59,16 +91,24 @@
             <div class="footer-col">
                 <h3>Книжные грани</h3>
                 <p>Проект ЦБС Выборгского района</p>
-            </div>
-            <div class="footer-col">
-                <h3>Контакты</h3>
                 <p>пр. Просвещения, 43 (ТРК Парк-Молл)</p>
                 <p>+7 (812) 246-93-05</p>
                 <p>pargolovo@cbsvib.ru</p>
             </div>
             <div class="footer-col">
+                <h3>Разделы</h3>
+                <p><a href="index.html">Главная</a></p>
+                <p><a href="about.html">О проекте</a></p>
+                <p><a href="events.html">Мероприятия</a></p>
+                <p><a href="contacts.html">Контакты</a></p>
+            </div>
+            <div class="footer-col">
                 <h3>Мы в соцсетях</h3>
-                <a href="#"><i class="fab fa-vk"></i></a>
+                <div class="footer-social">
+                    <a href="https://vk.com/pargolovskaya_library" target="_blank"><i class="fab fa-vk"></i></a>
+                    <a href="#" target="_blank"><i class="fab fa-telegram"></i></a>
+                </div>
+                <p style="margin-top:1.5rem;">Подпишитесь на новости!</p>
             </div>
         </div>
         <div class="footer-bottom">
