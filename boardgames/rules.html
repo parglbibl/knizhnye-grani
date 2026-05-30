@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Правила посещения — Книжные грани</title>
+    <title>Правила посещения игротеки — Книжные грани</title>
     <link rel="stylesheet" href="../css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -13,11 +13,21 @@
 <header>
     <div class="container header-inner">
         <div class="logo">
-            <img src="../images/logo-cbs.png" alt="ЦБС" style="height: 50px;">
-            <img src="../images/logo-rost.png" alt="РОСТ" style="height: 50px; margin-left: 15px;">
+            <div class="logo-box"></div>
+            <span class="logo-text">КНИЖНЫЕ ГРАНИ</span>
         </div>
         <div class="menu-toggle" id="menuToggle">
             <i class="fas fa-bars"></i>
+        </div>
+        <div class="search-icon-container">
+            <i class="fas fa-search" id="searchIcon"></i>
+            <div class="search-popup" id="searchPopup">
+                <form action="https://yandex.ru/search/" method="get" target="_blank">
+                    <input type="hidden" name="site" value="knizhnye-grani">
+                    <input type="text" name="text" placeholder="Поиск по сайту...">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </form>
+            </div>
         </div>
         <nav class="nav" id="nav"></nav>
     </div>
@@ -37,7 +47,6 @@
                     Игротеки проходят <strong>каждую субботу с 15:00 до 19:00</strong>. Следите за афишей на сайте и в нашей группе ВКонтакте.
                 </div>
             </div>
-
             <div class="faq-item">
                 <div class="faq-question">
                     💰 Сколько стоит участие?
@@ -47,7 +56,6 @@
                     Все наши мероприятия <strong>абсолютно бесплатные</strong>. Приходите и приводите друзей!
                 </div>
             </div>
-
             <div class="faq-item">
                 <div class="faq-question">
                     👥 Нужно ли приходить с компанией?
@@ -57,7 +65,6 @@
                     Нет, можно прийти одному. Наши ведущие помогут найти компанию для игры.
                 </div>
             </div>
-
             <div class="faq-item">
                 <div class="faq-question">
                     🎮 Можно ли принести свою игру?
@@ -67,7 +74,6 @@
                     Да, конечно! Мы приветствуем, если вы делитесь своими любимыми играми с другими участниками.
                 </div>
             </div>
-
             <div class="faq-item">
                 <div class="faq-question">
                     📋 Нужно ли записываться заранее?
@@ -77,7 +83,6 @@
                     Желательно, но не обязательно. Записаться можно через форму на странице мероприятия или по телефону.
                 </div>
             </div>
-
             <div class="faq-item">
                 <div class="faq-question">
                     🍿 Можно ли с едой и напитками?
@@ -90,7 +95,7 @@
         </div>
 
         <div style="background: #1e2a47; border-radius: 24px; padding: 2rem; text-align: center; color: #fff; margin-top: 2rem;">
-            <h3 style="color: #f5a623;">Остались вопросы?</h3>
+            <h3 style="color: #ff2e5a;">Остались вопросы?</h3>
             <p style="margin: 1rem 0;">Свяжитесь с нами, и мы на всё ответим</p>
             <a href="../contacts.html" class="btn btn-primary">Написать нам</a>
         </div>
@@ -103,16 +108,24 @@
             <div class="footer-col">
                 <h3>Книжные грани</h3>
                 <p>Проект ЦБС Выборгского района</p>
-            </div>
-            <div class="footer-col">
-                <h3>Контакты</h3>
                 <p>пр. Просвещения, 43 (ТРК Парк-Молл)</p>
                 <p>+7 (812) 246-93-05</p>
                 <p>pargolovo@cbsvib.ru</p>
             </div>
             <div class="footer-col">
+                <h3>Разделы</h3>
+                <p><a href="../index.html">Главная</a></p>
+                <p><a href="../about.html">О проекте</a></p>
+                <p><a href="../events.html">Мероприятия</a></p>
+                <p><a href="../contacts.html">Контакты</a></p>
+            </div>
+            <div class="footer-col">
                 <h3>Мы в соцсетях</h3>
-                <a href="#"><i class="fab fa-vk"></i></a>
+                <div class="footer-social">
+                    <a href="https://vk.com/pargolovskaya_library" target="_blank"><i class="fab fa-vk"></i></a>
+                    <a href="#" target="_blank"><i class="fab fa-telegram"></i></a>
+                </div>
+                <p style="margin-top:1.5rem;">Подпишитесь на новости!</p>
             </div>
         </div>
         <div class="footer-bottom">
