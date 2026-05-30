@@ -1,4 +1,4 @@
-/* КНИЖНЫЕ ГРАНИ — СТИЛЬ КАК НА СТАРОМ САЙТЕ */
+/* КНИЖНЫЕ ГРАНИ — ФИНАЛЬНАЯ ВЕРСИЯ */
 :root {
     --neon-coral: #ff2e5a;
     --neon-coral-glow: rgba(255, 46, 90, 0.3);
@@ -252,7 +252,7 @@ header {
     color: #fff;
 }
 
-/* ===== МОБИЛЬНОЕ МЕНЮ (КАК НА СТАРОМ САЙТЕ) ===== */
+/* ===== МОБИЛЬНОЕ МЕНЮ ===== */
 @media (max-width: 768px) {
     .menu-toggle {
         display: block;
@@ -276,7 +276,7 @@ header {
     
     .desktop-menu {
         flex-direction: column;
-        align-items: flex-start;
+        align-items: center;
         gap: 0;
         width: 100%;
         padding: 0;
@@ -288,27 +288,39 @@ header {
     
     .simple-menu-item a,
     .dropdown-title {
+        justify-content: center;
+        text-align: center;
         padding: 0.8rem 0;
         width: 100%;
-        justify-content: flex-start;
         font-size: 1rem;
         border-bottom: 1px solid rgba(0,0,0,0.05);
     }
     
+    .simple-menu-item a i,
+    .dropdown-title i:first-child {
+        margin-right: 0.5rem;
+    }
+    
     .dropdown {
         width: 100%;
+        position: relative;
     }
     
     .dropdown-title {
-        justify-content: space-between;
+        justify-content: center;
+        position: relative;
     }
     
     .dropdown-title i:last-child {
-        transform: rotate(0deg);
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        margin: 0;
     }
     
     .dropdown.active .dropdown-title i:last-child {
-        transform: rotate(180deg);
+        transform: translateY(-50%) rotate(180deg);
     }
     
     .dropdown-menu {
@@ -319,9 +331,10 @@ header {
         background: transparent;
         border: none;
         padding: 0;
-        padding-left: 1rem;
+        padding-left: 0;
         display: none;
         box-shadow: none;
+        text-align: center;
     }
     
     .dropdown.active .dropdown-menu {
@@ -332,6 +345,7 @@ header {
         padding: 0.6rem 0;
         color: var(--text-secondary);
         font-size: 0.9rem;
+        text-align: center;
     }
     
     .dropdown-menu li a:hover {
