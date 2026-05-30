@@ -1,4 +1,4 @@
-// main.js — Книжные грани (финальная версия)
+// main.js — Книжные грани (финальная версия с кликабельными подменю)
 
 document.addEventListener('DOMContentLoaded', function() {
 
@@ -14,7 +14,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     if (menuToggle && navMenu) {
-        menuToggle.addEventListener('click', function() {
+        menuToggle.addEventListener('click', function(e) {
+            e.stopPropagation();
             navMenu.classList.toggle('active');
             overlay.classList.toggle('active');
             document.body.classList.toggle('menu-open');
@@ -43,13 +44,27 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Открытие подменю на мобилках
+    // ===== КЛИКАБЕЛЬНЫЕ ПОДМЕНЮ НА МОБИЛКАХ =====
     const dropdowns = document.querySelectorAll('.dropdown');
+    
     dropdowns.forEach(function(dropdown) {
         const title = dropdown.querySelector('.dropdown-title');
         if (title) {
+            // Убираем стандартное поведение ссылки
+            title.style.cursor = 'pointer';
+            
             title.addEventListener('click', function(e) {
                 e.preventDefault();
+                e.stopPropagation();
+                
+                // Закрываем все другие открытые подменю
+                dropdowns.forEach(function(other) {
+                    if (other !== dropdown) {
+                        other.classList.remove('active');
+                    }
+                });
+                
+                // Открываем/закрываем текущее
                 dropdown.classList.toggle('active');
             });
         }
@@ -152,9 +167,29 @@ document.addEventListener('DOMContentLoaded', function() {
         
         html += '</ul>';
         navContainer.innerHTML = html;
+        
+        // После сборки меню — перепривязываем обработчики для подменю
+        const newDropdowns = document.querySelectorAll('.dropdown');
+        newDropdowns.forEach(function(dropdown) {
+            const title = dropdown.querySelector('.dropdown-title');
+            if (title && !title.hasListener) {
+                title.hasListener = true;
+                title.style.cursor = 'pointer';
+                title.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    newDropdowns.forEach(function(other) {
+                        if (other !== dropdown) {
+                            other.classList.remove('active');
+                        }
+                    });
+                    dropdown.classList.toggle('active');
+                });
+            }
+        });
     }
 
-    // ===== АНИМАЦИЯ ПОЯВЛЕНИЯ КАРТОЧЕК С ЗАДЕРЖКОЙ (ЛЕСЕНКА) =====
+    // ===== АНИМАЦИЯ ПОЯВЛЕНИЯ КАРТОЧЕК С ЗАДЕРЖКОЙ =====
     const fadeElements = document.querySelectorAll('.event-card, .direction-card, .team-card, .partner-item');
     const observer = new IntersectionObserver((entries) => {
         entries.forEach((entry, index) => {
