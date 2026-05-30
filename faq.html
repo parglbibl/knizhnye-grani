@@ -13,20 +13,23 @@
 <header>
     <div class="container header-inner">
         <div class="logo">
-            <img src="images/logo-cbs.png" alt="ЦБС" style="height: 50px;">
-            <img src="images/logo-rost.png" alt="РОСТ" style="height: 50px; margin-left: 15px;">
+            <div class="logo-box"></div>
+            <span class="logo-text">КНИЖНЫЕ ГРАНИ</span>
         </div>
-        <div class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></div>
-        <nav class="nav" id="nav">
-            <ul>
-                <li><a href="index.html">Главная</a></li>
-                <li><a href="about.html">О проекте</a></li>
-                <li><a href="organizers.html">Организаторы</a></li>
-                <li><a href="events.html">Мероприятия</a></li>
-                <li><a href="partners.html">Партнёры</a></li>
-                <li><a href="contacts.html">Контакты</a></li>
-            </ul>
-        </nav>
+        <div class="menu-toggle" id="menuToggle">
+            <i class="fas fa-bars"></i>
+        </div>
+        <div class="search-icon-container">
+            <i class="fas fa-search" id="searchIcon"></i>
+            <div class="search-popup" id="searchPopup">
+                <form action="https://yandex.ru/search/" method="get" target="_blank">
+                    <input type="hidden" name="site" value="knizhnye-grani">
+                    <input type="text" name="text" placeholder="Поиск по сайту...">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </form>
+            </div>
+        </div>
+        <nav class="nav" id="nav"></nav>
     </div>
 </header>
 
@@ -34,66 +37,55 @@
     <div class="container">
         <h1 class="section-title">Часто задаваемые вопросы</h1>
 
-        <div class="faq-list" style="max-width: 800px; margin: 0 auto;">
-            <!-- Вопрос 1 -->
+        <div class="faq-list">
             <div class="faq-item">
                 <div class="faq-question">
-                    Я никогда не играл в настолки, мне можно?
+                    🎲 Я никогда не играл в настолки, мне можно?
                     <i class="fas fa-chevron-down"></i>
                 </div>
                 <div class="faq-answer">
                     Конечно! Мы ждём и новичков, и опытных игроков. Наши ведущие всегда помогут разобраться в правилах и подберут игру под ваш уровень.
                 </div>
             </div>
-
-            <!-- Вопрос 2 -->
             <div class="faq-item">
                 <div class="faq-question">
-                    Нужно ли покупать свой кубик Рубика?
+                    🧩 Нужно ли покупать свой кубик Рубика?
                     <i class="fas fa-chevron-down"></i>
                 </div>
                 <div class="faq-answer">
                     Нет, кубики предоставляются. Но если у вас есть свой — приносите, мы покажем новые техники сборки.
                 </div>
             </div>
-
-            <!-- Вопрос 3 -->
             <div class="faq-item">
                 <div class="faq-question">
-                    Есть ли возрастные ограничения?
+                    👶 Есть ли возрастные ограничения?
                     <i class="fas fa-chevron-down"></i>
                 </div>
                 <div class="faq-answer">
                     Нет, мы рады видеть всех — от детей (6+) до взрослых. Для каждой группы есть свои игры и задания.
                 </div>
             </div>
-
-            <!-- Вопрос 4 -->
             <div class="faq-item">
                 <div class="faq-question">
-                    Сколько это стоит?
+                    💰 Сколько это стоит?
                     <i class="fas fa-chevron-down"></i>
                 </div>
                 <div class="faq-answer">
                     Все наши мероприятия и занятия — абсолютно бесплатные! Приходите и приводите друзей.
                 </div>
             </div>
-
-            <!-- Вопрос 5 -->
             <div class="faq-item">
                 <div class="faq-question">
-                    Нужно ли записываться заранее?
+                    📝 Нужно ли записываться заранее?
                     <i class="fas fa-chevron-down"></i>
                 </div>
                 <div class="faq-answer">
                     Желательно, особенно на турниры и мастер-классы. Запись через форму на странице мероприятия или по телефону.
                 </div>
             </div>
-
-            <!-- Вопрос 6 -->
             <div class="faq-item">
                 <div class="faq-question">
-                    Где проходят мероприятия?
+                    📍 Где проходят мероприятия?
                     <i class="fas fa-chevron-down"></i>
                 </div>
                 <div class="faq-answer">
@@ -110,16 +102,24 @@
             <div class="footer-col">
                 <h3>Книжные грани</h3>
                 <p>Проект ЦБС Выборгского района</p>
-            </div>
-            <div class="footer-col">
-                <h3>Контакты</h3>
                 <p>пр. Просвещения, 43 (ТРК Парк-Молл)</p>
                 <p>+7 (812) 246-93-05</p>
                 <p>pargolovo@cbsvib.ru</p>
             </div>
             <div class="footer-col">
+                <h3>Разделы</h3>
+                <p><a href="index.html">Главная</a></p>
+                <p><a href="about.html">О проекте</a></p>
+                <p><a href="events.html">Мероприятия</a></p>
+                <p><a href="contacts.html">Контакты</a></p>
+            </div>
+            <div class="footer-col">
                 <h3>Мы в соцсетях</h3>
-                <a href="#"><i class="fab fa-vk"></i></a>
+                <div class="footer-social">
+                    <a href="https://vk.com/pargolovskaya_library" target="_blank"><i class="fab fa-vk"></i></a>
+                    <a href="#" target="_blank"><i class="fab fa-telegram"></i></a>
+                </div>
+                <p style="margin-top:1.5rem;">Подпишитесь на новости!</p>
             </div>
         </div>
         <div class="footer-bottom">
