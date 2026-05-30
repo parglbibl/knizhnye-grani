@@ -1,4 +1,4 @@
-// main.js — Книжные грани (финальная версия с кликабельными подменю)
+// main.js — Книжные грани (финальная версия с простым пунктом Главная и иконками в подменю)
 
 document.addEventListener('DOMContentLoaded', function() {
 
@@ -45,30 +45,28 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // ===== КЛИКАБЕЛЬНЫЕ ПОДМЕНЮ НА МОБИЛКАХ =====
-    const dropdowns = document.querySelectorAll('.dropdown');
-    
-    dropdowns.forEach(function(dropdown) {
-        const title = dropdown.querySelector('.dropdown-title');
-        if (title) {
-            // Убираем стандартное поведение ссылки
-            title.style.cursor = 'pointer';
-            
-            title.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                
-                // Закрываем все другие открытые подменю
-                dropdowns.forEach(function(other) {
-                    if (other !== dropdown) {
-                        other.classList.remove('active');
-                    }
+    function bindDropdownEvents() {
+        const dropdowns = document.querySelectorAll('.dropdown');
+        dropdowns.forEach(function(dropdown) {
+            const title = dropdown.querySelector('.dropdown-title');
+            if (title && !title.hasListener) {
+                title.hasListener = true;
+                title.style.cursor = 'pointer';
+                title.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    dropdowns.forEach(function(other) {
+                        if (other !== dropdown) {
+                            other.classList.remove('active');
+                        }
+                    });
+                    
+                    dropdown.classList.toggle('active');
                 });
-                
-                // Открываем/закрываем текущее
-                dropdown.classList.toggle('active');
-            });
-        }
-    });
+            }
+        });
+    }
 
     // ===== ПОИСК =====
     const searchIcon = document.getElementById('searchIcon');
@@ -112,81 +110,109 @@ document.addEventListener('DOMContentLoaded', function() {
     if (navContainer) {
         const currentFile = path.split('/').pop() || 'index.html';
         
+        // Структура меню: простой пункт Главная + выпадающие списки с иконками
         const menuData = [
             {
+                type: 'simple',
                 title: 'Главная',
                 icon: 'fas fa-home',
-                items: [
-                    { name: 'Главная', href: prefix + 'index.html' }
-                ]
+                href: prefix + 'index.html'
             },
             {
                 title: 'О проекте',
                 icon: 'fas fa-info-circle',
                 items: [
-                    { name: 'О проекте', href: prefix + 'about.html' },
-                    { name: 'Организаторы', href: prefix + 'organizers.html' },
-                    { name: 'Команда', href: prefix + 'team.html' }
+                    { name: 'О проекте', href: prefix + 'about.html', icon: 'fas fa-info-circle' },
+                    { name: 'Организатори', href: prefix + 'organizers.html', icon: 'fas fa-building' },
+                    { name: 'Команда', href: prefix + 'team.html', icon: 'fas fa-users' }
                 ]
             },
             {
                 title: 'Мероприятия',
                 icon: 'fas fa-calendar-alt',
                 items: [
-                    { name: 'Афиша', href: prefix + 'events.html' },
-                    { name: 'Настольные игры', href: prefix + 'boardgames/index.html' },
-                    { name: 'Спидкубинг', href: prefix + 'speedcubing/index.html' }
+                    { name: 'Афиша', href: prefix + 'events.html', icon: 'fas fa-calendar-alt' },
+                    { name: 'Настольные игры', href: prefix + 'boardgames/index.html', icon: 'fas fa-dice-d6' },
+                    { name: 'Спидкубинг', href: prefix + 'speedcubing/index.html', icon: 'fas fa-cube' }
                 ]
             },
             {
                 title: 'Участие',
                 icon: 'fas fa-handshake',
                 items: [
-                    { name: 'Партнёры', href: prefix + 'partners.html' },
-                    { name: 'Контакты', href: prefix + 'contacts.html' },
-                    { name: 'FAQ', href: prefix + 'faq.html' }
+                    { name: 'Партнёры', href: prefix + 'partners.html', icon: 'fas fa-handshake' },
+                    { name: 'Контакты', href: prefix + 'contacts.html', icon: 'fas fa-phone-alt' },
+                    { name: 'FAQ', href: prefix + 'faq.html', icon: 'fas fa-question-circle' }
                 ]
             }
         ];
 
         let html = '<ul class="desktop-menu">';
         
-        menuData.forEach(cat => {
-            let isCategoryActive = cat.items.some(item => item.href === currentFile);
-            html += `<li class="dropdown">
-                        <div class="dropdown-title ${isCategoryActive ? 'active' : ''}">
-                            <i class="${cat.icon}"></i> ${cat.title} <i class="fas fa-chevron-down"></i>
-                        </div>
-                        <ul class="dropdown-menu">`;
-            cat.items.forEach(item => {
+        menuData.forEach(item => {
+            if (item.type === 'simple') {
+                // Простой пункт меню без подменю
                 const isActive = (item.href === currentFile);
-                html += `<li><a href="${item.href}" class="${isActive ? 'active' : ''}">${item.name}</a></li>`;
-            });
-            html += `</ul></li>`;
+                html += `<li class="simple-menu-item">
+                            <a href="${item.href}" class="${isActive ? 'active' : ''}">
+                                <i class="${item.icon}"></i> ${item.title}
+                            </a>
+                        </li>`;
+            } else {
+                // Выпадающий список
+                let isCategoryActive = item.items.some(sub => sub.href === currentFile);
+                html += `<li class="dropdown">
+                            <div class="dropdown-title ${isCategoryActive ? 'active' : ''}">
+                                <i class="${item.icon}"></i> ${item.title} <i class="fas fa-chevron-down"></i>
+                            </div>
+                            <ul class="dropdown-menu">`;
+                item.items.forEach(sub => {
+                    const isActive = (sub.href === currentFile);
+                    html += `<li><a href="${sub.href}" class="${isActive ? 'active' : ''}">
+                                <i class="${sub.icon}"></i> ${sub.name}
+                            </a></li>`;
+                });
+                html += `</ul></li>`;
+            }
         });
         
         html += '</ul>';
         navContainer.innerHTML = html;
         
-        // После сборки меню — перепривязываем обработчики для подменю
-        const newDropdowns = document.querySelectorAll('.dropdown');
-        newDropdowns.forEach(function(dropdown) {
-            const title = dropdown.querySelector('.dropdown-title');
-            if (title && !title.hasListener) {
-                title.hasListener = true;
-                title.style.cursor = 'pointer';
-                title.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    newDropdowns.forEach(function(other) {
-                        if (other !== dropdown) {
-                            other.classList.remove('active');
-                        }
-                    });
-                    dropdown.classList.toggle('active');
-                });
+        // Добавляем стили для простого пункта меню
+        const style = document.createElement('style');
+        style.textContent = `
+            .simple-menu-item a {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                color: var(--text-primary);
+                font-weight: 500;
+                padding: 0.6rem 0;
+                font-size: 0.85rem;
+                letter-spacing: 0.15em;
+                text-transform: uppercase;
+                text-decoration: none;
+                transition: color 0.2s;
             }
-        });
+            .simple-menu-item a:hover {
+                color: var(--neon-coral);
+            }
+            .simple-menu-item a.active {
+                color: var(--neon-coral);
+            }
+            @media (max-width: 768px) {
+                .simple-menu-item a {
+                    padding: 0.8rem 0;
+                    justify-content: space-between;
+                    border-top: 1px solid rgba(0,0,0,0.05);
+                }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Привязываем обработчики для выпадающих списков
+        bindDropdownEvents();
     }
 
     // ===== АНИМАЦИЯ ПОЯВЛЕНИЯ КАРТОЧЕК С ЗАДЕРЖКОЙ =====
