@@ -765,7 +765,7 @@ footer {
 /* ===== ПРИБЛИЖАЕМ БУРГЕР К ПОИСКУ ===== */
 @media (max-width: 768px) {
     .menu-toggle {
-        margin-right: 0.25rem;
+        margin-right: 0;
     }
     
     .search-icon-container {
