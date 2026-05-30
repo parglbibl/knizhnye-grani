@@ -1,4 +1,4 @@
-/* КНИЖНЫЕ ГРАНИ — ПОЛНАЯ ВЕРСИЯ, ОПТИМИЗИРОВАННАЯ ДЛЯ МОБИЛЬНЫХ */
+/* КНИЖНЫЕ ГРАНИ — ФИНАЛЬНАЯ ВЕРСИЯ С РАБОЧИМ БУРГЕР-МЕНЮ */
 :root {
     --neon-coral: #ff2e5a;
     --neon-coral-glow: rgba(255, 46, 90, 0.3);
@@ -38,7 +38,7 @@ body {
     }
 }
 
-/* ===== ШАПКА С ИМИТАЦИЕЙ РАЗМЫТИЯ (БЫСТРЕЕ BLUR) ===== */
+/* ===== ШАПКА ===== */
 header {
     background: rgba(254, 249, 240, 0.96);
     border-bottom: 1px solid var(--neon-coral);
@@ -51,6 +51,7 @@ header {
 @media (min-width: 769px) {
     header {
         background: rgba(254, 249, 240, 0.85);
+        backdrop-filter: blur(12px);
     }
 }
 
@@ -103,22 +104,8 @@ header {
     font-size: 1.8rem;
     cursor: pointer;
     color: var(--neon-coral);
-}
-
-@media (max-width: 768px) {
-    .menu-toggle {
-        display: block;
-        position: absolute;
-        right: 0;
-        top: 0;
-    }
-    .logo {
-        position: static;
-    }
-    .header-inner {
-        flex-wrap: wrap;
-        justify-content: space-between;
-    }
+    background: none;
+    border: none;
 }
 
 /* ===== МЕНЮ ===== */
@@ -127,15 +114,6 @@ header {
     list-style: none;
     gap: 2.5rem;
     margin: 0 auto;
-}
-
-@media (max-width: 768px) {
-    .desktop-menu {
-        flex-direction: column;
-        gap: 0;
-        width: 100%;
-        margin-top: 1rem;
-    }
 }
 
 .dropdown {
@@ -158,14 +136,6 @@ header {
 
 .dropdown-title i:last-child {
     font-size: 0.7rem;
-}
-
-@media (max-width: 768px) {
-    .dropdown-title {
-        padding: 0.8rem 0;
-        justify-content: space-between;
-        border-top: 1px solid rgba(0,0,0,0.05);
-    }
 }
 
 .dropdown:hover .dropdown-title {
@@ -194,22 +164,6 @@ header {
     transform: translateY(0);
 }
 
-@media (max-width: 768px) {
-    .dropdown-menu {
-        position: static;
-        opacity: 1;
-        visibility: visible;
-        transform: none;
-        border: none;
-        background: transparent;
-        padding-left: 1rem;
-        display: none;
-    }
-    .dropdown:hover .dropdown-menu {
-        display: block;
-    }
-}
-
 .dropdown-menu li a {
     display: block;
     padding: 0.8rem 1.8rem;
@@ -224,13 +178,6 @@ header {
 .dropdown-menu li a:hover {
     background: var(--neon-coral);
     color: #fff;
-}
-
-@media (max-width: 768px) {
-    .dropdown-menu li a {
-        padding: 0.5rem 1rem;
-        color: var(--text-secondary);
-    }
 }
 
 /* ===== ГЛАВНЫЙ ЭКРАН ===== */
@@ -362,7 +309,6 @@ header {
         padding: 0.7rem 1.5rem;
         font-size: 0.7rem;
     }
-    /* Упрощаем hover на мобилках через активное состояние */
     .btn:active {
         background: var(--neon-coral);
         color: #fff;
@@ -504,13 +450,6 @@ header {
     .team-card {
         padding: 1.5rem;
     }
-    /* Лёгкий эффект нажатия вместо hover */
-    .event-card:active,
-    .direction-card:active,
-    .team-card:active {
-        transform: scale(0.98);
-        border-color: var(--neon-coral);
-    }
 }
 
 .event-number {
@@ -576,6 +515,19 @@ header {
     }
 }
 
+.team-card h3 {
+    color: #fff;
+    font-size: 1.3rem;
+    margin-bottom: 0.5rem;
+}
+
+.team-card p {
+    color: var(--card-text-secondary);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
 /* ===== ПАРТНЁРЫ ===== */
 .partners-grid {
     display: grid;
@@ -611,6 +563,14 @@ header {
         filter: grayscale(0%) brightness(1);
         transform: scale(0.98);
     }
+}
+
+.partner-item p {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-secondary);
+    margin-top: 0.75rem;
 }
 
 /* ===== FAQ ===== */
@@ -769,7 +729,7 @@ footer {
     }
 }
 
-/* ===== АНИМАЦИЯ ПОЯВЛЕНИЯ КАРТОЧЕК (ОПТИМИЗИРОВАННАЯ) ===== */
+/* ===== АНИМАЦИЯ ПОЯВЛЕНИЯ КАРТОЧЕК ===== */
 .event-card, .direction-card, .team-card, .partner-item {
     opacity: 0;
     transform: translateY(20px);
@@ -786,5 +746,73 @@ footer {
     .event-card, .direction-card, .team-card, .partner-item {
         transform: translateY(10px);
         transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+}
+
+/* ===== БУРГЕР-МЕНЮ (МОБИЛЬНАЯ ВЕРСИЯ) ===== */
+@media (max-width: 768px) {
+    .menu-toggle {
+        display: block !important;
+        position: absolute;
+        right: 0;
+        top: 0;
+        z-index: 101;
+    }
+    
+    .nav {
+        display: none !important;
+        width: 100%;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        background: #fef9f0;
+        border-bottom: 1px solid #ff2e5a;
+        padding: 1rem;
+        z-index: 100;
+    }
+    
+    .nav.active {
+        display: block !important;
+    }
+    
+    .desktop-menu {
+        flex-direction: column;
+        gap: 0;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+    }
+    
+    .dropdown {
+        width: 100%;
+    }
+    
+    .dropdown-title {
+        justify-content: space-between;
+        padding: 0.8rem 0;
+        border-top: 1px solid rgba(0,0,0,0.05);
+        color: #111111;
+    }
+    
+    .dropdown-menu {
+        position: static;
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+        border: none;
+        padding-left: 1rem;
+        display: none;
+        background: transparent;
+        box-shadow: none;
+    }
+    
+    .dropdown.active .dropdown-menu {
+        display: block;
+    }
+    
+    .dropdown-menu li a {
+        color: #555566;
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
     }
 }
