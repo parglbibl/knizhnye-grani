@@ -1,222 +1,694 @@
-// main.js — Книжные грани (финальная версия, без шума и глитча)
+/* КНИЖНЫЕ ГРАНИ — МОЛОЧНЫЙ ФОН, ТЁМНО-СИНИЕ КАРТОЧКИ, КРАСНОЕ СВЕЧЕНИЕ ПО ВСЕМУ БЛОКУ HERO */
+:root {
+    --neon-coral: #ff2e5a;
+    --neon-coral-glow: rgba(255, 46, 90, 0.3);
+    --neon-blue: #00d4ff;
+    --graphite-deep: #fef9f0;
+    --graphite-dark: #1e2a3a;
+    --graphite-card: #1e2a47;
+    --text-primary: #111111;
+    --text-secondary: #555566;
+    --card-text: #e0e4f0;
+    --card-text-secondary: #a0a8c0;
+}
 
-document.addEventListener('DOMContentLoaded', function() {
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-    // ===== ССЫЛКА НА ГЛАВНУЮ ДЛЯ ЛОГОТИПА =====
-    const path = window.location.pathname;
-    let prefix = '';
-    if (path.includes('/boardgames/') || path.includes('/speedcubing/')) {
-        prefix = '../';
+body {
+    background: var(--graphite-deep);
+    color: var(--text-primary);
+    font-family: 'Space Grotesk', 'Inter', monospace;
+    line-height: 1.4;
+    overflow-x: hidden;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 3rem;
+}
+
+/* ===== ШАПКА ===== */
+header {
+    background: rgba(254, 249, 240, 0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--neon-coral);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    padding: 1.5rem 0;
+}
+
+.header-inner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.logo {
+    position: absolute;
+    left: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.logo a {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+    color: inherit;
+}
+
+.logo-box {
+    width: 44px;
+    height: 44px;
+    border: 2px solid var(--neon-coral);
+    transform: rotate(45deg);
+    transition: transform 0.3s;
+}
+
+.logo-box:hover {
+    transform: rotate(90deg);
+    border-color: var(--neon-blue);
+}
+
+.logo-text {
+    font-size: 0.8rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+}
+
+.menu-toggle {
+    display: none;
+    font-size: 1.8rem;
+    cursor: pointer;
+    color: var(--neon-coral);
+}
+
+/* ===== МЕНЮ ===== */
+.desktop-menu {
+    display: flex;
+    list-style: none;
+    gap: 2.5rem;
+    margin: 0 auto;
+}
+
+.dropdown {
+    position: relative;
+}
+
+.dropdown-title {
+    color: var(--text-primary);
+    font-weight: 500;
+    padding: 0.6rem 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    transition: color 0.2s;
+}
+
+.dropdown-title i:last-child {
+    font-size: 0.7rem;
+}
+
+.dropdown:hover .dropdown-title {
+    color: var(--neon-coral);
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: var(--graphite-dark);
+    border: 1px solid var(--neon-coral);
+    padding: 0.5rem 0;
+    min-width: 240px;
+    list-style: none;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.2s;
+    z-index: 100;
+}
+
+.dropdown:hover .dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.dropdown-menu li a {
+    display: block;
+    padding: 0.8rem 1.8rem;
+    color: #ccc;
+    text-decoration: none;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    transition: all 0.2s;
+}
+
+.dropdown-menu li a:hover {
+    background: var(--neon-coral);
+    color: #fff;
+}
+
+/* ===== ГЛАВНЫЙ ЭКРАН (КРАСНОЕ СВЕЧЕНИЕ ПО ВСЕМУ БЛОКУ) ===== */
+.hero {
+    padding: 10rem 0 8rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    background: radial-gradient(ellipse at 50% 40%, rgba(255,46,90,0.12) 0%, rgba(255,46,90,0) 70%), var(--graphite-deep);
+}
+
+.hero h1 {
+    font-size: 5.5rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    line-height: 1;
+    margin-bottom: 2rem;
+    letter-spacing: -0.03em;
+    color: var(--text-primary);
+    position: relative;
+}
+
+.hero h1 span {
+    color: var(--neon-coral);
+    display: inline-block;
+}
+
+.hero-lead {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 2rem;
+}
+
+.hero-desc {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    max-width: 700px;
+    margin: 0 auto 6rem;
+}
+
+.hero-buttons {
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+}
+
+/* ===== КНОПКИ ===== */
+.btn {
+    display: inline-block;
+    padding: 1rem 2.5rem;
+    background: transparent;
+    border: 1.5px solid var(--neon-coral);
+    color: var(--neon-coral);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    transition: all 0.3s;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: var(--neon-coral);
+    transition: left 0.3s;
+    z-index: -1;
+}
+
+.btn:hover {
+    color: #fff;
+}
+
+.btn:hover::before {
+    left: 0;
+}
+
+/* ===== СЕКЦИИ (УВЕЛИЧЕННЫЕ ОТСТУПЫ) ===== */
+.section {
+    padding: 7rem 0;
+    border-top: 1px solid rgba(0,0,0,0.05);
+}
+
+.section-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 5rem;
+    gap: 2rem;
+    text-align: center;
+}
+
+.section-label {
+    font-size: 0.8rem;
+    letter-spacing: 0.2em;
+    color: var(--neon-coral);
+    text-transform: uppercase;
+    border: 1px solid var(--neon-coral);
+    padding: 0.4rem 1rem;
+    display: inline-block;
+}
+
+.section-title {
+    font-size: 3.5rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    text-align: center;
+    color: var(--text-primary);
+    margin-bottom: 3rem;
+}
+
+.section-title small {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    display: block;
+    margin-top: 0.8rem;
+}
+
+.section-text {
+    max-width: 800px;
+    margin: 0 auto 2.5rem;
+    text-align: center;
+    font-size: 1.1rem;
+    line-height: 1.5;
+    color: var(--text-secondary);
+}
+
+.section .btn {
+    margin-top: 0.5rem;
+}
+
+/* ===== КАРТОЧКИ (ТЁМНО-СИНИЕ) ===== */
+.events-grid,
+.directions-grid,
+.team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 4rem;
+}
+
+.event-card,
+.direction-card,
+.team-card {
+    background: var(--graphite-card);
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 2.5rem;
+    transition: all 0.3s;
+    text-align: center;
+    color: var(--card-text);
+}
+
+.event-card:hover,
+.direction-card:hover,
+.team-card:hover {
+    border-color: var(--neon-coral);
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+}
+
+.event-number {
+    font-size: 0.75rem;
+    color: var(--neon-coral);
+    letter-spacing: 0.2em;
+    margin-bottom: 1.2rem;
+}
+
+.event-date {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    color: var(--card-text-secondary);
+    margin-bottom: 1.2rem;
+}
+
+.event-card h3,
+.direction-card h3 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: #fff;
+}
+
+.direction-card i {
+    font-size: 3rem;
+    color: var(--neon-coral);
+    margin-bottom: 1.5rem;
+    display: inline-block;
+}
+
+.event-card p,
+.direction-card p {
+    font-size: 1rem;
+    color: var(--card-text-secondary);
+    line-height: 1.5;
+}
+
+/* ===== КОМАНДА ===== */
+.team-card {
+    background: var(--graphite-card);
+    padding: 0 0 1.5rem 0;
+}
+
+.team-card img {
+    width: 100%;
+    height: 320px;
+    object-fit: cover;
+    margin-bottom: 1.5rem;
+    border-bottom: 2px solid var(--neon-coral);
+}
+
+.team-card h3 {
+    color: #fff;
+    font-size: 1.3rem;
+    margin-bottom: 0.5rem;
+}
+
+.team-card p {
+    color: var(--card-text-secondary);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+/* ===== ПАРТНЁРЫ ===== */
+.partners-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 3rem;
+    align-items: center;
+    justify-items: center;
+}
+
+.partner-item {
+    text-align: center;
+    filter: grayscale(100%) brightness(0.9);
+    transition: all 0.3s;
+    cursor: pointer;
+}
+
+.partner-item:hover {
+    filter: grayscale(0%) brightness(1);
+    transform: scale(1.05);
+}
+
+.partner-item p {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-secondary);
+    margin-top: 0.75rem;
+}
+
+/* ===== FAQ ===== */
+.faq-list {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.faq-item {
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+}
+
+.faq-question {
+    padding: 1.5rem 0;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 1rem;
+    letter-spacing: 0.05em;
+    color: var(--text-primary);
+}
+
+.faq-question i {
+    transition: transform 0.3s;
+    color: var(--neon-coral);
+    font-size: 0.9rem;
+}
+
+.faq-question.active i {
+    transform: rotate(180deg);
+}
+
+.faq-answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.faq-answer.show {
+    max-height: 300px;
+    padding-bottom: 2rem;
+}
+
+/* ===== ПОДВАЛ ===== */
+footer {
+    background: var(--graphite-deep);
+    border-top: 1px solid rgba(0,0,0,0.1);
+    padding: 4rem 0 2rem;
+    margin-top: 4rem;
+    text-align: center;
+    color: var(--text-primary);
+}
+
+.footer-grid {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2.5rem;
+    margin-bottom: 2.5rem;
+}
+
+.footer-col h3 {
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    margin-bottom: 1.2rem;
+    color: var(--neon-coral);
+}
+
+.footer-col p,
+.footer-col a {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+    line-height: 2.2;
+}
+
+.footer-col a:hover {
+    color: var(--neon-coral);
+}
+
+.footer-bottom {
+    padding-top: 2.5rem;
+    margin-top: 2.5rem;
+    border-top: 1px solid rgba(0,0,0,0.1);
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    letter-spacing: 0.1em;
+}
+
+/* ===== КНОПКА НАВЕРХ ===== */
+.back-to-top {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 52px;
+    height: 52px;
+    background: var(--graphite-card);
+    border: 1px solid var(--neon-coral);
+    color: var(--neon-coral);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    font-size: 1.4rem;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s;
+    z-index: 1000;
+    cursor: pointer;
+}
+
+.back-to-top:hover {
+    background: var(--neon-coral);
+    color: #fff;
+    transform: translateY(-5px);
+    box-shadow: 0 0 20px var(--neon-coral-glow);
+}
+
+.back-to-top.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* ===== АДАПТИВ ===== */
+@media (max-width: 968px) {
+    .container {
+        padding: 0 2rem;
     }
-
-    const logo = document.querySelector('.logo');
-    if (logo && !logo.querySelector('a')) {
-        const link = document.createElement('a');
-        link.href = prefix + 'index.html';
-        link.style.display = 'flex';
-        link.style.alignItems = 'center';
-        link.style.gap = '0.75rem';
-        link.style.textDecoration = 'none';
-        link.style.color = 'inherit';
-        while (logo.firstChild) {
-            link.appendChild(logo.firstChild);
-        }
-        logo.appendChild(link);
+    .hero h1 {
+        font-size: 4rem;
     }
-
-    // ===== МЕНЮ =====
-    const nav = document.getElementById('nav');
-    const menuToggle = document.getElementById('menuToggle');
-
-    if (nav) {
-        const currentFile = path.split('/').pop() || 'index.html';
-        
-        const menuData = [
-            {
-                title: 'Главная',
-                icon: 'fas fa-home',
-                items: [
-                    { name: 'Главная', href: prefix + 'index.html' }
-                ]
-            },
-            {
-                title: 'О проекте',
-                icon: 'fas fa-info-circle',
-                items: [
-                    { name: 'О проекте', href: prefix + 'about.html' },
-                    { name: 'Организаторы', href: prefix + 'organizers.html' },
-                    { name: 'Команда', href: prefix + 'team.html' }
-                ]
-            },
-            {
-                title: 'Мероприятия',
-                icon: 'fas fa-calendar-alt',
-                items: [
-                    { name: 'Афиша', href: prefix + 'events.html' },
-                    { name: 'Настольные игры', href: prefix + 'boardgames/index.html' },
-                    { name: 'Спидкубинг', href: prefix + 'speedcubing/index.html' }
-                ]
-            },
-            {
-                title: 'Участие',
-                icon: 'fas fa-handshake',
-                items: [
-                    { name: 'Партнёры', href: prefix + 'partners.html' },
-                    { name: 'Контакты', href: prefix + 'contacts.html' },
-                    { name: 'FAQ', href: prefix + 'faq.html' }
-                ]
-            }
-        ];
-
-        let html = '<ul class="desktop-menu">';
-        
-        menuData.forEach(cat => {
-            let isActive = false;
-            cat.items.forEach(item => {
-                const targetFile = item.href.split('/').pop();
-                if (targetFile === currentFile || (currentFile === '' && targetFile === 'index.html')) {
-                    isActive = true;
-                }
-            });
-            
-            html += `<li class="dropdown">
-                        <div class="dropdown-title ${isActive ? 'active' : ''}">
-                            <i class="${cat.icon}"></i> ${cat.title} <i class="fas fa-chevron-down"></i>
-                        </div>
-                        <ul class="dropdown-menu">`;
-            
-            cat.items.forEach(item => {
-                const targetFile = item.href.split('/').pop();
-                const activeClass = (targetFile === currentFile) ? 'active' : '';
-                html += `<li><a href="${item.href}" class="${activeClass}">${item.name}</a></li>`;
-            });
-            
-            html += `</ul></li>`;
-        });
-        
-        html += '</ul>';
-        nav.innerHTML = html;
+    .section-title {
+        font-size: 2.8rem;
     }
-
-    // ===== БУРГЕР-МЕНЮ =====
-    if (menuToggle && nav) {
-        menuToggle.addEventListener('click', function() {
-            nav.classList.toggle('active');
-        });
+    .hero {
+        padding: 6rem 0;
     }
-
-    // ===== АНИМАЦИЯ КНОПОК (лёгкий наклон) =====
-    const glitchBtns = document.querySelectorAll('.btn');
-    glitchBtns.forEach(btn => {
-        btn.addEventListener('mouseenter', () => {
-            btn.style.transform = 'skewX(-2deg)';
-        });
-        btn.addEventListener('mouseleave', () => {
-            btn.style.transform = 'skewX(0)';
-        });
-    });
-
-    // ===== АНИМАЦИЯ ПОЯВЛЕНИЯ КАРТОЧЕК ПРИ СКРОЛЛЕ =====
-    const fadeElements = document.querySelectorAll('.event-card, .direction-card, .team-card, .partner-item');
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.style.opacity = '1';
-                entry.target.style.transform = 'translateY(0)';
-                observer.unobserve(entry.target);
-            }
-        });
-    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
-
-    fadeElements.forEach(el => {
-        el.style.opacity = '0';
-        el.style.transform = 'translateY(30px)';
-        el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-        observer.observe(el);
-    });
-
-    // ===== FAQ АККОРДЕОН =====
-    const faqQuestions = document.querySelectorAll('.faq-question');
-    faqQuestions.forEach(question => {
-        question.addEventListener('click', () => {
-            const answer = question.nextElementSibling;
-            const isActive = question.classList.contains('active');
-            
-            faqQuestions.forEach(q => {
-                q.classList.remove('active');
-                if (q.nextElementSibling) {
-                    q.nextElementSibling.classList.remove('show');
-                }
-            });
-            
-            if (!isActive) {
-                question.classList.add('active');
-                if (answer) {
-                    answer.classList.add('show');
-                }
-            }
-        });
-    });
-
-    // ===== КНОПКА "НАВЕРХ" =====
-    function initBackToTop() {
-        const backBtn = document.createElement('a');
-        backBtn.href = '#';
-        backBtn.className = 'back-to-top';
-        backBtn.innerHTML = '<i class="fas fa-chevron-up"></i>';
-        document.body.appendChild(backBtn);
-        
-        function toggleButton() {
-            if (window.pageYOffset > 300) {
-                backBtn.classList.add('show');
-            } else {
-                backBtn.classList.remove('show');
-            }
-        }
-        
-        window.addEventListener('scroll', toggleButton);
-        backBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        });
-        
-        toggleButton();
+    .section {
+        padding: 5rem 0;
     }
-    
-    initBackToTop();
-
-    // ===== ТЕКУЩИЙ ГОД В ПОДВАЛЕ =====
-    const yearSpan = document.getElementById('current-year');
-    if (yearSpan) {
-        yearSpan.textContent = new Date().getFullYear();
+    .events-grid,
+    .directions-grid,
+    .team-grid {
+        gap: 2rem;
     }
+}
 
-    // ===== ПОИСК (если есть на странице) =====
-    const searchIcon = document.getElementById('searchIcon');
-    const searchPopup = document.getElementById('searchPopup');
-    if (searchIcon && searchPopup) {
-        searchIcon.addEventListener('click', function(e) {
-            e.stopPropagation();
-            searchPopup.classList.toggle('active');
-        });
-        document.addEventListener('click', function(event) {
-            if (!searchIcon.contains(event.target) && !searchPopup.contains(event.target)) {
-                searchPopup.classList.remove('active');
-            }
-        });
+@media (max-width: 768px) {
+    .container {
+        padding: 0 1.5rem;
     }
-
-    // ===== АНИМАЦИЯ ЗАГОЛОВКА НА ГЛАВНОЙ =====
-    const heroTitle = document.querySelector('.hero h1');
-    if (heroTitle && !heroTitle.hasAttribute('data-animated')) {
-        heroTitle.setAttribute('data-animated', 'true');
-        heroTitle.style.opacity = '0';
-        heroTitle.style.transform = 'translateY(20px)';
-        heroTitle.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-        setTimeout(() => {
-            heroTitle.style.opacity = '1';
-            heroTitle.style.transform = 'translateY(0)';
-        }, 200);
+    .menu-toggle {
+        display: block;
+        position: absolute;
+        right: 1rem;
+        top: 1rem;
     }
-
-});
+    .logo {
+        position: static;
+        margin-bottom: 1rem;
+    }
+    .header-inner {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .nav {
+        display: none;
+        width: 100%;
+    }
+    .nav.active {
+        display: block;
+    }
+    .desktop-menu {
+        flex-direction: column;
+        gap: 0;
+        text-align: center;
+    }
+    .dropdown {
+        width: 100%;
+    }
+    .dropdown-title {
+        padding: 0.75rem 0;
+        justify-content: center;
+        border-top: 1px solid rgba(0,0,0,0.1);
+        color: var(--text-primary);
+    }
+    .dropdown-menu {
+        position: static;
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+        border: none;
+        padding-left: 0;
+        display: none;
+        background: transparent;
+        text-align: center;
+    }
+    .dropdown:hover .dropdown-menu {
+        display: block;
+    }
+    .hero {
+        padding: 4rem 0;
+    }
+    .hero h1 {
+        font-size: 2.8rem;
+    }
+    .hero-lead {
+        font-size: 0.9rem;
+    }
+    .hero-desc {
+        font-size: 1rem;
+        margin-bottom: 2.5rem;
+    }
+    .hero-buttons {
+        gap: 1rem;
+        flex-direction: column;
+        align-items: center;
+    }
+    .btn {
+        width: 100%;
+        max-width: 280px;
+        text-align: center;
+        padding: 0.8rem 1.5rem;
+    }
+    .section {
+        padding: 3rem 0;
+    }
+    .section-title {
+        font-size: 2rem;
+    }
+    .section-title small {
+        font-size: 0.9rem;
+    }
+    .events-grid,
+    .directions-grid,
+    .team-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+    .event-card,
+    .direction-card,
+    .team-card {
+        padding: 1.5rem;
+    }
+    .event-card h3,
+    .direction-card h3 {
+        font-size: 1.3rem;
+    }
+    .team-card img {
+        height: 240px;
+    }
+    .partners-grid {
+        gap: 1.5rem;
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .footer-grid {
+        gap: 1.5rem;
+    }
+}
