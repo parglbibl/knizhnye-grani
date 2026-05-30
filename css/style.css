@@ -1,4 +1,4 @@
-/* КНИЖНЫЕ ГРАНИ — ФИНАЛЬНАЯ ВЕРСИЯ С РАБОЧИМ БУРГЕР-МЕНЮ */
+/* КНИЖНЫЕ ГРАНИ — ПОЛНАЯ ФИНАЛЬНАЯ ВЕРСИЯ */
 :root {
     --neon-coral: #ff2e5a;
     --neon-coral-glow: rgba(255, 46, 90, 0.3);
@@ -109,6 +109,69 @@ header {
     z-index: 102;
 }
 
+/* ===== ПОИСК В ШАПКЕ ===== */
+.search-icon-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    z-index: 103;
+}
+
+#searchIcon {
+    font-size: 1.3rem;
+    color: var(--neon-coral);
+    cursor: pointer;
+    padding: 8px;
+    transition: all 0.3s;
+}
+
+#searchIcon:hover {
+    transform: scale(1.1);
+    color: var(--text-primary);
+}
+
+.search-popup {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    padding: 12px;
+    display: none;
+    z-index: 10000;
+    min-width: 280px;
+    margin-top: 8px;
+}
+
+.search-popup.active {
+    display: block;
+}
+
+.search-popup form {
+    display: flex;
+    gap: 8px;
+}
+
+.search-popup input[type="text"] {
+    flex: 1;
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 50px;
+    outline: none;
+    font-size: 0.9rem;
+    font-family: inherit;
+}
+
+.search-popup button {
+    background: var(--neon-coral);
+    color: white;
+    border: none;
+    padding: 0 18px;
+    border-radius: 50px;
+    cursor: pointer;
+}
+
 /* ===== МЕНЮ (ДЕСКТОП) ===== */
 .desktop-menu {
     display: flex;
@@ -132,7 +195,7 @@ header {
     font-size: 0.85rem;
     letter-spacing: 0.15em;
     text-transform: uppercase;
-    transition: color 0.2s;
+    transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
 }
 
 .dropdown-title i:last-child {
@@ -141,6 +204,7 @@ header {
 
 .dropdown:hover .dropdown-title {
     color: var(--neon-coral);
+    transform: translateX(4px);
 }
 
 .dropdown-menu {
@@ -192,7 +256,7 @@ header {
 @media (max-width: 768px) {
     .hero {
         padding: 5rem 0 4rem;
-        background: radial-gradient(circle at 50% 0%, rgba(255,46,90,0.08) 0%, rgba(255,46,90,0) 70%), var(--graphite-deep);
+        background: var(--graphite-deep);
     }
 }
 
@@ -275,7 +339,7 @@ header {
     font-size: 0.8rem;
     text-transform: uppercase;
     letter-spacing: 0.15em;
-    transition: all 0.3s;
+    transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
     cursor: pointer;
     position: relative;
     overflow: hidden;
@@ -297,6 +361,7 @@ header {
 
 .btn:hover {
     color: #fff;
+    transform: translateY(-6px);
 }
 
 .btn:hover::before {
@@ -433,7 +498,7 @@ header {
     background: var(--graphite-card);
     border: 1px solid rgba(255,255,255,0.1);
     padding: 2.5rem;
-    transition: all 0.3s;
+    transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
     text-align: center;
     color: var(--card-text);
     will-change: transform;
@@ -444,7 +509,7 @@ header {
     .direction-card:hover,
     .team-card:hover {
         border-color: var(--neon-coral);
-        transform: translateY(-8px);
+        transform: translateY(-6px);
         box-shadow: 0 20px 40px rgba(0,0,0,0.3);
     }
 }
@@ -454,6 +519,8 @@ header {
     .direction-card,
     .team-card {
         padding: 1.5rem;
+        box-shadow: none;
+        border: 1px solid rgba(255,255,255,0.2);
     }
 }
 
@@ -552,7 +619,7 @@ header {
 .partner-item {
     text-align: center;
     filter: grayscale(100%) brightness(0.9);
-    transition: all 0.3s;
+    transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
     cursor: pointer;
 }
 
@@ -599,6 +666,7 @@ header {
     font-size: 1rem;
     letter-spacing: 0.05em;
     color: var(--text-primary);
+    transition: all 0.3s;
 }
 
 @media (max-width: 768px) {
@@ -692,6 +760,33 @@ footer {
     letter-spacing: 0.1em;
 }
 
+/* ===== СОЦСЕТИ В ПОДВАЛЕ ===== */
+.footer-social {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.5rem;
+    justify-content: center;
+}
+
+.footer-social a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255,46,90,0.2);
+    color: var(--neon-coral);
+    font-size: 1.3rem;
+    transition: all 0.3s;
+}
+
+.footer-social a:hover {
+    background: var(--neon-coral);
+    color: #fff;
+    transform: translateY(-3px);
+}
+
 /* ===== КНОПКА НАВЕРХ ===== */
 .back-to-top {
     position: fixed;
@@ -738,20 +833,12 @@ footer {
 .event-card, .direction-card, .team-card, .partner-item {
     opacity: 0;
     transform: translateY(20px);
-    transition: opacity 0.5s ease, transform 0.5s ease;
-    will-change: opacity, transform;
+    transition: opacity 0.4s ease, transform 0.4s ease;
 }
 
 .event-card.visible, .direction-card.visible, .team-card.visible, .partner-item.visible {
     opacity: 1;
     transform: translateY(0);
-}
-
-@media (max-width: 768px) {
-    .event-card, .direction-card, .team-card, .partner-item {
-        transform: translateY(10px);
-        transition: opacity 0.3s ease, transform 0.3s ease;
-    }
 }
 
 /* ===== БУРГЕР-МЕНЮ (МОБИЛЬНАЯ ВЕРСИЯ) ===== */
@@ -774,13 +861,15 @@ footer {
     .nav {
         display: none !important;
         width: 100%;
-        position: absolute;
-        top: 100%;
+        position: fixed;
+        top: 0;
         left: 0;
-        background: #fef9f0;
+        height: 100vh;
+        background: var(--graphite-deep);
         border-bottom: 1px solid #ff2e5a;
-        padding: 1rem;
+        padding: 5rem 1.5rem 2rem;
         z-index: 100;
+        overflow-y: auto;
     }
     
     .nav.active {
