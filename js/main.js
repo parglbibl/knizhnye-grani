@@ -1,4 +1,4 @@
-// main.js — Книжные грани (финальная версия с Главной по центру)
+// main.js — Книжные грани (финальная версия)
 
 document.addEventListener('DOMContentLoaded', function() {
 
@@ -110,7 +110,6 @@ document.addEventListener('DOMContentLoaded', function() {
     if (navContainer) {
         const currentFile = path.split('/').pop() || 'index.html';
         
-        // Структура меню: все пункты в одном списке (без отдельного simple-menu-item)
         const menuItems = [
             {
                 type: 'simple',
@@ -180,50 +179,10 @@ document.addEventListener('DOMContentLoaded', function() {
         html += '</ul>';
         navContainer.innerHTML = html;
         
-        // Стили для простого пункта, чтобы он был как все остальные
-        const style = document.createElement('style');
-        style.textContent = `
-            .simple-menu-item {
-                display: flex;
-                align-items: center;
-            }
-            .simple-menu-item a {
-                display: flex;
-                align-items: center;
-                gap: 0.5rem;
-                color: var(--text-primary);
-                font-weight: 500;
-                padding: 0.6rem 0;
-                font-size: 0.85rem;
-                letter-spacing: 0.15em;
-                text-transform: uppercase;
-                text-decoration: none;
-                transition: color 0.2s;
-            }
-            .simple-menu-item a:hover {
-                color: var(--neon-coral);
-            }
-            .simple-menu-item a.active {
-                color: var(--neon-coral);
-            }
-            @media (max-width: 768px) {
-                .simple-menu-item a {
-                    padding: 0.8rem 0;
-                    justify-content: space-between;
-                    border-top: 1px solid rgba(0,0,0,0.05);
-                }
-                .simple-menu-item {
-                    width: 100%;
-                }
-            }
-        `;
-        document.head.appendChild(style);
-        
-        // Привязываем обработчики для выпадающих списков
         bindDropdownEvents();
     }
 
-    // ===== АНИМАЦИЯ ПОЯВЛЕНИЯ КАРТОЧЕК С ЗАДЕРЖКОЙ =====
+    // ===== АНИМАЦИЯ ПОЯВЛЕНИЯ КАРТОЧЕК =====
     const fadeElements = document.querySelectorAll('.event-card, .direction-card, .team-card, .partner-item');
     const observer = new IntersectionObserver((entries) => {
         entries.forEach((entry, index) => {
