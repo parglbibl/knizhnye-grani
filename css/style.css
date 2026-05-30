@@ -1,11 +1,11 @@
-/* КНИЖНЫЕ ГРАНИ — МОЛОЧНЫЙ ФОН, ТЁМНО-СИНИЕ КАРТОЧКИ, УВЕЛИЧЕННЫЕ ОТСТУПЫ */
+/* КНИЖНЫЕ ГРАНИ — МОЛОЧНЫЙ ФОН, ТЁМНО-СИНИЕ КАРТОЧКИ, БОЛЬШИЕ ОТСТУПЫ, КРАСНОЕ СВЕЧЕНИЕ */
 :root {
     --neon-coral: #ff2e5a;
     --neon-coral-glow: rgba(255, 46, 90, 0.3);
     --neon-blue: #00d4ff;
     --graphite-deep: #fef9f0;
     --graphite-dark: #1e2a3a;
-    --graphite-card: #1e2a47;
+    --graphite-card: #1e2a47;         /* новый цвет карточек */
     --text-primary: #111111;
     --text-secondary: #555566;
     --card-text: #e0e4f0;
@@ -165,10 +165,25 @@ header {
     color: #fff;
 }
 
-/* ===== ГЛАВНЫЙ ЭКРАН ===== */
+/* ===== ГЛАВНЫЙ ЭКРАН (с красным свечением) ===== */
 .hero {
     padding: 10rem 0 8rem;
     text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: min(80%, 600px);
+    height: min(80%, 600px);
+    background: radial-gradient(circle, rgba(255,46,90,0.25) 0%, rgba(255,46,90,0) 70%);
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 0;
 }
 
 .hero h1 {
@@ -179,6 +194,8 @@ header {
     margin-bottom: 2rem;
     letter-spacing: -0.03em;
     color: var(--text-primary);
+    position: relative;
+    z-index: 1;
 }
 
 .hero h1 span {
@@ -192,13 +209,17 @@ header {
     text-transform: uppercase;
     letter-spacing: 0.1em;
     margin-bottom: 2rem;
+    position: relative;
+    z-index: 1;
 }
 
 .hero-desc {
     font-size: 1.1rem;
     color: var(--text-secondary);
     max-width: 700px;
-    margin: 0 auto 6rem;
+    margin: 0 auto 6rem;   /* увеличенный отступ */
+    position: relative;
+    z-index: 1;
 }
 
 .hero-buttons {
@@ -206,7 +227,9 @@ header {
     gap: 2rem;
     justify-content: center;
     flex-wrap: wrap;
-    margin-top: 1rem;
+    margin-top: 1rem;      /* дополнительный отступ сверху */
+    position: relative;
+    z-index: 1;
 }
 
 /* ===== КНОПКИ ===== */
@@ -304,7 +327,7 @@ header {
     margin-top: 0.5rem;
 }
 
-/* ===== КАРТОЧКИ (ТЁМНО-СИНИЕ) ===== */
+/* ===== КАРТОЧКИ (ТЁМНО-СИНИЕ, ЦВЕТ #1e2a47) ===== */
 .events-grid,
 .directions-grid,
 .team-grid {
