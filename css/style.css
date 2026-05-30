@@ -255,10 +255,10 @@ header {
 /* ===== МОБИЛЬНОЕ МЕНЮ ===== */
 @media (max-width: 768px) {
     .menu-toggle {
-    display: block;
-    margin-left: 6rem;
-    margin-right: 0;
-}
+        display: block;
+        margin-left: 5.5rem;
+        margin-right: 0;
+    }
     
     .nav {
         display: none;
@@ -357,7 +357,7 @@ header {
     
     .search-icon-container {
         margin-left: auto;
-        margin-right: -1.3rem;
+        margin-right: 0.5rem;
     }
 }
 
@@ -502,6 +502,11 @@ header {
     font-size: 1rem;
     color: var(--text-secondary);
     line-height: 1.6;
+    margin-bottom: 2.5rem;
+}
+
+.section .btn-outline {
+    margin-top: 0.5rem;
 }
 
 .events-grid,
