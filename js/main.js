@@ -1,8 +1,8 @@
-// main.js — Книжные грани (как на старом сайте)
+// main.js — Книжные грани (финальная версия)
 
 document.addEventListener('DOMContentLoaded', function() {
 
-    // ===== БУРГЕР-МЕНЮ (КАК НА СТАРОМ САЙТЕ) =====
+    // ===== БУРГЕР-МЕНЮ =====
     const menuToggle = document.getElementById('menuToggle');
     const navMenu = document.getElementById('nav');
     
