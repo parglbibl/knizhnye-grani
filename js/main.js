@@ -1,6 +1,33 @@
-// main.js — Книжные грани (финальная версия, без шума и глитча)
+// main.js — Книжные грани (с рабочим бургер-меню)
 
 document.addEventListener('DOMContentLoaded', function() {
+
+    // ===== БУРГЕР-МЕНЮ (РАБОТАЕТ НА ВСЕХ ЭКРАНАХ) =====
+    const menuToggle = document.getElementById('menuToggle');
+    const nav = document.getElementById('nav');
+
+    if (menuToggle && nav) {
+        // Убираем возможные inline-стили, которые мешают
+        nav.style.display = '';
+        
+        menuToggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            nav.classList.toggle('active');
+            
+            // Для мобилок: меняем иконку (опционально)
+            const icon = menuToggle.querySelector('i');
+            if (icon) {
+                if (nav.classList.contains('active')) {
+                    icon.classList.remove('fa-bars');
+                    icon.classList.add('fa-times');
+                } else {
+                    icon.classList.remove('fa-times');
+                    icon.classList.add('fa-bars');
+                }
+            }
+        });
+    }
 
     // ===== ССЫЛКА НА ГЛАВНУЮ ДЛЯ ЛОГОТИПА =====
     const path = window.location.pathname;
@@ -24,11 +51,9 @@ document.addEventListener('DOMContentLoaded', function() {
         logo.appendChild(link);
     }
 
-    // ===== МЕНЮ =====
-    const nav = document.getElementById('nav');
-    const menuToggle = document.getElementById('menuToggle');
-
-    if (nav) {
+    // ===== МЕНЮ (ДИНАМИЧЕСКАЯ СБОРКА) =====
+    const navContainer = document.getElementById('nav');
+    if (navContainer) {
         const currentFile = path.split('/').pop() || 'index.html';
         
         const menuData = [
@@ -95,17 +120,10 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
         html += '</ul>';
-        nav.innerHTML = html;
+        navContainer.innerHTML = html;
     }
 
-    // ===== БУРГЕР-МЕНЮ =====
-    if (menuToggle && nav) {
-        menuToggle.addEventListener('click', function() {
-            nav.classList.toggle('active');
-        });
-    }
-
-    // ===== АНИМАЦИЯ КНОПОК (лёгкий наклон) =====
+    // ===== АНИМАЦИЯ КНОПОК =====
     const glitchBtns = document.querySelectorAll('.btn');
     glitchBtns.forEach(btn => {
         btn.addEventListener('mouseenter', () => {
@@ -116,22 +134,18 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // ===== АНИМАЦИЯ ПОЯВЛЕНИЯ КАРТОЧЕК ПРИ СКРОЛЛЕ =====
+    // ===== АНИМАЦИЯ ПОЯВЛЕНИЯ КАРТОЧЕК =====
     const fadeElements = document.querySelectorAll('.event-card, .direction-card, .team-card, .partner-item');
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
-                entry.target.style.opacity = '1';
-                entry.target.style.transform = 'translateY(0)';
+                entry.target.classList.add('visible');
                 observer.unobserve(entry.target);
             }
         });
     }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
 
     fadeElements.forEach(el => {
-        el.style.opacity = '0';
-        el.style.transform = 'translateY(30px)';
-        el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
         observer.observe(el);
     });
 
@@ -191,7 +205,7 @@ document.addEventListener('DOMContentLoaded', function() {
         yearSpan.textContent = new Date().getFullYear();
     }
 
-    // ===== ПОИСК (если есть на странице) =====
+    // ===== ПОИСК =====
     const searchIcon = document.getElementById('searchIcon');
     const searchPopup = document.getElementById('searchPopup');
     if (searchIcon && searchPopup) {
@@ -206,7 +220,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // ===== АНИМАЦИЯ ЗАГОЛОВКА НА ГЛАВНОЙ =====
+    // ===== АНИМАЦИЯ ЗАГОЛОВКА =====
     const heroTitle = document.querySelector('.hero h1');
     if (heroTitle && !heroTitle.hasAttribute('data-animated')) {
         heroTitle.setAttribute('data-animated', 'true');
