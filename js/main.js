@@ -1,41 +1,17 @@
-// main.js — Книжные грани (рабочий бургер)
+// main.js — Книжные грани (как на старом сайте)
 
 document.addEventListener('DOMContentLoaded', function() {
 
-    // ===== БУРГЕР-МЕНЮ =====
+    // ===== БУРГЕР-МЕНЮ (КАК НА СТАРОМ САЙТЕ) =====
     const menuToggle = document.getElementById('menuToggle');
     const navMenu = document.getElementById('nav');
     
     if (menuToggle && navMenu) {
         menuToggle.addEventListener('click', function() {
             navMenu.classList.toggle('active');
-            
-            const icon = menuToggle.querySelector('i');
-            if (icon) {
-                if (navMenu.classList.contains('active')) {
-                    icon.classList.remove('fa-bars');
-                    icon.classList.add('fa-times');
-                } else {
-                    icon.classList.remove('fa-times');
-                    icon.classList.add('fa-bars');
-                }
-            }
         });
     }
     
-    // Закрытие меню при клике на ссылку
-    const allLinks = document.querySelectorAll('.nav a');
-    allLinks.forEach(link => {
-        link.addEventListener('click', function() {
-            navMenu.classList.remove('active');
-            const icon = menuToggle.querySelector('i');
-            if (icon) {
-                icon.classList.remove('fa-times');
-                icon.classList.add('fa-bars');
-            }
-        });
-    });
-
     // ===== ДИНАМИЧЕСКАЯ СБОРКА МЕНЮ =====
     const path = window.location.pathname;
     let prefix = '';
