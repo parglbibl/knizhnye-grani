@@ -1,9 +1,36 @@
+// main.js — Книжные грани (Cyber Brutalism)
+
 document.addEventListener('DOMContentLoaded', function() {
 
-    // Меню
+    // ===== ДОБАВЛЯЕМ ЦИФРОВОЙ ШУМ, ГЛИТЧ И СЕТКУ АВТОМАТИЧЕСКИ =====
+    (function() {
+        // Цифровой шум
+        if (!document.querySelector('.digital-noise')) {
+            const noise = document.createElement('div');
+            noise.className = 'digital-noise';
+            document.body.insertBefore(noise, document.body.firstChild);
+        }
+        
+        // Глитч-оверлей
+        if (!document.querySelector('.glitch-overlay')) {
+            const glitch = document.createElement('div');
+            glitch.className = 'glitch-overlay';
+            document.body.insertBefore(glitch, document.body.firstChild);
+        }
+        
+        // Сетка
+        if (!document.querySelector('.grid-overlay')) {
+            const grid = document.createElement('div');
+            grid.className = 'grid-overlay';
+            document.body.insertBefore(grid, document.body.firstChild);
+        }
+    })();
+
+    // ===== КАТЕГОРИИ МЕНЮ =====
     const nav = document.getElementById('nav');
     const menuToggle = document.getElementById('menuToggle');
 
+    // Определяем глубину вложенности
     const path = window.location.pathname;
     let prefix = '';
     if (path.includes('/boardgames/') || path.includes('/speedcubing/')) {
@@ -49,7 +76,7 @@ document.addEventListener('DOMContentLoaded', function() {
             let isActive = false;
             cat.items.forEach(item => {
                 const targetFile = item.href.split('/').pop();
-                if (targetFile === currentFile) {
+                if (targetFile === currentFile || (currentFile === '' && targetFile === 'index.html')) {
                     isActive = true;
                 }
             });
@@ -73,14 +100,45 @@ document.addEventListener('DOMContentLoaded', function() {
         nav.innerHTML = html;
     }
 
-    // Бургер
+    // ===== БУРГЕР-МЕНЮ =====
     if (menuToggle && nav) {
         menuToggle.addEventListener('click', function() {
             nav.classList.toggle('active');
         });
     }
 
-    // FAQ
+    // ===== GLITCH-ЭФФЕКТ ПРИ НАВЕДЕНИИ НА КНОПКИ =====
+    const glitchBtns = document.querySelectorAll('.btn');
+    glitchBtns.forEach(btn => {
+        btn.addEventListener('mouseenter', () => {
+            btn.style.transform = 'skewX(-2deg)';
+        });
+        btn.addEventListener('mouseleave', () => {
+            btn.style.transform = 'skewX(0)';
+        });
+    });
+
+    // ===== FADE-IN ПРИ СКРОЛЛЕ (ДЛЯ КАРТОЧЕК) =====
+    const fadeElements = document.querySelectorAll('.event-card, .direction-card, .team-card, .partner-item');
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+    fadeElements.forEach(el => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(30px)';
+        el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        observer.observe(el);
+    });
+
+    // ===== FAQ АККОРДЕОН =====
     const faqQuestions = document.querySelectorAll('.faq-question');
     faqQuestions.forEach(question => {
         question.addEventListener('click', () => {
@@ -96,50 +154,73 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (!isActive) {
                 question.classList.add('active');
-                if (answer) answer.classList.add('show');
+                if (answer) {
+                    answer.classList.add('show');
+                }
             }
         });
     });
 
-    // Кнопка наверх
-    const backBtn = document.createElement('a');
-    backBtn.href = '#';
-    backBtn.className = 'back-to-top';
-    backBtn.innerHTML = '<i class="fas fa-chevron-up"></i>';
-    document.body.appendChild(backBtn);
-    
-    window.addEventListener('scroll', () => {
-        if (window.pageYOffset > 300) {
-            backBtn.classList.add('show');
-        } else {
-            backBtn.classList.remove('show');
+    // ===== КНОПКА "НАВЕРХ" =====
+    function initBackToTop() {
+        const backBtn = document.createElement('a');
+        backBtn.href = '#';
+        backBtn.className = 'back-to-top';
+        backBtn.innerHTML = '<i class="fas fa-chevron-up"></i>';
+        document.body.appendChild(backBtn);
+        
+        function toggleButton() {
+            if (window.pageYOffset > 300) {
+                backBtn.classList.add('show');
+            } else {
+                backBtn.classList.remove('show');
+            }
         }
-    });
+        
+        window.addEventListener('scroll', toggleButton);
+        backBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+        
+        toggleButton();
+    }
     
-    backBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
+    initBackToTop();
 
-    // Год в подвале
+    // ===== ТЕКУЩИЙ ГОД В ПОДВАЛЕ =====
     const yearSpan = document.getElementById('current-year');
     if (yearSpan) {
         yearSpan.textContent = new Date().getFullYear();
     }
 
-    // Поиск
+    // ===== ПОИСК (если есть на странице) =====
     const searchIcon = document.getElementById('searchIcon');
     const searchPopup = document.getElementById('searchPopup');
     if (searchIcon && searchPopup) {
-        searchIcon.addEventListener('click', (e) => {
+        searchIcon.addEventListener('click', function(e) {
             e.stopPropagation();
             searchPopup.classList.toggle('active');
         });
-        document.addEventListener('click', (event) => {
+        document.addEventListener('click', function(event) {
             if (!searchIcon.contains(event.target) && !searchPopup.contains(event.target)) {
                 searchPopup.classList.remove('active');
             }
         });
+    }
+
+    // ===== ЭФФЕКТ ПЕЧАТИ ДЛЯ ЗАГОЛОВКОВ (по желанию) =====
+    const heroTitle = document.querySelector('.hero h1');
+    if (heroTitle && !heroTitle.hasAttribute('data-typed')) {
+        heroTitle.setAttribute('data-typed', 'true');
+        // Небольшой эффект появления для заголовка
+        heroTitle.style.opacity = '0';
+        heroTitle.style.transform = 'translateY(20px)';
+        heroTitle.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+        setTimeout(() => {
+            heroTitle.style.opacity = '1';
+            heroTitle.style.transform = 'translateY(0)';
+        }, 200);
     }
 
 });
