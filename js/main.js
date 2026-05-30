@@ -1,18 +1,49 @@
-// main.js — Книжные грани (финальная версия с рабочим бургер-меню)
+// main.js — Книжные грани (финальная версия)
 
 document.addEventListener('DOMContentLoaded', function() {
 
-    // ===== БУРГЕР-МЕНЮ =====
+    // ===== БУРГЕР-МЕНЮ С ЗАТЕМНЕНИЕМ =====
     const menuToggle = document.getElementById('menuToggle');
     const navMenu = document.getElementById('nav');
+    
+    let overlay = document.querySelector('.menu-overlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.className = 'menu-overlay';
+        document.body.appendChild(overlay);
+    }
     
     if (menuToggle && navMenu) {
         menuToggle.addEventListener('click', function() {
             navMenu.classList.toggle('active');
+            overlay.classList.toggle('active');
+            document.body.classList.toggle('menu-open');
+            
+            const icon = menuToggle.querySelector('i');
+            if (icon) {
+                if (navMenu.classList.contains('active')) {
+                    icon.classList.remove('fa-bars');
+                    icon.classList.add('fa-times');
+                } else {
+                    icon.classList.remove('fa-times');
+                    icon.classList.add('fa-bars');
+                }
+            }
+        });
+        
+        overlay.addEventListener('click', function() {
+            navMenu.classList.remove('active');
+            overlay.classList.remove('active');
+            document.body.classList.remove('menu-open');
+            const icon = menuToggle.querySelector('i');
+            if (icon) {
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            }
         });
     }
     
-    // Открытие подменю на мобилках при клике
+    // Открытие подменю на мобилках
     const dropdowns = document.querySelectorAll('.dropdown');
     dropdowns.forEach(function(dropdown) {
         const title = dropdown.querySelector('.dropdown-title');
@@ -23,6 +54,21 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     });
+
+    // ===== ПОИСК =====
+    const searchIcon = document.getElementById('searchIcon');
+    const searchPopup = document.getElementById('searchPopup');
+    if (searchIcon && searchPopup) {
+        searchIcon.addEventListener('click', function(e) {
+            e.stopPropagation();
+            searchPopup.classList.toggle('active');
+        });
+        document.addEventListener('click', function(event) {
+            if (!searchIcon.contains(event.target) && !searchPopup.contains(event.target)) {
+                searchPopup.classList.remove('active');
+            }
+        });
+    }
 
     // ===== ССЫЛКА НА ГЛАВНУЮ ДЛЯ ЛОГОТИПА =====
     const path = window.location.pathname;
@@ -108,23 +154,14 @@ document.addEventListener('DOMContentLoaded', function() {
         navContainer.innerHTML = html;
     }
 
-    // ===== АНИМАЦИЯ КНОПОК =====
-    const glitchBtns = document.querySelectorAll('.btn');
-    glitchBtns.forEach(btn => {
-        btn.addEventListener('mouseenter', () => {
-            btn.style.transform = 'skewX(-2deg)';
-        });
-        btn.addEventListener('mouseleave', () => {
-            btn.style.transform = 'skewX(0)';
-        });
-    });
-
-    // ===== АНИМАЦИЯ ПОЯВЛЕНИЯ КАРТОЧЕК =====
+    // ===== АНИМАЦИЯ ПОЯВЛЕНИЯ КАРТОЧЕК С ЗАДЕРЖКОЙ (ЛЕСЕНКА) =====
     const fadeElements = document.querySelectorAll('.event-card, .direction-card, .team-card, .partner-item');
     const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
+        entries.forEach((entry, index) => {
             if (entry.isIntersecting) {
-                entry.target.classList.add('visible');
+                setTimeout(() => {
+                    entry.target.classList.add('visible');
+                }, index * 80);
                 observer.unobserve(entry.target);
             }
         });
@@ -185,21 +222,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const yearSpan = document.getElementById('current-year');
     if (yearSpan) {
         yearSpan.textContent = new Date().getFullYear();
-    }
-
-    // ===== ПОИСК =====
-    const searchIcon = document.getElementById('searchIcon');
-    const searchPopup = document.getElementById('searchPopup');
-    if (searchIcon && searchPopup) {
-        searchIcon.addEventListener('click', function(e) {
-            e.stopPropagation();
-            searchPopup.classList.toggle('active');
-        });
-        document.addEventListener('click', function(event) {
-            if (!searchIcon.contains(event.target) && !searchPopup.contains(event.target)) {
-                searchPopup.classList.remove('active');
-            }
-        });
     }
 
     // ===== АНИМАЦИЯ ЗАГОЛОВКА =====
