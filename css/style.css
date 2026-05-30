@@ -188,7 +188,7 @@ header {
         flex-direction: column;
         gap: 0;
         width: 100%;
-        align-items: center;
+        align-items: stretch;
     }
 }
 
@@ -221,8 +221,13 @@ header {
         width: 100%;
     }
     .simple-menu-item a {
-        justify-content: center;
-        padding: 0.8rem 0;
+        justify-content: flex-start;
+        padding: 0.8rem 0 0.8rem 1.5rem;
+        gap: 0.75rem;
+    }
+    .simple-menu-item a i {
+        width: 1.5rem;
+        text-align: center;
     }
 }
 
@@ -258,8 +263,18 @@ header {
         width: 100%;
     }
     .dropdown-title {
-        justify-content: center;
-        padding: 0.8rem 0;
+        justify-content: flex-start;
+        padding: 0.8rem 0 0.8rem 1.5rem;
+        gap: 0.75rem;
+        margin: 0;
+    }
+    .dropdown-title i:first-child {
+        width: 1.5rem;
+        text-align: center;
+    }
+    .dropdown-title i:last-child {
+        margin-left: auto;
+        margin-right: 1rem;
     }
     .dropdown:hover .dropdown-title {
         transform: none;
@@ -297,12 +312,23 @@ header {
         transform: none;
         background: transparent;
         border: none;
-        padding-left: 1rem;
+        padding-left: 2.5rem;
         display: none;
         box-shadow: none;
     }
     .dropdown.active .dropdown-menu {
         display: block;
+    }
+    .dropdown-menu li a {
+        padding: 0.5rem 0;
+        justify-content: flex-start;
+        gap: 0.75rem;
+        display: flex;
+        align-items: center;
+    }
+    .dropdown-menu li a i {
+        width: 1.5rem;
+        text-align: center;
     }
 }
 
@@ -325,8 +351,6 @@ header {
 @media (max-width: 768px) {
     .dropdown-menu li a {
         color: var(--text-secondary);
-        padding: 0.5rem 0;
-        text-align: center;
         background: transparent;
     }
     .dropdown-menu li a:hover {
