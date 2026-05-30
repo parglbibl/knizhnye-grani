@@ -1,4 +1,4 @@
-// main.js — Книжные грани (с иконками в подменю)
+// main.js — Книжные грани (финальная версия)
 
 document.addEventListener('DOMContentLoaded', function() {
 
