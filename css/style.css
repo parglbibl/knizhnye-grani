@@ -1021,4 +1021,32 @@ footer {
     }
 }
 
+/* ===== ПОРЯДОК ЭЛЕМЕНТОВ В ШАПКЕ (БУРГЕР → ПОИСК) ===== */
+@media (max-width: 768px) {
+    .header-inner {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+    
+    .logo {
+        order: 1;
+    }
+    
+    .menu-toggle {
+        order: 2;
+        position: relative;
+        right: auto;
+        top: auto;
+        margin-left: auto;
+        margin-right: 0.5rem;
+    }
+    
+    .search-icon-container {
+        order: 3;
+        margin-right: 0;
+    }
+}
+
 }
