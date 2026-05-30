@@ -1,16 +1,16 @@
-/* КНИЖНЫЕ ГРАНИ — СВЕТЛЫЙ КИБЕРПАНК (СВЕТЛЫЙ ФОН) */
+/* КНИЖНЫЕ ГРАНИ — МОЛОЧНЫЙ ФОН + ТЁМНЫЕ КАРТОЧКИ */
 :root {
     --neon-coral: #ff2e5a;
-    --neon-coral-glow: rgba(255, 46, 90, 0.5);
+    --neon-coral-glow: rgba(255, 46, 90, 0.4);
     --neon-blue: #00d4ff;
-    --neon-blue-glow: rgba(0, 212, 255, 0.3);
-    --graphite-deep: #2a2a30;
-    --graphite-dark: #35353d;
-    --graphite-card: #3d3d46;
+    --neon-blue-glow: rgba(0, 212, 255, 0.2);
+    --graphite-deep: #fef9f0;      /* молочный фон */
+    --graphite-dark: #2a2a30;      /* тёмный для выпадающих меню */
+    --graphite-card: #1e1e24;      /* тёмные карточки (как были) */
     --accent-orange: #ff6b35;
-    --text-primary: #f5f5f7;
-    --text-secondary: #c0c0d0;
-    --border-glitch: rgba(255, 46, 90, 0.4);
+    --text-primary: #111111;        /* тёмный текст для светлого фона */
+    --text-secondary: #555566;      /* приглушённый тёмный */
+    --border-glitch: rgba(255, 46, 90, 0.3);
 }
 
 * {
@@ -27,6 +27,7 @@ body {
     overflow-x: hidden;
 }
 
+/* ===== ЦИФРОВОЙ ШУМ + ГЛИТЧ (чуть слабее) ===== */
 .digital-noise {
     position: fixed;
     top: 0;
@@ -61,6 +62,7 @@ body {
     6% { opacity: 0; background-position: 0% 0%; }
 }
 
+/* ===== СЕТКА ===== */
 .grid-overlay {
     position: fixed;
     top: 0;
@@ -79,18 +81,20 @@ body {
     width: 100%;
     height: 100%;
     background-image: 
-        repeating-linear-gradient(transparent 0px, transparent 39px, rgba(255,46,90,0.04) 40px),
-        repeating-linear-gradient(90deg, transparent 0px, transparent 39px, rgba(0,212,255,0.04) 40px);
+        repeating-linear-gradient(transparent 0px, transparent 39px, rgba(255,46,90,0.03) 40px),
+        repeating-linear-gradient(90deg, transparent 0px, transparent 39px, rgba(0,212,255,0.03) 40px);
 }
 
+/* ===== КОНТЕЙНЕР ===== */
 .container {
     max-width: 1400px;
     margin: 0 auto;
     padding: 0 2rem;
 }
 
+/* ===== ШАПКА (полупрозрачная на молочном фоне) ===== */
 header {
-    background: rgba(42, 42, 48, 0.9);
+    background: rgba(254, 249, 240, 0.9);
     backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--neon-coral);
     position: sticky;
@@ -141,6 +145,7 @@ header {
     color: var(--neon-coral);
 }
 
+/* ===== МЕНЮ (центрированное) ===== */
 .desktop-menu {
     display: flex;
     list-style: none;
@@ -210,9 +215,10 @@ header {
 
 .dropdown-menu li a:hover {
     background: var(--neon-coral);
-    color: var(--graphite-deep);
+    color: #fff;
 }
 
+/* ===== ГЛАВНЫЙ ЭКРАН ===== */
 .hero {
     padding: 8rem 0;
     position: relative;
@@ -227,7 +233,7 @@ header {
     left: 50%;
     width: 600px;
     height: 600px;
-    background: radial-gradient(circle, rgba(255,46,90,0.12) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(255,46,90,0.08) 0%, transparent 70%);
     transform: translate(-50%, -50%);
     pointer-events: none;
 }
@@ -253,6 +259,7 @@ header {
     margin-bottom: 1.5rem;
     letter-spacing: -0.03em;
     text-align: center;
+    color: var(--text-primary);
 }
 
 .hero h1 span {
@@ -293,6 +300,7 @@ header {
     flex-wrap: wrap;
 }
 
+/* ===== КНОПКИ (неоновые) ===== */
 .btn {
     display: inline-block;
     padding: 0.8rem 2rem;
@@ -308,6 +316,7 @@ header {
     cursor: pointer;
     position: relative;
     overflow: hidden;
+    background-color: transparent;
 }
 
 .btn::before {
@@ -323,7 +332,7 @@ header {
 }
 
 .btn:hover {
-    color: var(--graphite-deep);
+    color: #fff;
 }
 
 .btn:hover::before {
@@ -332,7 +341,7 @@ header {
 
 .btn-primary {
     background: var(--neon-coral);
-    color: var(--graphite-deep);
+    color: #fff;
 }
 
 .btn-primary::before {
@@ -345,6 +354,7 @@ header {
     box-shadow: 0 0 20px var(--neon-coral-glow);
 }
 
+/* ===== СЕКЦИИ ===== */
 .section {
     padding: 5rem 0;
     border-top: 1px solid rgba(255,46,90,0.2);
@@ -376,6 +386,7 @@ header {
     letter-spacing: -0.02em;
     line-height: 1.2;
     text-align: center;
+    color: var(--text-primary);
 }
 
 .section-title small {
@@ -385,6 +396,7 @@ header {
     margin-top: 0.5rem;
 }
 
+/* ===== КАРТОЧКИ (ТЁМНЫЕ) ===== */
 .events-grid,
 .directions-grid,
 .team-grid {
@@ -401,6 +413,7 @@ header {
     padding: 2rem;
     transition: all 0.3s;
     text-align: center;
+    color: #f0f0f0;
 }
 
 .event-card:hover,
@@ -421,8 +434,16 @@ header {
 .event-date {
     font-size: 0.7rem;
     text-transform: uppercase;
-    color: var(--text-secondary);
+    color: #aaa;
     margin-bottom: 1rem;
+}
+
+.event-card h3,
+.direction-card h3 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 0.8rem;
+    color: #fff;
 }
 
 .direction-card i {
@@ -432,6 +453,40 @@ header {
     display: inline-block;
 }
 
+.event-card p,
+.direction-card p {
+    font-size: 0.9rem;
+    color: #ccc;
+    line-height: 1.5;
+}
+
+/* ===== КОМАНДА ===== */
+.team-card {
+    background: var(--graphite-card);
+    padding: 0 0 1.5rem 0;
+}
+
+.team-card img {
+    width: 100%;
+    height: 280px;
+    object-fit: cover;
+    margin-bottom: 1rem;
+}
+
+.team-card h3 {
+    color: #fff;
+    font-size: 1.2rem;
+    margin-bottom: 0.3rem;
+}
+
+.team-card p {
+    color: #aaa;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+/* ===== ПАРТНЁРЫ ===== */
 .partners-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
@@ -442,9 +497,10 @@ header {
 
 .partner-item {
     text-align: center;
-    filter: grayscale(100%) brightness(0.8);
+    filter: grayscale(100%) brightness(0.9);
     transition: all 0.3s;
     cursor: pointer;
+    background: transparent;
 }
 
 .partner-item:hover {
@@ -452,13 +508,14 @@ header {
     transform: scale(1.1);
 }
 
+/* ===== FAQ ===== */
 .faq-list {
     max-width: 900px;
     margin: 0 auto;
 }
 
 .faq-item {
-    border-bottom: 1px solid rgba(255,255,255,0.1);
+    border-bottom: 1px solid rgba(0,0,0,0.1);
 }
 
 .faq-question {
@@ -497,11 +554,13 @@ header {
     padding-bottom: 1.5rem;
 }
 
+/* ===== ПОДВАЛ ===== */
 footer {
     background: var(--graphite-deep);
     border-top: 1px solid var(--neon-coral);
     padding: 3rem 0 2rem;
     text-align: center;
+    color: var(--text-primary);
 }
 
 .footer-grid {
@@ -535,19 +594,20 @@ footer {
 .footer-bottom {
     padding-top: 2rem;
     margin-top: 2rem;
-    border-top: 1px solid rgba(255,255,255,0.05);
+    border-top: 1px solid rgba(0,0,0,0.1);
     font-size: 0.65rem;
     color: var(--text-secondary);
     letter-spacing: 0.1em;
 }
 
+/* ===== КНОПКА НАВЕРХ ===== */
 .back-to-top {
     position: fixed;
     bottom: 20px;
     right: 20px;
     width: 48px;
     height: 48px;
-    background: var(--graphite-dark);
+    background: var(--graphite-card);
     border: 1px solid var(--neon-coral);
     color: var(--neon-coral);
     display: flex;
@@ -564,7 +624,7 @@ footer {
 
 .back-to-top:hover {
     background: var(--neon-coral);
-    color: var(--graphite-deep);
+    color: #fff;
     transform: translateY(-5px);
     box-shadow: 0 0 20px var(--neon-coral-glow);
 }
@@ -574,6 +634,7 @@ footer {
     visibility: visible;
 }
 
+/* ===== АДАПТИВ ===== */
 @media (max-width: 968px) {
     .hero h1 {
         font-size: 3.5rem;
@@ -619,7 +680,8 @@ footer {
     .dropdown-title {
         padding: 0.75rem 0;
         justify-content: center;
-        border-top: 1px solid rgba(255,255,255,0.05);
+        border-top: 1px solid rgba(0,0,0,0.1);
+        color: var(--text-primary);
     }
     .dropdown-menu {
         position: static;
