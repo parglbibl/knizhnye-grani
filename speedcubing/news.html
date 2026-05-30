@@ -13,11 +13,21 @@
 <header>
     <div class="container header-inner">
         <div class="logo">
-            <img src="../images/logo-cbs.png" alt="ЦБС" style="height: 50px;">
-            <img src="../images/logo-rost.png" alt="РОСТ" style="height: 50px; margin-left: 15px;">
+            <div class="logo-box"></div>
+            <span class="logo-text">КНИЖНЫЕ ГРАНИ</span>
         </div>
         <div class="menu-toggle" id="menuToggle">
             <i class="fas fa-bars"></i>
+        </div>
+        <div class="search-icon-container">
+            <i class="fas fa-search" id="searchIcon"></i>
+            <div class="search-popup" id="searchPopup">
+                <form action="https://yandex.ru/search/" method="get" target="_blank">
+                    <input type="hidden" name="site" value="knizhnye-grani">
+                    <input type="text" name="text" placeholder="Поиск по сайту...">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </form>
+            </div>
         </div>
         <nav class="nav" id="nav"></nav>
     </div>
@@ -29,21 +39,25 @@
 
         <div class="events-grid">
             <div class="event-card">
+                <div class="event-number">01</div>
                 <div class="event-date">Июнь 2026</div>
                 <h3>Открыт набор на летние сборы</h3>
                 <p>Приглашаем детей 10-14 лет на интенсив по спидкубингу. 5 дней, 10 тренировок, финальный турнир. Запись до 10 июня!</p>
             </div>
             <div class="event-card">
+                <div class="event-number">02</div>
                 <div class="event-date">Май 2026</div>
                 <h3>Победа на городском турнире</h3>
                 <p>Наш участник Иван С. занял 2 место на чемпионате Санкт-Петербурга по спидкубингу среди юниоров. Поздравляем!</p>
             </div>
             <div class="event-card">
+                <div class="event-number">03</div>
                 <div class="event-date">Апрель 2026</div>
                 <h3>Новый тренер в команде</h3>
                 <p>К нам присоединился титулованный спидкубер с 5-летним опытом. Расписание групп обновлено.</p>
             </div>
             <div class="event-card">
+                <div class="event-number">04</div>
                 <div class="event-date">Март 2026</div>
                 <h3>Кубик Рубика — в каждой библиотеке</h3>
                 <p>Стартовала акция «Кубик в каждый дом». Участники могут бесплатно получить учебные кубики для тренировок дома.</p>
@@ -58,16 +72,24 @@
             <div class="footer-col">
                 <h3>Книжные грани</h3>
                 <p>Проект ЦБС Выборгского района</p>
-            </div>
-            <div class="footer-col">
-                <h3>Контакты</h3>
                 <p>пр. Просвещения, 43 (ТРК Парк-Молл)</p>
                 <p>+7 (812) 246-93-05</p>
                 <p>pargolovo@cbsvib.ru</p>
             </div>
             <div class="footer-col">
+                <h3>Разделы</h3>
+                <p><a href="../index.html">Главная</a></p>
+                <p><a href="../about.html">О проекте</a></p>
+                <p><a href="../events.html">Мероприятия</a></p>
+                <p><a href="../contacts.html">Контакты</a></p>
+            </div>
+            <div class="footer-col">
                 <h3>Мы в соцсетях</h3>
-                <a href="#"><i class="fab fa-vk"></i></a>
+                <div class="footer-social">
+                    <a href="https://vk.com/pargolovskaya_library" target="_blank"><i class="fab fa-vk"></i></a>
+                    <a href="#" target="_blank"><i class="fab fa-telegram"></i></a>
+                </div>
+                <p style="margin-top:1.5rem;">Подпишитесь на новости!</p>
             </div>
         </div>
         <div class="footer-bottom">
