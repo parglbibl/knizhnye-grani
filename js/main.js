@@ -1,24 +1,52 @@
-// main.js — Книжные грани (как на старом сайте parglbibl.ru)
+// main.js — Книжные грани (финальная версия с рабочим бургер-меню)
 
 document.addEventListener('DOMContentLoaded', function() {
 
-    // ===== БУРГЕР-МЕНЮ (ТОЧНО КАК НА СТАРОМ САЙТЕ) =====
+    // ===== БУРГЕР-МЕНЮ =====
     const menuToggle = document.getElementById('menuToggle');
-    const nav = document.getElementById('nav');
-
-    if (menuToggle && nav) {
+    const navMenu = document.getElementById('nav');
+    
+    if (menuToggle && navMenu) {
         menuToggle.addEventListener('click', function() {
-            nav.classList.toggle('active');
+            navMenu.classList.toggle('active');
         });
     }
+    
+    // Открытие подменю на мобилках при клике
+    const dropdowns = document.querySelectorAll('.dropdown');
+    dropdowns.forEach(function(dropdown) {
+        const title = dropdown.querySelector('.dropdown-title');
+        if (title) {
+            title.addEventListener('click', function(e) {
+                e.preventDefault();
+                dropdown.classList.toggle('active');
+            });
+        }
+    });
 
-    // ===== МЕНЮ (ДИНАМИЧЕСКАЯ СБОРКА) =====
+    // ===== ССЫЛКА НА ГЛАВНУЮ ДЛЯ ЛОГОТИПА =====
     const path = window.location.pathname;
     let prefix = '';
     if (path.includes('/boardgames/') || path.includes('/speedcubing/')) {
         prefix = '../';
     }
 
+    const logo = document.querySelector('.logo');
+    if (logo && !logo.querySelector('a')) {
+        const link = document.createElement('a');
+        link.href = prefix + 'index.html';
+        link.style.display = 'flex';
+        link.style.alignItems = 'center';
+        link.style.gap = '0.75rem';
+        link.style.textDecoration = 'none';
+        link.style.color = 'inherit';
+        while (logo.firstChild) {
+            link.appendChild(logo.firstChild);
+        }
+        logo.appendChild(link);
+    }
+
+    // ===== МЕНЮ (ДИНАМИЧЕСКАЯ СБОРКА) =====
     const navContainer = document.getElementById('nav');
     if (navContainer) {
         const currentFile = path.split('/').pop() || 'index.html';
@@ -80,22 +108,6 @@ document.addEventListener('DOMContentLoaded', function() {
         navContainer.innerHTML = html;
     }
 
-    // ===== ССЫЛКА НА ГЛАВНУЮ ДЛЯ ЛОГОТИПА =====
-    const logo = document.querySelector('.logo');
-    if (logo && !logo.querySelector('a')) {
-        const link = document.createElement('a');
-        link.href = prefix + 'index.html';
-        link.style.display = 'flex';
-        link.style.alignItems = 'center';
-        link.style.gap = '0.75rem';
-        link.style.textDecoration = 'none';
-        link.style.color = 'inherit';
-        while (logo.firstChild) {
-            link.appendChild(logo.firstChild);
-        }
-        logo.appendChild(link);
-    }
-
     // ===== АНИМАЦИЯ КНОПОК =====
     const glitchBtns = document.querySelectorAll('.btn');
     glitchBtns.forEach(btn => {
@@ -112,17 +124,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
-                entry.target.style.opacity = '1';
-                entry.target.style.transform = 'translateY(0)';
+                entry.target.classList.add('visible');
                 observer.unobserve(entry.target);
             }
         });
     }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
 
     fadeElements.forEach(el => {
-        el.style.opacity = '0';
-        el.style.transform = 'translateY(30px)';
-        el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
         observer.observe(el);
     });
 
