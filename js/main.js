@@ -1,12 +1,12 @@
-// main.js — Книжные грани (финальная версия)
+// main.js — Книжные грани
 
 document.addEventListener('DOMContentLoaded', function() {
 
-    // ===== БУРГЕР-МЕНЮ С ЗАТЕМНЕНИЕМ =====
+    // БУРГЕР-МЕНЮ
     const menuToggle = document.getElementById('menuToggle');
     const navMenu = document.getElementById('nav');
-    
     let overlay = document.querySelector('.menu-overlay');
+    
     if (!overlay) {
         overlay = document.createElement('div');
         overlay.className = 'menu-overlay';
@@ -44,31 +44,23 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // ===== КЛИКАБЕЛЬНЫЕ ПОДМЕНЮ НА МОБИЛКАХ =====
+    // ОТКРЫТИЕ ПОДМЕНЮ НА МОБИЛКАХ
     function bindDropdownEvents() {
         const dropdowns = document.querySelectorAll('.dropdown');
         dropdowns.forEach(function(dropdown) {
             const title = dropdown.querySelector('.dropdown-title');
             if (title && !title.hasListener) {
                 title.hasListener = true;
-                title.style.cursor = 'pointer';
                 title.addEventListener('click', function(e) {
                     e.preventDefault();
                     e.stopPropagation();
-                    
-                    dropdowns.forEach(function(other) {
-                        if (other !== dropdown) {
-                            other.classList.remove('active');
-                        }
-                    });
-                    
                     dropdown.classList.toggle('active');
                 });
             }
         });
     }
-
-    // ===== ПОИСК =====
+    
+    // ПОИСК
     const searchIcon = document.getElementById('searchIcon');
     const searchPopup = document.getElementById('searchPopup');
     if (searchIcon && searchPopup) {
@@ -82,14 +74,14 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-
-    // ===== ССЫЛКА НА ГЛАВНУЮ ДЛЯ ЛОГОТИПА =====
+    
+    // ЛОГОТИП — ССЫЛКА НА ГЛАВНУЮ
     const path = window.location.pathname;
     let prefix = '';
     if (path.includes('/boardgames/') || path.includes('/speedcubing/')) {
         prefix = '../';
     }
-
+    
     const logo = document.querySelector('.logo');
     if (logo && !logo.querySelector('a')) {
         const link = document.createElement('a');
@@ -104,8 +96,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         logo.appendChild(link);
     }
-
-    // ===== МЕНЮ (ДИНАМИЧЕСКАЯ СБОРКА) =====
+    
+    // ДИНАМИЧЕСКАЯ СБОРКА МЕНЮ
     const navContainer = document.getElementById('nav');
     if (navContainer) {
         const currentFile = path.split('/').pop() || 'index.html';
@@ -148,7 +140,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 ]
             }
         ];
-
+        
         let html = '<ul class="desktop-menu">';
         
         menuItems.forEach(item => {
@@ -181,8 +173,8 @@ document.addEventListener('DOMContentLoaded', function() {
         
         bindDropdownEvents();
     }
-
-    // ===== АНИМАЦИЯ ПОЯВЛЕНИЯ КАРТОЧЕК =====
+    
+    // АНИМАЦИЯ КАРТОЧЕК
     const fadeElements = document.querySelectorAll('.event-card, .direction-card, .team-card, .partner-item');
     const observer = new IntersectionObserver((entries) => {
         entries.forEach((entry, index) => {
@@ -194,12 +186,10 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
-
-    fadeElements.forEach(el => {
-        observer.observe(el);
-    });
-
-    // ===== FAQ АККОРДЕОН =====
+    
+    fadeElements.forEach(el => observer.observe(el));
+    
+    // FAQ АККОРДЕОН
     const faqQuestions = document.querySelectorAll('.faq-question');
     faqQuestions.forEach(question => {
         question.addEventListener('click', () => {
@@ -208,51 +198,41 @@ document.addEventListener('DOMContentLoaded', function() {
             
             faqQuestions.forEach(q => {
                 q.classList.remove('active');
-                if (q.nextElementSibling) {
-                    q.nextElementSibling.classList.remove('show');
-                }
+                if (q.nextElementSibling) q.nextElementSibling.classList.remove('show');
             });
             
             if (!isActive) {
                 question.classList.add('active');
-                if (answer) {
-                    answer.classList.add('show');
-                }
+                if (answer) answer.classList.add('show');
             }
         });
     });
-
-    // ===== КНОПКА "НАВЕРХ" =====
-    function initBackToTop() {
-        const backBtn = document.createElement('a');
-        backBtn.href = '#';
-        backBtn.className = 'back-to-top';
-        backBtn.innerHTML = '<i class="fas fa-chevron-up"></i>';
-        document.body.appendChild(backBtn);
-        
-        window.addEventListener('scroll', function() {
-            if (window.pageYOffset > 300) {
-                backBtn.classList.add('show');
-            } else {
-                backBtn.classList.remove('show');
-            }
-        });
-        
-        backBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        });
-    }
     
-    initBackToTop();
-
-    // ===== ТЕКУЩИЙ ГОД В ПОДВАЛЕ =====
+    // КНОПКА НАВЕРХ
+    const backBtn = document.createElement('a');
+    backBtn.href = '#';
+    backBtn.className = 'back-to-top';
+    backBtn.innerHTML = '<i class="fas fa-chevron-up"></i>';
+    document.body.appendChild(backBtn);
+    
+    window.addEventListener('scroll', function() {
+        if (window.pageYOffset > 300) {
+            backBtn.classList.add('show');
+        } else {
+            backBtn.classList.remove('show');
+        }
+    });
+    
+    backBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+    
+    // ГОД В ПОДВАЛЕ
     const yearSpan = document.getElementById('current-year');
-    if (yearSpan) {
-        yearSpan.textContent = new Date().getFullYear();
-    }
-
-    // ===== АНИМАЦИЯ ЗАГОЛОВКА =====
+    if (yearSpan) yearSpan.textContent = new Date().getFullYear();
+    
+    // АНИМАЦИЯ ЗАГОЛОВКА
     const heroTitle = document.querySelector('.hero h1');
     if (heroTitle && !heroTitle.hasAttribute('data-animated')) {
         heroTitle.setAttribute('data-animated', 'true');
@@ -264,5 +244,5 @@ document.addEventListener('DOMContentLoaded', function() {
             heroTitle.style.transform = 'translateY(0)';
         }, 200);
     }
-
+    
 });
