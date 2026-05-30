@@ -1,4 +1,4 @@
-/* КНИЖНЫЕ ГРАНИ — ФИНАЛЬНАЯ ВЕРСИЯ С РАБОЧИМ МОБИЛЬНЫМ МЕНЮ */
+/* КНИЖНЫЕ ГРАНИ — ВЕРСИЯ БЕЗ ИКОНОК В ПОДМЕНЮ */
 :root {
     --neon-coral: #ff2e5a;
     --neon-coral-glow: rgba(255, 46, 90, 0.3);
@@ -30,6 +30,12 @@ body {
     max-width: 1400px;
     margin: 0 auto;
     padding: 0 3rem;
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 0 1.5rem;
+    }
 }
 
 /* ===== ШАПКА ===== */
@@ -247,18 +253,10 @@ header {
     color: #fff;
 }
 
-/* ===== МОБИЛЬНОЕ МЕНЮ (КАК НА СТАРОМ САЙТЕ) ===== */
+/* ===== МОБИЛЬНОЕ МЕНЮ ===== */
 @media (max-width: 768px) {
-    .container {
-        padding: 0 1.2rem;
-    }
-    
     .menu-toggle {
         display: block;
-    }
-    
-    .header-inner {
-        position: relative;
     }
     
     .nav {
@@ -283,7 +281,7 @@ header {
         align-items: flex-start;
         gap: 0;
         width: 100%;
-        padding: 0 1rem;
+        padding: 0 1.5rem;
     }
     
     .simple-menu-item {
@@ -309,7 +307,6 @@ header {
     
     .dropdown-title i:last-child {
         transform: rotate(0deg);
-        transition: transform 0.3s;
     }
     
     .dropdown.active .dropdown-title i:last-child {
@@ -344,7 +341,6 @@ header {
         color: var(--neon-coral);
     }
     
-    /* Затемнение фона */
     body.menu-open {
         overflow: hidden;
     }
