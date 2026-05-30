@@ -1,14 +1,14 @@
-/* КНИЖНЫЕ ГРАНИ — МОЛОЧНЫЙ ФОН, ТЁМНО-СИНИЕ КАРТОЧКИ */
+/* КНИЖНЫЕ ГРАНИ — МОЛОЧНЫЙ ФОН, ТЁМНО-СИНИЕ КАРТОЧКИ, УВЕЛИЧЕННЫЕ ОТСТУПЫ */
 :root {
     --neon-coral: #ff2e5a;
     --neon-coral-glow: rgba(255, 46, 90, 0.3);
     --neon-blue: #00d4ff;
     --graphite-deep: #fef9f0;
-    --graphite-dark: #1e2a3a;        /* тёмно-синий для выпадающих меню */
-    --graphite-card: #0f1a2f;         /* основной тёмно-синий для карточек */
+    --graphite-dark: #1e2a3a;
+    --graphite-card: #0f1a2f;
     --text-primary: #111111;
     --text-secondary: #555566;
-    --card-text: #e0e4f0;             /* светлый текст на тёмно-синем */
+    --card-text: #e0e4f0;
     --card-text-secondary: #a0a8c0;
 }
 
@@ -247,32 +247,7 @@ header {
     left: 0;
 }
 
-.btn-primary {
-    background: transparent;
-    color: var(--neon-coral);
-}
-
-.btn-primary::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: var(--neon-coral);
-    transition: left 0.3s;
-    z-index: -1;
-}
-
-.btn-primary:hover {
-    color: #fff;
-}
-
-.btn-primary:hover::before {
-    left: 0;
-}
-
-/* ===== СЕКЦИИ ===== */
+/* ===== СЕКЦИИ (УВЕЛИЧЕННЫЕ ОТСТУПЫ) ===== */
 .section {
     padding: 7rem 0;
     border-top: 1px solid rgba(0,0,0,0.05);
@@ -282,8 +257,8 @@ header {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-bottom: 4rem;
-    gap: 1.5rem;
+    margin-bottom: 5rem;
+    gap: 2rem;
     text-align: center;
 }
 
@@ -305,6 +280,7 @@ header {
     line-height: 1.2;
     text-align: center;
     color: var(--text-primary);
+    margin-bottom: 3rem;
 }
 
 .section-title small {
@@ -312,6 +288,19 @@ header {
     color: var(--text-secondary);
     display: block;
     margin-top: 0.8rem;
+}
+
+.section-text {
+    max-width: 800px;
+    margin: 0 auto 2.5rem;
+    text-align: center;
+    font-size: 1.1rem;
+    line-height: 1.5;
+    color: var(--text-secondary);
+}
+
+.section .btn {
+    margin-top: 0.5rem;
 }
 
 /* ===== КАРТОЧКИ (ТЁМНО-СИНИЕ) ===== */
