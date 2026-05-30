@@ -1049,4 +1049,21 @@ footer {
     }
 }
 
+/* ===== ОТСТУП МЕЖДУ ИКОНКОЙ И ТЕКСТОМ В МОБИЛЬНОМ МЕНЮ ===== */
+@media (max-width: 768px) {
+    .simple-menu-item a,
+    .dropdown-title,
+    .dropdown-menu li a {
+        gap: 1rem;  /* увеличиваем расстояние между иконкой и текстом */
+    }
+    
+    .simple-menu-item a i,
+    .dropdown-title i:first-child,
+    .dropdown-menu li a i {
+        width: 1.5rem;
+        text-align: center;
+        flex-shrink: 0;
+    }
+}
+
 }
