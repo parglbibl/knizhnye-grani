@@ -256,7 +256,7 @@ header {
 @media (max-width: 768px) {
     .menu-toggle {
         display: block;
-        margin-right: -0.75rem;
+        margin-right: -2.5rem;
     }
     
     .nav {
@@ -352,10 +352,6 @@ header {
     .dropdown-menu li a:hover {
         background: transparent;
         color: var(--neon-coral);
-    }
-    
-    .search-icon-container {
-        margin-left: -0.5rem;
     }
 }
 
