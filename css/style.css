@@ -659,7 +659,7 @@ header {
 .faq-answer {
     max-height: 0;
     overflow: hidden;
-    transition: max-height 0.3s ease;
+    transition: max-height 0.4s ease-in-out;
     color: var(--text-secondary);
     font-size: 0.85rem;
     line-height: 1.5;
@@ -668,6 +668,7 @@ header {
 .faq-answer.show {
     max-height: 300px;
     padding-bottom: 1rem;
+    transition: max-height 0.4s ease-in-out;
 }
 
 footer {
@@ -792,17 +793,18 @@ footer {
 .faq-answer {
     max-height: 0;
     overflow: hidden;
-    transition: max-height 0.5s cubic-bezier(0.33, 1, 0.68, 1);
+    transition: max-height 0.4s ease-in-out;
     color: var(--text-secondary);
     font-size: 0.85rem;
     line-height: 1.5;
 }
 
 .faq-answer.show {
-    max-height: 500px;
+    max-height: 300px;
     padding-bottom: 1rem;
+    transition: max-height 0.4s ease-in-out;
 }
 
 .faq-question i {
-    transition: transform 0.4s cubic-bezier(0.33, 1, 0.68, 1);
+    transition: transform 0.3s ease-in-out;
 }
