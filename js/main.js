@@ -1,4 +1,4 @@
-// main.js — Книжные грани (финальная версия)
+// main.js — Книжные грани (без поиска)
 
 document.addEventListener('DOMContentLoaded', function() {
 
@@ -112,34 +112,9 @@ document.addEventListener('DOMContentLoaded', function() {
     bindDropdownEvents();
     
     // ЛОГОТИП — ССЫЛКА НА ГЛАВНУЮ
-    const logo = document.querySelector('.logo');
-    if (logo && !logo.querySelector('a')) {
-        const link = document.createElement('a');
-        link.href = prefix + 'index.html';
-        link.style.display = 'flex';
-        link.style.alignItems = 'center';
-        link.style.gap = '0.75rem';
-        link.style.textDecoration = 'none';
-        link.style.color = 'inherit';
-        while (logo.firstChild) {
-            link.appendChild(logo.firstChild);
-        }
-        logo.appendChild(link);
-    }
-    
-    // ПОИСК
-    const searchIcon = document.getElementById('searchIcon');
-    const searchPopup = document.getElementById('searchPopup');
-    if (searchIcon && searchPopup) {
-        searchIcon.addEventListener('click', function(e) {
-            e.stopPropagation();
-            searchPopup.classList.toggle('active');
-        });
-        document.addEventListener('click', function(event) {
-            if (!searchIcon.contains(event.target) && !searchPopup.contains(event.target)) {
-                searchPopup.classList.remove('active');
-            }
-        });
+    const logo = document.querySelector('.logo a');
+    if (logo) {
+        logo.href = prefix + 'index.html';
     }
     
     // АНИМАЦИЯ КАРТОЧЕК
