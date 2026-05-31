@@ -64,7 +64,7 @@ header {
     gap: 0.5rem;
 }
 
-/* ===== ЛОГОТИП (РОМБ + ВЕРТИКАЛЬНЫЕ ЛИНИИ, ПАРАЛЛЕЛЬНЫЕ ГРАНЯМ) ===== */
+/* ===== ЛОГОТИП (РОМБ + ВЕРТИКАЛЬНЫЕ ЛИНИИ: 10% — ЦЕНТР — 10%) ===== */
 .logo {
     display: flex;
     align-items: center;
@@ -92,17 +92,17 @@ header {
     transition: transform 0.3s;
 }
 
-/* Левая линия */
+/* Левая линия (страница) — близко к левому краю */
 .logo-book .line-left {
     position: absolute;
     top: 0;
     bottom: 0;
-    left: 20%;
+    left: 10%;
     width: 2px;
     background: var(--neon-coral);
 }
 
-/* Центральная линия (корешок) */
+/* Центральная линия (корешок) — ровно по центру */
 .logo-book .line-center {
     position: absolute;
     top: 0;
@@ -113,12 +113,12 @@ header {
     transform: translateX(-50%);
 }
 
-/* Правая линия */
+/* Правая линия (страница) — близко к правому краю */
 .logo-book .line-right {
     position: absolute;
     top: 0;
     bottom: 0;
-    right: 20%;
+    right: 10%;
     width: 2px;
     background: var(--neon-coral);
 }
