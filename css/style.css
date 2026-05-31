@@ -703,6 +703,16 @@ header {
     max-width: 160px;
 }
 
+.partner-item a {
+    text-decoration: none;
+    border-bottom: none;
+}
+
+.partner-item a:hover {
+    text-decoration: none;
+    border-bottom: none;
+}
+
 .partner-logo {
     width: 120px;
     height: 85px;
