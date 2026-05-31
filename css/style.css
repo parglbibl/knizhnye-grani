@@ -64,7 +64,7 @@ header {
     gap: 0.5rem;
 }
 
-/* ===== ЛОГОТИП (РОМБ + РАСКРЫТАЯ КНИГА) ===== */
+/* ===== ЛОГОТИП (РОМБ + ГОРИЗОНТАЛЬНЫЕ ПАРАЛЛЕЛЬНЫЕ ЛИНИИ) ===== */
 .logo {
     display: flex;
     align-items: center;
@@ -92,39 +92,37 @@ header {
     transition: transform 0.3s;
 }
 
-/* Корешок (вертикальная линия) */
-.logo-book::before {
-    content: '';
+/* Центральная линия (корешок) */
+.logo-book .line-center {
     position: absolute;
     top: 50%;
-    left: 50%;
-    width: 2px;
-    height: 70%;
+    left: 0;
+    right: 0;
+    height: 2px;
     background: var(--neon-coral);
-    transform: translate(-50%, -50%);
+    transform: translateY(-50%);
 }
 
-/* Левая страница */
-.logo-book::after {
-    content: '';
+/* Левая линия (страница) */
+.logo-book .line-left {
     position: absolute;
     top: 50%;
-    left: 50%;
-    width: 2px;
-    height: 55%;
+    left: 15%;
+    right: 15%;
+    height: 2px;
     background: var(--neon-coral);
-    transform: translate(-50%, -50%) rotate(-18deg);
+    transform: translateY(-50%);
 }
 
-/* Правая страница (span) */
-.logo-book span {
+/* Правая линия (страница) */
+.logo-book .line-right {
     position: absolute;
     top: 50%;
-    left: 50%;
-    width: 2px;
-    height: 55%;
+    left: 30%;
+    right: 30%;
+    height: 2px;
     background: var(--neon-coral);
-    transform: translate(-50%, -50%) rotate(18deg);
+    transform: translateY(-50%);
 }
 
 .logo-book:hover {
@@ -132,9 +130,9 @@ header {
     border-color: var(--neon-blue);
 }
 
-.logo-book:hover::before,
-.logo-book:hover::after,
-.logo-book:hover span {
+.logo-book:hover .line-center,
+.logo-book:hover .line-left,
+.logo-book:hover .line-right {
     background: var(--neon-blue);
 }
 
