@@ -1,4 +1,4 @@
-/* КНИЖНЫЕ ГРАНИ — ФИНАЛЬНАЯ ВЕРСИЯ (С ЦИТАТАМИ ДЛЯ КОМАНДЫ) */
+/* КНИЖНЫЕ ГРАНИ — ФИНАЛЬНАЯ ВЕРСИЯ (С КРУГЛЫМИ ФОТО КОМАНДЫ) */
 :root {
     --neon-coral: #ff2e5a;
     --neon-coral-glow: rgba(255, 46, 90, 0.3);
@@ -715,18 +715,29 @@ header {
     margin-bottom: 1rem;
 }
 
+/* ===== СТАРЫЕ СТИЛИ ДЛЯ ФОТО КОМАНДЫ (заменяются на круглые) ===== */
+/* Убираем старые стили img в team-card */
 .team-card img {
-    width: 100%;
-    height: 260px;
-    object-fit: cover;
-    margin-bottom: 1rem;
-    border-bottom: 2px solid var(--neon-coral);
+    display: none;
 }
 
-@media (max-width: 768px) {
-    .team-card img {
-        height: 220px;
-    }
+/* ===== КРУГЛЫЕ ФОТО ДЛЯ КОМАНДЫ ===== */
+.team-photo-wrapper {
+    width: 180px;
+    height: 180px;
+    margin: 0 auto 1rem;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 3px solid var(--neon-coral);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    background: var(--graphite-dark);
+}
+
+.team-photo-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
 }
 
 /* ===== СТИЛИ ДЛЯ ЦИТАТ В КАРТОЧКАХ КОМАНДЫ ===== */
@@ -739,6 +750,14 @@ header {
     padding-top: 0.75rem;
     border-top: 1px solid rgba(255,255,255,0.1);
     text-align: left;
+}
+
+/* Адаптация для мобильных */
+@media (max-width: 768px) {
+    .team-photo-wrapper {
+        width: 140px;
+        height: 140px;
+    }
 }
 
 /* ===== ПАРТНЁРЫ ===== */
