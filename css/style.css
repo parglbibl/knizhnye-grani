@@ -1,4 +1,4 @@
-/* КНИЖНЫЕ ГРАНИ — ФИНАЛЬНАЯ ВЕРСИЯ (БЕЗ ПОИСКА) */
+/* КНИЖНЫЕ ГРАНИ — ФИНАЛЬНАЯ ВЕРСИЯ (С ЦИТАТАМИ ДЛЯ КОМАНДЫ) */
 :root {
     --neon-coral: #ff2e5a;
     --neon-coral-glow: rgba(255, 46, 90, 0.3);
@@ -727,6 +727,18 @@ header {
     .team-card img {
         height: 220px;
     }
+}
+
+/* ===== СТИЛИ ДЛЯ ЦИТАТ В КАРТОЧКАХ КОМАНДЫ ===== */
+.team-card .team-quote {
+    font-size: 0.75rem;
+    line-height: 1.45;
+    color: var(--card-text-secondary);
+    font-style: italic;
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    text-align: left;
 }
 
 /* ===== ПАРТНЁРЫ ===== */
