@@ -1,4 +1,4 @@
-/* КНИЖНЫЕ ГРАНИ — ФИНАЛЬНАЯ ВЕРСИЯ */
+/* КНИЖНЫЕ ГРАНИ — ФИНАЛЬНАЯ ВЕРСИЯ С ЗАКЛАДКОЙ */
 :root {
     --neon-coral: #ff2e5a;
     --neon-coral-glow: rgba(255, 46, 90, 0.3);
@@ -64,7 +64,7 @@ header {
     gap: 0.5rem;
 }
 
-/* ===== ЛОГОТИП (РОМБ + ВЕРТИКАЛЬНЫЕ ЛИНИИ: 10% — ЦЕНТР — 10%) ===== */
+/* ===== ЛОГОТИП (РОМБ + ВЕРТИКАЛЬНЫЕ ЛИНИИ + ЗАКЛАДКА) ===== */
 .logo {
     display: flex;
     align-items: center;
@@ -92,7 +92,7 @@ header {
     transition: transform 0.3s;
 }
 
-/* Левая линия (страница) — близко к левому краю */
+/* Левая линия (страница) */
 .logo-book .line-left {
     position: absolute;
     top: 0;
@@ -102,7 +102,7 @@ header {
     background: var(--neon-coral);
 }
 
-/* Центральная линия (корешок) — ровно по центру */
+/* Центральная линия (корешок) */
 .logo-book .line-center {
     position: absolute;
     top: 0;
@@ -113,7 +113,7 @@ header {
     transform: translateX(-50%);
 }
 
-/* Правая линия (страница) — близко к правому краю */
+/* Правая линия (страница) */
 .logo-book .line-right {
     position: absolute;
     top: 0;
@@ -123,6 +123,19 @@ header {
     background: var(--neon-coral);
 }
 
+/* Закладка (выступает из нижнего угла ромба) */
+.logo-book::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    width: 12px;
+    height: 12px;
+    background: var(--neon-coral);
+    clip-path: polygon(0% 0%, 100% 0%, 50% 100%);
+    transform: translateX(-50%);
+}
+
 .logo-book:hover {
     transform: rotate(45deg) scale(1.05);
     border-color: var(--neon-blue);
@@ -130,7 +143,8 @@ header {
 
 .logo-book:hover .line-left,
 .logo-book:hover .line-center,
-.logo-book:hover .line-right {
+.logo-book:hover .line-right,
+.logo-book:hover::after {
     background: var(--neon-blue);
 }
 
@@ -148,6 +162,13 @@ header {
     .logo-book {
         width: 36px;
         height: 36px;
+    }
+    
+    /* Закладка для маленького размера */
+    .logo-book::after {
+        width: 10px;
+        height: 10px;
+        bottom: -6px;
     }
     
     .logo-text {
