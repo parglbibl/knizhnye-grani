@@ -1,4 +1,4 @@
-/* КНИЖНЫЕ ГРАНИ — ФИНАЛЬНАЯ ВЕРСИЯ (С КРУГЛЫМИ ФОТО КОМАНДЫ) */
+/* КНИЖНЫЕ ГРАНИ — ФИНАЛЬНАЯ ВЕРСИЯ (С КРУГЛЫМИ ФОТО И КОРРЕКТИРОВКОЙ ПОЗИЦИИ) */
 :root {
     --neon-coral: #ff2e5a;
     --neon-coral-glow: rgba(255, 46, 90, 0.3);
@@ -737,8 +737,17 @@ header {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    object-position: 50% 30%;  /* Сдвигаем фото вверх, чтобы показать голову */
     display: block;
 }
+
+/* Индивидуальная корректировка для каждого фото (при необходимости) */
+.team-card:nth-child(1) .team-photo-wrapper img { object-position: 50% 25%; } /* Панкова */
+.team-card:nth-child(2) .team-photo-wrapper img { object-position: 50% 30%; } /* Садриева */
+.team-card:nth-child(3) .team-photo-wrapper img { object-position: 50% 20%; } /* Блох */
+.team-card:nth-child(4) .team-photo-wrapper img { object-position: 50% 35%; } /* Казарцева */
+.team-card:nth-child(5) .team-photo-wrapper img { object-position: 50% 40%; } /* Черняков */
+.team-card:nth-child(6) .team-photo-wrapper img { object-position: 50% 30%; } /* Брия */
 
 /* ===== СТИЛИ ДЛЯ ЦИТАТ В КАРТОЧКАХ КОМАНДЫ ===== */
 .team-card .team-quote {
