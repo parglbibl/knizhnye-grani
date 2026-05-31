@@ -908,36 +908,47 @@ footer {
     color: var(--text-secondary);
 }
 
+/* ===== КНОПКА НАВЕРХ (НЕОНОВАЯ) ===== */
 .back-to-top {
     position: fixed;
     bottom: 20px;
     right: 20px;
-    width: 44px;
-    height: 44px;
-    background: var(--graphite-card);
-    border: 1px solid var(--neon-coral);
+    width: 48px;
+    height: 48px;
+    background: transparent;
+    border: 2px solid var(--neon-coral);
     color: var(--neon-coral);
     display: flex;
     align-items: center;
     justify-content: center;
     text-decoration: none;
-    font-size: 1.2rem;
+    font-size: 1.3rem;
     opacity: 0;
     visibility: hidden;
-    transition: all 0.3s;
+    transition: all 0.3s ease;
     z-index: 999;
     cursor: pointer;
+    border-radius: 50%;
 }
 
 .back-to-top:hover {
     background: var(--neon-coral);
     color: #fff;
-    transform: translateY(-3px);
+    transform: translateY(-5px);
+    box-shadow: 0 0 15px var(--neon-coral-glow);
 }
 
 .back-to-top.show {
     opacity: 1;
     visibility: visible;
+}
+
+@media (max-width: 768px) {
+    .back-to-top {
+        width: 42px;
+        height: 42px;
+        font-size: 1.1rem;
+    }
 }
 
 .event-card, .direction-card, .team-card, .partner-item {
