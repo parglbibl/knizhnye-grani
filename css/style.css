@@ -93,7 +93,8 @@ header {
 }
 
 /* Корешок (вертикальная линия) */
-.book-spine {
+.logo-book::before {
+    content: '';
     position: absolute;
     top: 50%;
     left: 50%;
@@ -104,25 +105,26 @@ header {
 }
 
 /* Левая страница */
-.book-left {
+.logo-book::after {
+    content: '';
     position: absolute;
     top: 50%;
-    left: 35%;
+    left: 50%;
     width: 2px;
-    height: 60%;
+    height: 55%;
     background: var(--neon-coral);
-    transform: translate(-50%, -50%) rotate(-15deg);
+    transform: translate(-50%, -50%) rotate(-18deg);
 }
 
-/* Правая страница */
-.book-right {
+/* Правая страница (span) */
+.logo-book span {
     position: absolute;
     top: 50%;
-    left: 65%;
+    left: 50%;
     width: 2px;
-    height: 60%;
+    height: 55%;
     background: var(--neon-coral);
-    transform: translate(-50%, -50%) rotate(15deg);
+    transform: translate(-50%, -50%) rotate(18deg);
 }
 
 .logo-book:hover {
@@ -130,9 +132,9 @@ header {
     border-color: var(--neon-blue);
 }
 
-.logo-book:hover .book-spine,
-.logo-book:hover .book-left,
-.logo-book:hover .book-right {
+.logo-book:hover::before,
+.logo-book:hover::after,
+.logo-book:hover span {
     background: var(--neon-blue);
 }
 
