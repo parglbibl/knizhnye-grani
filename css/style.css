@@ -64,7 +64,7 @@ header {
     gap: 0.5rem;
 }
 
-/* ===== ЛОГОТИПЫ ОРГАНИЗАТОРОВ В ШАПКЕ ===== */
+/* ===== ЛОГОТИПЫ ОРГАНИЗАТОРОВ ===== */
 .logo {
     display: flex;
     align-items: center;
@@ -77,12 +77,22 @@ header {
 .logo-rost {
     display: flex;
     align-items: center;
+    flex-shrink: 0;
 }
 
-.logo-cbs img,
-.logo-rost img {
-    height: 40px;
+.logo-cbs img {
+    height: 36px;
     width: auto;
+    max-width: 80px;
+    object-fit: contain;
+    display: block;
+}
+
+.logo-rost img {
+    height: 36px;
+    width: auto;
+    max-width: 80px;
+    object-fit: contain;
     display: block;
 }
 
@@ -92,6 +102,28 @@ header {
     gap: 0.75rem;
     text-decoration: none;
     color: inherit;
+}
+
+@media (max-width: 768px) {
+    .logo-cbs img {
+        height: 28px;
+        max-width: 60px;
+    }
+    
+    .logo-rost img {
+        height: 28px;
+        max-width: 60px;
+    }
+    
+    .logo {
+        gap: 0.5rem;
+        flex: 1;
+    }
+    
+    .logo-text {
+        font-size: 0.6rem;
+        letter-spacing: 0.1em;
+    }
 }
 
 .menu-toggle {
@@ -104,23 +136,6 @@ header {
     padding: 0;
     flex-shrink: 0;
     margin-left: auto;
-}
-
-@media (max-width: 768px) {
-    .logo-cbs img,
-    .logo-rost img {
-        height: 30px;
-    }
-    
-    .logo {
-        gap: 0.5rem;
-        flex: 1;
-    }
-    
-    .logo-text {
-        font-size: 0.6rem;
-        letter-spacing: 0.1em;
-    }
 }
 
 /* ===== ЛОГОТИП (РОМБ + ВЕРТИКАЛЬНЫЕ ЛИНИИ + БОКОВАЯ ЗАКЛАДКА) ===== */
