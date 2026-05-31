@@ -691,7 +691,7 @@ header {
 /* ===== ПАРТНЁРЫ — ЛАКОНИЧНЫЕ РАЗМЕРЫ (ЦВЕТНЫЕ ЛОГОТИПЫ) ===== */
 .partners-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     gap: 2rem;
     align-items: center;
     justify-items: center;
@@ -700,12 +700,12 @@ header {
 .partner-item {
     text-align: center;
     width: 100%;
-    max-width: 140px;
+    max-width: 160px;
 }
 
 .partner-logo {
-    width: 100px;
-    height: 70px;
+    width: 120px;
+    height: 85px;
     object-fit: contain;
     transition: all 0.3s ease;
 }
@@ -716,7 +716,7 @@ header {
 
 .partner-item p {
     margin-top: 0.6rem;
-    font-size: 0.65rem;
+    font-size: 0.7rem;
     text-transform: uppercase;
     letter-spacing: 0.08em;
     color: var(--text-secondary);
@@ -730,12 +730,12 @@ header {
     }
     
     .partner-logo {
-        width: 80px;
-        height: 55px;
+        width: 100px;
+        height: 70px;
     }
     
     .partner-item p {
-        font-size: 0.55rem;
+        font-size: 0.6rem;
     }
 }
 
