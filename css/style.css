@@ -119,11 +119,6 @@ header {
         gap: 0.5rem;
         flex: 1;
     }
-    
-    .logo-text {
-        font-size: 0.6rem;
-        letter-spacing: 0.1em;
-    }
 }
 
 .menu-toggle {
@@ -140,8 +135,8 @@ header {
 
 /* ===== ЛОГОТИП (РОМБ + ВЕРТИКАЛЬНЫЕ ЛИНИИ + БОКОВАЯ ЗАКЛАДКА) ===== */
 .logo-book {
-    width: 44px;
-    height: 44px;
+    width: 36px;
+    height: 36px;
     background: transparent;
     border: 2px solid var(--neon-coral);
     transform: rotate(45deg);
@@ -156,7 +151,7 @@ header {
     top: 0;
     bottom: 0;
     left: 10%;
-    width: 2px;
+    width: 1.5px;
     background: var(--neon-coral);
 }
 
@@ -166,7 +161,7 @@ header {
     top: 0;
     bottom: 0;
     left: 50%;
-    width: 2px;
+    width: 1.5px;
     background: var(--neon-coral);
     transform: translateX(-50%);
 }
@@ -177,18 +172,18 @@ header {
     top: 0;
     bottom: 0;
     right: 10%;
-    width: 2px;
+    width: 1.5px;
     background: var(--neon-coral);
 }
 
-/* Боковая закладка (ленточка, выступает на 6px) */
+/* Боковая закладка (ленточка) */
 .logo-book::after {
     content: '';
     position: absolute;
-    bottom: 4px;
-    right: -6px;
-    width: 8px;
-    height: 14px;
+    bottom: 3px;
+    right: -5px;
+    width: 6px;
+    height: 11px;
     background: var(--neon-coral);
     transform: rotate(-5deg);
     border-radius: 2px;
@@ -207,8 +202,8 @@ header {
 }
 
 .logo-text {
-    font-size: 0.8rem;
-    letter-spacing: 0.2em;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
     text-transform: uppercase;
     color: var(--text-secondary);
     white-space: nowrap;
@@ -218,19 +213,19 @@ header {
 
 @media (max-width: 768px) {
     .logo-book {
-        width: 36px;
-        height: 36px;
+        width: 30px;
+        height: 30px;
     }
     
     .logo-book::after {
-        width: 6px;
-        height: 10px;
+        width: 5px;
+        height: 9px;
         right: -4px;
-        bottom: 3px;
+        bottom: 2px;
     }
     
     .logo-text {
-        font-size: 0.6rem;
+        font-size: 0.55rem;
         letter-spacing: 0.1em;
     }
 }
