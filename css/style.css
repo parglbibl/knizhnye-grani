@@ -1,4 +1,4 @@
-/* КНИЖНЫЕ ГРАНИ — ФИНАЛЬНАЯ ВЕРСИЯ */
+/* КНИЖНЫЕ ГРАНИ — ФИНАЛЬНАЯ ВЕРСИЯ (БЕЗ ПОИСКА) */
 :root {
     --neon-coral: #ff2e5a;
     --neon-coral-glow: rgba(255, 46, 90, 0.3);
@@ -64,13 +64,26 @@ header {
     gap: 0.5rem;
 }
 
-/* ===== ЛОГОТИП (РОМБ + ВЕРТИКАЛЬНЫЕ ЛИНИИ + БОКОВАЯ ЗАКЛАДКА) ===== */
+/* ===== ЛОГОТИПЫ ОРГАНИЗАТОРОВ В ШАПКЕ ===== */
 .logo {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    flex-shrink: 1;
-    min-width: 0;
+    flex-wrap: wrap;
+    flex: 1;
+}
+
+.logo-cbs,
+.logo-rost {
+    display: flex;
+    align-items: center;
+}
+
+.logo-cbs img,
+.logo-rost img {
+    height: 40px;
+    width: auto;
+    display: block;
 }
 
 .logo a {
@@ -81,6 +94,36 @@ header {
     color: inherit;
 }
 
+.menu-toggle {
+    display: none;
+    font-size: 1.6rem;
+    cursor: pointer;
+    color: var(--neon-coral);
+    background: none;
+    border: none;
+    padding: 0;
+    flex-shrink: 0;
+    margin-left: auto;
+}
+
+@media (max-width: 768px) {
+    .logo-cbs img,
+    .logo-rost img {
+        height: 30px;
+    }
+    
+    .logo {
+        gap: 0.5rem;
+        flex: 1;
+    }
+    
+    .logo-text {
+        font-size: 0.6rem;
+        letter-spacing: 0.1em;
+    }
+}
+
+/* ===== ЛОГОТИП (РОМБ + ВЕРТИКАЛЬНЫЕ ЛИНИИ + БОКОВАЯ ЗАКЛАДКА) ===== */
 .logo-book {
     width: 44px;
     height: 44px;
@@ -177,78 +220,6 @@ header {
     }
 }
 
-.menu-toggle {
-    display: none;
-    font-size: 1.6rem;
-    cursor: pointer;
-    color: var(--neon-coral);
-    background: none;
-    border: none;
-    padding: 0;
-    flex-shrink: 0;
-}
-
-/* ===== ПОИСК ===== */
-.search-icon-container {
-    position: relative;
-    display: flex;
-    align-items: center;
-    flex-shrink: 0;
-}
-
-#searchIcon {
-    font-size: 1.2rem;
-    color: var(--neon-coral);
-    cursor: pointer;
-    padding: 6px;
-    transition: all 0.3s;
-}
-
-#searchIcon:hover {
-    transform: scale(1.1);
-}
-
-.search-popup {
-    position: absolute;
-    top: 100%;
-    right: 0;
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    padding: 10px;
-    display: none;
-    z-index: 10000;
-    min-width: 260px;
-    margin-top: 8px;
-}
-
-.search-popup.active {
-    display: block;
-}
-
-.search-popup form {
-    display: flex;
-    gap: 6px;
-}
-
-.search-popup input[type="text"] {
-    flex: 1;
-    padding: 8px 12px;
-    border: 1px solid #ddd;
-    border-radius: 50px;
-    outline: none;
-    font-size: 0.85rem;
-}
-
-.search-popup button {
-    background: var(--neon-coral);
-    color: white;
-    border: none;
-    padding: 0 14px;
-    border-radius: 50px;
-    cursor: pointer;
-}
-
 /* ===== МЕНЮ ===== */
 .desktop-menu {
     display: flex;
@@ -338,15 +309,6 @@ header {
 @media (max-width: 768px) {
     .menu-toggle {
         display: block;
-        margin-left: 0;
-        margin-right: 0.5rem;
-        order: 2;
-    }
-    
-    .search-icon-container {
-        order: 3;
-        margin-left: 0.5rem;
-        margin-right: 0;
     }
     
     .header-inner {
@@ -688,7 +650,7 @@ header {
     }
 }
 
-/* ===== ПАРТНЁРЫ — ЛАКОНИЧНЫЕ РАЗМЕРЫ (ЦВЕТНЫЕ ЛОГОТИПЫ) ===== */
+/* ===== ПАРТНЁРЫ ===== */
 .partners-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
