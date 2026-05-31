@@ -87,29 +87,41 @@ header {
     background: transparent;
     border: 2px solid var(--neon-coral);
     transform: rotate(45deg);
-    transition: transform 0.3s;
     position: relative;
     flex-shrink: 0;
+    transition: transform 0.3s;
 }
 
-/* Две линии внутри ромба — раскрытая книга */
-.logo-book::before,
-.logo-book::after {
-    content: '';
+/* Корешок (вертикальная линия) */
+.book-spine {
     position: absolute;
     top: 50%;
     left: 50%;
     width: 2px;
-    height: 65%;
+    height: 70%;
     background: var(--neon-coral);
-    transform-origin: center;
+    transform: translate(-50%, -50%);
 }
 
-.logo-book::before {
+/* Левая страница */
+.book-left {
+    position: absolute;
+    top: 50%;
+    left: 35%;
+    width: 2px;
+    height: 60%;
+    background: var(--neon-coral);
     transform: translate(-50%, -50%) rotate(-15deg);
 }
 
-.logo-book::after {
+/* Правая страница */
+.book-right {
+    position: absolute;
+    top: 50%;
+    left: 65%;
+    width: 2px;
+    height: 60%;
+    background: var(--neon-coral);
     transform: translate(-50%, -50%) rotate(15deg);
 }
 
@@ -118,8 +130,9 @@ header {
     border-color: var(--neon-blue);
 }
 
-.logo-book:hover::before,
-.logo-book:hover::after {
+.logo-book:hover .book-spine,
+.logo-book:hover .book-left,
+.logo-book:hover .book-right {
     background: var(--neon-blue);
 }
 
