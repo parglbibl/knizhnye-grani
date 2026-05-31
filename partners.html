@@ -13,6 +13,12 @@
 <header>
     <div class="container header-inner">
         <div class="logo">
+            <div class="logo-cbs">
+                <img src="images/logo-cbs.PNG" alt="ЦБС Выборгского района">
+            </div>
+            <div class="logo-rost">
+                <img src="images/logo-rost.PNG" alt="Проектный офис РОСТ">
+            </div>
             <a href="index.html">
                 <div class="logo-book">
                     <span class="line-left"></span>
@@ -25,16 +31,6 @@
         <div class="menu-toggle" id="menuToggle">
             <i class="fas fa-bars"></i>
         </div>
-        <div class="search-icon-container">
-            <i class="fas fa-search" id="searchIcon"></i>
-            <div class="search-popup" id="searchPopup">
-                <form action="https://yandex.ru/search/" method="get" target="_blank">
-                    <input type="hidden" name="site" value="knizhnye-grani">
-                    <input type="text" name="text" placeholder="Поиск по сайту...">
-                    <button type="submit"><i class="fas fa-search"></i></button>
-                </form>
-            </div>
-        </div>
         <nav class="nav" id="nav"></nav>
     </div>
 </header>
@@ -44,23 +40,18 @@
         <h1 class="section-title">Партнёры</h1>
 
         <div class="partners-grid">
-            <!-- Федерация спидкубинга России -->
             <div class="partner-item">
                 <a href="https://cubingrf.org/" target="_blank" rel="noopener noreferrer">
                     <img src="images/partners/cubingrf.PNG" alt="Федерация спидкубинга России" class="partner-logo">
                     <p>Федерация спидкубинга России</p>
                 </a>
             </div>
-            
-            <!-- SpeedCubes -->
             <div class="partner-item">
                 <a href="http://speedcubes.ru/" target="_blank" rel="noopener noreferrer">
                     <img src="images/partners/speedcubes.PNG" alt="SpeedCubes" class="partner-logo">
                     <p>SpeedCubes</p>
                 </a>
             </div>
-            
-            <!-- CCCStore -->
             <div class="partner-item">
                 <a href="https://cccstore.ru/" target="_blank" rel="noopener noreferrer">
                     <img src="images/partners/cccstore.PNG" alt="CCCStore" class="partner-logo">
@@ -75,7 +66,6 @@
     </div>
 </section>
 
-<!-- Модальное окно -->
 <div id="partnerModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center;">
     <div style="background: #fff; max-width: 500px; padding: 2rem; border-radius: 24px; position: relative;">
         <span style="position: absolute; top: 15px; right: 20px; font-size: 28px; cursor: pointer;" id="closeModal">&times;</span>
