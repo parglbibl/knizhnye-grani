@@ -1,4 +1,4 @@
-/* КНИЖНЫЕ ГРАНИ — ФИНАЛЬНАЯ ВЕРСИЯ С БОКОВОЙ ЗАКЛАДКОЙ */
+/* КНИЖНЫЕ ГРАНИ — ФИНАЛЬНАЯ ВЕРСИЯ С БОКОВОЙ ЗАКЛАДКОЙ (ВЫСТУП 6px) */
 :root {
     --neon-coral: #ff2e5a;
     --neon-coral-glow: rgba(255, 46, 90, 0.3);
@@ -123,16 +123,16 @@ header {
     background: var(--neon-coral);
 }
 
-/* Боковая закладка (ленточка, выступающая справа) */
+/* Боковая закладка (ленточка, выступает на 6px) */
 .logo-book::after {
     content: '';
     position: absolute;
-    bottom: 2px;
-    right: -10px;
-    width: 10px;
-    height: 18px;
+    bottom: 4px;
+    right: -6px;
+    width: 8px;
+    height: 14px;
     background: var(--neon-coral);
-    transform: rotate(-10deg);
+    transform: rotate(-5deg);
     border-radius: 2px;
 }
 
@@ -166,10 +166,10 @@ header {
     
     /* Закладка для маленького размера */
     .logo-book::after {
-        width: 8px;
-        height: 14px;
-        right: -8px;
-        bottom: 1px;
+        width: 6px;
+        height: 10px;
+        right: -4px;
+        bottom: 3px;
     }
     
     .logo-text {
