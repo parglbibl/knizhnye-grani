@@ -175,10 +175,10 @@ header {
     margin-left: auto;
 }
 
-/* ===== ЛОГОТИП (ВЕРТИКАЛЬНО ВЫТЯНУТЫЙ ПРЯМОУГОЛЬНИК — УМЕНЬШЕННЫЙ) ===== */
+/* ===== ЛОГОТИП (ВЕРТИКАЛЬНО ВЫТЯНУТЫЙ ПРЯМОУГОЛЬНИК — 26×34) ===== */
 .logo-book {
-    width: 28px;      /* было 30px — уменьшили */
-    height: 36px;     /* было 38px — уменьшили */
+    width: 26px;
+    height: 34px;
     background: transparent;
     border: 2px solid var(--neon-coral);
     transform: rotate(45deg);
@@ -240,7 +240,7 @@ header {
 }
 
 .logo-text {
-    font-size: 0.62rem;   /* было 0.65rem — чуть меньше */
+    font-size: 0.6rem;
     letter-spacing: 0.15em;
     text-transform: uppercase;
     color: var(--text-secondary);
@@ -252,8 +252,8 @@ header {
 
 @media (max-width: 768px) {
     .logo-book {
-        width: 24px;
-        height: 30px;
+        width: 22px;
+        height: 28px;
     }
     
     .logo-book::after {
@@ -264,26 +264,7 @@ header {
     }
     
     .logo-text {
-        font-size: 0.48rem;
-        letter-spacing: 0.1em;
-    }
-}
-
-@media (max-width: 768px) {
-    .logo-book {
-        width: 26px;
-        height: 32px;
-    }
-    
-    .logo-book::after {
-        width: 5px;
-        height: 8px;
-        right: -4px;
-        bottom: 1px;
-    }
-    
-    .logo-text {
-        font-size: 0.5rem;
+        font-size: 0.45rem;
         letter-spacing: 0.1em;
     }
 }
