@@ -116,8 +116,8 @@ header {
 .logo-cbs img {
     width: auto;
     height: auto;
-    max-width: 52px;
-    max-height: 52px;
+    max-width: 51px;
+    max-height: 51px;
     object-fit: contain;
     display: block;
 }
