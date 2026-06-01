@@ -588,6 +588,7 @@ header {
     }
 }
 
+/* ===== ОСНОВНЫЕ КНОПКИ ===== */
 .btn {
     display: inline-block;
     padding: 0.8rem 2rem;
@@ -616,6 +617,55 @@ header {
         text-align: center;
         padding: 0.7rem 1.5rem;
     }
+}
+
+/* ===== КНОПКИ НА ТЁМНОМ ФОНЕ (ЛАКОНИЧНЫЕ) ===== */
+/* Для карточек */
+.direction-card .btn,
+.event-card .btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(4px);
+    margin-top: auto;
+    align-self: center;
+}
+
+.direction-card .btn:hover,
+.event-card .btn:hover {
+    background: var(--neon-coral);
+    border-color: var(--neon-coral);
+    color: #ffffff;
+    transform: translateY(-3px);
+}
+
+.direction-card .btn-sm,
+.event-card .btn-sm {
+    font-size: 0.7rem;
+    padding: 0.5rem 1.2rem;
+}
+
+/* Для любых других блоков с тёмным фоном (например, #1e2a47) */
+.dark-bg .btn,
+[style*="background: #1e2a47"] .btn,
+[style*="background:#1e2a47"] .btn,
+div[style*="background: #1e2a47"] .btn,
+div[style*="background:#1e2a47"] .btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(4px);
+}
+
+.dark-bg .btn:hover,
+[style*="background: #1e2a47"] .btn:hover,
+[style*="background:#1e2a47"] .btn:hover,
+div[style*="background: #1e2a47"] .btn:hover,
+div[style*="background:#1e2a47"] .btn:hover {
+    background: var(--neon-coral);
+    border-color: var(--neon-coral);
+    color: #ffffff;
+    transform: translateY(-3px);
 }
 
 .section {
@@ -666,6 +716,7 @@ header {
     margin-top: 0.5rem;
 }
 
+/* ===== КАРТОЧКИ СОБЫТИЙ И НАПРАВЛЕНИЙ (ВЫРОВНЕННЫЕ) ===== */
 .events-grid,
 .directions-grid {
     display: grid;
@@ -690,6 +741,9 @@ header {
     transition: all 0.3s;
     color: var(--card-text);
     border-radius: 24px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 }
 
 @media (min-width: 769px) {
@@ -717,8 +771,9 @@ header {
 .event-card h3,
 .direction-card h3 {
     font-size: 1.3rem;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.75rem;
     color: #fff;
+    min-height: 3.2rem;
 }
 
 .event-card p,
@@ -726,12 +781,8 @@ header {
     font-size: 1rem;
     color: var(--card-text-secondary);
     line-height: 1.5;
-    margin-bottom: 1.8rem;
-}
-
-.event-card .btn,
-.direction-card .btn {
-    margin-top: 0.5rem;
+    margin-bottom: 1.5rem;
+    flex: 1;
 }
 
 .direction-card i {
@@ -740,30 +791,7 @@ header {
     margin-bottom: 1rem;
 }
 
-/* ===== КНОПКИ НА ТЁМНОМ ФОНЕ (ЛАКОНИЧНЫЕ) ===== */
-.direction-card .btn,
-.event-card .btn {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    color: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(4px);
-}
-
-.direction-card .btn:hover,
-.event-card .btn:hover {
-    background: var(--neon-coral);
-    border-color: var(--neon-coral);
-    color: #ffffff;
-    transform: translateY(-3px);
-}
-
-.direction-card .btn-sm,
-.event-card .btn-sm {
-    font-size: 0.7rem;
-    padding: 0.5rem 1.2rem;
-}
-
-/* ===== КОМАНДА — КРУГЛЫЕ ФОТО ===== */
+/* ===== КОМАНДА — КРУГЛЫЕ ФОТО (ВЫРОВНЕННЫЕ) ===== */
 .team-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -785,6 +813,9 @@ header {
     transition: all 0.3s;
     color: var(--card-text);
     border-radius: 24px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 }
 
 .team-card:hover {
@@ -801,6 +832,7 @@ header {
     overflow: hidden;
     border: 3px solid var(--neon-coral);
     background: var(--graphite-dark);
+    flex-shrink: 0;
 }
 
 .team-card .team-photo-wrapper img {
@@ -815,6 +847,7 @@ header {
     font-size: 1.2rem;
     margin-bottom: 0.75rem;
     color: #fff;
+    min-height: 3rem;
 }
 
 /* Текст описания */
@@ -822,6 +855,7 @@ header {
     font-size: 0.85rem;
     color: var(--card-text-secondary);
     line-height: 1.5;
+    flex: 1;
 }
 
 /* Цитата — только у Панковой */
@@ -847,6 +881,7 @@ header {
     
     .team-card h3 {
         font-size: 1rem;
+        min-height: 2.5rem;
     }
     
     .team-card p {
