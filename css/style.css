@@ -653,8 +653,7 @@ header {
 }
 
 .events-grid,
-.directions-grid,
-.team-grid {
+.directions-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
     gap: 2rem;
@@ -663,27 +662,25 @@ header {
 
 @media (max-width: 768px) {
     .events-grid,
-    .directions-grid,
-    .team-grid {
+    .directions-grid {
         grid-template-columns: 1fr;
     }
 }
 
 .event-card,
-.direction-card,
-.team-card {
+.direction-card {
     background: var(--graphite-card);
     border: 1px solid rgba(255,255,255,0.1);
     padding: 1.8rem;
     text-align: center;
     transition: all 0.3s;
     color: var(--card-text);
+    border-radius: 24px;
 }
 
 @media (min-width: 769px) {
     .event-card:hover,
-    .direction-card:hover,
-    .team-card:hover {
+    .direction-card:hover {
         transform: translateY(-5px);
         border-color: var(--neon-coral);
     }
@@ -729,17 +726,94 @@ header {
     margin-bottom: 1rem;
 }
 
-.team-card img {
-    width: 100%;
-    height: 260px;
-    object-fit: cover;
-    margin-bottom: 1rem;
-    border-bottom: 2px solid var(--neon-coral);
+/* ===== КОМАНДА — КРУГЛЫЕ ФОТО ===== */
+.team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
 }
 
 @media (max-width: 768px) {
-    .team-card img {
-        height: 220px;
+    .team-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.team-card {
+    background: var(--graphite-card);
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 1.8rem;
+    text-align: center;
+    transition: all 0.3s;
+    color: var(--card-text);
+    border-radius: 24px;
+}
+
+.team-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--neon-coral);
+}
+
+/* Круглая обёртка для фото */
+.team-card .team-photo-wrapper {
+    width: 180px;
+    height: 180px;
+    margin: 0 auto 1rem auto;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 3px solid var(--neon-coral);
+    background: var(--graphite-dark);
+}
+
+.team-card .team-photo-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* Заголовок */
+.team-card h3 {
+    font-size: 1.2rem;
+    margin-bottom: 0.75rem;
+    color: #fff;
+}
+
+/* Текст описания */
+.team-card p {
+    font-size: 0.85rem;
+    color: var(--card-text-secondary);
+    line-height: 1.5;
+}
+
+/* Цитата — только у Панковой */
+.team-quote {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255,255,255,0.15);
+    font-size: 0.85rem;
+    font-style: italic;
+    color: var(--neon-coral);
+    text-align: left;
+}
+
+@media (max-width: 768px) {
+    .team-card .team-photo-wrapper {
+        width: 140px;
+        height: 140px;
+    }
+    
+    .team-card {
+        padding: 1.2rem;
+    }
+    
+    .team-card h3 {
+        font-size: 1rem;
+    }
+    
+    .team-card p {
+        font-size: 0.75rem;
     }
 }
 
@@ -804,6 +878,7 @@ header {
     }
 }
 
+/* ===== FAQ ===== */
 .faq-list {
     max-width: 800px;
     margin: 0 auto;
@@ -846,6 +921,7 @@ header {
     padding-bottom: 1rem;
 }
 
+/* ===== ПОДВАЛ ===== */
 footer {
     background: var(--graphite-deep);
     border-top: 1px solid rgba(0,0,0,0.1);
@@ -964,6 +1040,7 @@ footer {
     }
 }
 
+/* ===== АНИМАЦИЯ КАРТОЧЕК ===== */
 .event-card, .direction-card, .team-card, .partner-item {
     opacity: 0;
     transform: translateY(20px);
