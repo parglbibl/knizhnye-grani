@@ -686,15 +686,20 @@ header {
     padding: 0.5rem 1.2rem;
 }
 
-/* ===== ТЁМНЫЕ ПЛАШКИ (КАК НА СТРАНИЦЕ СПИДКУБИНГА) ===== */
-.dark-bg {
-    background: #1e2a47;
+/* ===== ТЁМНЫЕ ПЛАШКИ (ЕДИНЫЙ СТИЛЬ ДЛЯ ВСЕХ) ===== */
+.dark-bg,
+.dark-bg-catalog,
+[class*="dark-bg"] {
+    background: #1e2a47 !important;
     border-radius: 24px;
     padding: 2rem;
     text-align: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
 
-.dark-bg h3 {
+.dark-bg h3,
+.dark-bg-catalog h3,
+[class*="dark-bg"] h3 {
     color: var(--neon-coral);
     font-size: 1.3rem;
     margin-bottom: 1rem;
@@ -702,7 +707,9 @@ header {
     font-weight: 600;
 }
 
-.dark-bg p {
+.dark-bg p,
+.dark-bg-catalog p,
+[class*="dark-bg"] p {
     color: rgba(255, 255, 255, 0.85);
     font-size: 0.95rem;
     line-height: 1.5;
@@ -710,14 +717,18 @@ header {
     font-family: 'Inter', sans-serif;
 }
 
-.dark-bg .btn {
+.dark-bg .btn,
+.dark-bg-catalog .btn,
+[class*="dark-bg"] .btn {
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.3);
     color: rgba(255, 255, 255, 0.9);
     backdrop-filter: blur(4px);
 }
 
-.dark-bg .btn:hover {
+.dark-bg .btn:hover,
+.dark-bg-catalog .btn:hover,
+[class*="dark-bg"] .btn:hover {
     background: var(--neon-coral);
     border-color: var(--neon-coral);
     color: #ffffff;
@@ -725,15 +736,21 @@ header {
 }
 
 @media (max-width: 768px) {
-    .dark-bg {
+    .dark-bg,
+    .dark-bg-catalog,
+    [class*="dark-bg"] {
         padding: 1.5rem;
     }
     
-    .dark-bg h3 {
+    .dark-bg h3,
+    .dark-bg-catalog h3,
+    [class*="dark-bg"] h3 {
         font-size: 1.1rem;
     }
     
-    .dark-bg p {
+    .dark-bg p,
+    .dark-bg-catalog p,
+    [class*="dark-bg"] p {
         font-size: 0.85rem;
     }
 }
