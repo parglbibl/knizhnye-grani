@@ -112,7 +112,7 @@ header {
     height: 56px;
 }
 
-/* Логотип ЦБС — делаем чуть крупнее, чтобы визуально сравнялся */
+/* Логотип ЦБС — 51px */
 .logo-cbs img {
     width: auto;
     height: auto;
@@ -122,7 +122,7 @@ header {
     display: block;
 }
 
-/* Логотип РОСТ — оставляем как был */
+/* Логотип РОСТ — 48px */
 .logo-rost img {
     width: auto;
     height: auto;
@@ -153,8 +153,8 @@ header {
     }
     
     .logo-rost img {
-        max-width: 34px;
-        max-height: 3px;
+        max-width: 38px;
+        max-height: 38px;
     }
     
     .logo {
@@ -177,8 +177,8 @@ header {
 
 /* ===== ЛОГОТИП (РОМБ + ВЕРТИКАЛЬНЫЕ ЛИНИИ + БОКОВАЯ ЗАКЛАДКА) ===== */
 .logo-book {
-    width: 36px;
-    height: 36px;
+    width: 31px;
+    height: 31px;
     background: transparent;
     border: 2px solid var(--neon-coral);
     transform: rotate(45deg);
@@ -218,10 +218,10 @@ header {
 .logo-book::after {
     content: '';
     position: absolute;
-    bottom: 3px;
-    right: -5px;
-    width: 6px;
-    height: 11px;
+    bottom: 2px;
+    right: -4px;
+    width: 5px;
+    height: 8px;
     background: var(--neon-coral);
     transform: rotate(-5deg);
     border-radius: 2px;
@@ -240,7 +240,7 @@ header {
 }
 
 .logo-text {
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     letter-spacing: 0.15em;
     text-transform: uppercase;
     color: var(--text-secondary);
@@ -252,19 +252,19 @@ header {
 
 @media (max-width: 768px) {
     .logo-book {
-        width: 30px;
-        height: 30px;
+        width: 26px;
+        height: 26px;
     }
     
     .logo-book::after {
-        width: 5px;
-        height: 9px;
-        right: -4px;
-        bottom: 2px;
+        width: 4px;
+        height: 6px;
+        right: -3px;
+        bottom: 1px;
     }
     
     .logo-text {
-        font-size: 0.55rem;
+        font-size: 0.5rem;
         letter-spacing: 0.1em;
     }
 }
