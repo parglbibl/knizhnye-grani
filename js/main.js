@@ -1,4 +1,4 @@
-// main.js — Книжные грани (без поиска)
+// main.js — Книжные грани (с автозакрытием подменю на мобилке)
 
 document.addEventListener('DOMContentLoaded', function() {
 
@@ -13,14 +13,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // ===== АВТОМАТИЧЕСКОЕ ЗАКРЫТИЕ МЕНЮ ПРИ КЛИКЕ НА ССЫЛКУ =====
-    // Закрываем меню при клике на любую ссылку в навигации
     const navLinks = document.querySelectorAll('#nav a');
     navLinks.forEach(link => {
         link.addEventListener('click', function() {
             if (navMenu && navMenu.classList.contains('active')) {
                 navMenu.classList.remove('active');
             }
-            // Также закрываем открытые дропдауны на мобилке
             const openDropdowns = document.querySelectorAll('.dropdown.active');
             openDropdowns.forEach(dropdown => {
                 dropdown.classList.remove('active');
@@ -119,7 +117,7 @@ document.addEventListener('DOMContentLoaded', function() {
         navContainer.innerHTML = html;
     }
     
-    // ОТКРЫТИЕ ПОДМЕНЮ НА МОБИЛКАХ
+    // ОТКРЫТИЕ ПОДМЕНЮ НА МОБИЛКАХ (АВТОЗАКРЫТИЕ ДРУГИХ)
     function bindDropdownEvents() {
         const dropdowns = document.querySelectorAll('.dropdown');
         dropdowns.forEach(function(dropdown) {
@@ -129,7 +127,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 title.addEventListener('click', function(e) {
                     e.preventDefault();
                     e.stopPropagation();
-                    dropdown.classList.toggle('active');
+                    
+                    // Если текущий дропдаун уже открыт, просто закрываем его
+                    if (dropdown.classList.contains('active')) {
+                        dropdown.classList.remove('active');
+                    } else {
+                        // Закрываем ВСЕ другие дропдауны
+                        dropdowns.forEach(function(otherDropdown) {
+                            otherDropdown.classList.remove('active');
+                        });
+                        // Открываем текущий
+                        dropdown.classList.add('active');
+                    }
                 });
             }
         });
