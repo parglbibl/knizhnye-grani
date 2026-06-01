@@ -175,10 +175,10 @@ header {
     margin-left: auto;
 }
 
-/* ===== ЛОГОТИП (ВЫТЯНУТЫЙ ПРЯМОУГОЛЬНИК + ЛИНИИ + БОКОВАЯ ЗАКЛАДКА) ===== */
+/* ===== ЛОГОТИП (ВЕРТИКАЛЬНО ВЫТЯНУТЫЙ ПРЯМОУГОЛЬНИК) ===== */
 .logo-book {
-    width: 38px;
-    height: 26px;
+    width: 26px;
+    height: 38px;
     background: transparent;
     border: 2px solid var(--neon-coral);
     transform: rotate(45deg);
@@ -252,8 +252,8 @@ header {
 
 @media (max-width: 768px) {
     .logo-book {
-        width: 32px;
-        height: 22px;
+        width: 22px;
+        height: 32px;
     }
     
     .logo-book::after {
