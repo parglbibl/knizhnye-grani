@@ -7,7 +7,7 @@
     font-display: swap;
 }
 
-/* КНИЖНЫЕ ГРАНИ — ФИНАЛЬНАЯ ВЕРСИЯ */
+/* ===== КНИЖНЫЕ ГРАНИ — ФИНАЛЬНАЯ ВЕРСИЯ ===== */
 :root {
     --neon-coral: #ff2e5a;
     --neon-coral-glow: rgba(255, 46, 90, 0.3);
@@ -164,7 +164,6 @@ header {
     height: 56px;
 }
 
-/* Логотип ЦБС — 51px */
 .logo-cbs img {
     width: auto;
     height: auto;
@@ -174,7 +173,6 @@ header {
     display: block;
 }
 
-/* Логотип РОСТ — 47px */
 .logo-rost img {
     width: auto;
     height: auto;
@@ -436,10 +434,6 @@ header {
 @media (max-width: 768px) {
     .menu-toggle {
         display: block;
-    }
-    
-    .header-inner {
-        flex-wrap: nowrap;
     }
     
     .nav {
@@ -790,6 +784,7 @@ header {
     }
 }
 
+/* ===== ОСНОВНЫЕ СЕКЦИИ ===== */
 .section {
     padding: 5rem 0;
     border-top: 1px solid rgba(0,0,0,0.05);
