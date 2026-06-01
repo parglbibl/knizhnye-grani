@@ -1,4 +1,4 @@
-// main.js — Книжные грани (с автозакрытием подменю на мобилке)
+// main.js — Книжные грани (с динамическими хлебными крошками)
 
 document.addEventListener('DOMContentLoaded', function() {
 
@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // ===== АВТОМАТИЧЕСКОЕ ЗАКРЫТИЕ МЕНЮ ПРИ КЛИКЕ НА ССЫЛКУ =====
+    // ===== АВТОМАТИЧЕСКОЕ ЗАКРЫТИЕ МЕНЮ =====
     const navLinks = document.querySelectorAll('#nav a');
     navLinks.forEach(link => {
         link.addEventListener('click', function() {
@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // ===== ЗАКРЫТИЕ МЕНЮ ПРИ КЛИКЕ ВНЕ ЕГО =====
+    // ===== ЗАКРЫТИЕ МЕНЮ ПРИ КЛИКЕ ВНЕ =====
     document.addEventListener('click', function(event) {
         const isClickInsideMenu = navMenu && navMenu.contains(event.target);
         const isClickOnToggle = menuToggle && menuToggle.contains(event.target);
@@ -117,7 +117,7 @@ document.addEventListener('DOMContentLoaded', function() {
         navContainer.innerHTML = html;
     }
     
-    // ОТКРЫТИЕ ПОДМЕНЮ НА МОБИЛКАХ (АВТОЗАКРЫТИЕ ДРУГИХ)
+    // ОТКРЫТИЕ ПОДМЕНЮ НА МОБИЛКАХ
     function bindDropdownEvents() {
         const dropdowns = document.querySelectorAll('.dropdown');
         dropdowns.forEach(function(dropdown) {
@@ -128,15 +128,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     e.preventDefault();
                     e.stopPropagation();
                     
-                    // Если текущий дропдаун уже открыт, просто закрываем его
                     if (dropdown.classList.contains('active')) {
                         dropdown.classList.remove('active');
                     } else {
-                        // Закрываем ВСЕ другие дропдауны
                         dropdowns.forEach(function(otherDropdown) {
                             otherDropdown.classList.remove('active');
                         });
-                        // Открываем текущий
                         dropdown.classList.add('active');
                     }
                 });
@@ -145,6 +142,86 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     bindDropdownEvents();
+    
+    // ===== ДИНАМИЧЕСКИЕ ХЛЕБНЫЕ КРОШКИ =====
+    function generateBreadcrumbs() {
+        const currentPath = window.location.pathname;
+        const fileName = currentPath.split('/').pop() || 'index.html';
+        const isInBoardgames = currentPath.includes('/boardgames/');
+        const isInSpeedcubing = currentPath.includes('/speedcubing/');
+        
+        let breadcrumbs = [
+            { name: 'Главная', href: prefix + 'index.html' }
+        ];
+        
+        // Определяем структуру хлебных крошек
+        if (isInBoardgames) {
+            breadcrumbs.push({ name: 'Настольные игры', href: prefix + 'boardgames/index.html' });
+            
+            if (fileName === 'catalog.html') {
+                breadcrumbs.push({ name: 'Каталог игр', href: null });
+            } else if (fileName === 'rules.html') {
+                breadcrumbs.push({ name: 'Правила посещения', href: null });
+            } else if (fileName === 'news.html') {
+                breadcrumbs.push({ name: 'Новости игротеки', href: null });
+            }
+        } 
+        else if (isInSpeedcubing) {
+            breadcrumbs.push({ name: 'Спидкубинг', href: prefix + 'speedcubing/index.html' });
+            
+            if (fileName === 'about-sport.html') {
+                breadcrumbs.push({ name: 'Что такое спидкубинг', href: null });
+            } else if (fileName === 'levels.html') {
+                breadcrumbs.push({ name: 'Уровни обучения', href: null });
+            } else if (fileName === 'gallery.html') {
+                breadcrumbs.push({ name: 'Фотогалерея', href: null });
+            } else if (fileName === 'news.html') {
+                breadcrumbs.push({ name: 'Новости спидкубинга', href: null });
+            }
+        }
+        else {
+            // Страницы в корне
+            if (fileName === 'about.html') {
+                breadcrumbs.push({ name: 'О проекте', href: null });
+            } else if (fileName === 'organizers.html') {
+                breadcrumbs.push({ name: 'О проекте', href: prefix + 'about.html' });
+                breadcrumbs.push({ name: 'Организаторы', href: null });
+            } else if (fileName === 'team.html') {
+                breadcrumbs.push({ name: 'О проекте', href: prefix + 'about.html' });
+                breadcrumbs.push({ name: 'Команда', href: null });
+            } else if (fileName === 'events.html') {
+                breadcrumbs.push({ name: 'Мероприятия', href: null });
+            } else if (fileName === 'partners.html') {
+                breadcrumbs.push({ name: 'Партнёры', href: null });
+            } else if (fileName === 'contacts.html') {
+                breadcrumbs.push({ name: 'Контакты', href: null });
+            } else if (fileName === 'faq.html') {
+                breadcrumbs.push({ name: 'FAQ', href: null });
+            }
+        }
+        
+        // Создаём HTML хлебных крошек
+        let breadcrumbsHtml = '<div class="breadcrumbs"><ul class="breadcrumbs-list">';
+        breadcrumbs.forEach((item, index) => {
+            if (item.href) {
+                breadcrumbsHtml += `<li class="breadcrumbs-item"><a href="${item.href}" class="breadcrumbs-link">${item.name}</a></li>`;
+            } else {
+                breadcrumbsHtml += `<li class="breadcrumbs-item"><span class="breadcrumbs-current">${item.name}</span></li>`;
+            }
+        });
+        breadcrumbsHtml += '</ul></div>';
+        
+        // Вставляем хлебные крошки после открытия section
+        const section = document.querySelector('.section');
+        if (section && !section.querySelector('.breadcrumbs')) {
+            const container = section.querySelector('.container');
+            if (container) {
+                container.insertAdjacentHTML('afterbegin', breadcrumbsHtml);
+            }
+        }
+    }
+    
+    generateBreadcrumbs();
     
     // ЛОГОТИП — ССЫЛКА НА ГЛАВНУЮ
     const logo = document.querySelector('.logo a');
