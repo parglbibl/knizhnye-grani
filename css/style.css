@@ -35,12 +35,24 @@ body {
     overflow-x: hidden;
 }
 
-/* ===== ЗАГОЛОВКИ — ШРИФТ KB TRANCEFORM ===== */
-h1, h2, h3, h4, .section-title, .hero h1, .hero h1 span, 
-.venue-title, .team-card h3, .event-card h3, .direction-card h3 {
+/* ===== ЗАГОЛОВКИ — ШРИФТ KB TRANCEFORM ТОЛЬКО ДЛЯ ГЛАВНЫХ ===== */
+.hero h1, 
+.hero h1 span,
+.section-title {
     font-family: 'KB Tranceform', 'Montserrat', sans-serif;
     font-weight: 400;
     letter-spacing: 0.02em;
+}
+
+/* Все остальные заголовки — обычный шрифт */
+h1, h2, h3, h4, 
+.venue-title, 
+.team-card h3, 
+.event-card h3, 
+.direction-card h3 {
+    font-family: 'Inter', 'Montserrat', sans-serif;
+    font-weight: 600;
+    letter-spacing: normal;
 }
 
 .container {
@@ -546,7 +558,7 @@ header {
 }
 
 .hero h1 {
-    font-size: 4.5rem;
+    font-size: 5.5rem;
     font-weight: 400;
     text-transform: uppercase;
     line-height: 1;
@@ -556,7 +568,7 @@ header {
 
 @media (max-width: 768px) {
     .hero h1 {
-        font-size: 2.5rem;
+        font-size: 3rem;
     }
 }
 
@@ -690,7 +702,7 @@ header {
 }
 
 .section-title {
-    font-size: 2.8rem;
+    font-size: 3.2rem;
     font-weight: 400;
     text-transform: uppercase;
     text-align: center;
@@ -700,7 +712,7 @@ header {
 
 @media (max-width: 768px) {
     .section-title {
-        font-size: 2rem;
+        font-size: 2.2rem;
     }
 }
 
