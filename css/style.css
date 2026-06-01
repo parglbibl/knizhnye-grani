@@ -284,7 +284,7 @@ header {
     background: var(--graphite-dark);
     border: 1px solid var(--neon-coral);
     padding: 0.5rem 0;
-    min-width: 220px;
+    min-width: 240px;
     list-style: none;
     opacity: 0;
     visibility: hidden;
@@ -301,11 +301,11 @@ header {
 
 .dropdown-menu li a {
     display: block;
-    padding: 0.6rem 1.5rem;
+    padding: 0.7rem 1.5rem;
     color: #ccc;
     text-decoration: none;
-    font-size: 0.7rem;
-    letter-spacing: 0.1em;
+    font-size: 0.85rem;
+    letter-spacing: 0.08em;
     transition: all 0.2s;
 }
 
@@ -323,8 +323,9 @@ header {
     }
     
     .dropdown-menu li a {
-        font-size: 0.8rem;
-        letter-spacing: 0.1em;
+        font-size: 0.9rem;
+        letter-spacing: 0.08em;
+        padding: 0.8rem 1.5rem;
     }
 }
 
@@ -422,9 +423,9 @@ header {
     }
     
     .dropdown-menu li a {
-        padding: 0.6rem 0;
+        padding: 0.8rem 0;
         color: var(--text-secondary);
-        font-size: 0.8rem;
+        font-size: 0.9rem;
         text-align: center;
     }
     
