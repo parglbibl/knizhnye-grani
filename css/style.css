@@ -1,4 +1,4 @@
-/* КНИЖНЫЕ ГРАНИ — ФИНАЛЬНАЯ ВЕРСИЯ (С КРУГЛЫМИ ФОТО И КОРРЕКТИРОВКОЙ ПОЗИЦИИ) */
+/* КНИЖНЫЕ ГРАНИ — ФИНАЛЬНАЯ ВЕРСИЯ (БЕЗ ПОИСКА) */
 :root {
     --neon-coral: #ff2e5a;
     --neon-coral-glow: rgba(255, 46, 90, 0.3);
@@ -312,6 +312,20 @@ header {
 .dropdown-menu li a:hover {
     background: var(--neon-coral);
     color: #fff;
+}
+
+/* ===== УВЕЛИЧИВАЕМ ШРИФТ В МЕНЮ (ДЕСКТОП) ===== */
+@media (min-width: 769px) {
+    .simple-menu-item a,
+    .dropdown-title {
+        font-size: 0.85rem;
+        letter-spacing: 0.12em;
+    }
+    
+    .dropdown-menu li a {
+        font-size: 0.8rem;
+        letter-spacing: 0.1em;
+    }
 }
 
 /* ===== МОБИЛЬНОЕ МЕНЮ ===== */
@@ -715,57 +729,17 @@ header {
     margin-bottom: 1rem;
 }
 
-/* ===== СТАРЫЕ СТИЛИ ДЛЯ ФОТО КОМАНДЫ (заменяются на круглые) ===== */
-/* Убираем старые стили img в team-card */
 .team-card img {
-    display: none;
-}
-
-/* ===== КРУГЛЫЕ ФОТО ДЛЯ КОМАНДЫ ===== */
-.team-photo-wrapper {
-    width: 180px;
-    height: 180px;
-    margin: 0 auto 1rem;
-    border-radius: 50%;
-    overflow: hidden;
-    border: 3px solid var(--neon-coral);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    background: var(--graphite-dark);
-}
-
-.team-photo-wrapper img {
     width: 100%;
-    height: 100%;
+    height: 260px;
     object-fit: cover;
-    object-position: 50% 30%;  /* Сдвигаем фото вверх, чтобы показать голову */
-    display: block;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid var(--neon-coral);
 }
 
-/* Индивидуальная корректировка для каждого фото (при необходимости) */
-.team-card:nth-child(1) .team-photo-wrapper img { object-position: 50% 25%; } /* Панкова */
-.team-card:nth-child(2) .team-photo-wrapper img { object-position: 50% 30%; } /* Садриева */
-.team-card:nth-child(3) .team-photo-wrapper img { object-position: 50% 20%; } /* Блох */
-.team-card:nth-child(4) .team-photo-wrapper img { object-position: 50% 35%; } /* Казарцева */
-.team-card:nth-child(5) .team-photo-wrapper img { object-position: 50% 40%; } /* Черняков */
-.team-card:nth-child(6) .team-photo-wrapper img { object-position: 50% 30%; } /* Брия */
-
-/* ===== СТИЛИ ДЛЯ ЦИТАТ В КАРТОЧКАХ КОМАНДЫ ===== */
-.team-card .team-quote {
-    font-size: 0.75rem;
-    line-height: 1.45;
-    color: var(--card-text-secondary);
-    font-style: italic;
-    margin-top: 0.75rem;
-    padding-top: 0.75rem;
-    border-top: 1px solid rgba(255,255,255,0.1);
-    text-align: left;
-}
-
-/* Адаптация для мобильных */
 @media (max-width: 768px) {
-    .team-photo-wrapper {
-        width: 140px;
-        height: 140px;
+    .team-card img {
+        height: 220px;
     }
 }
 
