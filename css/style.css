@@ -1,9 +1,10 @@
 /* ===== ПОДКЛЮЧЕНИЕ ЛОКАЛЬНЫХ ШРИФТОВ ===== */
 @font-face {
     font-family: 'KB Tranceform';
-    src: url('fonts/kb-tranceform.woff2') format('woff2');
+    src: url('../fonts/kb-tranceform.woff2') format('woff2');
+    font-weight: normal;
     font-style: normal;
-    font-display: normal;
+    font-display: swap;
 }
 
 /* КНИЖНЫЕ ГРАНИ — ФИНАЛЬНАЯ ВЕРСИЯ */
