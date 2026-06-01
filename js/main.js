@@ -117,7 +117,7 @@ document.addEventListener('DOMContentLoaded', function() {
         navContainer.innerHTML = html;
     }
     
-    // ОТКРЫТИЕ ПОДМЕНЮ НА МОБИЛКАХ
+    // ОТКРЫТИЕ ПОДМЕНЮ НА МОБИЛКАХ (АВТОЗАКРЫТИЕ ДРУГИХ)
     function bindDropdownEvents() {
         const dropdowns = document.querySelectorAll('.dropdown');
         dropdowns.forEach(function(dropdown) {
@@ -147,6 +147,12 @@ document.addEventListener('DOMContentLoaded', function() {
     function generateBreadcrumbs() {
         const currentPath = window.location.pathname;
         const fileName = currentPath.split('/').pop() || 'index.html';
+        
+        // НЕ показываем хлебные крошки на главной странице
+        if (fileName === 'index.html' || fileName === '' || currentPath.endsWith('/')) {
+            return;
+        }
+        
         const isInBoardgames = currentPath.includes('/boardgames/');
         const isInSpeedcubing = currentPath.includes('/speedcubing/');
         
