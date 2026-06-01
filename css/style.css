@@ -175,10 +175,10 @@ header {
     margin-left: auto;
 }
 
-/* ===== ЛОГОТИП (РОМБ + ВЕРТИКАЛЬНЫЕ ЛИНИИ + БОКОВАЯ ЗАКЛАДКА) ===== */
+/* ===== ЛОГОТИП (ВЫТЯНУТЫЙ ПРЯМОУГОЛЬНИК + ЛИНИИ + БОКОВАЯ ЗАКЛАДКА) ===== */
 .logo-book {
-    width: 31px;
-    height: 31px;
+    width: 38px;
+    height: 26px;
     background: transparent;
     border: 2px solid var(--neon-coral);
     transform: rotate(45deg);
@@ -219,9 +219,9 @@ header {
     content: '';
     position: absolute;
     bottom: 2px;
-    right: -4px;
-    width: 5px;
-    height: 8px;
+    right: -5px;
+    width: 6px;
+    height: 10px;
     background: var(--neon-coral);
     transform: rotate(-5deg);
     border-radius: 2px;
@@ -252,14 +252,14 @@ header {
 
 @media (max-width: 768px) {
     .logo-book {
-        width: 26px;
-        height: 26px;
+        width: 32px;
+        height: 22px;
     }
     
     .logo-book::after {
-        width: 4px;
-        height: 6px;
-        right: -3px;
+        width: 5px;
+        height: 8px;
+        right: -4px;
         bottom: 1px;
     }
     
