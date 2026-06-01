@@ -112,12 +112,22 @@ header {
     height: 56px;
 }
 
-.logo-cbs img,
+/* Логотип ЦБС — делаем чуть крупнее, чтобы визуально сравнялся */
+.logo-cbs img {
+    width: auto;
+    height: auto;
+    max-width: 52px;
+    max-height: 52px;
+    object-fit: contain;
+    display: block;
+}
+
+/* Логотип РОСТ — оставляем как был */
 .logo-rost img {
     width: auto;
     height: auto;
-    max-width: 56px;
-    max-height: 56px;
+    max-width: 48px;
+    max-height: 48px;
     object-fit: contain;
     display: block;
 }
@@ -133,14 +143,18 @@ header {
 @media (max-width: 768px) {
     .logo-cbs,
     .logo-rost {
-        width: 42px;
-        height: 42px;
+        width: 44px;
+        height: 44px;
     }
     
-    .logo-cbs img,
+    .logo-cbs img {
+        max-width: 40px;
+        max-height: 40px;
+    }
+    
     .logo-rost img {
-        max-width: 42px;
-        max-height: 42px;
+        max-width: 36px;
+        max-height: 36px;
     }
     
     .logo {
