@@ -122,12 +122,12 @@ header {
     display: block;
 }
 
-/* Логотип РОСТ — 48px */
+/* Логотип РОСТ — 47px */
 .logo-rost img {
     width: auto;
     height: auto;
-    max-width: 48px;
-    max-height: 48px;
+    max-width: 47px;
+    max-height: 47px;
     object-fit: contain;
     display: block;
 }
@@ -153,8 +153,8 @@ header {
     }
     
     .logo-rost img {
-        max-width: 38px;
-        max-height: 38px;
+        max-width: 37px;
+        max-height: 37px;
     }
     
     .logo {
