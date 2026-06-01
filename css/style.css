@@ -77,21 +77,18 @@ header {
 .logo-rost {
     display: flex;
     align-items: center;
+    justify-content: center;
     flex-shrink: 0;
+    width: 56px;
+    height: 56px;
 }
 
-.logo-cbs img {
-    height: 44px;
-    width: auto;
-    max-width: 100px;
-    object-fit: contain;
-    display: block;
-}
-
+.logo-cbs img,
 .logo-rost img {
-    height: 44px;
     width: auto;
-    max-width: 100px;
+    height: auto;
+    max-width: 56px;
+    max-height: 56px;
     object-fit: contain;
     display: block;
 }
@@ -105,14 +102,16 @@ header {
 }
 
 @media (max-width: 768px) {
-    .logo-cbs img {
-        height: 34px;
-        max-width: 80px;
+    .logo-cbs,
+    .logo-rost {
+        width: 42px;
+        height: 42px;
     }
     
+    .logo-cbs img,
     .logo-rost img {
-        height: 34px;
-        max-width: 80px;
+        max-width: 42px;
+        max-height: 42px;
     }
     
     .logo {
@@ -645,7 +644,7 @@ header {
     padding: 0.5rem 1.2rem;
 }
 
-/* Для любых других блоков с тёмным фоном (например, #1e2a47) */
+/* Для любых других блоков с тёмным фоном */
 .dark-bg .btn,
 [style*="background: #1e2a47"] .btn,
 [style*="background:#1e2a47"] .btn,
