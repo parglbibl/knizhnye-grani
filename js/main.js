@@ -12,6 +12,32 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
+    // ===== АВТОМАТИЧЕСКОЕ ЗАКРЫТИЕ МЕНЮ ПРИ КЛИКЕ НА ССЫЛКУ =====
+    // Закрываем меню при клике на любую ссылку в навигации
+    const navLinks = document.querySelectorAll('#nav a');
+    navLinks.forEach(link => {
+        link.addEventListener('click', function() {
+            if (navMenu && navMenu.classList.contains('active')) {
+                navMenu.classList.remove('active');
+            }
+            // Также закрываем открытые дропдауны на мобилке
+            const openDropdowns = document.querySelectorAll('.dropdown.active');
+            openDropdowns.forEach(dropdown => {
+                dropdown.classList.remove('active');
+            });
+        });
+    });
+    
+    // ===== ЗАКРЫТИЕ МЕНЮ ПРИ КЛИКЕ ВНЕ ЕГО =====
+    document.addEventListener('click', function(event) {
+        const isClickInsideMenu = navMenu && navMenu.contains(event.target);
+        const isClickOnToggle = menuToggle && menuToggle.contains(event.target);
+        
+        if (navMenu && navMenu.classList.contains('active') && !isClickInsideMenu && !isClickOnToggle) {
+            navMenu.classList.remove('active');
+        }
+    });
+    
     // ===== ДИНАМИЧЕСКАЯ СБОРКА МЕНЮ =====
     const path = window.location.pathname;
     let prefix = '';
