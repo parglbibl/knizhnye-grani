@@ -1,4 +1,13 @@
-/* КНИЖНЫЕ ГРАНИ — ФИНАЛЬНАЯ ВЕРСИЯ (БЕЗ ПОИСКА) */
+/* ===== ПОДКЛЮЧЕНИЕ ЛОКАЛЬНЫХ ШРИФТОВ ===== */
+@font-face {
+    font-family: 'KB Tranceform';
+    src: url('fonts/kb-tranceform.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* КНИЖНЫЕ ГРАНИ — ФИНАЛЬНАЯ ВЕРСИЯ */
 :root {
     --neon-coral: #ff2e5a;
     --neon-coral-glow: rgba(255, 46, 90, 0.3);
@@ -21,9 +30,17 @@
 body {
     background: var(--graphite-deep);
     color: var(--text-primary);
-    font-family: 'Space Grotesk', 'Inter', monospace;
+    font-family: 'Inter', 'Space Grotesk', sans-serif;
     line-height: 1.4;
     overflow-x: hidden;
+}
+
+/* ===== ЗАГОЛОВКИ — ШРИФТ KB TRANCEFORM ===== */
+h1, h2, h3, h4, .section-title, .hero h1, .hero h1 span, 
+.venue-title, .team-card h3, .event-card h3, .direction-card h3 {
+    font-family: 'KB Tranceform', 'Montserrat', sans-serif;
+    font-weight: 400;
+    letter-spacing: 0.02em;
 }
 
 .container {
@@ -144,7 +161,6 @@ header {
     transition: transform 0.3s;
 }
 
-/* Левая линия (страница) */
 .logo-book .line-left {
     position: absolute;
     top: 0;
@@ -154,7 +170,6 @@ header {
     background: var(--neon-coral);
 }
 
-/* Центральная линия (корешок) */
 .logo-book .line-center {
     position: absolute;
     top: 0;
@@ -165,7 +180,6 @@ header {
     transform: translateX(-50%);
 }
 
-/* Правая линия (страница) */
 .logo-book .line-right {
     position: absolute;
     top: 0;
@@ -175,7 +189,6 @@ header {
     background: var(--neon-coral);
 }
 
-/* Боковая закладка (ленточка) */
 .logo-book::after {
     content: '';
     position: absolute;
@@ -208,6 +221,7 @@ header {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    font-family: 'Inter', sans-serif;
 }
 
 @media (max-width: 768px) {
@@ -240,7 +254,6 @@ header {
     padding: 0;
 }
 
-/* Центрируем меню в шапке */
 @media (min-width: 769px) {
     .nav {
         flex: 1;
@@ -267,6 +280,7 @@ header {
     text-decoration: none;
     transition: color 0.2s;
     cursor: pointer;
+    font-family: 'Inter', sans-serif;
 }
 
 .simple-menu-item a:hover,
@@ -319,6 +333,7 @@ header {
     font-size: 0.85rem;
     letter-spacing: 0.08em;
     transition: all 0.2s;
+    font-family: 'Inter', sans-serif;
 }
 
 .dropdown-menu li a:hover {
@@ -326,7 +341,6 @@ header {
     color: #fff;
 }
 
-/* ===== УВЕЛИЧИВАЕМ ШРИФТ В МЕНЮ (ДЕСКТОП) ===== */
 @media (min-width: 769px) {
     .simple-menu-item a,
     .dropdown-title {
@@ -341,7 +355,6 @@ header {
     }
 }
 
-/* ===== МОБИЛЬНОЕ МЕНЮ ===== */
 @media (max-width: 768px) {
     .menu-toggle {
         display: block;
@@ -447,7 +460,7 @@ header {
     }
 }
 
-/* ===== ГЛАВНАЯ ПЛОЩАДКА (БИБЛИОТЕКА-МАСТЕРСКАЯ) ===== */
+/* ===== ГЛАВНАЯ ПЛОЩАДКА ===== */
 .venue-block {
     display: flex;
     align-items: center;
@@ -492,12 +505,14 @@ header {
     font-weight: 600;
     color: var(--text-primary);
     margin-bottom: 0.5rem;
+    font-family: 'Inter', sans-serif;
 }
 
 .venue-desc {
     color: var(--text-secondary);
     font-size: 0.9rem;
     margin-bottom: 1rem;
+    font-family: 'Inter', sans-serif;
 }
 
 @media (max-width: 768px) {
@@ -517,7 +532,7 @@ header {
     }
 }
 
-/* ===== ОСТАЛЬНЫЕ СТИЛИ ===== */
+/* ===== ГЕРОЙ ===== */
 .hero {
     padding: 8rem 0 6rem;
     text-align: center;
@@ -527,17 +542,16 @@ header {
 @media (max-width: 768px) {
     .hero {
         padding: 4rem 0;
-        background: var(--graphite-deep);
     }
 }
 
 .hero h1 {
     font-size: 4.5rem;
-    font-weight: 800;
+    font-weight: 400;
     text-transform: uppercase;
     line-height: 1;
     margin-bottom: 1.5rem;
-    letter-spacing: -0.03em;
+    letter-spacing: 0.02em;
 }
 
 @media (max-width: 768px) {
@@ -556,6 +570,7 @@ header {
     text-transform: uppercase;
     letter-spacing: 0.1em;
     margin-bottom: 1.5rem;
+    font-family: 'Inter', sans-serif;
 }
 
 .hero-desc {
@@ -563,6 +578,7 @@ header {
     color: var(--text-secondary);
     max-width: 600px;
     margin: 0 auto 2rem;
+    font-family: 'Inter', sans-serif;
 }
 
 @media (max-width: 768px) {
@@ -587,7 +603,7 @@ header {
     }
 }
 
-/* ===== ОСНОВНЫЕ КНОПКИ ===== */
+/* ===== КНОПКИ ===== */
 .btn {
     display: inline-block;
     padding: 0.8rem 2rem;
@@ -601,6 +617,7 @@ header {
     letter-spacing: 0.15em;
     transition: all 0.3s;
     cursor: pointer;
+    font-family: 'Inter', sans-serif;
 }
 
 .btn:hover {
@@ -618,8 +635,7 @@ header {
     }
 }
 
-/* ===== КНОПКИ НА ТЁМНОМ ФОНЕ (ЛАКОНИЧНЫЕ) ===== */
-/* Для карточек */
+/* ===== КНОПКИ НА ТЁМНОМ ФОНЕ ===== */
 .direction-card .btn,
 .event-card .btn {
     background: rgba(255, 255, 255, 0.1);
@@ -644,12 +660,9 @@ header {
     padding: 0.5rem 1.2rem;
 }
 
-/* Для любых других блоков с тёмным фоном */
 .dark-bg .btn,
 [style*="background: #1e2a47"] .btn,
-[style*="background:#1e2a47"] .btn,
-div[style*="background: #1e2a47"] .btn,
-div[style*="background:#1e2a47"] .btn {
+[style*="background:#1e2a47"] .btn {
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.3);
     color: rgba(255, 255, 255, 0.9);
@@ -658,9 +671,7 @@ div[style*="background:#1e2a47"] .btn {
 
 .dark-bg .btn:hover,
 [style*="background: #1e2a47"] .btn:hover,
-[style*="background:#1e2a47"] .btn:hover,
-div[style*="background: #1e2a47"] .btn:hover,
-div[style*="background:#1e2a47"] .btn:hover {
+[style*="background:#1e2a47"] .btn:hover {
     background: var(--neon-coral);
     border-color: var(--neon-coral);
     color: #ffffff;
@@ -680,10 +691,11 @@ div[style*="background:#1e2a47"] .btn:hover {
 
 .section-title {
     font-size: 2.8rem;
-    font-weight: 800;
+    font-weight: 400;
     text-transform: uppercase;
     text-align: center;
     margin-bottom: 2.5rem;
+    letter-spacing: 0.02em;
 }
 
 @media (max-width: 768px) {
@@ -709,13 +721,14 @@ div[style*="background:#1e2a47"] .btn:hover {
     color: var(--text-secondary);
     line-height: 1.6;
     margin-bottom: 1.5rem;
+    font-family: 'Inter', sans-serif;
 }
 
 .section .btn-outline {
     margin-top: 0.5rem;
 }
 
-/* ===== КАРТОЧКИ СОБЫТИЙ И НАПРАВЛЕНИЙ (ВЫРОВНЕННЫЕ) ===== */
+/* ===== КАРТОЧКИ ===== */
 .events-grid,
 .directions-grid {
     display: grid;
@@ -758,6 +771,7 @@ div[style*="background:#1e2a47"] .btn:hover {
     color: var(--neon-coral);
     letter-spacing: 0.2em;
     margin-bottom: 0.5rem;
+    font-family: 'Inter', sans-serif;
 }
 
 .event-date {
@@ -765,6 +779,7 @@ div[style*="background:#1e2a47"] .btn:hover {
     color: var(--card-text-secondary);
     text-transform: uppercase;
     margin-bottom: 0.5rem;
+    font-family: 'Inter', sans-serif;
 }
 
 .event-card h3,
@@ -782,6 +797,7 @@ div[style*="background:#1e2a47"] .btn:hover {
     line-height: 1.5;
     margin-bottom: 1.5rem;
     flex: 1;
+    font-family: 'Inter', sans-serif;
 }
 
 .direction-card i {
@@ -790,7 +806,7 @@ div[style*="background:#1e2a47"] .btn:hover {
     margin-bottom: 1rem;
 }
 
-/* ===== КОМАНДА — КРУГЛЫЕ ФОТО (ВЫРОВНЕННЫЕ) ===== */
+/* ===== КОМАНДА ===== */
 .team-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -822,7 +838,6 @@ div[style*="background:#1e2a47"] .btn:hover {
     border-color: var(--neon-coral);
 }
 
-/* Круглая обёртка для фото */
 .team-card .team-photo-wrapper {
     width: 180px;
     height: 180px;
@@ -841,7 +856,6 @@ div[style*="background:#1e2a47"] .btn:hover {
     display: block;
 }
 
-/* Заголовок */
 .team-card h3 {
     font-size: 1.2rem;
     margin-bottom: 0.75rem;
@@ -849,15 +863,14 @@ div[style*="background:#1e2a47"] .btn:hover {
     min-height: 3rem;
 }
 
-/* Текст описания */
 .team-card p {
     font-size: 0.85rem;
     color: var(--card-text-secondary);
     line-height: 1.5;
     flex: 1;
+    font-family: 'Inter', sans-serif;
 }
 
-/* Цитата — только у Панковой */
 .team-quote {
     margin-top: 1rem;
     padding-top: 1rem;
@@ -866,6 +879,7 @@ div[style*="background:#1e2a47"] .btn:hover {
     font-style: italic;
     color: var(--neon-coral);
     text-align: left;
+    font-family: 'Inter', sans-serif;
 }
 
 @media (max-width: 768px) {
@@ -908,11 +922,6 @@ div[style*="background:#1e2a47"] .btn:hover {
     border-bottom: none;
 }
 
-.partner-item a:hover {
-    text-decoration: none;
-    border-bottom: none;
-}
-
 .partner-logo {
     width: 120px;
     height: 85px;
@@ -931,6 +940,7 @@ div[style*="background:#1e2a47"] .btn:hover {
     letter-spacing: 0.08em;
     color: var(--text-secondary);
     font-weight: 400;
+    font-family: 'Inter', sans-serif;
 }
 
 @media (max-width: 768px) {
@@ -967,6 +977,7 @@ div[style*="background:#1e2a47"] .btn:hover {
     align-items: center;
     font-weight: 600;
     font-size: 0.9rem;
+    font-family: 'Inter', sans-serif;
 }
 
 .faq-question i {
@@ -985,6 +996,7 @@ div[style*="background:#1e2a47"] .btn:hover {
     color: var(--text-secondary);
     font-size: 0.85rem;
     line-height: 1.5;
+    font-family: 'Inter', sans-serif;
 }
 
 .faq-answer.show {
@@ -1021,6 +1033,7 @@ footer {
     letter-spacing: 0.2em;
     margin-bottom: 0.8rem;
     color: var(--neon-coral);
+    font-family: 'Inter', sans-serif;
 }
 
 .footer-col p,
@@ -1029,6 +1042,7 @@ footer {
     color: var(--text-secondary);
     text-decoration: none;
     line-height: 1.8;
+    font-family: 'Inter', sans-serif;
 }
 
 .footer-col a:hover {
@@ -1066,9 +1080,10 @@ footer {
     border-top: 1px solid rgba(0,0,0,0.1);
     font-size: 0.65rem;
     color: var(--text-secondary);
+    font-family: 'Inter', sans-serif;
 }
 
-/* ===== КНОПКА НАВЕРХ (НЕОНОВАЯ) ===== */
+/* ===== КНОПКА НАВЕРХ ===== */
 .back-to-top {
     position: fixed;
     bottom: 20px;
@@ -1111,7 +1126,7 @@ footer {
     }
 }
 
-/* ===== АНИМАЦИЯ КАРТОЧЕК ===== */
+/* ===== АНИМАЦИЯ ===== */
 .event-card, .direction-card, .team-card, .partner-item {
     opacity: 0;
     transform: translateY(20px);
