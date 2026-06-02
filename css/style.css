@@ -186,21 +186,16 @@ header {
 }
 
 .logo-rost {
-    margin-right: 1.5rem;
+    margin-right: 1.62rem;  /* увеличили на 2 мм (было 1.5rem) */
 }
 
 .logo a {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 1.06rem;  /* увеличили расстояние между ромбом и текстом на 1 см (было 0.5rem) */
     text-decoration: none;
     color: inherit;
     flex-shrink: 0;
-    margin-left: 0.06rem;  /* смещаем ромб вправо на 1 мм */
-}
-
-.logo-text {
-    margin-left: 0;  /* текст без дополнительного смещения */
 }
 
 @media (max-width: 768px) {
@@ -225,16 +220,11 @@ header {
     }
     
     .logo-rost {
-        margin-right: 1rem;
+        margin-right: 1.1rem;
     }
     
     .logo a {
-        gap: 0.3rem;
-        margin-left: 0.04rem;
-    }
-    
-    .logo-text {
-        margin-left: 0;
+        gap: 0.8rem;
     }
 }
 
@@ -260,16 +250,11 @@ header {
     }
     
     .logo-rost {
-        margin-right: 0.8rem;
+        margin-right: 0.9rem;
     }
     
     .logo a {
-        gap: 0.2rem;
-        margin-left: 0.03rem;
-    }
-    
-    .logo-text {
-        margin-left: 0;
+        gap: 0.6rem;
     }
 }
 
