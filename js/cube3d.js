@@ -6,153 +6,180 @@ if (!container) {
 } else {
     // Сцена с прозрачным фоном
     const scene = new THREE.Scene();
-    scene.background = null; // прозрачный фон
+    scene.background = null;
 
-    // Камера — строго спереди, без наклона
+    // Камера — подальше, чтобы кубик был виден целиком
     const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
-    camera.position.set(2.5, 0, 3.5);
+    camera.position.set(3, 2, 4);
     camera.lookAt(0, 0, 0);
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); // alpha: true для прозрачности
-    renderer.setSize(250, 250);
-    renderer.setClearColor(0x000000, 0); // полностью прозрачный фон
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(400, 400);
+    renderer.setClearColor(0x000000, 0);
     container.appendChild(renderer.domElement);
 
-    // Группа для кубика
     const cubeGroup = new THREE.Group();
     scene.add(cubeGroup);
 
-    // Цвета граней
-    const colors = {
-        white: 0xffffff,
-        yellow: 0xffd966,
-        red: 0xff4d4d,
-        orange: 0xffa64d,
-        blue: 0x4da6ff,
-        green: 0x66cc66
+    // Правильные цвета для кубика Рубика
+    const colorMap = {
+        'right': 0xc41e3a,  // красный
+        'left': 0xff8c00,   // оранжевый
+        'up': 0xffffff,     // белый
+        'down': 0xffd700,   // жёлтый
+        'front': 0x009e60,  // зелёный
+        'back': 0x0051ba     // синий
     };
 
-    // Материалы для граней
+    // Материалы
     const materials = {
-        right: new THREE.MeshStandardMaterial({ color: colors.orange, roughness: 0.3, metalness: 0.05 }),
-        left: new THREE.MeshStandardMaterial({ color: colors.red, roughness: 0.3, metalness: 0.05 }),
-        up: new THREE.MeshStandardMaterial({ color: colors.white, roughness: 0.3, metalness: 0.05 }),
-        down: new THREE.MeshStandardMaterial({ color: colors.yellow, roughness: 0.3, metalness: 0.05 }),
-        front: new THREE.MeshStandardMaterial({ color: colors.green, roughness: 0.3, metalness: 0.05 }),
-        back: new THREE.MeshStandardMaterial({ color: colors.blue, roughness: 0.3, metalness: 0.05 })
+        right: new THREE.MeshStandardMaterial({ color: colorMap.right, roughness: 0.2, metalness: 0.05 }),
+        left: new THREE.MeshStandardMaterial({ color: colorMap.left, roughness: 0.2, metalness: 0.05 }),
+        up: new THREE.MeshStandardMaterial({ color: colorMap.up, roughness: 0.2, metalness: 0.05 }),
+        down: new THREE.MeshStandardMaterial({ color: colorMap.down, roughness: 0.2, metalness: 0.05 }),
+        front: new THREE.MeshStandardMaterial({ color: colorMap.front, roughness: 0.2, metalness: 0.05 }),
+        back: new THREE.MeshStandardMaterial({ color: colorMap.back, roughness: 0.2, metalness: 0.05 })
     };
 
-    // Создание 27 маленьких кубиков (3x3x3) — собранное состояние
+    // Создание 27 маленьких кубиков
     const cubies = [];
     const offset = 1;
-    const size = 0.96;
+    const size = 0.94;
 
     for (let x = -1; x <= 1; x++) {
         for (let y = -1; y <= 1; y++) {
             for (let z = -1; z <= 1; z++) {
                 const geometry = new THREE.BoxGeometry(size, size, size);
-                const materialArray = [];
+                const matArray = [];
                 
-                materialArray.push(x === 1 ? materials.right : null);
-                materialArray.push(x === -1 ? materials.left : null);
-                materialArray.push(y === 1 ? materials.up : null);
-                materialArray.push(y === -1 ? materials.down : null);
-                materialArray.push(z === 1 ? materials.front : null);
-                materialArray.push(z === -1 ? materials.back : null);
+                matArray.push(x === 1 ? materials.right : null);
+                matArray.push(x === -1 ? materials.left : null);
+                matArray.push(y === 1 ? materials.up : null);
+                matArray.push(y === -1 ? materials.down : null);
+                matArray.push(z === 1 ? materials.front : null);
+                matArray.push(z === -1 ? materials.back : null);
                 
-                const finalMaterials = materialArray.map(mat => mat || new THREE.MeshStandardMaterial({ color: 0x111111 }));
-                
-                const cubie = new THREE.Mesh(geometry, finalMaterials);
+                const finalMats = matArray.map(mat => mat || new THREE.MeshStandardMaterial({ color: 0x222222 }));
+                const cubie = new THREE.Mesh(geometry, finalMats);
                 cubie.position.set(x * offset, y * offset, z * offset);
                 cubeGroup.add(cubie);
-                cubies.push(cubie);
+                cubies.push({
+                    mesh: cubie,
+                    originalPos: { x: x * offset, y: y * offset, z: z * offset },
+                    originalMat: finalMats
+                });
             }
         }
     }
 
-    // Освещение — мягкое, чтобы цвета выглядели естественно
+    // Освещение
     const ambientLight = new THREE.AmbientLight(0x404060);
     scene.add(ambientLight);
     
-    const mainLight = new THREE.DirectionalLight(0xffffff, 0.8);
-    mainLight.position.set(1, 2, 2);
+    const mainLight = new THREE.DirectionalLight(0xffffff, 1);
+    mainLight.position.set(2, 3, 2);
     scene.add(mainLight);
     
-    const fillLight = new THREE.DirectionalLight(0xffffff, 0.4);
+    const fillLight = new THREE.DirectionalLight(0xffffff, 0.5);
     fillLight.position.set(-1, 1, -1);
     scene.add(fillLight);
-    
-    const backLight = new THREE.DirectionalLight(0xffffff, 0.3);
-    backLight.position.set(0, 0, -2);
-    scene.add(backLight);
 
     let isScrambled = false;
-    let animating = false;
-    let animationProgress = 0;
-    let startRotation = { x: 0, y: 0, z: 0 };
-    let endRotation = { x: 0, y: 0, z: 0 };
-    let originalPositions = cubies.map(cubie => ({
-        x: cubie.position.x,
-        y: cubie.position.y,
-        z: cubie.position.z
-    }));
+    let currentRotation = { x: 0, y: 0, z: 0 };
 
-    // Анимация поворота при клике
-    function animateRotation() {
+    // Функция для случайного вращения грани (эффект перемешивания)
+    function scrambleCube() {
+        // Сохраняем текущие позиции и материалы
+        const cubieData = cubies.map(c => ({
+            pos: c.mesh.position.clone(),
+            mats: c.mesh.material
+        }));
+        
+        // Применяем случайные сдвиги для каждой грани
+        cubies.forEach(cubie => {
+            // Случайное вращение вокруг оси
+            const axis = Math.floor(Math.random() * 3);
+            const angle = (Math.floor(Math.random() * 4) * Math.PI / 2);
+            
+            if (axis === 0) { // вращение вокруг X
+                cubie.mesh.position.x = cubie.originalPos.x;
+                cubie.mesh.position.y = cubie.originalPos.y * Math.cos(angle) - cubie.originalPos.z * Math.sin(angle);
+                cubie.mesh.position.z = cubie.originalPos.y * Math.sin(angle) + cubie.originalPos.z * Math.cos(angle);
+            } else if (axis === 1) { // вращение вокруг Y
+                cubie.mesh.position.y = cubie.originalPos.y;
+                cubie.mesh.position.x = cubie.originalPos.x * Math.cos(angle) + cubie.originalPos.z * Math.sin(angle);
+                cubie.mesh.position.z = -cubie.originalPos.x * Math.sin(angle) + cubie.originalPos.z * Math.cos(angle);
+            } else { // вращение вокруг Z
+                cubie.mesh.position.z = cubie.originalPos.z;
+                cubie.mesh.position.x = cubie.originalPos.x * Math.cos(angle) - cubie.originalPos.y * Math.sin(angle);
+                cubie.mesh.position.y = cubie.originalPos.x * Math.sin(angle) + cubie.originalPos.y * Math.cos(angle);
+            }
+        });
+    }
+
+    function resetCube() {
+        cubies.forEach(cubie => {
+            cubie.mesh.position.copy(cubie.originalPos);
+        });
+    }
+
+    // Анимация вращения всей группы при клике
+    let animating = false;
+    let animProgress = 0;
+    let startRot = { x: 0, y: 0, z: 0 };
+    let endRot = { x: 0, y: 0, z: 0 };
+    
+    function animateGroupRotation() {
         if (animating) {
-            animationProgress += 0.1;
-            if (animationProgress >= 1) {
-                animationProgress = 1;
+            animProgress += 0.08;
+            if (animProgress >= 1) {
+                animProgress = 1;
                 animating = false;
             }
-            const t = Math.sin(animationProgress * Math.PI / 2);
-            cubeGroup.rotation.x = startRotation.x + (endRotation.x - startRotation.x) * t;
-            cubeGroup.rotation.y = startRotation.y + (endRotation.y - startRotation.y) * t;
-            cubeGroup.rotation.z = startRotation.z + (endRotation.z - startRotation.z) * t;
+            const t = Math.sin(animProgress * Math.PI / 2);
+            cubeGroup.rotation.x = startRot.x + (endRot.x - startRot.x) * t;
+            cubeGroup.rotation.y = startRot.y + (endRot.y - startRot.y) * t;
+            cubeGroup.rotation.z = startRot.z + (endRot.z - startRot.z) * t;
         }
-        requestAnimationFrame(animateRotation);
+        requestAnimationFrame(animateGroupRotation);
     }
-    
-    animateRotation();
+    animateGroupRotation();
 
-    // Обработка клика на кубик
+    // Клик по кубику
     container.addEventListener('click', () => {
         if (animating) return;
         
-        startRotation = {
+        startRot = {
             x: cubeGroup.rotation.x,
             y: cubeGroup.rotation.y,
             z: cubeGroup.rotation.z
         };
         
         if (!isScrambled) {
-            // Перемешиваем
-            cubies.forEach((cubie, index) => {
-                cubie.position.x = originalPositions[index].x + (Math.random() - 0.5) * 1.2;
-                cubie.position.y = originalPositions[index].y + (Math.random() - 0.5) * 1.2;
-                cubie.position.z = originalPositions[index].z + (Math.random() - 0.5) * 1.2;
-            });
+            scrambleCube();
             isScrambled = true;
         } else {
-            // Собираем обратно
-            cubies.forEach((cubie, index) => {
-                cubie.position.x = originalPositions[index].x;
-                cubie.position.y = originalPositions[index].y;
-                cubie.position.z = originalPositions[index].z;
-            });
+            resetCube();
             isScrambled = false;
         }
         
-        endRotation = {
-            x: startRotation.x + (Math.random() - 0.5) * Math.PI * 1.2,
-            y: startRotation.y + (Math.random() - 0.5) * Math.PI * 1.2,
-            z: startRotation.z + (Math.random() - 0.5) * Math.PI * 0.6
+        endRot = {
+            x: startRot.x + (Math.random() - 0.5) * Math.PI * 1.5,
+            y: startRot.y + (Math.random() - 0.5) * Math.PI * 1.5,
+            z: startRot.z + (Math.random() - 0.5) * Math.PI * 0.8
         };
-        animationProgress = 0;
+        animProgress = 0;
         animating = true;
     });
 
-    // Адаптация под размер
+    // Рендер
+    function render() {
+        renderer.render(scene, camera);
+        requestAnimationFrame(render);
+    }
+    render();
+
+    // Адаптация к размеру
     window.addEventListener('resize', () => {
         const width = container.clientWidth;
         const height = container.clientHeight;
@@ -160,10 +187,4 @@ if (!container) {
         camera.aspect = width / height;
         camera.updateProjectionMatrix();
     });
-    
-    function render() {
-        renderer.render(scene, camera);
-        requestAnimationFrame(render);
-    }
-    render();
 }
