@@ -196,6 +196,7 @@ header {
     text-decoration: none;
     color: inherit;
     flex-shrink: 0;
+    margin-left: 0.94rem;
 }
 
 @media (max-width: 768px) {
@@ -225,6 +226,7 @@ header {
     
     .logo a {
         gap: 0.3rem;
+        margin-left: 0.7rem;
     }
 }
 
@@ -255,6 +257,7 @@ header {
     
     .logo a {
         gap: 0.2rem;
+        margin-left: 0.5rem;
     }
 }
 
