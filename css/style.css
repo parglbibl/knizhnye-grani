@@ -198,9 +198,9 @@ header {
     flex-shrink: 0;
 }
 
-/* Смещаем только текст, ромб остаётся на месте */
+/* Смещаем текст вправо на 1 см + 1 мм */
 .logo-text {
-    margin-left: 0.94rem;  /* смещение текста вправо на 1 см */
+    margin-left: 1rem;
 }
 
 @media (max-width: 768px) {
@@ -233,7 +233,7 @@ header {
     }
     
     .logo-text {
-        margin-left: 0.7rem;
+        margin-left: 0.75rem;
     }
 }
 
@@ -267,38 +267,7 @@ header {
     }
     
     .logo-text {
-        margin-left: 0.5rem;
-    }
-}
-
-@media (max-width: 550px) {
-    .logo-cbs,
-    .logo-rost {
-        width: 38px;
-        height: 38px;
-    }
-    
-    .logo-cbs img {
-        max-width: 34px;
-        max-height: 34px;
-    }
-    
-    .logo-rost img {
-        max-width: 32px;
-        max-height: 32px;
-    }
-    
-    .logo-cbs {
-        margin-right: 0.4rem;
-    }
-    
-    .logo-rost {
-        margin-right: 0.8rem;
-    }
-    
-    .logo a {
-        gap: 0.2rem;
-        margin-left: 0.5rem;
+        margin-left: 0.55rem;
     }
 }
 
