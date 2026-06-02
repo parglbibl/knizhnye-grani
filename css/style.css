@@ -186,13 +186,13 @@ header {
 }
 
 .logo-rost {
-    margin-right: 1.86rem;  /* увеличили ещё на 2 мм (было 1.74rem) */
+    margin-right: 1.86rem;
 }
 
 .logo a {
     display: flex;
     align-items: center;
-    gap: 1.30rem;  /* увеличили пропорционально (было 1.18rem) */
+    gap: 1.30rem;
     text-decoration: none;
     color: inherit;
     flex-shrink: 0;
@@ -256,7 +256,6 @@ header {
     .logo a {
         gap: 0.8rem;
     }
-}
 }
 
 .menu-toggle {
