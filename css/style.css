@@ -7,7 +7,7 @@
     font-display: swap;
 }
 
-/* ===== КНИЖНЫЕ ГРАНИ — ФИНАЛЬНАЯ ВЕРСИЯ ===== */
+/* КНИЖНЫЕ ГРАНИ — ФИНАЛЬНАЯ ВЕРСИЯ */
 :root {
     --neon-coral: #ff2e5a;
     --neon-coral-glow: rgba(255, 46, 90, 0.3);
@@ -225,10 +225,10 @@ header {
     margin-left: auto;
 }
 
-/* ===== ЛОГОТИП (ВЕРТИКАЛЬНО ВЫТЯНУТЫЙ ПРЯМОУГОЛЬНИК — 27×35) ===== */
+/* ===== ЛОГОТИП (ВЕРТИКАЛЬНО ВЫТЯНУТЫЙ ПРЯМОУГОЛЬНИК — 28×36) ===== */
 .logo-book {
-    width: 27px;
-    height: 35px;
+    width: 28px;
+    height: 36px;
     background: transparent;
     border: 2px solid var(--neon-coral);
     transform: rotate(45deg);
