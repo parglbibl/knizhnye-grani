@@ -192,7 +192,7 @@ header {
     gap: 0;
     text-decoration: none;
     color: inherit;
-    margin-left: 0.94rem;
+    margin-left: 0.47rem;
 }
 
 @media (max-width: 768px) {
@@ -222,7 +222,7 @@ header {
     }
     
     .logo a {
-        margin-left: 0.7rem;
+        margin-left: 0.35rem;
     }
 }
 
