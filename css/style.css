@@ -196,11 +196,11 @@ header {
     text-decoration: none;
     color: inherit;
     flex-shrink: 0;
+    margin-left: 0.06rem;  /* смещаем ромб вправо на 1 мм */
 }
 
-/* Смещаем текст вправо на 1 см + 2 мм */
 .logo-text {
-    margin-left: 1.06rem;
+    margin-left: 0;  /* текст без дополнительного смещения */
 }
 
 @media (max-width: 768px) {
@@ -230,10 +230,11 @@ header {
     
     .logo a {
         gap: 0.3rem;
+        margin-left: 0.04rem;
     }
     
     .logo-text {
-        margin-left: 0.8rem;
+        margin-left: 0;
     }
 }
 
@@ -264,10 +265,11 @@ header {
     
     .logo a {
         gap: 0.2rem;
+        margin-left: 0.03rem;
     }
     
     .logo-text {
-        margin-left: 0.6rem;
+        margin-left: 0;
     }
 }
 
