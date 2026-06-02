@@ -13,7 +13,7 @@ if (!container) {
     camera.lookAt(0, 0, 0);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(300, 300);
+    renderer.setSize(200, 200);
     container.appendChild(renderer.domElement);
 
     // Группа для кубика
@@ -83,17 +83,20 @@ if (!container) {
     scene.add(backLight);
 
     let isScrambled = false;
-    let targetRotation = { x: 0, y: 0, z: 0 };
-    let currentRotation = { x: 0, y: 0, z: 0 };
     let animating = false;
     let animationProgress = 0;
     let startRotation = { x: 0, y: 0, z: 0 };
     let endRotation = { x: 0, y: 0, z: 0 };
+    let originalPositions = cubies.map(cubie => ({
+        x: cubie.position.x,
+        y: cubie.position.y,
+        z: cubie.position.z
+    }));
 
-    // Плавное вращение кубика
+    // Анимация поворота при клике
     function animateRotation() {
         if (animating) {
-            animationProgress += 0.05;
+            animationProgress += 0.08;
             if (animationProgress >= 1) {
                 animationProgress = 1;
                 animating = false;
@@ -102,10 +105,6 @@ if (!container) {
             cubeGroup.rotation.x = startRotation.x + (endRotation.x - startRotation.x) * t;
             cubeGroup.rotation.y = startRotation.y + (endRotation.y - startRotation.y) * t;
             cubeGroup.rotation.z = startRotation.z + (endRotation.z - startRotation.z) * t;
-        } else {
-            // Постоянное медленное вращение
-            cubeGroup.rotation.y += 0.005;
-            cubeGroup.rotation.x += 0.003;
         }
         requestAnimationFrame(animateRotation);
     }
@@ -124,46 +123,3 @@ if (!container) {
         };
         
         if (!isScrambled) {
-            // Перемешиваем: изменяем позиции кубиков
-            cubies.forEach(cubie => {
-                cubie.position.x += (Math.random() - 0.5) * 0.8;
-                cubie.position.y += (Math.random() - 0.5) * 0.8;
-                cubie.position.z += (Math.random() - 0.5) * 0.8;
-            });
-            isScrambled = true;
-        } else {
-            // Собираем обратно
-            cubies.forEach(cubie => {
-                cubie.position.x = Math.round(cubie.position.x / 1.05) * 1.05;
-                cubie.position.y = Math.round(cubie.position.y / 1.05) * 1.05;
-                cubie.position.z = Math.round(cubie.position.z / 1.05) * 1.05;
-            });
-            isScrambled = false;
-        }
-        
-        // Плавный поворот при клике
-        endRotation = {
-            x: startRotation.x + (Math.random() - 0.5) * Math.PI * 2,
-            y: startRotation.y + (Math.random() - 0.5) * Math.PI * 2,
-            z: startRotation.z + (Math.random() - 0.5) * Math.PI * 2
-        };
-        animationProgress = 0;
-        animating = true;
-    });
-
-    // Адаптация под размер
-    window.addEventListener('resize', () => {
-        const width = container.clientWidth;
-        const height = container.clientHeight;
-        renderer.setSize(width, height);
-        camera.aspect = width / height;
-        camera.updateProjectionMatrix();
-    });
-    
-    // Рендер-цикл
-    function render() {
-        renderer.render(scene, camera);
-        requestAnimationFrame(render);
-    }
-    render();
-}
