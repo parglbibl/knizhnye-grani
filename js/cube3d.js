@@ -123,3 +123,46 @@ if (!container) {
         };
         
         if (!isScrambled) {
+            // Перемешиваем: разбрасываем кубики в стороны
+            cubies.forEach((cubie, index) => {
+                cubie.position.x = originalPositions[index].x + (Math.random() - 0.5) * 1.2;
+                cubie.position.y = originalPositions[index].y + (Math.random() - 0.5) * 1.2;
+                cubie.position.z = originalPositions[index].z + (Math.random() - 0.5) * 1.2;
+            });
+            isScrambled = true;
+        } else {
+            // Собираем обратно на исходные позиции
+            cubies.forEach((cubie, index) => {
+                cubie.position.x = originalPositions[index].x;
+                cubie.position.y = originalPositions[index].y;
+                cubie.position.z = originalPositions[index].z;
+            });
+            isScrambled = false;
+        }
+        
+        // Резкий поворот при клике
+        endRotation = {
+            x: startRotation.x + (Math.random() - 0.5) * Math.PI * 1.5,
+            y: startRotation.y + (Math.random() - 0.5) * Math.PI * 1.5,
+            z: startRotation.z + (Math.random() - 0.5) * Math.PI * 0.8
+        };
+        animationProgress = 0;
+        animating = true;
+    });
+
+    // Адаптация под размер
+    window.addEventListener('resize', () => {
+        const width = container.clientWidth;
+        const height = container.clientHeight;
+        renderer.setSize(width, height);
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+    });
+    
+    // Рендер-цикл
+    function render() {
+        renderer.render(scene, camera);
+        requestAnimationFrame(render);
+    }
+    render();
+}
