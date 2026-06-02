@@ -7,12 +7,12 @@ if (!container) {
     const scene = new THREE.Scene();
     scene.background = null;
 
-    const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 1000);
-    camera.position.set(3.5, 3, 4.5);
+    const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 1000);
+    camera.position.set(3.2, 2.5, 4.2);
     camera.lookAt(0, 0, 0);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setSize(250, 250);
+    renderer.setSize(320, 320);
     renderer.setClearColor(0x000000, 0);
     container.appendChild(renderer.domElement);
 
@@ -54,10 +54,10 @@ if (!container) {
         ];
     };
 
-    // Создаём 27 кубиков — уменьшенные
+    // Создаём 27 кубиков — оптимальный размер
     const cubies = [];
-    const offset = 0.55;  // расстояние между центрами кубиков (было 0.65)
-    const size = 0.5;     // размер каждого кубика (было 0.6)
+    const offset = 0.72;  // расстояние между центрами кубиков
+    const size = 0.68;    // размер каждого кубика
 
     for (let x = -1; x <= 1; x++) {
         for (let y = -1; y <= 1; y++) {
@@ -74,6 +74,9 @@ if (!container) {
             }
         }
     }
+
+    // Общий размер куба: от -offset*1.5 до +offset*1.5 ≈ от -1.08 до +1.08
+    // В контейнере 320px при камере 3.2 это помещается идеально
 
     // Освещение
     const ambientLight = new THREE.AmbientLight(0x606080);
@@ -148,8 +151,8 @@ if (!container) {
         }
         
         endRot = {
-            x: startRot.x + (Math.random() - 0.5) * 0.8,
-            y: startRot.y + (Math.random() - 0.5) * 0.8,
+            x: startRot.x + (Math.random() - 0.5) * 0.9,
+            y: startRot.y + (Math.random() - 0.5) * 0.9,
             z: startRot.z + (Math.random() - 0.5) * 0.5
         };
         animProgress = 0;
