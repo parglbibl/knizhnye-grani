@@ -42,7 +42,7 @@ if (!container) {
         blue: createMaterial(colorValues.blue)
     };
 
-    // Создаём 27 кубиков и сохраняем их в 3D-массив для удобного доступа по координатам
+    // Создаём 27 кубиков
     const cubies = [];
     const cubiesMap = new Map();
     const offset = 0.72;
@@ -51,7 +51,6 @@ if (!container) {
     for (let x = -1; x <= 1; x++) {
         for (let y = -1; y <= 1; y++) {
             for (let z = -1; z <= 1; z++) {
-                // Определяем цвета для каждой грани
                 const matArray = [
                     x === 1 ? materials.red : (x === -1 ? materials.orange : materials.red),
                     x === -1 ? materials.orange : (x === 1 ? materials.red : materials.orange),
@@ -92,7 +91,6 @@ if (!container) {
     function rotateLayer(axis, layerValue, angle) {
         const affectedCubies = [];
         
-        // Собираем кубики, попадающие в слой
         cubies.forEach(cubie => {
             let pos;
             if (axis === 'x') pos = Math.round(cubie.position.x / offset);
@@ -104,7 +102,6 @@ if (!container) {
             }
         });
         
-        // Вращаем каждый кубик вокруг центра
         affectedCubies.forEach(cubie => {
             const x = cubie.position.x;
             const y = cubie.position.y;
@@ -130,20 +127,16 @@ if (!container) {
             
             cubie.position.set(newX, newY, newZ);
             
-            // Вращаем материалы кубика
             const oldMaterials = cubie.material;
             const newMaterials = [...oldMaterials];
             
             if (axis === 'x') {
-                // Вращение вокруг X: меняем местами Y и Z грани
                 [newMaterials[2], newMaterials[3], newMaterials[4], newMaterials[5]] = 
                 [newMaterials[4], newMaterials[5], newMaterials[3], newMaterials[2]];
             } else if (axis === 'y') {
-                // Вращение вокруг Y: меняем местами X и Z грани
                 [newMaterials[0], newMaterials[1], newMaterials[4], newMaterials[5]] = 
                 [newMaterials[4], newMaterials[5], newMaterials[1], newMaterials[0]];
             } else {
-                // Вращение вокруг Z: меняем местами X и Y грани
                 [newMaterials[0], newMaterials[1], newMaterials[2], newMaterials[3]] = 
                 [newMaterials[2], newMaterials[3], newMaterials[1], newMaterials[0]];
             }
@@ -152,14 +145,14 @@ if (!container) {
         });
     }
 
-    // Функция для случайного перемешивания кубика
+    // Перемешивание — много случайных поворотов (120-200 ходов)
     function scrambleCube() {
         const axes = ['x', 'y', 'z'];
         const layers = [-1, 0, 1];
-        const angles = [Math.PI / 2, -Math.PI / 2]; // поворот на 90 градусов
+        const angles = [Math.PI / 2, -Math.PI / 2];
         
-        // Делаем 50-100 случайных поворотов для качественного перемешивания
-        const moves = 60 + Math.floor(Math.random() * 40);
+        // Увеличил количество ходов для качественного перемешивания
+        const moves = 120 + Math.floor(Math.random() * 80);
         
         for (let i = 0; i < moves; i++) {
             const axis = axes[Math.floor(Math.random() * axes.length)];
@@ -171,4 +164,92 @@ if (!container) {
 
     // Сброс в собранное состояние
     function resetCube() {
-        // Просто перезагружаем пози
+        cubies.forEach(cubie => {
+            cubie.position.copy(cubie.userData.originalPos);
+        });
+        
+        // Пересоздаём правильные материалы
+        for (let x = -1; x <= 1; x++) {
+            for (let y = -1; y <= 1; y++) {
+                for (let z = -1; z <= 1; z++) {
+                    const matArray = [
+                        x === 1 ? materials.red : (x === -1 ? materials.orange : materials.red),
+                        x === -1 ? materials.orange : (x === 1 ? materials.red : materials.orange),
+                        y === 1 ? materials.white : (y === -1 ? materials.yellow : materials.white),
+                        y === -1 ? materials.yellow : (y === 1 ? materials.white : materials.yellow),
+                        z === 1 ? materials.green : (z === -1 ? materials.blue : materials.green),
+                        z === -1 ? materials.blue : (z === 1 ? materials.green : materials.blue)
+                    ];
+                    
+                    const key = `${x},${y},${z}`;
+                    const cubie = cubiesMap.get(key);
+                    if (cubie) {
+                        cubie.material = matArray;
+                    }
+                }
+            }
+        }
+    }
+
+    let isScrambled = false;
+    let isAnimating = false;
+    let animProgress = 0;
+    let startRot = { x: 0, y: 0, z: 0 };
+    let endRot = { x: 0, y: 0, z: 0 };
+
+    function animateRotation() {
+        if (isAnimating) {
+            animProgress += 0.08;
+            if (animProgress >= 1) {
+                animProgress = 1;
+                isAnimating = false;
+            }
+            const t = Math.sin(animProgress * Math.PI / 2);
+            cubeGroup.rotation.x = startRot.x + (endRot.x - startRot.x) * t;
+            cubeGroup.rotation.y = startRot.y + (endRot.y - startRot.y) * t;
+            cubeGroup.rotation.z = startRot.z + (endRot.z - startRot.z) * t;
+        }
+        requestAnimationFrame(animateRotation);
+    }
+    animateRotation();
+
+    container.addEventListener('click', () => {
+        if (isAnimating) return;
+        
+        startRot = {
+            x: cubeGroup.rotation.x,
+            y: cubeGroup.rotation.y,
+            z: cubeGroup.rotation.z
+        };
+        
+        if (!isScrambled) {
+            scrambleCube();
+            isScrambled = true;
+        } else {
+            resetCube();
+            isScrambled = false;
+        }
+        
+        endRot = {
+            x: startRot.x + (Math.random() - 0.5) * 0.9,
+            y: startRot.y + (Math.random() - 0.5) * 0.9,
+            z: startRot.z + (Math.random() - 0.5) * 0.5
+        };
+        animProgress = 0;
+        isAnimating = true;
+    });
+
+    function render() {
+        renderer.render(scene, camera);
+        requestAnimationFrame(render);
+    }
+    render();
+
+    window.addEventListener('resize', () => {
+        const width = container.clientWidth;
+        const height = container.clientHeight;
+        renderer.setSize(width, height);
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+    });
+}
