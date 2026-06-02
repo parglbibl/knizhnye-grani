@@ -40,6 +40,9 @@
         <h1 class="section-title">Спидкубинг</h1>
         <p style="text-align: center; margin-bottom: 2rem;">Собери кубик быстрее всех. Спидкубинг — это азарт, скорость и дружеское соперничество. Развивай реакцию и становись лучше с каждой тренировкой.</p>
 
+        <!-- Контейнер для 3D кубика -->
+        <div id="cube-container" style="width: 300px; height: 300px; margin: 0 auto 2rem auto;"></div>
+
         <div class="directions-grid" style="margin-bottom: 2rem;">
             <div class="direction-card">
                 <i class="fas fa-graduation-cap"></i>
@@ -67,9 +70,9 @@
             </div>
         </div>
 
-        <div style="background: #1e2a47; border-radius: 24px; padding: 2rem; text-align: center; color: #fff;">
-            <h3 style="color: #ff2e5a;">Приходите тренироваться!</h3>
-            <p style="margin: 1rem 0;">Занятия для начинающих и опытных спидкуберов. Обучение бесплатное.</p>
+        <div class="dark-bg">
+            <h3>Приходите тренироваться!</h3>
+            <p>Занятия для начинающих и опытных спидкуберов. Обучение бесплатное.</p>
             <a href="../events.html" class="btn btn-primary">Записаться на занятие</a>
         </div>
     </div>
@@ -95,7 +98,7 @@
             <div class="footer-col">
                 <h3>Мы в соцсетях</h3>
                 <div class="footer-social">
-                    <a href="https://vk.ru/officecbsbvib" target="_blank"><i class="fab fa-vk"></i></a>
+                    <a href="https://vk.com/pargolovskaya_library" target="_blank"><i class="fab fa-vk"></i></a>
                 </div>
                 <p style="margin-top:1.5rem;">Следите за анонсами в нашей группе ВКонтакте</p>
             </div>
@@ -107,5 +110,13 @@
 </footer>
 
 <script src="../js/main.js"></script>
+<script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.128.0/build/three.module.js"
+        }
+    }
+</script>
+<script type="module" src="../js/cube3d.js"></script>
 </body>
 </html>
