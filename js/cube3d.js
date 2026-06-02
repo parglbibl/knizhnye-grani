@@ -7,12 +7,13 @@ if (!container) {
     const scene = new THREE.Scene();
     scene.background = null;
 
-    const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
-    camera.position.set(3, 2, 4);
+    // Камера — строго спереди, без наклона
+    const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 1000);
+    camera.position.set(0, 0, 4.5);
     camera.lookAt(0, 0, 0);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setSize(350, 350);
+    renderer.setSize(280, 280);
     renderer.setClearColor(0x000000, 0);
     container.appendChild(renderer.domElement);
 
@@ -38,10 +39,10 @@ if (!container) {
         back: new THREE.MeshStandardMaterial({ color: colors.back, roughness: 0.25, metalness: 0.05 })
     };
 
-    // Создаём 27 кубиков, составляющих куб 3x3x3
+    // Создаём 27 кубиков
     const cubies = [];
     const offset = 1;
-    const size = 0.94;
+    const size = 0.92;
 
     for (let x = -1; x <= 1; x++) {
         for (let y = -1; y <= 1; y++) {
@@ -66,40 +67,36 @@ if (!container) {
         }
     }
 
-    // Освещение
-    const ambientLight = new THREE.AmbientLight(0x404060);
+    // Освещение — мягкое и равномерное
+    const ambientLight = new THREE.AmbientLight(0x606080);
     scene.add(ambientLight);
     
-    const mainLight = new THREE.DirectionalLight(0xffffff, 1);
-    mainLight.position.set(2, 3, 2);
-    scene.add(mainLight);
+    const frontLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    frontLight.position.set(0, 1, 3);
+    scene.add(frontLight);
     
-    const fillLight = new THREE.DirectionalLight(0xffffff, 0.5);
-    fillLight.position.set(-1, 1, -1);
-    scene.add(fillLight);
+    const topLight = new THREE.DirectionalLight(0xffffff, 0.5);
+    topLight.position.set(0, 3, 1);
+    scene.add(topLight);
     
-    const rimLight = new THREE.DirectionalLight(0xffffff, 0.4);
-    rimLight.position.set(0, 1, -2);
-    scene.add(rimLight);
+    const backLight = new THREE.DirectionalLight(0xffffff, 0.3);
+    backLight.position.set(0, 0, -3);
+    scene.add(backLight);
 
     let isScrambled = false;
-    let animating = false;
-    let animProgress = 0;
-    let startRot = { x: 0, y: 0, z: 0 };
-    let endRot = { x: 0, y: 0, z: 0 };
 
-    // Функция для случайного обмена позициями между кубиками (сохраняет форму)
+    // Перемешивание — обмен позициями между случайными кубиками
     function scrambleCube() {
-        // Создаём массив текущих позиций
+        // Копируем текущие позиции
         const positions = cubies.map(c => c.position.clone());
         
-        // Перемешиваем позиции случайным образом
+        // Перемешиваем массив позиций
         for (let i = positions.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [positions[i], positions[j]] = [positions[j], positions[i]];
         }
         
-        // Применяем новые позиции к кубикам
+        // Применяем новые позиции
         cubies.forEach((cubie, index) => {
             cubie.position.copy(positions[index]);
         });
@@ -111,31 +108,8 @@ if (!container) {
         });
     }
 
-    function animateGroupRotation() {
-        if (animating) {
-            animProgress += 0.08;
-            if (animProgress >= 1) {
-                animProgress = 1;
-                animating = false;
-            }
-            const t = Math.sin(animProgress * Math.PI / 2);
-            cubeGroup.rotation.x = startRot.x + (endRot.x - startRot.x) * t;
-            cubeGroup.rotation.y = startRot.y + (endRot.y - startRot.y) * t;
-            cubeGroup.rotation.z = startRot.z + (endRot.z - startRot.z) * t;
-        }
-        requestAnimationFrame(animateGroupRotation);
-    }
-    animateGroupRotation();
-
+    // Клик по кубику — перемешивание без наклона
     container.addEventListener('click', () => {
-        if (animating) return;
-        
-        startRot = {
-            x: cubeGroup.rotation.x,
-            y: cubeGroup.rotation.y,
-            z: cubeGroup.rotation.z
-        };
-        
         if (!isScrambled) {
             scrambleCube();
             isScrambled = true;
@@ -143,14 +117,6 @@ if (!container) {
             resetCube();
             isScrambled = false;
         }
-        
-        endRot = {
-            x: startRot.x + (Math.random() - 0.5) * Math.PI * 1.2,
-            y: startRot.y + (Math.random() - 0.5) * Math.PI * 1.2,
-            z: startRot.z + (Math.random() - 0.5) * Math.PI * 0.6
-        };
-        animProgress = 0;
-        animating = true;
     });
 
     function render() {
