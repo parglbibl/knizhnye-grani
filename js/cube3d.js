@@ -42,7 +42,7 @@ if (!container) {
         blue: createMaterial(colorValues.blue)
     };
 
-    // Создаём 27 кубиков
+    // Создаём 27 кубиков и сохраняем их в 3D-массив для удобного доступа по координатам
     const cubies = [];
     const cubiesMap = new Map();
     const offset = 0.72;
@@ -51,6 +51,7 @@ if (!container) {
     for (let x = -1; x <= 1; x++) {
         for (let y = -1; y <= 1; y++) {
             for (let z = -1; z <= 1; z++) {
+                // Определяем цвета для каждой грани
                 const matArray = [
                     x === 1 ? materials.red : (x === -1 ? materials.orange : materials.red),
                     x === -1 ? materials.orange : (x === 1 ? materials.red : materials.orange),
@@ -91,6 +92,7 @@ if (!container) {
     function rotateLayer(axis, layerValue, angle) {
         const affectedCubies = [];
         
+        // Собираем кубики, попадающие в слой
         cubies.forEach(cubie => {
             let pos;
             if (axis === 'x') pos = Math.round(cubie.position.x / offset);
@@ -102,6 +104,7 @@ if (!container) {
             }
         });
         
+        // Вращаем каждый кубик вокруг центра
         affectedCubies.forEach(cubie => {
             const x = cubie.position.x;
             const y = cubie.position.y;
@@ -127,16 +130,20 @@ if (!container) {
             
             cubie.position.set(newX, newY, newZ);
             
+            // Вращаем материалы кубика
             const oldMaterials = cubie.material;
             const newMaterials = [...oldMaterials];
             
             if (axis === 'x') {
+                // Вращение вокруг X: меняем местами Y и Z грани
                 [newMaterials[2], newMaterials[3], newMaterials[4], newMaterials[5]] = 
                 [newMaterials[4], newMaterials[5], newMaterials[3], newMaterials[2]];
             } else if (axis === 'y') {
+                // Вращение вокруг Y: меняем местами X и Z грани
                 [newMaterials[0], newMaterials[1], newMaterials[4], newMaterials[5]] = 
                 [newMaterials[4], newMaterials[5], newMaterials[1], newMaterials[0]];
             } else {
+                // Вращение вокруг Z: меняем местами X и Y грани
                 [newMaterials[0], newMaterials[1], newMaterials[2], newMaterials[3]] = 
                 [newMaterials[2], newMaterials[3], newMaterials[1], newMaterials[0]];
             }
@@ -145,8 +152,23 @@ if (!container) {
         });
     }
 
-    // Перемешивание — много случайных поворотов (120-200 ходов)
+    // Функция для случайного перемешивания кубика
     function scrambleCube() {
         const axes = ['x', 'y', 'z'];
         const layers = [-1, 0, 1];
-        const angles = [Math.PI / 2, -Math.PI / 2];
+        const angles = [Math.PI / 2, -Math.PI / 2]; // поворот на 90 градусов
+        
+        // Делаем 50-100 случайных поворотов для качественного перемешивания
+        const moves = 60 + Math.floor(Math.random() * 40);
+        
+        for (let i = 0; i < moves; i++) {
+            const axis = axes[Math.floor(Math.random() * axes.length)];
+            const layer = layers[Math.floor(Math.random() * layers.length)];
+            const angle = angles[Math.floor(Math.random() * angles.length)];
+            rotateLayer(axis, layer, angle);
+        }
+    }
+
+    // Сброс в собранное состояние
+    function resetCube() {
+        // Просто перезагружаем пози
