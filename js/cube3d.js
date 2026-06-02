@@ -7,12 +7,13 @@ if (!container) {
     const scene = new THREE.Scene();
     scene.background = null;
 
-    const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
-    camera.position.set(3.5, 2.5, 4.5);
+    // Камера отодвинута дальше
+    const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 1000);
+    camera.position.set(4, 3, 5);
     camera.lookAt(0, 0, 0);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setSize(450, 450);
+    renderer.setSize(500, 500);
     renderer.setClearColor(0x000000, 0);
     container.appendChild(renderer.domElement);
 
@@ -30,7 +31,7 @@ if (!container) {
     };
 
     const createMaterial = (color) => {
-        return new THREE.MeshStandardMaterial({ color: color, roughness: 0.25, metalness: 0.05 });
+        return new THREE.MeshStandardMaterial({ color: color, roughness: 0.2, metalness: 0.05 });
     };
 
     const materials = {
@@ -42,23 +43,22 @@ if (!container) {
         blue: createMaterial(colorValues.blue)
     };
 
-    // Для каждой позиции определяем, какие цвета должны быть на гранях
-    // Все 6 граней каждого кубика будут цветными
+    // Правильная ориентация цветов в собранном состоянии:
+    // Белый — верх (y = +1)
+    // Жёлтый — низ (y = -1)
+    // Зелёный — перед (z = +1)
+    // Синий — зад (z = -1)
+    // Оранжевый — лево (x = -1)
+    // Красный — право (x = +1)
     const getMaterialsForPosition = (x, y, z) => {
-        // Правая грань (x = +1)
-        const rightColor = x === 1 ? materials.orange : (x === -1 ? materials.red : materials.orange);
-        // Левая грань (x = -1)
-        const leftColor = x === -1 ? materials.red : (x === 1 ? materials.orange : materials.red);
-        // Верхняя грань (y = +1)
-        const upColor = y === 1 ? materials.white : (y === -1 ? materials.yellow : materials.white);
-        // Нижняя грань (y = -1)
-        const downColor = y === -1 ? materials.yellow : (y === 1 ? materials.white : materials.yellow);
-        // Передняя грань (z = +1)
-        const frontColor = z === 1 ? materials.green : (z === -1 ? materials.blue : materials.green);
-        // Задняя грань (z = -1)
-        const backColor = z === -1 ? materials.blue : (z === 1 ? materials.green : materials.blue);
-        
-        return [rightColor, leftColor, upColor, downColor, frontColor, backColor];
+        return [
+            x === 1 ? materials.red : (x === -1 ? materials.orange : materials.red),     // право
+            x === -1 ? materials.orange : (x === 1 ? materials.red : materials.orange), // лево
+            y === 1 ? materials.white : (y === -1 ? materials.yellow : materials.white), // верх
+            y === -1 ? materials.yellow : (y === 1 ? materials.white : materials.yellow), // низ
+            z === 1 ? materials.green : (z === -1 ? materials.blue : materials.green),   // перед
+            z === -1 ? materials.blue : (z === 1 ? materials.green : materials.blue)     // зад
+        ];
     };
 
     // Создаём 27 кубиков
@@ -104,9 +104,10 @@ if (!container) {
     let startRot = { x: 0, y: 0, z: 0 };
     let endRot = { x: 0, y: 0, z: 0 };
 
-    // Перемешивание — меняем позиции кубиков
+    // Реалистичное перемешивание — меняем позиции кубиков случайным образом
     function scrambleCube() {
         const positions = cubies.map(c => c.position.clone());
+        // Перемешиваем позиции (Fisher-Yates)
         for (let i = positions.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [positions[i], positions[j]] = [positions[j], positions[i]];
@@ -124,7 +125,7 @@ if (!container) {
 
     function animateRotation() {
         if (isAnimating) {
-            animProgress += 0.07;
+            animProgress += 0.08;
             if (animProgress >= 1) {
                 animProgress = 1;
                 isAnimating = false;
@@ -156,9 +157,9 @@ if (!container) {
         }
         
         endRot = {
-            x: startRot.x + (Math.random() - 0.5) * 1.2,
-            y: startRot.y + (Math.random() - 0.5) * 1.2,
-            z: startRot.z + (Math.random() - 0.5) * 0.8
+            x: startRot.x + (Math.random() - 0.5) * 1.0,
+            y: startRot.y + (Math.random() - 0.5) * 1.0,
+            z: startRot.z + (Math.random() - 0.5) * 0.6
         };
         animProgress = 0;
         isAnimating = true;
