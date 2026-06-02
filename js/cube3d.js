@@ -87,7 +87,7 @@ if (!container) {
     rimLight.position.set(0, 1, -3);
     scene.add(rimLight);
 
-    // Функция для вращения слоя
+    // Вращение слоя (для перемешивания)
     function rotateLayer(axis, layerValue, angle) {
         const affectedCubies = [];
         
@@ -145,13 +145,12 @@ if (!container) {
         });
     }
 
-    // Перемешивание — много случайных поворотов (120-200 ходов)
+    // Перемешивание
     function scrambleCube() {
         const axes = ['x', 'y', 'z'];
         const layers = [-1, 0, 1];
         const angles = [Math.PI / 2, -Math.PI / 2];
         
-        // Увеличил количество ходов для качественного перемешивания
         const moves = 120 + Math.floor(Math.random() * 80);
         
         for (let i = 0; i < moves; i++) {
@@ -168,7 +167,6 @@ if (!container) {
             cubie.position.copy(cubie.userData.originalPos);
         });
         
-        // Пересоздаём правильные материалы
         for (let x = -1; x <= 1; x++) {
             for (let y = -1; y <= 1; y++) {
                 for (let z = -1; z <= 1; z++) {
@@ -191,7 +189,81 @@ if (!container) {
         }
     }
 
-    let isScrambled = false;
+    // ===== ВРАЩЕНИЕ МЫШКОЙ =====
+    let isDragging = false;
+    let lastMouseX = 0;
+    let lastMouseY = 0;
+    let targetRotationX = 0;
+    let targetRotationY = 0;
+    let currentRotationX = 0;
+    let currentRotationY = 0;
+    let animatingMouse = false;
+    let mouseAnimProgress = 0;
+    let startMouseX = 0, startMouseY = 0;
+    let endMouseX = 0, endMouseY = 0;
+
+    container.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        lastMouseX = e.clientX;
+        lastMouseY = e.clientY;
+        container.style.cursor = 'grabbing';
+    });
+
+    window.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        
+        const deltaX = e.clientX - lastMouseX;
+        const deltaY = e.clientY - lastMouseY;
+        
+        if (deltaX !== 0 || deltaY !== 0) {
+            targetRotationY += deltaX * 0.008;
+            targetRotationX += deltaY * 0.008;
+            
+            // Плавное применение вращения
+            cubeGroup.rotation.x = targetRotationX;
+            cubeGroup.rotation.y = targetRotationY;
+            
+            lastMouseX = e.clientX;
+            lastMouseY = e.clientY;
+        }
+    });
+
+    window.addEventListener('mouseup', () => {
+        isDragging = false;
+        container.style.cursor = 'pointer';
+    });
+
+    // Клик для перемешивания/сборки (без вращения)
+    let clickTimer = null;
+    container.addEventListener('click', (e) => {
+        // Если было движение мыши, не считаем за клик
+        if (Math.abs(targetRotationY - lastStoredY) > 0.05) return;
+        
+        if (!isAnimating) {
+            startRot = {
+                x: cubeGroup.rotation.x,
+                y: cubeGroup.rotation.y,
+                z: cubeGroup.rotation.z
+            };
+            
+            if (!isScrambled) {
+                scrambleCube();
+                isScrambled = true;
+            } else {
+                resetCube();
+                isScrambled = false;
+            }
+            
+            isAnimating = true;
+            animProgress = 0;
+        }
+    });
+    
+    let lastStoredY = 0;
+    setInterval(() => {
+        lastStoredY = targetRotationY;
+    }, 100);
+
     let isAnimating = false;
     let animProgress = 0;
     let startRot = { x: 0, y: 0, z: 0 };
@@ -208,42 +280,22 @@ if (!container) {
             cubeGroup.rotation.x = startRot.x + (endRot.x - startRot.x) * t;
             cubeGroup.rotation.y = startRot.y + (endRot.y - startRot.y) * t;
             cubeGroup.rotation.z = startRot.z + (endRot.z - startRot.z) * t;
+            
+            // Синхронизируем targetRotation с текущим вращением
+            targetRotationX = cubeGroup.rotation.x;
+            targetRotationY = cubeGroup.rotation.y;
         }
         requestAnimationFrame(animateRotation);
     }
     animateRotation();
-
-    container.addEventListener('click', () => {
-        if (isAnimating) return;
-        
-        startRot = {
-            x: cubeGroup.rotation.x,
-            y: cubeGroup.rotation.y,
-            z: cubeGroup.rotation.z
-        };
-        
-        if (!isScrambled) {
-            scrambleCube();
-            isScrambled = true;
-        } else {
-            resetCube();
-            isScrambled = false;
-        }
-        
-        endRot = {
-            x: startRot.x + (Math.random() - 0.5) * 0.9,
-            y: startRot.y + (Math.random() - 0.5) * 0.9,
-            z: startRot.z + (Math.random() - 0.5) * 0.5
-        };
-        animProgress = 0;
-        isAnimating = true;
-    });
 
     function render() {
         renderer.render(scene, camera);
         requestAnimationFrame(render);
     }
     render();
+
+    let isScrambled = false;
 
     window.addEventListener('resize', () => {
         const width = container.clientWidth;
