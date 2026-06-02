@@ -186,13 +186,13 @@ header {
 }
 
 .logo-rost {
-    margin-right: 1.98rem;
+    margin-right: 2.04rem;
 }
 
 .logo a {
     display: flex;
     align-items: center;
-    gap: 1.54rem;
+    gap: 1.66rem;
     text-decoration: none;
     color: inherit;
     flex-shrink: 0;
@@ -220,11 +220,11 @@ header {
     }
     
     .logo-rost {
-        margin-right: 1.4rem;
+        margin-right: 1.45rem;
     }
     
     .logo a {
-        gap: 1.15rem;
+        gap: 1.25rem;
     }
 }
 
@@ -250,11 +250,11 @@ header {
     }
     
     .logo-rost {
-        margin-right: 1.2rem;
+        margin-right: 1.25rem;
     }
     
     .logo a {
-        gap: 0.95rem;
+        gap: 1rem;
     }
 }
 
