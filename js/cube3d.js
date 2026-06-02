@@ -4,16 +4,18 @@ const container = document.getElementById('cube-container');
 if (!container) {
     console.error('Контейнер для кубика не найден');
 } else {
-    // Сцена, камера, рендерер
+    // Сцена с прозрачным фоном
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0xfef9f0); // цвет фона как у сайта
+    scene.background = null; // прозрачный фон
 
+    // Камера — строго спереди, без наклона
     const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
-    camera.position.set(2.5, 2, 3);
+    camera.position.set(2.5, 0, 3.5);
     camera.lookAt(0, 0, 0);
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(200, 200);
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); // alpha: true для прозрачности
+    renderer.setSize(250, 250);
+    renderer.setClearColor(0x000000, 0); // полностью прозрачный фон
     container.appendChild(renderer.domElement);
 
     // Группа для кубика
@@ -32,15 +34,15 @@ if (!container) {
 
     // Материалы для граней
     const materials = {
-        right: new THREE.MeshStandardMaterial({ color: colors.orange, roughness: 0.3, metalness: 0.1 }),
-        left: new THREE.MeshStandardMaterial({ color: colors.red, roughness: 0.3, metalness: 0.1 }),
-        up: new THREE.MeshStandardMaterial({ color: colors.white, roughness: 0.3, metalness: 0.1 }),
-        down: new THREE.MeshStandardMaterial({ color: colors.yellow, roughness: 0.3, metalness: 0.1 }),
-        front: new THREE.MeshStandardMaterial({ color: colors.green, roughness: 0.3, metalness: 0.1 }),
-        back: new THREE.MeshStandardMaterial({ color: colors.blue, roughness: 0.3, metalness: 0.1 })
+        right: new THREE.MeshStandardMaterial({ color: colors.orange, roughness: 0.3, metalness: 0.05 }),
+        left: new THREE.MeshStandardMaterial({ color: colors.red, roughness: 0.3, metalness: 0.05 }),
+        up: new THREE.MeshStandardMaterial({ color: colors.white, roughness: 0.3, metalness: 0.05 }),
+        down: new THREE.MeshStandardMaterial({ color: colors.yellow, roughness: 0.3, metalness: 0.05 }),
+        front: new THREE.MeshStandardMaterial({ color: colors.green, roughness: 0.3, metalness: 0.05 }),
+        back: new THREE.MeshStandardMaterial({ color: colors.blue, roughness: 0.3, metalness: 0.05 })
     };
 
-    // Создание 27 маленьких кубиков (3x3x3)
+    // Создание 27 маленьких кубиков (3x3x3) — собранное состояние
     const cubies = [];
     const offset = 1;
     const size = 0.96;
@@ -51,7 +53,6 @@ if (!container) {
                 const geometry = new THREE.BoxGeometry(size, size, size);
                 const materialArray = [];
                 
-                // Определяем, какие грани рисовать
                 materialArray.push(x === 1 ? materials.right : null);
                 materialArray.push(x === -1 ? materials.left : null);
                 materialArray.push(y === 1 ? materials.up : null);
@@ -59,8 +60,7 @@ if (!container) {
                 materialArray.push(z === 1 ? materials.front : null);
                 materialArray.push(z === -1 ? materials.back : null);
                 
-                // Заменяем null на чёрный материал для внутренних граней
-                const finalMaterials = materialArray.map(mat => mat || new THREE.MeshStandardMaterial({ color: 0x222222 }));
+                const finalMaterials = materialArray.map(mat => mat || new THREE.MeshStandardMaterial({ color: 0x111111 }));
                 
                 const cubie = new THREE.Mesh(geometry, finalMaterials);
                 cubie.position.set(x * offset, y * offset, z * offset);
@@ -70,16 +70,20 @@ if (!container) {
         }
     }
 
-    // Освещение
+    // Освещение — мягкое, чтобы цвета выглядели естественно
     const ambientLight = new THREE.AmbientLight(0x404060);
     scene.add(ambientLight);
     
-    const dirLight = new THREE.DirectionalLight(0xffffff, 1);
-    dirLight.position.set(1, 2, 1);
-    scene.add(dirLight);
+    const mainLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    mainLight.position.set(1, 2, 2);
+    scene.add(mainLight);
     
-    const backLight = new THREE.DirectionalLight(0xffffff, 0.5);
-    backLight.position.set(-1, 1, -1);
+    const fillLight = new THREE.DirectionalLight(0xffffff, 0.4);
+    fillLight.position.set(-1, 1, -1);
+    scene.add(fillLight);
+    
+    const backLight = new THREE.DirectionalLight(0xffffff, 0.3);
+    backLight.position.set(0, 0, -2);
     scene.add(backLight);
 
     let isScrambled = false;
@@ -96,7 +100,7 @@ if (!container) {
     // Анимация поворота при клике
     function animateRotation() {
         if (animating) {
-            animationProgress += 0.08;
+            animationProgress += 0.1;
             if (animationProgress >= 1) {
                 animationProgress = 1;
                 animating = false;
@@ -115,7 +119,6 @@ if (!container) {
     container.addEventListener('click', () => {
         if (animating) return;
         
-        // Сохраняем начальное состояние вращения
         startRotation = {
             x: cubeGroup.rotation.x,
             y: cubeGroup.rotation.y,
@@ -123,7 +126,7 @@ if (!container) {
         };
         
         if (!isScrambled) {
-            // Перемешиваем: разбрасываем кубики в стороны
+            // Перемешиваем
             cubies.forEach((cubie, index) => {
                 cubie.position.x = originalPositions[index].x + (Math.random() - 0.5) * 1.2;
                 cubie.position.y = originalPositions[index].y + (Math.random() - 0.5) * 1.2;
@@ -131,7 +134,7 @@ if (!container) {
             });
             isScrambled = true;
         } else {
-            // Собираем обратно на исходные позиции
+            // Собираем обратно
             cubies.forEach((cubie, index) => {
                 cubie.position.x = originalPositions[index].x;
                 cubie.position.y = originalPositions[index].y;
@@ -140,11 +143,10 @@ if (!container) {
             isScrambled = false;
         }
         
-        // Резкий поворот при клике
         endRotation = {
-            x: startRotation.x + (Math.random() - 0.5) * Math.PI * 1.5,
-            y: startRotation.y + (Math.random() - 0.5) * Math.PI * 1.5,
-            z: startRotation.z + (Math.random() - 0.5) * Math.PI * 0.8
+            x: startRotation.x + (Math.random() - 0.5) * Math.PI * 1.2,
+            y: startRotation.y + (Math.random() - 0.5) * Math.PI * 1.2,
+            z: startRotation.z + (Math.random() - 0.5) * Math.PI * 0.6
         };
         animationProgress = 0;
         animating = true;
@@ -159,7 +161,6 @@ if (!container) {
         camera.updateProjectionMatrix();
     });
     
-    // Рендер-цикл
     function render() {
         renderer.render(scene, camera);
         requestAnimationFrame(render);
