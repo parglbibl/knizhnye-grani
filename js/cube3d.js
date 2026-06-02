@@ -7,13 +7,12 @@ if (!container) {
     const scene = new THREE.Scene();
     scene.background = null;
 
-    // Камера отодвинута дальше
-    const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 1000);
-    camera.position.set(4, 3, 5);
+    const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 1000);
+    camera.position.set(3.5, 3, 4.5);
     camera.lookAt(0, 0, 0);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setSize(500, 500);
+    renderer.setSize(250, 250);
     renderer.setClearColor(0x000000, 0);
     container.appendChild(renderer.domElement);
 
@@ -31,7 +30,7 @@ if (!container) {
     };
 
     const createMaterial = (color) => {
-        return new THREE.MeshStandardMaterial({ color: color, roughness: 0.2, metalness: 0.05 });
+        return new THREE.MeshStandardMaterial({ color: color, roughness: 0.25, metalness: 0.05 });
     };
 
     const materials = {
@@ -43,28 +42,22 @@ if (!container) {
         blue: createMaterial(colorValues.blue)
     };
 
-    // Правильная ориентация цветов в собранном состоянии:
-    // Белый — верх (y = +1)
-    // Жёлтый — низ (y = -1)
-    // Зелёный — перед (z = +1)
-    // Синий — зад (z = -1)
-    // Оранжевый — лево (x = -1)
-    // Красный — право (x = +1)
+    // Правильная ориентация цветов
     const getMaterialsForPosition = (x, y, z) => {
         return [
-            x === 1 ? materials.red : (x === -1 ? materials.orange : materials.red),     // право
-            x === -1 ? materials.orange : (x === 1 ? materials.red : materials.orange), // лево
-            y === 1 ? materials.white : (y === -1 ? materials.yellow : materials.white), // верх
-            y === -1 ? materials.yellow : (y === 1 ? materials.white : materials.yellow), // низ
-            z === 1 ? materials.green : (z === -1 ? materials.blue : materials.green),   // перед
-            z === -1 ? materials.blue : (z === 1 ? materials.green : materials.blue)     // зад
+            x === 1 ? materials.red : (x === -1 ? materials.orange : materials.red),
+            x === -1 ? materials.orange : (x === 1 ? materials.red : materials.orange),
+            y === 1 ? materials.white : (y === -1 ? materials.yellow : materials.white),
+            y === -1 ? materials.yellow : (y === 1 ? materials.white : materials.yellow),
+            z === 1 ? materials.green : (z === -1 ? materials.blue : materials.green),
+            z === -1 ? materials.blue : (z === 1 ? materials.green : materials.blue)
         ];
     };
 
-    // Создаём 27 кубиков
+    // Создаём 27 кубиков — уменьшенные
     const cubies = [];
-    const offset = 1;
-    const size = 0.94;
+    const offset = 0.55;  // расстояние между центрами кубиков (было 0.65)
+    const size = 0.5;     // размер каждого кубика (было 0.6)
 
     for (let x = -1; x <= 1; x++) {
         for (let y = -1; y <= 1; y++) {
@@ -104,10 +97,8 @@ if (!container) {
     let startRot = { x: 0, y: 0, z: 0 };
     let endRot = { x: 0, y: 0, z: 0 };
 
-    // Реалистичное перемешивание — меняем позиции кубиков случайным образом
     function scrambleCube() {
         const positions = cubies.map(c => c.position.clone());
-        // Перемешиваем позиции (Fisher-Yates)
         for (let i = positions.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [positions[i], positions[j]] = [positions[j], positions[i]];
@@ -157,9 +148,9 @@ if (!container) {
         }
         
         endRot = {
-            x: startRot.x + (Math.random() - 0.5) * 1.0,
-            y: startRot.y + (Math.random() - 0.5) * 1.0,
-            z: startRot.z + (Math.random() - 0.5) * 0.6
+            x: startRot.x + (Math.random() - 0.5) * 0.8,
+            y: startRot.y + (Math.random() - 0.5) * 0.8,
+            z: startRot.z + (Math.random() - 0.5) * 0.5
         };
         animProgress = 0;
         isAnimating = true;
