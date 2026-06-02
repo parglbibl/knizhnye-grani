@@ -7,7 +7,6 @@ if (!container) {
     const scene = new THREE.Scene();
     scene.background = null;
 
-    // Камера
     const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
     camera.position.set(3.5, 2.5, 4.5);
     camera.lookAt(0, 0, 0);
@@ -20,41 +19,46 @@ if (!container) {
     const cubeGroup = new THREE.Group();
     scene.add(cubeGroup);
 
-    // Правильные цвета кубика Рубика
+    // Цвета
     const colorValues = {
         white: 0xffffff,
         yellow: 0xffd700,
         red: 0xc41e3a,
         orange: 0xff8c00,
         green: 0x009e60,
-        blue: 0x0051ba,
-        black: 0x111111
+        blue: 0x0051ba
     };
 
-    // Создаём материалы
+    const createMaterial = (color) => {
+        return new THREE.MeshStandardMaterial({ color: color, roughness: 0.25, metalness: 0.05 });
+    };
+
     const materials = {
-        white: new THREE.MeshStandardMaterial({ color: colorValues.white, roughness: 0.25, metalness: 0.05 }),
-        yellow: new THREE.MeshStandardMaterial({ color: colorValues.yellow, roughness: 0.25, metalness: 0.05 }),
-        red: new THREE.MeshStandardMaterial({ color: colorValues.red, roughness: 0.25, metalness: 0.05 }),
-        orange: new THREE.MeshStandardMaterial({ color: colorValues.orange, roughness: 0.25, metalness: 0.05 }),
-        green: new THREE.MeshStandardMaterial({ color: colorValues.green, roughness: 0.25, metalness: 0.05 }),
-        blue: new THREE.MeshStandardMaterial({ color: colorValues.blue, roughness: 0.25, metalness: 0.05 }),
-        black: new THREE.MeshStandardMaterial({ color: colorValues.black, roughness: 0.3 })
+        white: createMaterial(colorValues.white),
+        yellow: createMaterial(colorValues.yellow),
+        red: createMaterial(colorValues.red),
+        orange: createMaterial(colorValues.orange),
+        green: createMaterial(colorValues.green),
+        blue: createMaterial(colorValues.blue)
     };
 
-    // Для каждой позиции (x,y,z) определяем, какие цвета должны быть на гранях
-    // Собранное состояние: белый верх (y=1), жёлтый низ (y=-1), 
-    // зелёный перед (z=1), синий зад (z=-1),
-    // оранжевый лево (x=-1), красный право (x=1)
+    // Для каждой позиции определяем, какие цвета должны быть на гранях
+    // Все 6 граней каждого кубика будут цветными
     const getMaterialsForPosition = (x, y, z) => {
-        return [
-            x === 1 ? materials.orange : (x === -1 ? materials.red : materials.black),   // право
-            x === -1 ? materials.red : (x === 1 ? materials.orange : materials.black),   // лево
-            y === 1 ? materials.white : (y === -1 ? materials.yellow : materials.black), // верх
-            y === -1 ? materials.yellow : (y === 1 ? materials.white : materials.black), // низ
-            z === 1 ? materials.green : (z === -1 ? materials.blue : materials.black),   // перед
-            z === -1 ? materials.blue : (z === 1 ? materials.green : materials.black)    // зад
-        ];
+        // Правая грань (x = +1)
+        const rightColor = x === 1 ? materials.orange : (x === -1 ? materials.red : materials.orange);
+        // Левая грань (x = -1)
+        const leftColor = x === -1 ? materials.red : (x === 1 ? materials.orange : materials.red);
+        // Верхняя грань (y = +1)
+        const upColor = y === 1 ? materials.white : (y === -1 ? materials.yellow : materials.white);
+        // Нижняя грань (y = -1)
+        const downColor = y === -1 ? materials.yellow : (y === 1 ? materials.white : materials.yellow);
+        // Передняя грань (z = +1)
+        const frontColor = z === 1 ? materials.green : (z === -1 ? materials.blue : materials.green);
+        // Задняя грань (z = -1)
+        const backColor = z === -1 ? materials.blue : (z === 1 ? materials.green : materials.blue);
+        
+        return [rightColor, leftColor, upColor, downColor, frontColor, backColor];
     };
 
     // Создаём 27 кубиков
@@ -69,8 +73,7 @@ if (!container) {
                 const geometry = new THREE.BoxGeometry(size, size, size);
                 const cubie = new THREE.Mesh(geometry, matArray);
                 cubie.userData = { 
-                    originalPos: { x: x * offset, y: y * offset, z: z * offset },
-                    originalMaterials: matArray.map(m => m)
+                    originalPos: { x: x * offset, y: y * offset, z: z * offset }
                 };
                 cubie.position.set(x * offset, y * offset, z * offset);
                 cubeGroup.add(cubie);
@@ -101,19 +104,13 @@ if (!container) {
     let startRot = { x: 0, y: 0, z: 0 };
     let endRot = { x: 0, y: 0, z: 0 };
 
-    // Перемешивание — меняем позиции кубиков местами
-    // Это гарантирует, что видимыми остаются только внешние цветные грани
+    // Перемешивание — меняем позиции кубиков
     function scrambleCube() {
-        // Создаём массив текущих позиций
         const positions = cubies.map(c => c.position.clone());
-        
-        // Перемешиваем позиции
         for (let i = positions.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [positions[i], positions[j]] = [positions[j], positions[i]];
         }
-        
-        // Применяем новые позиции к кубикам
         cubies.forEach((cubie, index) => {
             cubie.position.copy(positions[index]);
         });
