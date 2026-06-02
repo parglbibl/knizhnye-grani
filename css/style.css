@@ -198,9 +198,9 @@ header {
     flex-shrink: 0;
 }
 
-/* Смещаем текст вправо на 1 см + 1 мм */
+/* Смещаем текст вправо на 1 см + 2 мм */
 .logo-text {
-    margin-left: 1rem;
+    margin-left: 1.06rem;
 }
 
 @media (max-width: 768px) {
@@ -233,7 +233,7 @@ header {
     }
     
     .logo-text {
-        margin-left: 0.75rem;
+        margin-left: 0.8rem;
     }
 }
 
@@ -267,7 +267,7 @@ header {
     }
     
     .logo-text {
-        margin-left: 0.55rem;
+        margin-left: 0.6rem;
     }
 }
 
