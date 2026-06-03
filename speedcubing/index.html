@@ -4,33 +4,33 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Спидкубинг — Книжные грани</title>
+    <meta name="description" content="Собери кубик быстрее всех. Спидкубинг — это азарт, скорость и дружеское соперничество.">
+    
+    <!-- Preload -->
+    <link rel="preload" href="../css/style.css" as="style">
+    <link rel="preload" href="../fonts/kb-tranceform.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
     <link rel="stylesheet" href="../css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"></noscript>
 </head>
 <body>
 
 <header>
     <div class="container header-inner">
         <div class="logo">
-            <div class="logo-cbs">
-                <img src="../images/logo-cbs.png" alt="ЦБС Выборгского района">
-            </div>
-            <div class="logo-rost">
-                <img src="../images/logo-rost.png" alt="Проектный офис РОСТ">
-            </div>
+            <div class="logo-cbs"><img src="../images/logo-cbs.png" alt="ЦБС Выборгского района" loading="lazy" width="51" height="51"></div>
+            <div class="logo-rost"><img src="../images/logo-rost.png" alt="Проектный офис РОСТ" loading="lazy" width="47" height="47"></div>
             <a href="../index.html">
-                <div class="logo-book">
-                    <span class="line-left"></span>
-                    <span class="line-center"></span>
-                    <span class="line-right"></span>
-                </div>
+                <div class="logo-book"><span class="line-left"></span><span class="line-center"></span><span class="line-right"></span></div>
                 <span class="logo-text">КНИЖНЫЕ ГРАНИ</span>
             </a>
         </div>
-        <div class="menu-toggle" id="menuToggle">
-            <i class="fas fa-bars"></i>
-        </div>
+        <div class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></div>
         <nav class="nav" id="nav"></nav>
     </div>
 </header>
@@ -38,39 +38,17 @@
 <section class="section">
     <div class="container">
         <h1 class="section-title">Спидкубинг</h1>
-        <p style="text-align: center; margin-bottom: 2rem;">Собери кубик быстрее всех. Спидкубинг — это азарт, скорость и дружеское соперничество. Развивай реакцию и становись лучше с каждой тренировкой.</p>
+        <p style="text-align:center; margin-bottom:2rem">Собери кубик быстрее всех. Спидкубинг — это азарт, скорость и дружеское соперничество.</p>
 
-        <div class="directions-grid" style="margin-bottom: 2rem;">
-            <div class="direction-card">
-                <i class="fas fa-graduation-cap"></i>
-                <h3>Что это такое?</h3>
-                <p>Спидкубинг — это не просто хобби, а настоящий спорт. Реакция, память, логика — всё работает на максимум.</p>
-                <a href="about-sport.html" class="btn btn-sm">Подробнее</a>
-            </div>
-            <div class="direction-card">
-                <i class="fas fa-chart-line"></i>
-                <h3>Уровни обучения</h3>
-                <p>С нуля до профи. Поможем освоить сборку кубика и улучшить время.</p>
-                <a href="levels.html" class="btn btn-sm">Подробнее</a>
-            </div>
-            <div class="direction-card">
-                <i class="fas fa-images"></i>
-                <h3>Фотогалерея</h3>
-                <p>Как это было. Эмоции, победы и новые рекорды.</p>
-                <a href="gallery.html" class="btn btn-sm">Смотреть галерею</a>
-            </div>
-            <div class="direction-card">
-                <i class="fas fa-newspaper"></i>
-                <h3>Новости</h3>
-                <p>Анонсы турниров и события</p>
-                <a href="news.html" class="btn btn-sm">Читать новости</a>
-            </div>
+        <div class="directions-grid" style="margin-bottom:2rem">
+            <div class="direction-card"><i class="fas fa-graduation-cap"></i><h3>Что это такое?</h3><p>Спидкубинг — это не просто хобби, а настоящий спорт.</p><a href="about-sport.html" class="btn btn-sm">Подробнее</a></div>
+            <div class="direction-card"><i class="fas fa-chart-line"></i><h3>Уровни обучения</h3><p>С нуля до профи. Поможем освоить сборку кубика.</p><a href="levels.html" class="btn btn-sm">Подробнее</a></div>
+            <div class="direction-card"><i class="fas fa-images"></i><h3>Фотогалерея</h3><p>Как это было. Эмоции, победы и новые рекорды.</p><a href="gallery.html" class="btn btn-sm">Смотреть галерею</a></div>
+            <div class="direction-card"><i class="fas fa-newspaper"></i><h3>Новости</h3><p>Анонсы турниров и события</p><a href="news.html" class="btn btn-sm">Читать новости</a></div>
         </div>
 
-        <!-- Контейнер для кубика — 320×320, по центру, с отступами -->
-        <div style="display: flex; justify-content: center; align-items: center; margin: 2rem 0 3rem 0;">
-            <div id="cube-container" style="width: 320px; height: 320px; background: transparent; cursor: pointer;"></div>
-        </div>
+        <!-- Контейнер для кубика с ленивой загрузкой -->
+        <div id="cube-container" style="width:320px; height:320px; margin:1rem auto 2rem auto; background:transparent; cursor:pointer"></div>
 
         <div class="dark-bg">
             <h3>Приходите тренироваться!</h3>
@@ -83,42 +61,35 @@
 <footer>
     <div class="container">
         <div class="footer-grid">
-            <div class="footer-col">
-                <h3>Книжные грани</h3>
-                <p>Проект ЦБС Выборгского района</p>
-                <p>пр. Просвещения, 43, ТРК «Парк-Молл», 2 этаж, Библиотека-мастерская</p>
-                <p>+7 (812) 246-93-05</p>
-                <p>pargolovo@cbsvib.ru</p>
-            </div>
-            <div class="footer-col">
-                <h3>Разделы</h3>
-                <p><a href="../index.html">Главная</a></p>
-                <p><a href="../about.html">О проекте</a></p>
-                <p><a href="../events.html">Мероприятия</a></p>
-                <p><a href="../contacts.html">Контакты</a></p>
-            </div>
-            <div class="footer-col">
-                <h3>Мы в соцсетях</h3>
-                <div class="footer-social">
-                    <a href="https://vk.com/pargolovskaya_library" target="_blank"><i class="fab fa-vk"></i></a>
-                </div>
-                <p style="margin-top:1.5rem;">Следите за анонсами в нашей группе ВКонтакте</p>
-            </div>
+            <div class="footer-col"><h3>Книжные грани</h3><p>Проект ЦБС Выборгского района</p><p>пр. Просвещения, 43, ТРК «Парк-Молл», 2 этаж</p><p>+7 (812) 246-93-05</p><p>pargolovo@cbsvib.ru</p></div>
+            <div class="footer-col"><h3>Разделы</h3><p><a href="../index.html">Главная</a></p><p><a href="../about.html">О проекте</a></p><p><a href="../events.html">Мероприятия</a></p><p><a href="../contacts.html">Контакты</a></p></div>
+            <div class="footer-col"><h3>Мы в соцсетях</h3><div class="footer-social"><a href="https://vk.com/pargolovskaya_library" target="_blank"><i class="fab fa-vk"></i></a></div><p style="margin-top:1.5rem">Следите за анонсами в нашей группе ВКонтакте</p></div>
         </div>
-        <div class="footer-bottom">
-            <p>© <span id="current-year"></span> Книжные грани | ЦБС Выборгского района</p>
-        </div>
+        <div class="footer-bottom"><p>© <span id="current-year"></span> Книжные грани | ЦБС Выборгского района</p></div>
     </div>
 </footer>
 
-<script src="../js/main.js"></script>
-<script type="importmap">
-    {
-        "imports": {
-            "three": "https://unpkg.com/three@0.128.0/build/three.module.js"
+<script src="../js/main.js" defer></script>
+
+<!-- Ленивая загрузка 3D кубика -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const cubeContainer = document.getElementById('cube-container');
+        if (cubeContainer) {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        observer.disconnect();
+                        const script = document.createElement('script');
+                        script.type = 'module';
+                        script.src = '../js/cube3d.js';
+                        document.body.appendChild(script);
+                    }
+                });
+            }, { threshold: 0.1 });
+            observer.observe(cubeContainer);
         }
-    }
+    });
 </script>
-<script type="module" src="../js/cube3d.js"></script>
 </body>
 </html>
