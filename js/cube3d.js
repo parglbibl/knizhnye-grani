@@ -85,59 +85,87 @@ if (!container) {
     rimLight.position.set(0, 1, -3);
     scene.add(rimLight);
 
-    // Автоматическое медленное вращение
-    let autoRotate = true;
-    let rotationSpeed = 0.005;
+    // ===== ВРАЩЕНИЕ МЫШКОЙ =====
+    let isDragging = false;
+    let lastMouseX = 0;
+    let lastMouseY = 0;
+    let targetRotationX = 0;
+    let targetRotationY = 0;
 
-    // Перемешивание
-    let isScrambled = false;
+    container.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        lastMouseX = e.clientX;
+        lastMouseY = e.clientY;
+        container.style.cursor = 'grabbing';
+        e.preventDefault();
+    });
 
-    function scrambleCube() {
-        const positions = cubies.map(c => c.position.clone());
-        for (let i = positions.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [positions[i], positions[j]] = [positions[j], positions[i]];
+    window.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        
+        const deltaX = e.clientX - lastMouseX;
+        const deltaY = e.clientY - lastMouseY;
+        
+        if (deltaX !== 0 || deltaY !== 0) {
+            targetRotationY += deltaX * 0.008;
+            targetRotationX += deltaY * 0.008;
+            
+            cubeGroup.rotation.x = targetRotationX;
+            cubeGroup.rotation.y = targetRotationY;
+            
+            lastMouseX = e.clientX;
+            lastMouseY = e.clientY;
         }
-        cubies.forEach((cubie, index) => {
-            cubie.position.copy(positions[index]);
-        });
-    }
+    });
 
-    function resetCube() {
-        cubies.forEach(cubie => {
-            cubie.position.copy(cubie.userData.originalPos);
-        });
-    }
+    window.addEventListener('mouseup', () => {
+        isDragging = false;
+        container.style.cursor = 'pointer';
+    });
 
-    // Анимация
+    // Перемешивание при клике (без движения мыши)
+    let isScrambled = false;
+    let clickTimer = null;
+    let startClickX, startClickY;
+
+    container.addEventListener('mousedown', (e) => {
+        startClickX = e.clientX;
+        startClickY = e.clientY;
+        clickTimer = setTimeout(() => {
+            clickTimer = null;
+        }, 100);
+    });
+
+    container.addEventListener('click', (e) => {
+        // Если было движение мыши больше 3px, не считаем за клик
+        const dx = Math.abs(e.clientX - startClickX);
+        const dy = Math.abs(e.clientY - startClickY);
+        
+        if (dx < 3 && dy < 3) {
+            if (!isScrambled) {
+                const positions = cubies.map(c => c.position.clone());
+                for (let i = positions.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [positions[i], positions[j]] = [positions[j], positions[i]];
+                }
+                cubies.forEach((cubie, index) => {
+                    cubie.position.copy(positions[index]);
+                });
+                isScrambled = true;
+            } else {
+                cubies.forEach(cubie => {
+                    cubie.position.copy(cubie.userData.originalPos);
+                });
+                isScrambled = false;
+            }
+        }
+    });
+
     function animate() {
         requestAnimationFrame(animate);
-        
-        if (autoRotate) {
-            cubeGroup.rotation.y += rotationSpeed;
-            cubeGroup.rotation.x += rotationSpeed * 0.6;
-        }
-        
         renderer.render(scene, camera);
     }
     animate();
-
-    // Клик для перемешивания/сборки
-    container.addEventListener('click', () => {
-        if (!isScrambled) {
-            scrambleCube();
-            isScrambled = true;
-            autoRotate = false;
-            // Через 2 секунды возвращаем вращение
-            setTimeout(() => {
-                autoRotate = true;
-            }, 2000);
-        } else {
-            resetCube();
-            isScrambled = false;
-            autoRotate = true;
-        }
-    });
 
     window.addEventListener('resize', () => {
         const width = container.clientWidth;
