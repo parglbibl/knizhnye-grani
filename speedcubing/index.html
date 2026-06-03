@@ -47,7 +47,7 @@
             <div class="direction-card"><i class="fas fa-newspaper"></i><h3>Новости</h3><p>Анонсы турниров и события</p><a href="news.html" class="btn btn-sm">Читать новости</a></div>
         </div>
 
-        <!-- Контейнер для кубика с ленивой загрузкой -->
+        <!-- Контейнер для кубика -->
         <div id="cube-container" style="width:320px; height:320px; margin:1rem auto 2rem auto; background:transparent; cursor:pointer"></div>
 
         <div class="dark-bg">
@@ -70,26 +70,13 @@
 </footer>
 
 <script src="../js/main.js" defer></script>
-
-<!-- Ленивая загрузка 3D кубика -->
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const cubeContainer = document.getElementById('cube-container');
-        if (cubeContainer) {
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        observer.disconnect();
-                        const script = document.createElement('script');
-                        script.type = 'module';
-                        script.src = '../js/cube3d.js';
-                        document.body.appendChild(script);
-                    }
-                });
-            }, { threshold: 0.1 });
-            observer.observe(cubeContainer);
+<script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.128.0/build/three.module.js"
         }
-    });
+    }
 </script>
+<script type="module" src="../js/cube3d.js"></script>
 </body>
 </html>
