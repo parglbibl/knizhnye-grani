@@ -189,85 +189,126 @@ if (!container) {
         }
     }
 
-    // ===== ВРАЩЕНИЕ МЫШКОЙ =====
+    // ===== ВРАЩЕНИЕ МЫШКОЙ И ПАЛЬЦЕМ =====
     let isDragging = false;
-    let lastMouseX = 0;
-    let lastMouseY = 0;
+    let lastX = 0, lastY = 0;
     let targetRotationX = 0;
     let targetRotationY = 0;
-    let currentRotationX = 0;
-    let currentRotationY = 0;
-    let animatingMouse = false;
-    let mouseAnimProgress = 0;
-    let startMouseX = 0, startMouseY = 0;
-    let endMouseX = 0, endMouseY = 0;
 
-    container.addEventListener('mousedown', (e) => {
+    // Получение координат (для мыши и тача)
+    function getClientXY(e) {
+        if (e.touches) {
+            return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+        }
+        return { x: e.clientX, y: e.clientY };
+    }
+
+    function onStart(e) {
+        e.preventDefault();
         isDragging = true;
-        lastMouseX = e.clientX;
-        lastMouseY = e.clientY;
+        const coords = getClientXY(e);
+        lastX = coords.x;
+        lastY = coords.y;
         container.style.cursor = 'grabbing';
-    });
+    }
 
-    window.addEventListener('mousemove', (e) => {
+    function onMove(e) {
         if (!isDragging) return;
+        e.preventDefault();
         
-        const deltaX = e.clientX - lastMouseX;
-        const deltaY = e.clientY - lastMouseY;
+        const coords = getClientXY(e);
+        const deltaX = coords.x - lastX;
+        const deltaY = coords.y - lastY;
         
         if (deltaX !== 0 || deltaY !== 0) {
             targetRotationY += deltaX * 0.008;
             targetRotationX += deltaY * 0.008;
             
-            // Плавное применение вращения
             cubeGroup.rotation.x = targetRotationX;
             cubeGroup.rotation.y = targetRotationY;
             
-            lastMouseX = e.clientX;
-            lastMouseY = e.clientY;
+            lastX = coords.x;
+            lastY = coords.y;
         }
-    });
+    }
 
-    window.addEventListener('mouseup', () => {
+    function onEnd(e) {
         isDragging = false;
         container.style.cursor = 'pointer';
-    });
+    }
 
-    // Клик для перемешивания/сборки (без вращения)
-    let clickTimer = null;
-    container.addEventListener('click', (e) => {
-        // Если было движение мыши, не считаем за клик
-        if (Math.abs(targetRotationY - lastStoredY) > 0.05) return;
-        
-        if (!isAnimating) {
-            startRot = {
-                x: cubeGroup.rotation.x,
-                y: cubeGroup.rotation.y,
-                z: cubeGroup.rotation.z
-            };
-            
-            if (!isScrambled) {
-                scrambleCube();
-                isScrambled = true;
-            } else {
-                resetCube();
-                isScrambled = false;
-            }
-            
-            isAnimating = true;
-            animProgress = 0;
-        }
-    });
+    // События для мыши
+    container.addEventListener('mousedown', onStart);
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onEnd);
     
-    let lastStoredY = 0;
-    setInterval(() => {
-        lastStoredY = targetRotationY;
-    }, 100);
+    // События для тач-экранов (мобильные)
+    container.addEventListener('touchstart', onStart, { passive: false });
+    container.addEventListener('touchmove', onMove, { passive: false });
+    container.addEventListener('touchend', onEnd);
 
+    // ===== КЛИК ДЛЯ ПЕРЕМЕШИВАНИЯ/СБОРКИ =====
+    let isScrambled = false;
     let isAnimating = false;
     let animProgress = 0;
     let startRot = { x: 0, y: 0, z: 0 };
     let endRot = { x: 0, y: 0, z: 0 };
+
+    // Отличаем клик от перетаскивания
+    let startClickX = 0, startClickY = 0;
+    let hasMoved = false;
+
+    function onPointerStart(e) {
+        const coords = getClientXY(e);
+        startClickX = coords.x;
+        startClickY = coords.y;
+        hasMoved = false;
+    }
+
+    function onPointerMove(e) {
+        const coords = getClientXY(e);
+        const dx = Math.abs(coords.x - startClickX);
+        const dy = Math.abs(coords.y - startClickY);
+        if (dx > 5 || dy > 5) {
+            hasMoved = true;
+        }
+    }
+
+    function onPointerEnd(e) {
+        if (!hasMoved) {
+            // Это был клик (не перетаскивание)
+            if (!isAnimating) {
+                startRot = {
+                    x: cubeGroup.rotation.x,
+                    y: cubeGroup.rotation.y,
+                    z: cubeGroup.rotation.z
+                };
+                
+                if (!isScrambled) {
+                    scrambleCube();
+                    isScrambled = true;
+                } else {
+                    resetCube();
+                    isScrambled = false;
+                }
+                
+                endRot = {
+                    x: startRot.x + (Math.random() - 0.5) * 0.5,
+                    y: startRot.y + (Math.random() - 0.5) * 0.5,
+                    z: startRot.z + (Math.random() - 0.5) * 0.3
+                };
+                animProgress = 0;
+                isAnimating = true;
+            }
+        }
+    }
+
+    container.addEventListener('mousedown', onPointerStart);
+    container.addEventListener('mousemove', onPointerMove);
+    container.addEventListener('mouseup', onPointerEnd);
+    container.addEventListener('touchstart', onPointerStart, { passive: false });
+    container.addEventListener('touchmove', onPointerMove, { passive: false });
+    container.addEventListener('touchend', onPointerEnd);
 
     function animateRotation() {
         if (isAnimating) {
@@ -281,7 +322,6 @@ if (!container) {
             cubeGroup.rotation.y = startRot.y + (endRot.y - startRot.y) * t;
             cubeGroup.rotation.z = startRot.z + (endRot.z - startRot.z) * t;
             
-            // Синхронизируем targetRotation с текущим вращением
             targetRotationX = cubeGroup.rotation.x;
             targetRotationY = cubeGroup.rotation.y;
         }
@@ -294,8 +334,6 @@ if (!container) {
         requestAnimationFrame(render);
     }
     render();
-
-    let isScrambled = false;
 
     window.addEventListener('resize', () => {
         const width = container.clientWidth;
