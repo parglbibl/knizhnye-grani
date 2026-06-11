@@ -4,35 +4,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Книжные грани — спидкубинг и настольные игры</title>
-    <meta name="description" content="Книжные грани — место встречи любителей настольных игр и спидкубинга. Бесплатно, без подготовки, без компании.">
-    
-    <!-- Preload критических ресурсов -->
-    <link rel="preload" href="css/style.css" as="style">
-    <link rel="preload" href="fonts/kb-tranceform.woff2" as="font" type="font/woff2" crossorigin>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    
-    <!-- CSS -->
+    <meta name="description" content="Книжные грани — место встречи любителей настольных игр и спидкубинга. Бесплатно, без подготовки, без компании. Ждём вас!">
     <link rel="stylesheet" href="css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Font Awesome с отложенной загрузкой -->
-    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"></noscript>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
 
 <header>
     <div class="container header-inner">
         <div class="logo">
-            <div class="logo-cbs"><img src="images/logo-cbs.png" alt="ЦБС Выборгского района" loading="lazy" width="51" height="51"></div>
-            <div class="logo-rost"><img src="images/logo-rost.png" alt="Проектный офис РОСТ" loading="lazy" width="47" height="47"></div>
+            <div class="logo-cbs">
+                <img src="images/logo-cbs.png" alt="ЦБС Выборгского района">
+            </div>
+            <div class="logo-rost">
+                <img src="images/logo-rost.png" alt="Проектный офис РОСТ">
+            </div>
             <a href="index.html">
-                <div class="logo-book"><span class="line-left"></span><span class="line-center"></span><span class="line-right"></span></div>
+                <div class="logo-book">
+                    <span class="line-left"></span>
+                    <span class="line-center"></span>
+                    <span class="line-right"></span>
+                </div>
                 <span class="logo-text">КНИЖНЫЕ ГРАНИ</span>
             </a>
         </div>
-        <div class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></div>
+        <div class="menu-toggle" id="menuToggle">
+            <i class="fas fa-bars"></i>
+        </div>
         <nav class="nav" id="nav"></nav>
     </div>
 </header>
@@ -52,19 +51,26 @@
 <section class="section">
     <div class="container">
         <h2 class="section-title">О проекте</h2>
-        <div class="section-text"><p>«Книжные грани» — это пространство, где встречаются любители настольных игр и спидкубинга. Здесь можно тренироваться, обмениваться опытом и участвовать в турнирах. Всё бесплатно и открыто для всех. Приходите один или с друзьями — мы всегда рады новым лицам.</p></div>
-        <div style="text-align:center"><a href="about.html" class="btn btn-outline">ПОДРОБНЕЕ</a></div>
+        <div class="section-text">
+            <p>«Книжные грани» — это пространство, где встречаются любители настольных игр и спидкубинга. Здесь можно тренироваться, обмениваться опытом и участвовать в турнирах. Всё бесплатно и открыто для всех. Приходите один или с друзьями — мы всегда рады новым лицам.</p>
+        </div>
+        <div style="text-align: center;">
+            <a href="about.html" class="btn btn-outline">ПОДРОБНЕЕ</a>
+        </div>
     </div>
 </section>
 
+<!-- ГЛАВНАЯ ПЛОЩАДКА -->
 <section class="section">
     <div class="container">
-        <div class="venue-block" style="text-align:center">
-            <div class="venue-icon" style="margin:0 auto"><i class="fas fa-map-marker-alt"></i></div>
+        <div class="venue-block" style="text-align: center;">
+            <div class="venue-icon" style="margin-left: auto; margin-right: auto;">
+                <i class="fas fa-map-marker-alt"></i>
+            </div>
             <div class="venue-content">
                 <h2 class="venue-title">Главная площадка</h2>
                 <p class="venue-address">Библиотека-мастерская<br>пр. Просвещения, 43, ТРК «Парк-Молл», 2 этаж</p>
-                <p class="venue-desc">Здесь проходят игротеки, тренировки по спидкубингу, турниры и встречи.</p>
+                <p class="venue-desc">Здесь проходят игротеки, тренировки по спидкубингу, турниры и встречи. Пространство оборудовано всем необходимым для комфортного досуга.</p>
                 <a href="contacts.html" class="btn btn-outline">Как пройти →</a>
             </div>
         </div>
@@ -75,19 +81,49 @@
     <div class="container">
         <h2 class="section-title">Ближайшие события</h2>
         <div class="events-grid">
-            <div class="event-card"><div class="event-number">01</div><div class="event-date">Дата уточняется</div><h3>Анонс скоро</h3><p>Информация о ближайшем мероприятии появится здесь. Следите за обновлениями.</p><a href="#" class="btn btn-sm">Подробнее</a></div>
-            <div class="event-card"><div class="event-number">02</div><div class="event-date">Дата уточняется</div><h3>Анонс скоро</h3><p>Информация о ближайшем мероприятии появится здесь. Следите за обновлениями.</p><a href="#" class="btn btn-sm">Подробнее</a></div>
-            <div class="event-card"><div class="event-number">03</div><div class="event-date">Дата уточняется</div><h3>Анонс скоро</h3><p>Информация о ближайшем мероприятии появится здесь. Следите за обновлениями.</p><a href="#" class="btn btn-sm">Подробнее</a></div>
+            <div class="event-card">
+                <div class="event-number">01</div>
+                <div class="event-date">17 июня, 15:00 – 19:00</div>
+                <h3>Летняя игротека</h3>
+                <p>Мастер-класс по сборке кубика Рубика (6+) и большая игротека от Hobby World (12+). Десятки настольных игр, новые знакомства и азарт. Приходите один или с друзьями!</p>
+                <a href="https://officecbsbvib.timepad.ru/event/4007898/" class="btn btn-sm" target="_blank">Записаться</a>
+            </div>
+            <div class="event-card">
+                <div class="event-number">02</div>
+                <div class="event-date">Дата уточняется</div>
+                <h3>Анонс скоро</h3>
+                <p>Информация о ближайшем мероприятии появится здесь. Следите за обновлениями или подпишитесь на нашу группу ВКонтакте.</p>
+                <a href="#" class="btn btn-sm">Подробнее</a>
+            </div>
+            <div class="event-card">
+                <div class="event-number">03</div>
+                <div class="event-date">Дата уточняется</div>
+                <h3>Анонс скоро</h3>
+                <p>Информация о ближайшем мероприятии появится здесь. Следите за обновлениями или подпишитесь на нашу группу ВКонтакте.</p>
+                <a href="#" class="btn btn-sm">Подробнее</a>
+            </div>
         </div>
-        <div style="text-align:center; margin-top:2rem"><a href="events.html" class="btn">Все мероприятия</a></div>
+        <div style="text-align: center; margin-top: 2rem;">
+            <a href="events.html" class="btn">Все мероприятия</a>
+        </div>
     </div>
 </section>
 
 <section class="section">
     <div class="container">
         <div class="directions-grid">
-            <div class="direction-card"><i class="fas fa-dice-d6"></i><h3>Настольные игры</h3><p>Игры для любой компании — от классики до современных хитов.</p><a href="boardgames/index.html" class="btn btn-sm">Перейти</a></div>
-            <div class="direction-card"><i class="fas fa-cube"></i><h3>Спидкубинг</h3><p>Собери кубик быстрее всех. Спидкубинг — это азарт, скорость и дружеское соперничество.</p><a href="speedcubing/index.html" class="btn btn-sm">Перейти</a></div>
+            <div class="direction-card">
+                <i class="fas fa-dice-d6"></i>
+                <h3>Настольные игры</h3>
+                <p>Игры для любой компании — от классики до современных хитов. Коллекция постоянно пополняется.</p>
+                <a href="boardgames/index.html" class="btn btn-sm">Перейти</a>
+            </div>
+            <div class="direction-card">
+                <i class="fas fa-cube"></i>
+                <h3>Спидкубинг</h3>
+                <p>Собери кубик быстрее всех. Спидкубинг — это азарт, скорость и дружеское соперничество.</p>
+                <a href="speedcubing/index.html" class="btn btn-sm">Перейти</a>
+            </div>
         </div>
     </div>
 </section>
@@ -95,14 +131,35 @@
 <footer>
     <div class="container">
         <div class="footer-grid">
-            <div class="footer-col"><h3>Книжные грани</h3><p>Проект ЦБС Выборгского района</p><p>пр. Просвещения, 43, ТРК «Парк-Молл», 2 этаж</p><p>+7 (812) 246-93-05</p><p>pargolovo@cbsvib.ru</p></div>
-            <div class="footer-col"><h3>Разделы</h3><p><a href="index.html">Главная</a></p><p><a href="about.html">О проекте</a></p><p><a href="events.html">Мероприятия</a></p><p><a href="contacts.html">Контакты</a></p></div>
-            <div class="footer-col"><h3>Мы в соцсетях</h3><div class="footer-social"><a href="https://vk.com/pargolovskaya_library" target="_blank"><i class="fab fa-vk"></i></a></div><p style="margin-top:1.5rem">Следите за анонсами в нашей группе ВКонтакте</p></div>
+            <div class="footer-col">
+                <h3>Книжные грани</h3>
+                <p>Проект ЦБС Выборгского района</p>
+                <p>Работает на базе <strong>Библиотеки-мастерской</strong></p>
+                <p>пр. Просвещения, 43, ТРК «Парк-Молл», 2 этаж</p>
+                <p>+7 (812) 246-93-05</p>
+                <p>pargolovo@cbsvib.ru</p>
+            </div>
+            <div class="footer-col">
+                <h3>Разделы</h3>
+                <p><a href="index.html">Главная</a></p>
+                <p><a href="about.html">О проекте</a></p>
+                <p><a href="events.html">Мероприятия</a></p>
+                <p><a href="contacts.html">Контакты</a></p>
+            </div>
+            <div class="footer-col">
+                <h3>Мы в соцсетях</h3>
+                <div class="footer-social">
+                    <a href="https://vk.com/pargolovskaya_library" target="_blank"><i class="fab fa-vk"></i></a>
+                </div>
+                <p style="margin-top:1.5rem;">Следите за анонсами в нашей группе ВКонтакте</p>
+            </div>
         </div>
-        <div class="footer-bottom"><p>© <span id="current-year"></span> Книжные грани | ЦБС Выборгского района</p></div>
+        <div class="footer-bottom">
+            <p>© <span id="current-year"></span> Книжные грани | ЦБС Выборгского района</p>
+        </div>
     </div>
 </footer>
 
-<script src="js/main.js" defer></script>
+<script src="js/main.js"></script>
 </body>
 </html>
