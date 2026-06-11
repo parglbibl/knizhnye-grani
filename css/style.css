@@ -994,14 +994,6 @@ header {
     }
 }
 
-.event-number {
-    font-size: 0.65rem;
-    color: var(--neon-coral);
-    letter-spacing: 0.2em;
-    margin-bottom: 0.5rem;
-    font-family: 'Inter', sans-serif;
-}
-
 .event-card p {
     font-size: 0.9rem;
     color: var(--card-text-secondary);
