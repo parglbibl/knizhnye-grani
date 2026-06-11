@@ -1,4 +1,4 @@
-// main.js — Книжные грани (с динамическими хлебными крошками)
+// main.js — Книжные грани (с динамическими хлебными крошками и JSON)
 
 document.addEventListener('DOMContentLoaded', function() {
 
@@ -148,7 +148,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const currentPath = window.location.pathname;
         const fileName = currentPath.split('/').pop() || 'index.html';
         
-        // НЕ показываем хлебные крошки на главной странице
         if (fileName === 'index.html' || fileName === '' || currentPath.endsWith('/')) {
             return;
         }
@@ -160,7 +159,6 @@ document.addEventListener('DOMContentLoaded', function() {
             { name: 'Главная', href: prefix + 'index.html' }
         ];
         
-        // Определяем структуру хлебных крошек
         if (isInBoardgames) {
             breadcrumbs.push({ name: 'Настольные игры', href: prefix + 'boardgames/index.html' });
             
@@ -186,7 +184,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
         else {
-            // Страницы в корне
             if (fileName === 'about.html') {
                 breadcrumbs.push({ name: 'О проекте', href: null });
             } else if (fileName === 'organizers.html') {
@@ -206,7 +203,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
         
-        // Создаём HTML хлебных крошек
         let breadcrumbsHtml = '<div class="breadcrumbs"><ul class="breadcrumbs-list">';
         breadcrumbs.forEach((item, index) => {
             if (item.href) {
@@ -217,7 +213,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         breadcrumbsHtml += '</ul></div>';
         
-        // Вставляем хлебные крошки после открытия section
         const section = document.querySelector('.section');
         if (section && !section.querySelector('.breadcrumbs')) {
             const container = section.querySelector('.container');
@@ -228,6 +223,61 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     generateBreadcrumbs();
+    
+    // ===== ЗАГРУЗКА МЕРОПРИЯТИЙ ИЗ JSON =====
+    async function loadEvents() {
+        try {
+            const response = await fetch('js/events.json');
+            const data = await response.json();
+            return data.events;
+        } catch (error) {
+            console.error('Ошибка загрузки мероприятий:', error);
+            return [];
+        }
+    }
+
+    function renderEventCard(event, isShort) {
+        const imageHtml = event.image 
+            ? `<div class="event-image"><img src="${event.image}" alt="${event.title}" loading="lazy"></div>`
+            : `<div class="event-image" style="background: linear-gradient(135deg, #2a3a5a, #1a2a3a); display: flex; align-items: center; justify-content: center; min-height: 140px; border-radius: 12px;">
+                <i class="fas fa-calendar-alt" style="font-size: 2.5rem; color: rgba(255,255,255,0.3);"></i>
+               </div>`;
+        
+        const description = isShort ? event.description : (event.fullDescription || event.description);
+        const buttonText = event.link ? 'Записаться' : 'Скоро';
+        const buttonLink = event.link || '#';
+        const buttonTarget = event.link ? 'target="_blank"' : '';
+        
+        return `
+            <div class="event-card ${event.featured ? 'event-featured' : ''}">
+                ${imageHtml}
+                <h3 class="event-title">${event.title}</h3>
+                <div class="event-datetime">${event.datetime}</div>
+                <p>${description}</p>
+                <a href="${buttonLink}" class="btn btn-sm" ${buttonTarget}>${buttonText}</a>
+            </div>
+        `;
+    }
+
+    async function renderEvents() {
+        const events = await loadEvents();
+        if (!events.length) return;
+        
+        const activeEvents = events.filter(e => e.active);
+        
+        const mainEventsGrid = document.querySelector('.events-grid:not(.events-full)');
+        if (mainEventsGrid) {
+            const mainEvents = activeEvents.slice(0, 3);
+            mainEventsGrid.innerHTML = mainEvents.map(event => renderEventCard(event, true)).join('');
+        }
+        
+        const eventsGridFull = document.querySelector('.events-grid.events-full');
+        if (eventsGridFull) {
+            eventsGridFull.innerHTML = activeEvents.map(event => renderEventCard(event, false)).join('');
+        }
+    }
+    
+    renderEvents();
     
     // ЛОГОТИП — ССЫЛКА НА ГЛАВНУЮ
     const logo = document.querySelector('.logo a');
@@ -250,23 +300,34 @@ document.addEventListener('DOMContentLoaded', function() {
     
     fadeElements.forEach(el => observer.observe(el));
     
-    // FAQ АККОРДЕОН
-    const faqQuestions = document.querySelectorAll('.faq-question');
-    faqQuestions.forEach(question => {
-        question.addEventListener('click', () => {
-            const answer = question.nextElementSibling;
-            const isActive = question.classList.contains('active');
-            
-            faqQuestions.forEach(q => {
-                q.classList.remove('active');
-                if (q.nextElementSibling) q.nextElementSibling.classList.remove('show');
+    // FAQ АККОРДЕОН (КЛИК ПО ВСЕЙ СТРОКЕ ВОПРОСА)
+    const faqItems = document.querySelectorAll('.faq-item');
+    faqItems.forEach(item => {
+        const question = item.querySelector('.faq-question');
+        const answer = item.querySelector('.faq-answer');
+        
+        if (question && answer) {
+            question.addEventListener('click', () => {
+                const isActive = question.classList.contains('active');
+                
+                faqItems.forEach(otherItem => {
+                    const otherQuestion = otherItem.querySelector('.faq-question');
+                    const otherAnswer = otherItem.querySelector('.faq-answer');
+                    if (otherQuestion && otherAnswer && otherQuestion !== question) {
+                        otherQuestion.classList.remove('active');
+                        otherAnswer.classList.remove('show');
+                    }
+                });
+                
+                if (!isActive) {
+                    question.classList.add('active');
+                    answer.classList.add('show');
+                } else {
+                    question.classList.remove('active');
+                    answer.classList.remove('show');
+                }
             });
-            
-            if (!isActive) {
-                question.classList.add('active');
-                if (answer) answer.classList.add('show');
-            }
-        });
+        }
     });
     
     // КНОПКА НАВЕРХ
