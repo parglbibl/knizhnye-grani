@@ -8,6 +8,71 @@
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* ПРИНУДИТЕЛЬНЫЕ СТИЛИ ДЛЯ КАРТОЧЕК */
+        .events-grid {
+            display: grid !important;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)) !important;
+            gap: 1.5rem !important;
+            margin-top: 2rem !important;
+        }
+        .event-card {
+            background: #3a4a6e !important;
+            border-radius: 20px !important;
+            padding: 1.5rem !important;
+            text-align: center !important;
+            color: white !important;
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+        .event-image {
+            border-radius: 12px !important;
+            margin-bottom: 1rem !important;
+            overflow: hidden !important;
+        }
+        .event-image img {
+            width: 100% !important;
+            height: auto !important;
+            display: block !important;
+        }
+        .event-title {
+            font-size: 1.2rem !important;
+            font-weight: bold !important;
+            color: white !important;
+            margin-bottom: 0.5rem !important;
+        }
+        .event-datetime {
+            font-size: 0.85rem !important;
+            color: rgba(255,255,255,0.7) !important;
+            margin-bottom: 1rem !important;
+            display: inline-block !important;
+            background: rgba(255,255,255,0.1) !important;
+            padding: 0.2rem 0.6rem !important;
+            border-radius: 16px !important;
+        }
+        .event-card p {
+            color: rgba(255,255,255,0.7) !important;
+            font-size: 0.9rem !important;
+            line-height: 1.5 !important;
+            margin-bottom: 1.2rem !important;
+        }
+        .btn-sm {
+            display: inline-block !important;
+            padding: 0.4rem 1rem !important;
+            background: rgba(255,255,255,0.1) !important;
+            border: 1px solid rgba(255,255,255,0.3) !important;
+            border-radius: 4px !important;
+            color: white !important;
+            text-decoration: none !important;
+            font-size: 0.7rem !important;
+            transition: all 0.3s !important;
+        }
+        .btn-sm:hover {
+            background: #ff2e5a !important;
+            border-color: #ff2e5a !important;
+        }
+    </style>
 </head>
 <body>
 
@@ -46,7 +111,7 @@
             <a href="speedcubing/index.html" class="btn btn-secondary">СПИДКУБИНГ</a>
         </div>
     </div>
-</section>
+</header>
 
 <section class="section">
     <div class="container">
@@ -84,7 +149,7 @@
             <!-- 1. Летняя игротека (17 июня) -->
             <div class="event-card event-featured">
                 <div class="event-image">
-                    <img src="images/afisha/afisha1706.jpg" alt="Летняя игротека">
+                    <img src="images/afisha/afisha1706.jpg" alt="Летняя игротека" onerror="this.src='https://placehold.co/600x400/2a3a5a/ffffff?text=Фото+скоро'">
                 </div>
                 <h3 class="event-title">Летняя игротека</h3>
                 <div class="event-datetime">17 июня, 15:00 – 19:00</div>
