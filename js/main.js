@@ -1,4 +1,4 @@
-// main.js — Книжные грани (с динамическими хлебными крошками и JSON)
+// main.js — Книжные грани (с динамическими хлебными крошками)
 
 document.addEventListener('DOMContentLoaded', function() {
 
@@ -81,6 +81,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 items: [
                     { name: 'Партнёры', href: prefix + 'partners.html', icon: 'fas fa-handshake' },
                     { name: 'Контакты', href: prefix + 'contacts.html', icon: 'fas fa-phone-alt' },
+                    { name: 'Обратная связь', href: prefix + 'feedback.html', icon: 'fas fa-envelope' },
                     { name: 'FAQ', href: prefix + 'faq.html', icon: 'fas fa-question-circle' }
                 ]
             }
@@ -200,6 +201,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 breadcrumbs.push({ name: 'Контакты', href: null });
             } else if (fileName === 'faq.html') {
                 breadcrumbs.push({ name: 'FAQ', href: null });
+            } else if (fileName === 'feedback.html') {
+                breadcrumbs.push({ name: 'Обратная связь', href: null });
             }
         }
         
@@ -224,61 +227,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     generateBreadcrumbs();
     
-    // ===== ЗАГРУЗКА МЕРОПРИЯТИЙ ИЗ JSON =====
-    async function loadEvents() {
-        try {
-            const response = await fetch('js/events.json');
-            const data = await response.json();
-            return data.events;
-        } catch (error) {
-            console.error('Ошибка загрузки мероприятий:', error);
-            return [];
-        }
-    }
-
-    function renderEventCard(event, isShort) {
-        const imageHtml = event.image 
-            ? `<div class="event-image"><img src="${event.image}" alt="${event.title}" loading="lazy"></div>`
-            : `<div class="event-image" style="background: linear-gradient(135deg, #2a3a5a, #1a2a3a); display: flex; align-items: center; justify-content: center; min-height: 140px; border-radius: 12px;">
-                <i class="fas fa-calendar-alt" style="font-size: 2.5rem; color: rgba(255,255,255,0.3);"></i>
-               </div>`;
-        
-        const description = isShort ? event.description : (event.fullDescription || event.description);
-        const buttonText = event.link ? 'Записаться' : 'Скоро';
-        const buttonLink = event.link || '#';
-        const buttonTarget = event.link ? 'target="_blank"' : '';
-        
-        return `
-            <div class="event-card ${event.featured ? 'event-featured' : ''}">
-                ${imageHtml}
-                <h3 class="event-title">${event.title}</h3>
-                <div class="event-datetime">${event.datetime}</div>
-                <p>${description}</p>
-                <a href="${buttonLink}" class="btn btn-sm" ${buttonTarget}>${buttonText}</a>
-            </div>
-        `;
-    }
-
-    async function renderEvents() {
-        const events = await loadEvents();
-        if (!events.length) return;
-        
-        const activeEvents = events.filter(e => e.active);
-        
-        const mainEventsGrid = document.querySelector('.events-grid:not(.events-full)');
-        if (mainEventsGrid) {
-            const mainEvents = activeEvents.slice(0, 3);
-            mainEventsGrid.innerHTML = mainEvents.map(event => renderEventCard(event, true)).join('');
-        }
-        
-        const eventsGridFull = document.querySelector('.events-grid.events-full');
-        if (eventsGridFull) {
-            eventsGridFull.innerHTML = activeEvents.map(event => renderEventCard(event, false)).join('');
-        }
-    }
-    
-    renderEvents();
-    
     // ЛОГОТИП — ССЫЛКА НА ГЛАВНУЮ
     const logo = document.querySelector('.logo a');
     if (logo) {
@@ -300,7 +248,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     fadeElements.forEach(el => observer.observe(el));
     
-    // FAQ АККОРДЕОН (КЛИК ПО ВСЕЙ СТРОКЕ ВОПРОСА)
+    // FAQ АККОРДЕОН
     const faqItems = document.querySelectorAll('.faq-item');
     faqItems.forEach(item => {
         const question = item.querySelector('.faq-question');
