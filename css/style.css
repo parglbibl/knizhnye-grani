@@ -198,6 +198,13 @@ header {
     flex-shrink: 0;
 }
 
+/* ===== НОВЫЙ ЛОГОТИП В ШАПКЕ ===== */
+.logo a img {
+    height: 56px;
+    width: auto;
+    display: block;
+}
+
 @media (max-width: 1024px) and (min-width: 769px) {
     .logo-cbs {
         margin-right: 0.6rem;
@@ -207,6 +214,9 @@ header {
     }
     .logo a {
         gap: 1.42rem;
+    }
+    .logo a img {
+        height: 48px;
     }
 }
 
@@ -233,6 +243,9 @@ header {
     .logo a {
         gap: 1.18rem;
     }
+    .logo a img {
+        height: 44px;
+    }
 }
 
 @media (max-width: 550px) {
@@ -258,6 +271,9 @@ header {
     .logo a {
         gap: 0.95rem;
     }
+    .logo a img {
+        height: 38px;
+    }
 }
 
 @media (max-width: 400px) {
@@ -282,6 +298,9 @@ header {
     }
     .logo a {
         gap: 0.71rem;
+    }
+    .logo a img {
+        height: 32px;
     }
 }
 
