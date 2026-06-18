@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Обратная связь и отзывы — Книжные грани</title>
+    <meta name="description" content="Оставьте отзыв о проекте Книжные грани, задайте вопрос или поделитесь впечатлениями.">
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- Yandex.Metrika counter -->
+    <script type="text/javascript">
+        (function(m,e,t,r,i,k,a){
+            m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+            m[i].l=1*new Date();
+            for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+            k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+        })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=109783209', 'ym');
+    
+        ym(109783209, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
+    </script>
+    <noscript><div><img src="https://mc.yandex.ru/watch/109783209" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+    <!-- /Yandex.Metrika counter -->
+
+    <style>
+        /* ===== ДОПОЛНИТЕЛЬНЫЕ СТИЛИ ДЛЯ СТРАНИЦЫ ОБРАТНОЙ СВЯЗИ ===== */
+        .feedback-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            margin-top: 2rem;
+        }
+
+        .feedback-card {
+            background: #fff;
+            border-radius: 24px;
+            padding: 2.5rem;
+            border: 1px solid rgba(0,0,0,0.06);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.04);
+        }
+
+        .feedback-card h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--graphite-dark);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .feedback-card h3 i {
+            color: var(--neon-coral);
+        }
+
+        .feedback-card .subtitle {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .feedback-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .feedback-label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--graphite-dark);
+            margin-bottom: 0.3rem;
+        }
+
+        .feedback-label .required {
+            color: var(--neon-coral);
+        }
+
+        .feedback-input,
+        .feedback-textarea {
+            width: 100%;
+            padding: 0.7rem 1rem;
+            border: 2px solid rgba(0,0,0,0.06);
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+            background: var(--graphite-deep);
+            transition: border-color 0.3s ease;
+            color: var(--text-primary);
+        }
+
+        .feedback-input:focus,
+        .feedback-textarea:focus {
+            outline: none;
+            border-color: var(--neon-coral);
+            box-shadow: 0 0 0 4px rgba(255, 46, 90, 0.08);
+        }
+
+        .feedback-textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .feedback-submit {
+            width: 100%;
+            padding: 0.8rem;
+            background: var(--neon-coral);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .feedback-submit:hover {
+            background: #e0244f;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 46, 90, 0.3);
+        }
+
+        .feedback-message {
+            display: none;
+            margin-top: 1rem;
+            padding: 0.8rem 1.2rem;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .feedback-message.success {
+            display: block;
+            background: rgba(46, 213, 115, 0.1);
+            color: #27ae60;
+            border: 1px solid rgba(46, 213, 115, 0.2);
+        }
+
+        .feedback-message.error {
+            display: block;
+            background: rgba(255, 71, 87, 0.1);
+            color: #e74c3c;
+            border: 1px solid rgba(255, 71, 87, 0.2);
+        }
+
+        .reviews-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+
+        .review-item {
+            background: var(--graphite-deep);
+            border-radius: 16px;
+            padding: 1.2rem 1.5rem;
+            border-left: 4px solid var(--neon-coral);
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.3rem;
+        }
+
+        .review-name {
+            font-weight: 600;
+            color: var(--graphite-dark);
+            font-size: 1rem;
+        }
+
+        .review-stars {
+            color: #f1c40f;
+            font-size: 0.85rem;
+            letter-spacing: 2px;
+        }
+
+        .review-date {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+        }
+
+        .review-text {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin: 0.3rem 0 0 0;
+        }
+
+        .review-empty {
+            text-align: center;
+            color: var(--text-secondary);
+            padding: 2rem 0;
+        }
+
+        .review-empty i {
+            font-size: 3rem;
+            color: rgba(0,0,0,0.08);
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .feedback-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            .feedback-card {
+                padding: 1.5rem;
+            }
+            .review-item {
+                padding: 1rem 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="container header-inner">
+        <div class="logo">
+            <div class="logo-cbs">
+                <img src="images/logo-cbs.png" alt="ЦБС Выборгского района">
+            </div>
+            <div class="logo-rost">
+                <img src="images/logo-rost.png" alt="Проектный офис РОСТ">
+            </div>
+            <a href="index.html">
+                <img src="images/logo-grani.png" alt="Книжные грани">
+            </a>
+        </div>
+        <div class="menu-toggle" id="menuToggle">
+            <i class="fas fa-bars"></i>
+        </div>
+        <nav class="nav" id="nav"></nav>
+    </div>
+</header>
+
+<section class="section">
+    <div class="container">
+        <h1 class="section-title">Обратная связь</h1>
+        <p style="text-align: center; margin-bottom: 2rem; color: var(--text-secondary);">
+            Оставьте отзыв о проекте, задайте вопрос или поделитесь впечатлениями!
+        </p>
+
+        <div class="feedback-grid">
+            <!-- ЛЕВАЯ КОЛОНКА: ФОРМА -->
+            <div class="feedback-card">
+                <h3><i class="fas fa-pen"></i> Написать нам</h3>
+                <p class="subtitle">Мы ответим в ближайшее время</p>
+
+                <form id="feedbackForm">
+                    <div class="feedback-group">
+                        <label class="feedback-label" for="feedbackName">Имя <span class="required">*</span></label>
+                        <input type="text" id="feedbackName" class="feedback-input" placeholder="Например: Анна" required>
+                    </div>
+
+                    <div class="feedback-group">
+                        <label class="feedback-label" for="feedbackEmail">Email <span class="required">*</span></label>
+                        <input type="email" id="feedbackEmail" class="feedback-input" placeholder="example@mail.ru" required>
+                    </div>
+
+                    <div class="feedback-group">
+                        <label class="feedback-label" for="feedbackRating">Оценка</label>
+                        <select id="feedbackRating" class="feedback-input" style="appearance: auto;">
+                            <option value="5">⭐⭐⭐⭐⭐ — Отлично</option>
+                            <option value="4">⭐⭐⭐⭐ — Хорошо</option>
+                            <option value="3">⭐⭐⭐ — Средне</option>
+                            <option value="2">⭐⭐ — Плохо</option>
+                            <option value="1">⭐ — Ужасно</option>
+                        </select>
+                    </div>
+
+                    <div class="feedback-group">
+                        <label class="feedback-label" for="feedbackMessage">Сообщение <span class="required">*</span></label>
+                        <textarea id="feedbackMessage" class="feedback-textarea" placeholder="Что вам понравилось? Что можно улучшить?" required></textarea>
+                    </div>
+
+                    <button type="submit" class="feedback-submit">
+                        <i class="fas fa-paper-plane" style="margin-right: 0.5rem;"></i> Отправить отзыв
+                    </button>
+                </form>
+
+                <div id="formMessage" class="feedback-message"></div>
+            </div>
+
+            <!-- ПРАВАЯ КОЛОНКА: ОТЗЫВЫ -->
+            <div class="feedback-card">
+                <h3><i class="fas fa-star"></i> Отзывы</h3>
+                <p class="subtitle">Что говорят наши гости</p>
+
+                <div class="reviews-list" id="reviewsList">
+                    <div class="review-item">
+                        <div class="review-header">
+                            <span class="review-name">Екатерина С.</span>
+                            <span class="review-stars">★★★★★</span>
+                        </div>
+                        <div class="review-date">2 дня назад</div>
+                        <p class="review-text">Отличное место! Были на игротеке с детьми — всем очень понравилось. Кубики Рубика, настолки, уютная атмосфера. Обязательно придём ещё!</p>
+                    </div>
+
+                    <div class="review-item">
+                        <div class="review-header">
+                            <span class="review-name">Дмитрий К.</span>
+                            <span class="review-stars">★★★★☆</span>
+                        </div>
+                        <div class="review-date">Неделю назад</div>
+                        <p class="review-text">Круто, что такие проекты появляются в библиотеках. Тренировка по спидкубингу была очень полезной. Жаль, что не всё оборудование было в наличии.</p>
+                    </div>
+
+                    <div class="review-item">
+                        <div class="review-header">
+                            <span class="review-name">Анна М.</span>
+                            <span class="review-stars">★★★★★</span>
+                        </div>
+                        <div class="review-date">2 недели назад</div>
+                        <p class="review-text">Спасибо организаторам! Пришла одна, а ушла с новыми друзьями и кучей эмоций. Игротека — это магия!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer>
+    <div class="container">
+        <div class="footer-grid">
+            <div class="footer-col">
+                <h3>Книжные грани</h3>
+                <p>Проект ЦБС Выборгского района</p>
+                <p>Работает на базе <strong>Библиотеки-мастерской</strong></p>
+                <p>пр. Просвещения, 43, ТРК «Парк-Молл», 2 этаж</p>
+                <p>+7 (812) 246-93-05</p>
+                <p>pargolovo@cbsvib.ru</p>
+            </div>
+            <div class="footer-col">
+                <h3>Разделы</h3>
+                <p><a href="index.html">Главная</a></p>
+                <p><a href="about.html">О проекте</a></p>
+                <p><a href="events.html">Мероприятия</a></p>
+                <p><a href="contacts.html">Контакты</a></p>
+                <p><a href="feedback.html">Обратная связь</a></p>
+            </div>
+            <div class="footer-col">
+                <h3>Мы в соцсетях</h3>
+                <div class="footer-social">
+                    <a href="https://vk.com/pargolovskaya_library" target="_blank"><i class="fab fa-vk"></i></a>
+                </div>
+                <p style="margin-top:1.5rem;">Следите за анонсами в нашей группе ВКонтакте</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© <span id="current-year"></span> Книжные грани | ЦБС Выборгского района</p>
+        </div>
+
+        <!-- Яндекс.Метрика информер -->
+        <div style="text-align: center; margin-top: 1.5rem;">
+            <a href="https://metrika.yandex.ru/stat/?id=109783209&amp;from=informer" target="_blank" rel="nofollow">
+                <img src="https://informer.yandex.ru/informer/109783209/3_1_FFFFFFFF_FEF9F0FF_0_pageviews"
+                     style="width:88px; height:31px; border:0;"
+                     alt="Яндекс.Метрика"
+                     title="Яндекс.Метрика: данные за сегодня (просмотры, визиты и уникальные посетители)"
+                     class="ym-advanced-informer" data-cid="109783209" data-lang="ru"/>
+            </a>
+        </div>
+    </div>
+</footer>
+
+<script src="js/main.js"></script>
+<script>
+    // ===== ФОРМА ОБРАТНОЙ СВЯЗИ =====
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('feedbackForm');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const name = document.getElementById('feedbackName').value.trim();
+                const email = document.getElementById('feedbackEmail').value.trim();
+                const rating = document.getElementById('feedbackRating').value;
+                const message = document.getElementById('feedbackMessage').value.trim();
+                const messageDiv = document.getElementById('formMessage');
+                
+                if (!name || !email || !message) {
+                    messageDiv.className = 'feedback-message error';
+                    messageDiv.innerHTML = '⚠️ Пожалуйста, заполните все обязательные поля.';
+                    return;
+                }
+                
+                if (!email.includes('@') || !email.includes('.')) {
+                    messageDiv.className = 'feedback-message error';
+                    messageDiv.innerHTML = '⚠️ Пожалуйста, введите корректный email.';
+                    return;
+                }
+                
+                // Сохраняем отзыв в localStorage
+                const reviews = JSON.parse(localStorage.getItem('bookReviews') || '[]');
+                reviews.push({
+                    name: name,
+                    rating: parseInt(rating),
+                    text: message,
+                    date: new Date().toLocaleDateString('ru-RU')
+                });
+                localStorage.setItem('bookReviews', JSON.stringify(reviews));
+                
+                messageDiv.className = 'feedback-message success';
+                messageDiv.innerHTML = '✅ Спасибо, <strong>' + name + '</strong>! Ваш отзыв сохранён. Мы ответим вам на <strong>' + email + '</strong> в ближайшее время.';
+                
+                form.reset();
+                
+                setTimeout(() => {
+                    messageDiv.className = 'feedback-message';
+                    messageDiv.innerHTML = '';
+                }, 8000);
+            });
+        }
+    });
+</script>
+</body>
+</html>
