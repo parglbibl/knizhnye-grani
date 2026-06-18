@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // ===== ДИНАМИЧЕСКАЯ СБОРКА МЕНЮ =====
     const path = window.location.pathname;
     let prefix = '';
-    if (path.includes('/boardgames/') || path.includes('/speedcubing/')) {
+    if (path.includes('/boardgames/') || path.includes('/speedcubing/') || path.includes('/events/')) {
         prefix = '../';
     }
     
@@ -156,6 +156,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const isInBoardgames = currentPath.includes('/boardgames/');
         const isInSpeedcubing = currentPath.includes('/speedcubing/');
+        const isInEvents = currentPath.includes('/events/');
         
         let breadcrumbs = [
             { name: 'Главная', href: prefix + 'index.html' }
@@ -168,8 +169,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 breadcrumbs.push({ name: 'Каталог игр', href: null });
             } else if (fileName === 'rules.html') {
                 breadcrumbs.push({ name: 'Правила посещения', href: null });
-            } else if (fileName === 'news.html') {
-                breadcrumbs.push({ name: 'Новости игротеки', href: null });
             }
         } 
         else if (isInSpeedcubing) {
@@ -181,8 +180,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 breadcrumbs.push({ name: 'Уровни обучения', href: null });
             } else if (fileName === 'gallery.html') {
                 breadcrumbs.push({ name: 'Фотогалерея', href: null });
-            } else if (fileName === 'news.html') {
-                breadcrumbs.push({ name: 'Новости спидкубинга', href: null });
+            }
+        }
+        else if (isInEvents) {
+            breadcrumbs.push({ name: 'Мероприятия', href: prefix + 'events.html' });
+            
+            // Для страницы события показываем его название из URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const eventId = urlParams.get('id');
+            if (eventId) {
+                const eventNames = {
+                    'summer-party': 'Летняя игротека'
+                };
+                const eventName = eventNames[eventId] || 'Событие';
+                breadcrumbs.push({ name: eventName, href: null });
             }
         }
         else {
@@ -318,7 +329,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 200);
     }
     
-    // ===== СЛАЙДЕР И ПОПАП «КАК ЭТО БЫЛО» (ДУБЛИРУЮЩАЯ ЛОГИКА) =====
+    // ===== СЛАЙДЕР И ПОПАП «КАК ЭТО БЫЛО» =====
     const slider = document.getElementById('archiveSlider');
     const prevBtn = document.querySelector('.archive-arrow.prev');
     const nextBtn = document.querySelector('.archive-arrow.next');
@@ -346,15 +357,28 @@ document.addEventListener('DOMContentLoaded', function() {
             slider.scrollBy({ left: -cardWidth * 2, behavior: 'smooth' });
         });
         
+        // ===== ДАННЫЕ ДЛЯ АРХИВНЫХ МЕРОПРИЯТИЙ =====
+        // ДОБАВЛЯЙТЕ НОВЫЕ МЕРОПРИЯТИЯ СЮДА
         const archiveData = {
             '17 июня': {
                 title: 'Летняя игротека',
                 date: '17 июня 2026',
                 image: 'images/afisha/afisha1706.jpg',
                 description: 'Первая летняя игротека в Библиотеке-мастерской. Мастер-класс по сборке кубика Рубика и большая игротека от Hobby World.',
-                link: '#',
-                gallery: '#'
+                link: 'events/detail.html?id=summer-party',
+                gallery: '../gallery.html?filter=summer'
             }
+            // ===== ПРИМЕР ДОБАВЛЕНИЯ НОВОГО СОБЫТИЯ =====
+            // Раскомментируйте и заполните:
+            //
+            // '20 августа': {
+            //     title: 'Название события',
+            //     date: '20 августа 2026',
+            //     image: 'images/afisha/new-event.jpg',
+            //     description: 'Полное описание события.',
+            //     link: 'events/detail.html?id=new-event',
+            //     gallery: '../gallery.html?filter=summer'
+            // }
         };
         
         window.openArchiveModal = function(eventKey) {
@@ -370,7 +394,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <h2 class="archive-modal-title">${data.title}</h2>
                     <p class="archive-modal-desc">${data.description}</p>
                     <div class="archive-modal-actions">
-                        <a href="${data.gallery}" class="btn btn-sm" target="_blank">📸 Фотоотчёт</a>
+                        <a href="${data.gallery}" class="btn btn-sm" target="_blank">📸 Смотреть фотоотчёт</a>
                         <a href="${data.link}" class="btn btn-sm" style="background: var(--neon-coral); color: #fff; border-color: var(--neon-coral);">📝 Подробнее</a>
                     </div>
                 `;
