@@ -42,9 +42,10 @@ body {
     font-family: 'KB Tranceform', 'Montserrat', sans-serif;
     font-weight: 400;
     letter-spacing: 0.02em;
+    color: var(--graphite-dark);  /* тёмно-синий #1e2a47 вместо чёрного */
 }
 
-/* Все остальные заголовки — обычный шрифт */
+/* Все остальные заголовки — обычный шрифт (цвет не меняется) */
 h1, h2, h3, h4, 
 .venue-title, 
 .team-card h3, 
@@ -186,13 +187,13 @@ header {
 }
 
 .logo-rost {
-    margin-right: 2.10rem;
+    margin-right: 1.98rem;
 }
 
 .logo a {
     display: flex;
     align-items: center;
-    gap: 1.78rem;
+    gap: 1.54rem;
     text-decoration: none;
     color: inherit;
     flex-shrink: 0;
@@ -944,7 +945,6 @@ header {
     }
 }
 
-/* Стили для изображений в карточках мероприятий */
 .event-image {
     border-radius: 12px;
     margin-bottom: 0.8rem;
@@ -966,7 +966,6 @@ header {
     transform: scale(1.02);
 }
 
-/* Стили для заголовков и даты в карточках мероприятий */
 .event-card .event-title {
     font-size: 1.2rem;
     font-weight: 700;
