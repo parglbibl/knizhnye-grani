@@ -288,12 +288,29 @@
                 <div id="formMessage" class="feedback-message"></div>
             </div>
 
-            <!-- ПРАВАЯ КОЛОНКА: ОТЗЫВЫ -->
+            <!-- ПРАВАЯ КОЛОНКА: ОТЗЫВЫ (только те, которые вы добавите вручную) -->
             <div class="feedback-card">
                 <h3><i class="fas fa-star"></i> Отзывы</h3>
                 <p class="subtitle">Что говорят наши гости</p>
 
                 <div class="reviews-list" id="reviewsList">
+                    <!-- ========================================================== -->
+                    <!--  ЗДЕСЬ ВЫ МОЖЕТЕ ДОБАВЛЯТЬ РЕАЛЬНЫЕ ОТЗЫВЫ ВРУЧНУЮ            -->
+                    <!--  КОПИРУЙТЕ ЭТОТ БЛОК И МЕНЯЙТЕ ТЕКСТ                         -->
+                    <!-- ========================================================== -->
+                    
+                    <!-- ПРИМЕР РЕАЛЬНОГО ОТЗЫВА (РАСКОММЕНТИРУЙТЕ И ЗАМЕНИТЕ ТЕКСТ) -->
+                    <!--
+                    <div class="review-item">
+                        <div class="review-header">
+                            <span class="review-name">Иван П.</span>
+                            <span class="review-stars">★★★★★</span>
+                        </div>
+                        <div class="review-date">15 июня 2026</div>
+                        <p class="review-text">Отличное место! Приходили всей семьёй, детям очень понравилось.</p>
+                    </div>
+                    -->
+
                     <div class="review-empty">
                         <i class="fas fa-comment"></i>
                         <p>Пока нет отзывов. Оставьте свой!</p>
@@ -353,90 +370,36 @@
     // ===== ФОРМА ОБРАТНОЙ СВЯЗИ =====
     document.addEventListener('DOMContentLoaded', function() {
         const form = document.getElementById('feedbackForm');
-        const reviewsList = document.getElementById('reviewsList');
+        const messageDiv = document.getElementById('formMessage');
         
-        // Функция для отображения отзывов
-        function displayReviews() {
-            const reviews = JSON.parse(localStorage.getItem('bookReviews') || '[]');
-            
-            if (reviews.length === 0) {
-                reviewsList.innerHTML = `
-                    <div class="review-empty">
-                        <i class="fas fa-comment"></i>
-                        <p>Пока нет отзывов. Оставьте свой!</p>
-                    </div>
-                `;
-                return;
-            }
-            
-            let html = '';
-            reviews.reverse().forEach(function(review) {
-                const stars = '★'.repeat(review.rating) + '☆'.repeat(5 - review.rating);
-                html += `
-                    <div class="review-item">
-                        <div class="review-header">
-                            <span class="review-name">${escapeHtml(review.name)}</span>
-                            <span class="review-stars">${stars}</span>
-                        </div>
-                        <div class="review-date">${review.date || 'Недавно'}</div>
-                        <p class="review-text">${escapeHtml(review.text)}</p>
-                    </div>
-                `;
-            });
-            reviewsList.innerHTML = html;
-        }
-        
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-        
-        // Показываем локальные отзывы при загрузке
-        displayReviews();
-        
-        // Сохраняем отзыв в localStorage после отправки через Formspree
         if (form) {
             form.addEventListener('submit', function(e) {
-                // Не отменяем отправку — форма улетает на Formspree
-                // Но мы сохраняем отзыв локально, чтобы он сразу появился на странице
-                
+                // Проверяем заполнение полей
                 const name = document.getElementById('feedbackName').value.trim();
-                const rating = document.getElementById('feedbackRating').value;
+                const email = document.getElementById('feedbackEmail').value.trim();
                 const message = document.getElementById('feedbackMessage').value.trim();
-                const messageDiv = document.getElementById('formMessage');
                 
-                // Простая валидация
-                if (!name || !message) {
+                if (!name || !email || !message) {
                     e.preventDefault();
                     messageDiv.className = 'feedback-message error';
                     messageDiv.innerHTML = '⚠️ Пожалуйста, заполните все обязательные поля.';
                     return;
                 }
                 
-                // Сохраняем отзыв в localStorage (чтобы сразу показать на странице)
-                const reviews = JSON.parse(localStorage.getItem('bookReviews') || '[]');
-                reviews.push({
-                    name: name,
-                    rating: parseInt(rating),
-                    text: message,
-                    date: new Date().toLocaleDateString('ru-RU')
-                });
-                localStorage.setItem('bookReviews', JSON.stringify(reviews));
+                if (!email.includes('@') || !email.includes('.')) {
+                    e.preventDefault();
+                    messageDiv.className = 'feedback-message error';
+                    messageDiv.innerHTML = '⚠️ Пожалуйста, введите корректный email.';
+                    return;
+                }
                 
-                // Показываем сообщение об успехе
-                setTimeout(() => {
-                    messageDiv.className = 'feedback-message success';
-                    messageDiv.innerHTML = '✅ Спасибо! Ваш отзыв отправлен.';
-                    displayReviews();
-                }, 500);
+                // Форма отправляется на Formspree, сообщение об успехе появится после редиректа
             });
         }
         
         // Если на страницу пришли с параметром success=true — показываем сообщение
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('success') === 'true') {
-            const messageDiv = document.getElementById('formMessage');
             messageDiv.className = 'feedback-message success';
             messageDiv.innerHTML = '✅ Спасибо! Ваш отзыв успешно отправлен.';
             setTimeout(() => {
