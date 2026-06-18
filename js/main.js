@@ -363,8 +363,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 date: '17 июня 2026',
                 image: 'images/afisha/afisha1706.jpg',
                 description: 'Первая летняя игротека в Библиотеке-мастерской. Мастер-класс по сборке кубика Рубика и большая игротека от Hobby World.',
-                link: 'events/detail.html?id=summer-party',
-                gallery: '../gallery.html'
+                link: '/events/detail.html?id=summer-party',
+                gallery: '/gallery.html'
             }
         };
         
