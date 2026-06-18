@@ -24,7 +24,6 @@
     <!-- /Yandex.Metrika counter -->
 
     <style>
-        /* ===== ДОПОЛНИТЕЛЬНЫЕ СТИЛИ ДЛЯ СТРАНИЦЫ ОБРАТНОЙ СВЯЗИ ===== */
         .feedback-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -251,20 +250,23 @@
                 <h3><i class="fas fa-pen"></i> Написать нам</h3>
                 <p class="subtitle">Мы ответим в ближайшее время</p>
 
-                <form id="feedbackForm">
+                <form id="feedbackForm" action="https://formspree.io/f/xdawoqrg" method="POST">
+                    <input type="hidden" name="_subject" value="Новый отзыв с сайта Книжные грани">
+                    <input type="hidden" name="_next" value="https://knig-grani.ru/feedback.html?success=true">
+                    
                     <div class="feedback-group">
                         <label class="feedback-label" for="feedbackName">Имя <span class="required">*</span></label>
-                        <input type="text" id="feedbackName" class="feedback-input" placeholder="Например: Анна" required>
+                        <input type="text" id="feedbackName" name="name" class="feedback-input" placeholder="Например: Анна" required>
                     </div>
 
                     <div class="feedback-group">
                         <label class="feedback-label" for="feedbackEmail">Email <span class="required">*</span></label>
-                        <input type="email" id="feedbackEmail" class="feedback-input" placeholder="example@mail.ru" required>
+                        <input type="email" id="feedbackEmail" name="email" class="feedback-input" placeholder="example@mail.ru" required>
                     </div>
 
                     <div class="feedback-group">
                         <label class="feedback-label" for="feedbackRating">Оценка</label>
-                        <select id="feedbackRating" class="feedback-input" style="appearance: auto;">
+                        <select id="feedbackRating" name="rating" class="feedback-input" style="appearance: auto;">
                             <option value="5">⭐⭐⭐⭐⭐ — Отлично</option>
                             <option value="4">⭐⭐⭐⭐ — Хорошо</option>
                             <option value="3">⭐⭐⭐ — Средне</option>
@@ -275,7 +277,7 @@
 
                     <div class="feedback-group">
                         <label class="feedback-label" for="feedbackMessage">Сообщение <span class="required">*</span></label>
-                        <textarea id="feedbackMessage" class="feedback-textarea" placeholder="Что вам понравилось? Что можно улучшить?" required></textarea>
+                        <textarea id="feedbackMessage" name="message" class="feedback-textarea" placeholder="Что вам понравилось? Что можно улучшить?" required></textarea>
                     </div>
 
                     <button type="submit" class="feedback-submit">
@@ -292,7 +294,6 @@
                 <p class="subtitle">Что говорят наши гости</p>
 
                 <div class="reviews-list" id="reviewsList">
-                    <!-- Отзывы загружаются из localStorage или показывается заглушка -->
                     <div class="review-empty">
                         <i class="fas fa-comment"></i>
                         <p>Пока нет отзывов. Оставьте свой!</p>
@@ -368,11 +369,8 @@
                 return;
             }
             
-            // Сортируем отзывы от новых к старым
-            reviews.reverse();
-            
             let html = '';
-            reviews.forEach(function(review) {
+            reviews.reverse().forEach(function(review) {
                 const stars = '★'.repeat(review.rating) + '☆'.repeat(5 - review.rating);
                 html += `
                     <div class="review-item">
@@ -388,40 +386,35 @@
             reviewsList.innerHTML = html;
         }
         
-        // Простая защита от XSS
         function escapeHtml(text) {
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
         }
         
-        // Отображаем отзывы при загрузке
+        // Показываем локальные отзывы при загрузке
         displayReviews();
         
-        // Обработка отправки формы
+        // Сохраняем отзыв в localStorage после отправки через Formspree
         if (form) {
             form.addEventListener('submit', function(e) {
-                e.preventDefault();
+                // Не отменяем отправку — форма улетает на Formspree
+                // Но мы сохраняем отзыв локально, чтобы он сразу появился на странице
                 
                 const name = document.getElementById('feedbackName').value.trim();
-                const email = document.getElementById('feedbackEmail').value.trim();
                 const rating = document.getElementById('feedbackRating').value;
                 const message = document.getElementById('feedbackMessage').value.trim();
                 const messageDiv = document.getElementById('formMessage');
                 
-                if (!name || !email || !message) {
+                // Простая валидация
+                if (!name || !message) {
+                    e.preventDefault();
                     messageDiv.className = 'feedback-message error';
                     messageDiv.innerHTML = '⚠️ Пожалуйста, заполните все обязательные поля.';
                     return;
                 }
                 
-                if (!email.includes('@') || !email.includes('.')) {
-                    messageDiv.className = 'feedback-message error';
-                    messageDiv.innerHTML = '⚠️ Пожалуйста, введите корректный email.';
-                    return;
-                }
-                
-                // Сохраняем отзыв в localStorage
+                // Сохраняем отзыв в localStorage (чтобы сразу показать на странице)
                 const reviews = JSON.parse(localStorage.getItem('bookReviews') || '[]');
                 reviews.push({
                     name: name,
@@ -431,19 +424,27 @@
                 });
                 localStorage.setItem('bookReviews', JSON.stringify(reviews));
                 
-                // Обновляем список отзывов
-                displayReviews();
-                
-                messageDiv.className = 'feedback-message success';
-                messageDiv.innerHTML = '✅ Спасибо, <strong>' + escapeHtml(name) + '</strong>! Ваш отзыв сохранён. Мы ответим вам на <strong>' + escapeHtml(email) + '</strong> в ближайшее время.';
-                
-                form.reset();
-                
+                // Показываем сообщение об успехе
                 setTimeout(() => {
-                    messageDiv.className = 'feedback-message';
-                    messageDiv.innerHTML = '';
-                }, 8000);
+                    messageDiv.className = 'feedback-message success';
+                    messageDiv.innerHTML = '✅ Спасибо! Ваш отзыв отправлен.';
+                    displayReviews();
+                }, 500);
             });
+        }
+        
+        // Если на страницу пришли с параметром success=true — показываем сообщение
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('success') === 'true') {
+            const messageDiv = document.getElementById('formMessage');
+            messageDiv.className = 'feedback-message success';
+            messageDiv.innerHTML = '✅ Спасибо! Ваш отзыв успешно отправлен.';
+            setTimeout(() => {
+                messageDiv.className = 'feedback-message';
+                messageDiv.innerHTML = '';
+                // Убираем параметр из URL
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }, 8000);
         }
     });
 </script>
