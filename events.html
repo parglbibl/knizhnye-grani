@@ -311,6 +311,17 @@
         <h1 class="section-title">Афиша мероприятий</h1>
 
         <div class="events-grid">
+            <!-- 17 июня -->
+            <div class="event-card">
+                <div class="event-image" style="background: linear-gradient(135deg, #2a3a5a, #1a2a3a); display: flex; align-items: center; justify-content: center; min-height: 140px; border-radius: 12px;">
+                    <i class="fas fa-calendar-alt" style="font-size: 2.5rem; color: rgba(255,255,255,0.3);"></i>
+                </div>
+                <h3 class="event-title">Игротека «Книжные грани»</h3>
+                <div class="event-datetime">17 июня, 15:00 – 19:00</div>
+                <p>Большая игротека от Hobby World. Десятки настольных игр на любой вкус. Приходите один или с друзьями — найдём компанию!</p>
+                <a href="events/detail.html?id=summer-party" class="btn btn-sm btn-outline">Подробнее</a>
+            </div>
+
             <!-- 1 июля -->
             <div class="event-card">
                 <div class="event-image" style="background: linear-gradient(135deg, #2a3a5a, #1a2a3a); display: flex; align-items: center; justify-content: center; min-height: 140px; border-radius: 12px;">
@@ -319,7 +330,7 @@
                 <h3 class="event-title">Игротека «Книжные грани»</h3>
                 <div class="event-datetime">1 июля, 15:00 – 19:00</div>
                 <p>Большая игротека от Hobby World. Десятки настольных игр на любой вкус. Приходите один или с друзьями — найдём компанию!</p>
-                <a href="#" class="btn btn-sm">Скоро</a>
+                <a href="#" class="btn btn-sm btn-outline" style="opacity: 0.4; pointer-events: none;">Скоро</a>
             </div>
 
             <!-- 29 июля -->
@@ -330,7 +341,7 @@
                 <h3 class="event-title">Игротека «Книжные грани»</h3>
                 <div class="event-datetime">29 июля, 15:00 – 19:00</div>
                 <p>Большая игротека от Hobby World. Десятки настольных игр на любой вкус. Приходите один или с друзьями — найдём компанию!</p>
-                <a href="#" class="btn btn-sm">Скоро</a>
+                <a href="#" class="btn btn-sm btn-outline" style="opacity: 0.4; pointer-events: none;">Скоро</a>
             </div>
 
             <!-- 12 августа -->
@@ -341,7 +352,7 @@
                 <h3 class="event-title">Игротека «Книжные грани»</h3>
                 <div class="event-datetime">12 августа, 15:00 – 19:00</div>
                 <p>Большая игротека от Hobby World. Десятки настольных игр на любой вкус. Приходите один или с друзьями — найдём компанию!</p>
-                <a href="#" class="btn btn-sm">Скоро</a>
+                <a href="#" class="btn btn-sm btn-outline" style="opacity: 0.4; pointer-events: none;">Скоро</a>
             </div>
         </div>
 
@@ -358,14 +369,13 @@
                     <!-- 17 июня (прошедшее) -->
                     <div class="archive-card" data-event="17 июня">
                         <div class="archive-image">
-                            <img src="images/afisha/afisha1706.jpg" alt="Летняя игротека">
+                            <img src="images/afisha/afisha1706.jpg" alt="Игротека «Книжные грани»">
                         </div>
                         <div class="archive-info">
                             <span class="archive-date">17 июня</span>
-                            <h4 class="archive-name">Летняя игротека</h4>
+                            <h4 class="archive-name">Игротека «Книжные грани»</h4>
                         </div>
                     </div>
-                    <!-- Сюда будут добавляться новые прошедшие мероприятия -->
                 </div>
                 <button class="archive-arrow next" aria-label="Вперёд">›</button>
             </div>
@@ -441,12 +451,39 @@
         // ===== ДАННЫЕ ПО МЕРОПРИЯТИЯМ =====
         const archiveData = {
             '17 июня': {
-                title: 'Летняя игротека',
+                title: 'Игротека «Книжные грани»',
                 date: '17 июня 2026',
                 image: 'images/afisha/afisha1706.jpg',
-                description: 'Первая летняя игротека в Библиотеке-мастерской. Мастер-класс по сборке кубика Рубика и большая игротека от Hobby World.',
-                link: '#',
-                gallery: '#'
+                description: 'Большая игротека от Hobby World. Десятки настольных игр на любой вкус. Приходите один или с друзьями — найдём компанию!',
+                link: '/events/detail.html?id=summer-party',
+                gallery: '/gallery.html'
+            }
+        };
+        
+        // ===== ФУНКЦИЯ ЗАКРЫТИЯ ПОПАПА И ПЕРЕХОДА ПО ССЫЛКЕ =====
+        window.closeModalAndGo = function(event, url) {
+            // Закрываем попап
+            if (modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+            
+            // Переходим по ссылке
+            if (url) {
+                window.location.href = url;
+            }
+            
+            // Предотвращаем стандартное поведение
+            if (event) {
+                event.preventDefault();
+            }
+        };
+        
+        // ===== ФУНКЦИЯ ЗАКРЫТИЯ ПОПАПА =====
+        window.closeModal = function() {
+            if (modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
             }
         };
         
@@ -455,21 +492,25 @@
             const data = archiveData[eventKey];
             if (!data) return;
             
-            modalBody.innerHTML = `
-                <div class="archive-modal-image">
-                    <img src="${data.image}" alt="${data.title}">
-                </div>
-                <div class="archive-modal-date">📅 ${data.date}</div>
-                <h2 class="archive-modal-title">${data.title}</h2>
-                <p class="archive-modal-desc">${data.description}</p>
-                <div class="archive-modal-actions">
-                    <a href="${data.gallery}" class="btn btn-sm" target="_blank">📸 Фотоотчёт</a>
-                    <a href="${data.link}" class="btn btn-sm" style="background: var(--neon-coral); color: #fff; border-color: var(--neon-coral);">📝 Подробнее</a>
-                </div>
-            `;
+            if (modalBody) {
+                modalBody.innerHTML = `
+                    <div class="archive-modal-image">
+                        <img src="${data.image}" alt="${data.title}">
+                    </div>
+                    <div class="archive-modal-date">📅 ${data.date}</div>
+                    <h2 class="archive-modal-title">${data.title}</h2>
+                    <p class="archive-modal-desc">${data.description}</p>
+                    <div class="archive-modal-actions">
+                        <a href="${data.gallery}" class="btn btn-sm" target="_blank" onclick="closeModalAndGo(event, '${data.gallery}')">📸 Смотреть фотоотчёт</a>
+                        <a href="${data.link}" class="btn btn-sm" onclick="closeModalAndGo(event, '${data.link}')">📝 Подробнее</a>
+                    </div>
+                `;
+            }
             
-            modal.classList.add('active');
-            document.body.style.overflow = 'hidden';
+            if (modal) {
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
         };
         
         // ===== ЗАКРЫТИЕ ПОПАПА =====
@@ -512,7 +553,7 @@
             card.addEventListener('click', function() {
                 const eventName = this.dataset.event;
                 if (eventName && archiveData[eventName]) {
-                    openArchiveModal(eventName);
+                    window.openArchiveModal(eventName);
                 }
             });
         });
