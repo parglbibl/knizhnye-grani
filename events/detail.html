@@ -88,4 +88,92 @@
         //     id: 'new-event',
         //     title: 'Название события',
         //     date: '20 августа 2026',
-        //     time
+        //     time: '15:00 – 19:00',
+        //     location: 'Библиотека-мастерская',
+        //     image: '../images/afisha/new-event.jpg',
+        //     description: 'Полное описание события. Расскажите, что будет происходить, кто может прийти и что нужно знать.',
+        //     program: [
+        //         '🕒 15:00 — Начало, регистрация',
+        //         '🕒 16:00 — Основная часть',
+        //         '🕒 17:30 — Финальная часть',
+        //         '🕒 19:00 — Завершение'
+        //     ],
+        //     galleryLink: '../gallery.html?filter=boardgames'
+        // }
+    };
+
+    // ===== ЗАГРУЗКА ДАННЫХ =====
+    document.addEventListener('DOMContentLoaded', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const eventId = urlParams.get('id');
+        
+        const content = document.getElementById('eventContent');
+        const pageTitle = document.getElementById('eventPageTitle');
+        const titleTag = document.getElementById('eventTitle');
+        
+        if (!eventId || !eventsData[eventId]) {
+            content.innerHTML = `
+                <div style="background: #fff; border-radius: 24px; padding: 3rem; text-align: center; border: 1px solid rgba(0,0,0,0.05);">
+                    <i class="fas fa-exclamation-circle" style="font-size: 3rem; color: var(--neon-coral); margin-bottom: 1rem;"></i>
+                    <h2 style="color: var(--neon-coral);">Событие не найдено</h2>
+                    <p style="color: var(--text-secondary); margin: 1rem 0;">Возможно, вы перешли по неверной ссылке или событие уже завершилось.</p>
+                    <a href="../events.html" class="btn btn-primary">Вернуться к афише</a>
+                </div>
+            `;
+            return;
+        }
+        
+        const event = eventsData[eventId];
+        
+        pageTitle.textContent = event.title;
+        titleTag.textContent = event.title + ' — Книжные грани';
+        
+        let programHtml = '';
+        if (event.program && event.program.length > 0) {
+            programHtml = `
+                <h2 style="color: var(--neon-coral); margin: 1.5rem 0 1rem;">Программа</h2>
+                <ul style="color: var(--text-secondary); line-height: 2; margin-bottom: 1.5rem; padding-left: 1.5rem;">
+                    ${event.program.map(item => `<li>${item}</li>`).join('')}
+                </ul>
+            `;
+        }
+        
+        content.innerHTML = `
+            <div style="background: #fff; border-radius: 24px; padding: 2rem; border: 1px solid rgba(0,0,0,0.05);">
+                <div style="border-radius: 16px; overflow: hidden; margin-bottom: 1.5rem;">
+                    <img src="${event.image}" alt="${event.title}" style="width: 100%; height: auto; display: block;" onerror="this.src='https://placehold.co/800x400/2a3a5a/ffffff?text=Фото+скоро'">
+                </div>
+                
+                <div style="display: flex; gap: 0.8rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
+                    <span style="background: var(--neon-coral); color: #fff; padding: 0.3rem 1rem; border-radius: 20px; font-size: 0.8rem;">
+                        <i class="fas fa-calendar-alt"></i> ${event.date}
+                    </span>
+                    <span style="background: rgba(0,0,0,0.05); padding: 0.3rem 1rem; border-radius: 20px; font-size: 0.8rem;">
+                        <i class="fas fa-clock"></i> ${event.time}
+                    </span>
+                    <span style="background: rgba(0,0,0,0.05); padding: 0.3rem 1rem; border-radius: 20px; font-size: 0.8rem;">
+                        <i class="fas fa-map-marker-alt"></i> ${event.location}
+                    </span>
+                </div>
+                
+                <h2 style="color: var(--neon-coral); margin-bottom: 1rem;">О мероприятии</h2>
+                <p style="color: var(--text-secondary); line-height: 1.8; margin-bottom: 1.5rem;">
+                    ${event.description}
+                </p>
+                
+                ${programHtml}
+                
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1.5rem; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 1.5rem;">
+                    <a href="${event.galleryLink}" class="btn" style="flex: 1; text-align: center;">
+                        <i class="fas fa-images"></i> Смотреть фотоотчёт
+                    </a>
+                    <a href="../events.html" class="btn btn-primary" style="flex: 1; text-align: center; background: var(--neon-coral); color: #fff; border-color: var(--neon-coral);">
+                        <i class="fas fa-arrow-left"></i> Все события
+                    </a>
+                </div>
+            </div>
+        `;
+    });
+</script>
+</body>
+</html>
