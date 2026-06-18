@@ -162,7 +162,6 @@
         </div>
 
         <div class="gallery-grid" id="galleryGrid">
-            <!-- Фото будут загружены из JS -->
             <div class="gallery-empty">
                 <i class="fas fa-images"></i>
                 <p>Фотографии загружаются...</p>
@@ -223,7 +222,6 @@
         const filters = document.querySelectorAll('.gallery-filters .btn-sm');
 
         // ===== ДАННЫЕ ФОТО =====
-        // СЮДА ДОБАВЛЯЙТЕ НОВЫЕ ФОТО
         const photos = [
             // Летняя игротека (17 июня)
             { src: 'images/gallery/summer-1.jpg', category: 'summer', label: 'Летняя игротека' },
@@ -269,8 +267,24 @@
             });
         });
 
-        // ===== ПЕРВАЯ ЗАГРУЗКА =====
-        renderGallery('all');
+        // ===== АВТОМАТИЧЕСКАЯ АКТИВАЦИЯ ФИЛЬТРА ИЗ URL =====
+        const urlParams = new URLSearchParams(window.location.search);
+        const filterParam = urlParams.get('filter');
+        if (filterParam) {
+            const filterBtn = document.querySelector(`.gallery-filters .btn-sm[data-filter="${filterParam}"]`);
+            if (filterBtn) {
+                // Убираем активный класс у всех
+                filters.forEach(b => b.classList.remove('active'));
+                // Активируем нужный
+                filterBtn.classList.add('active');
+                // Применяем фильтр
+                renderGallery(filterParam);
+            } else {
+                renderGallery('all');
+            }
+        } else {
+            renderGallery('all');
+        }
     });
 </script>
 </body>
