@@ -337,7 +337,26 @@ document.addEventListener('DOMContentLoaded', function() {
     const closeBtn = document.getElementById('archiveModalClose');
     const modalBody = document.getElementById('archiveModalBody');
     
-    // ===== ФУНКЦИЯ ЗАКРЫТИЯ ПОПАПА (ГЛОБАЛЬНАЯ) =====
+    // ===== ФУНКЦИЯ ЗАКРЫТИЯ ПОПАПА И ПЕРЕХОДА ПО ССЫЛКЕ =====
+    window.closeModalAndGo = function(event, url) {
+        // Закрываем попап
+        if (modal) {
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+        
+        // Переходим по ссылке
+        if (url) {
+            window.location.href = url;
+        }
+        
+        // Предотвращаем стандартное поведение
+        if (event) {
+            event.preventDefault();
+        }
+    };
+    
+    // ===== ФУНКЦИЯ ЗАКРЫТИЯ ПОПАПА =====
     window.closeModal = function() {
         if (modal) {
             modal.classList.remove('active');
@@ -389,8 +408,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     <h2 class="archive-modal-title">${data.title}</h2>
                     <p class="archive-modal-desc">${data.description}</p>
                     <div class="archive-modal-actions">
-                        <a href="${data.gallery}" class="btn btn-sm" target="_blank" onclick="closeModal()">📸 Смотреть фотоотчёт</a>
-                        <a href="${data.link}" class="btn btn-sm" onclick="closeModal()">📝 Подробнее</a>
+                        <a href="${data.gallery}" class="btn btn-sm" target="_blank" onclick="closeModalAndGo(event, '${data.gallery}')">📸 Смотреть фотоотчёт</a>
+                        <a href="${data.link}" class="btn btn-sm" onclick="closeModalAndGo(event, '${data.link}')">📝 Подробнее</a>
                     </div>
                 `;
             }
