@@ -71,7 +71,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 items: [
                     { name: 'Афиша', href: prefix + 'events.html', icon: 'fas fa-calendar-alt' },
                     { name: 'Настольные игры', href: prefix + 'boardgames/index.html', icon: 'fas fa-dice-d6' },
-                    { name: 'Спидкубинг', href: prefix + 'speedcubing/index.html', icon: 'fas fa-cube' }
+                    { name: 'Спидкубинг', href: prefix + 'speedcubing/index.html', icon: 'fas fa-cube' },
+                    { name: 'Фотоотчёты', href: prefix + 'gallery.html', icon: 'fas fa-images' }
                 ]
             },
             {
@@ -203,6 +204,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 breadcrumbs.push({ name: 'FAQ', href: null });
             } else if (fileName === 'feedback.html') {
                 breadcrumbs.push({ name: 'Обратная связь', href: null });
+            } else if (fileName === 'gallery.html') {
+                breadcrumbs.push({ name: 'Фотоотчёты', href: null });
             }
         }
         
