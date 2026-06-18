@@ -315,4 +315,110 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 200);
     }
     
+    // ===== СЛАЙДЕР И ПОПАП «КАК ЭТО БЫЛО» (ДУБЛИРУЮЩАЯ ЛОГИКА ДЛЯ СТРАНИЦ, ГДЕ НЕТ СВОЕГО СКРИПТА) =====
+    // Эта логика уже есть в index.html и events.html, но добавляем её на случай, если она не сработает
+    const slider = document.getElementById('archiveSlider');
+    const prevBtn = document.querySelector('.archive-arrow.prev');
+    const nextBtn = document.querySelector('.archive-arrow.next');
+    const countEl = document.getElementById('archiveCount');
+    const modal = document.getElementById('archiveModal');
+    const closeBtn = document.getElementById('archiveModalClose');
+    const modalBody = document.getElementById('archiveModalBody');
+    
+    if (slider && prevBtn && nextBtn && !slider._initialized) {
+        slider._initialized = true;
+        const cardWidth = 200 + 16;
+        
+        const cards = slider.querySelectorAll('.archive-card');
+        if (countEl) {
+            const count = cards.length;
+            const word = count === 1 ? 'мероприятие' : (count < 5 ? 'мероприятия' : 'мероприятий');
+            countEl.textContent = count + ' ' + word;
+        }
+        
+        nextBtn.addEventListener('click', function() {
+            slider.scrollBy({ left: cardWidth * 2, behavior: 'smooth' });
+        });
+        
+        prevBtn.addEventListener('click', function() {
+            slider.scrollBy({ left: -cardWidth * 2, behavior: 'smooth' });
+        });
+        
+        const archiveData = {
+            '17 июня': {
+                title: 'Летняя игротека',
+                date: '17 июня 2026',
+                image: 'images/afisha/afisha1706.jpg',
+                description: 'Первая летняя игротека в Библиотеке-мастерской. Мастер-класс по сборке кубика Рубика и большая игротека от Hobby World.',
+                results: [
+                    '25 участников',
+                    '10 новых игроков освоили кубик Рубика',
+                    '3 семьи записались в библиотеку',
+                    '45+ партий в настольные игры'
+                ],
+                link: '#',
+                gallery: '#'
+            }
+        };
+        
+        window.openArchiveModal = function(eventKey) {
+            const data = archiveData[eventKey];
+            if (!data) return;
+            
+            const resultsHtml = data.results ? data.results.map(r => `<li>${r}</li>`).join('') : '';
+            
+            if (modalBody) {
+                modalBody.innerHTML = `
+                    <div class="archive-modal-image">
+                        <img src="${data.image}" alt="${data.title}">
+                    </div>
+                    <div class="archive-modal-date">📅 ${data.date}</div>
+                    <h2 class="archive-modal-title">${data.title}</h2>
+                    <p class="archive-modal-desc">${data.description}</p>
+                    ${data.results ? `
+                        <div class="archive-modal-results">
+                            <h4>⭐ Результаты</h4>
+                            <ul>${resultsHtml}</ul>
+                        </div>
+                    ` : ''}
+                    <div class="archive-modal-actions">
+                        <a href="${data.gallery}" class="btn btn-sm" target="_blank">📸 Фотоотчёт</a>
+                        <a href="${data.link}" class="btn btn-sm" style="background: var(--neon-coral); color: #fff; border-color: var(--neon-coral);">📝 Подробнее</a>
+                    </div>
+                `;
+            }
+            
+            if (modal) {
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+        };
+        
+        if (closeBtn) {
+            closeBtn.addEventListener('click', function() {
+                if (modal) {
+                    modal.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+            });
+        }
+        
+        if (modal) {
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+            });
+        }
+        
+        document.querySelectorAll('.archive-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const eventName = this.dataset.event;
+                if (eventName && archiveData[eventName]) {
+                    window.openArchiveModal(eventName);
+                }
+            });
+        });
+    }
 });
