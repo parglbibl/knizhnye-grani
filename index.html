@@ -8,6 +8,317 @@
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- Yandex.Metrika counter -->
+    <script type="text/javascript">
+        (function(m,e,t,r,i,k,a){
+            m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+            m[i].l=1*new Date();
+            for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+            k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+        })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=109783209', 'ym');
+    
+        ym(109783209, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
+    </script>
+    <noscript><div><img src="https://mc.yandex.ru/watch/109783209" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+    <!-- /Yandex.Metrika counter -->
+
+    <style>
+        /* ===== СЛАЙДЕР «КАК ЭТО БЫЛО» ===== */
+        .archive-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .archive-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--graphite-dark);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .archive-count {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            background: rgba(0,0,0,0.05);
+            padding: 0.2rem 0.6rem;
+            border-radius: 12px;
+        }
+
+        .archive-slider-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .archive-slider {
+            display: flex;
+            gap: 1rem;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            padding: 0.5rem 0;
+            scrollbar-width: none;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .archive-slider::-webkit-scrollbar {
+            display: none;
+        }
+
+        .archive-card {
+            flex: 0 0 200px;
+            background: #fff;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(0,0,0,0.06);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .archive-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+        }
+
+        .archive-image {
+            height: 120px;
+            overflow: hidden;
+            background: var(--graphite-dark);
+        }
+
+        .archive-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .archive-info {
+            padding: 0.8rem 1rem;
+        }
+
+        .archive-date {
+            font-size: 0.65rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .archive-name {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--graphite-dark);
+            margin: 0.2rem 0 0 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .archive-arrow {
+            flex-shrink: 0;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 1px solid rgba(0,0,0,0.08);
+            background: #fff;
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .archive-arrow:hover {
+            background: var(--neon-coral);
+            color: #fff;
+            border-color: var(--neon-coral);
+        }
+
+        .archive-arrow:active {
+            transform: scale(0.95);
+        }
+
+        /* ===== ПОПАП АРХИВА ===== */
+        .archive-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .archive-modal.active {
+            display: flex;
+        }
+
+        .archive-modal-content {
+            background: #fff;
+            border-radius: 24px;
+            max-width: 600px;
+            width: 100%;
+            padding: 2rem;
+            position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: modalFadeIn 0.3s ease;
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .archive-modal-close {
+            position: sticky;
+            top: 0;
+            float: right;
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: color 0.2s;
+            z-index: 10;
+        }
+
+        .archive-modal-close:hover {
+            color: var(--neon-coral);
+        }
+
+        .archive-modal-body {
+            padding-top: 0.5rem;
+        }
+
+        .archive-modal-image {
+            width: 100%;
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+
+        .archive-modal-image img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .archive-modal-date {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.3rem;
+        }
+
+        .archive-modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--graphite-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .archive-modal-desc {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .archive-modal-results {
+            background: var(--graphite-deep);
+            border-radius: 16px;
+            padding: 1.2rem 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .archive-modal-results h4 {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--neon-coral);
+            margin-bottom: 0.5rem;
+        }
+
+        .archive-modal-results ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .archive-modal-results ul li {
+            padding: 0.2rem 0;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .archive-modal-results ul li::before {
+            content: '✦';
+            color: var(--neon-coral);
+            font-size: 0.7rem;
+        }
+
+        .archive-modal-actions {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .archive-modal-actions .btn {
+            flex: 1;
+            text-align: center;
+            min-width: 120px;
+        }
+
+        @media (max-width: 768px) {
+            .archive-card {
+                flex: 0 0 160px;
+            }
+            .archive-image {
+                height: 100px;
+            }
+            .archive-name {
+                font-size: 0.75rem;
+            }
+            .archive-arrow {
+                width: 30px;
+                height: 30px;
+                font-size: 1rem;
+            }
+            .archive-modal-content {
+                padding: 1.5rem;
+                margin: 1rem;
+            }
+            .archive-modal-title {
+                font-size: 1.2rem;
+            }
+            .archive-modal-actions {
+                flex-direction: column;
+            }
+            .archive-modal-actions .btn {
+                width: 100%;
+            }
+        }
+    </style>
 </head>
 <body>
 
@@ -146,7 +457,7 @@
             <button class="archive-arrow prev" aria-label="Назад">‹</button>
             <div class="archive-slider" id="archiveSlider">
                 <!-- 17 июня (прошедшее) -->
-                <div class="archive-card">
+                <div class="archive-card" data-event="17 июня">
                     <div class="archive-image">
                         <img src="images/afisha/afisha1706.jpg" alt="Летняя игротека">
                     </div>
@@ -161,6 +472,16 @@
         </div>
     </div>
 </section>
+
+<!-- ===== ПОПАП АРХИВА ===== -->
+<div class="archive-modal" id="archiveModal">
+    <div class="archive-modal-content">
+        <button class="archive-modal-close" id="archiveModalClose">&times;</button>
+        <div class="archive-modal-body" id="archiveModalBody">
+            <!-- Контент подгружается через JS -->
+        </div>
+    </div>
+</div>
 
 <footer>
     <div class="container">
@@ -207,13 +528,80 @@
 
 <script src="js/main.js"></script>
 <script>
-    // ===== СЛАЙДЕР «КАК ЭТО БЫЛО» =====
+    // ===== СЛАЙДЕР И ПОПАП «КАК ЭТО БЫЛО» =====
     document.addEventListener('DOMContentLoaded', function() {
         const slider = document.getElementById('archiveSlider');
         const prevBtn = document.querySelector('.archive-arrow.prev');
         const nextBtn = document.querySelector('.archive-arrow.next');
         const countEl = document.getElementById('archiveCount');
+        const modal = document.getElementById('archiveModal');
+        const closeBtn = document.getElementById('archiveModalClose');
+        const modalBody = document.getElementById('archiveModalBody');
         
+        // ===== ДАННЫЕ ПО МЕРОПРИЯТИЯМ =====
+        const archiveData = {
+            '17 июня': {
+                title: 'Летняя игротека',
+                date: '17 июня 2026',
+                image: 'images/afisha/afisha1706.jpg',
+                description: 'Первая летняя игротека в Библиотеке-мастерской. Мастер-класс по сборке кубика Рубика и большая игротека от Hobby World.',
+                results: [
+                    '25 участников',
+                    '10 новых игроков освоили кубик Рубика',
+                    '3 семьи записались в библиотеку',
+                    '45+ партий в настольные игры'
+                ],
+                link: '#',
+                gallery: '#'
+            }
+        };
+        
+        // ===== ФУНКЦИЯ ОТКРЫТИЯ ПОПАПА =====
+        window.openArchiveModal = function(eventKey) {
+            const data = archiveData[eventKey];
+            if (!data) return;
+            
+            const resultsHtml = data.results ? data.results.map(r => `<li>${r}</li>`).join('') : '';
+            
+            modalBody.innerHTML = `
+                <div class="archive-modal-image">
+                    <img src="${data.image}" alt="${data.title}">
+                </div>
+                <div class="archive-modal-date">📅 ${data.date}</div>
+                <h2 class="archive-modal-title">${data.title}</h2>
+                <p class="archive-modal-desc">${data.description}</p>
+                ${data.results ? `
+                    <div class="archive-modal-results">
+                        <h4>⭐ Результаты</h4>
+                        <ul>${resultsHtml}</ul>
+                    </div>
+                ` : ''}
+                <div class="archive-modal-actions">
+                    <a href="${data.gallery}" class="btn btn-sm" target="_blank">📸 Фотоотчёт</a>
+                    <a href="${data.link}" class="btn btn-sm" style="background: var(--neon-coral); color: #fff; border-color: var(--neon-coral);">📝 Подробнее</a>
+                </div>
+            `;
+            
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        };
+        
+        // ===== ЗАКРЫТИЕ ПОПАПА =====
+        if (closeBtn) {
+            closeBtn.addEventListener('click', function() {
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
+            });
+        }
+        
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        });
+        
+        // ===== СЛАЙДЕР =====
         if (slider && prevBtn && nextBtn) {
             const cardWidth = 200 + 16;
             
@@ -232,6 +620,16 @@
                 slider.scrollBy({ left: -cardWidth * 2, behavior: 'smooth' });
             });
         }
+        
+        // ===== КЛИК ПО КАРТОЧКАМ =====
+        document.querySelectorAll('.archive-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const eventName = this.dataset.event;
+                if (eventName && archiveData[eventName]) {
+                    openArchiveModal(eventName);
+                }
+            });
+        });
     });
 </script>
 </body>
