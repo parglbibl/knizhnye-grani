@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Фотоотчёты — Книжные грани</title>
+    <meta name="description" content="Фотоотчёты с мероприятий проекта Книжные грани: игротеки, турниры по спидкубингу, мастер-классы.">
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- Yandex.Metrika counter -->
+    <script type="text/javascript">
+        (function(m,e,t,r,i,k,a){
+            m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+            m[i].l=1*new Date();
+            for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+            k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+        })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=109783209', 'ym');
+    
+        ym(109783209, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
+    </script>
+    <noscript><div><img src="https://mc.yandex.ru/watch/109783209" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+    <!-- /Yandex.Metrika counter -->
+
+    <style>
+        /* ===== ГАЛЕРЕЯ ===== */
+        .gallery-filters {
+            display: flex;
+            gap: 0.8rem;
+            justify-content: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .gallery-filters .btn-sm {
+            padding: 0.4rem 1.2rem;
+            font-size: 0.7rem;
+            border-radius: 20px;
+            background: rgba(0,0,0,0.04);
+            border-color: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .gallery-filters .btn-sm:hover {
+            background: rgba(255,46,90,0.08);
+            color: var(--neon-coral);
+        }
+
+        .gallery-filters .btn-sm.active {
+            background: var(--neon-coral);
+            color: #fff;
+            border-color: var(--neon-coral);
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 1.2rem;
+        }
+
+        .gallery-item {
+            border-radius: 16px;
+            overflow: hidden;
+            background: var(--graphite-dark);
+            border: 1px solid rgba(0,0,0,0.06);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .gallery-item:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .gallery-item .gallery-label {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0,0,0,0.7));
+            padding: 1.5rem 1rem 0.8rem;
+            color: #fff;
+            font-size: 0.75rem;
+            font-weight: 500;
+            pointer-events: none;
+        }
+
+        .gallery-empty {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-secondary);
+            grid-column: 1 / -1;
+        }
+
+        .gallery-empty i {
+            font-size: 3rem;
+            color: rgba(0,0,0,0.06);
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .gallery-grid {
+                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+                gap: 0.8rem;
+            }
+            .gallery-item img {
+                height: 140px;
+            }
+            .gallery-filters .btn-sm {
+                font-size: 0.6rem;
+                padding: 0.3rem 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="container header-inner">
+        <div class="logo">
+            <div class="logo-cbs">
+                <img src="images/logo-cbs.png" alt="ЦБС Выборгского района">
+            </div>
+            <div class="logo-rost">
+                <img src="images/logo-rost.png" alt="Проектный офис РОСТ">
+            </div>
+            <a href="index.html">
+                <img src="images/logo-grani.png" alt="Книжные грани">
+            </a>
+        </div>
+        <div class="menu-toggle" id="menuToggle">
+            <i class="fas fa-bars"></i>
+        </div>
+        <nav class="nav" id="nav"></nav>
+    </div>
+</header>
+
+<section class="section">
+    <div class="container">
+        <h1 class="section-title">📸 Фотоотчёты</h1>
+        <p style="text-align: center; color: var(--text-secondary); margin-bottom: 2rem;">
+            Снимки с наших мероприятий — игротеки, турниры по спидкубингу, мастер-классы и встречи.
+        </p>
+
+        <div class="gallery-filters" id="galleryFilters">
+            <button class="btn-sm active" data-filter="all">Все</button>
+            <button class="btn-sm" data-filter="summer">Летняя игротека</button>
+            <button class="btn-sm" data-filter="speedcubing">Спидкубинг</button>
+            <button class="btn-sm" data-filter="boardgames">Настольные игры</button>
+        </div>
+
+        <div class="gallery-grid" id="galleryGrid">
+            <!-- Фото будут загружены из JS -->
+            <div class="gallery-empty">
+                <i class="fas fa-images"></i>
+                <p>Фотографии загружаются...</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer>
+    <div class="container">
+        <div class="footer-grid">
+            <div class="footer-col">
+                <h3>Книжные грани</h3>
+                <p>Проект ЦБС Выборгского района</p>
+                <p>Работает на базе <strong>Библиотеки-мастерской</strong></p>
+                <p>пр. Просвещения, 43, ТРК «Парк-Молл», 2 этаж</p>
+                <p>+7 (812) 246-93-05</p>
+                <p>pargolovo@cbsvib.ru</p>
+            </div>
+            <div class="footer-col">
+                <h3>Разделы</h3>
+                <p><a href="index.html">Главная</a></p>
+                <p><a href="about.html">О проекте</a></p>
+                <p><a href="events.html">Мероприятия</a></p>
+                <p><a href="contacts.html">Контакты</a></p>
+                <p><a href="gallery.html">Фотоотчёты</a></p>
+            </div>
+            <div class="footer-col">
+                <h3>Мы в соцсетях</h3>
+                <div class="footer-social">
+                    <a href="https://vk.com/pargolovskaya_library" target="_blank"><i class="fab fa-vk"></i></a>
+                </div>
+                <p style="margin-top:1.5rem;">Следите за анонсами в нашей группе ВКонтакте</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© <span id="current-year"></span> Книжные грани | ЦБС Выборгского района</p>
+        </div>
+
+        <!-- Яндекс.Метрика информер -->
+        <div style="text-align: center; margin-top: 1.5rem;">
+            <a href="https://metrika.yandex.ru/stat/?id=109783209&amp;from=informer" target="_blank" rel="nofollow">
+                <img src="https://informer.yandex.ru/informer/109783209/3_1_FFFFFFFF_FEF9F0FF_0_pageviews"
+                     style="width:88px; height:31px; border:0;"
+                     alt="Яндекс.Метрика"
+                     title="Яндекс.Метрика: данные за сегодня (просмотры, визиты и уникальные посетители)"
+                     class="ym-advanced-informer" data-cid="109783209" data-lang="ru"/>
+            </a>
+        </div>
+    </div>
+</footer>
+
+<script src="js/main.js"></script>
+<script>
+    // ===== ГАЛЕРЕЯ =====
+    document.addEventListener('DOMContentLoaded', function() {
+        const grid = document.getElementById('galleryGrid');
+        const filters = document.querySelectorAll('.gallery-filters .btn-sm');
+
+        // ===== ДАННЫЕ ФОТО =====
+        // СЮДА ДОБАВЛЯЙТЕ НОВЫЕ ФОТО
+        const photos = [
+            // Летняя игротека (17 июня)
+            { src: 'images/gallery/summer-1.jpg', category: 'summer', label: 'Летняя игротека' },
+            { src: 'images/gallery/summer-2.jpg', category: 'summer', label: 'Летняя игротека' },
+            { src: 'images/gallery/summer-3.jpg', category: 'summer', label: 'Летняя игротека' },
+            
+            // Спидкубинг
+            // { src: 'images/gallery/speed-1.jpg', category: 'speedcubing', label: 'Турнир по спидкубингу' },
+            // { src: 'images/gallery/speed-2.jpg', category: 'speedcubing', label: 'Турнир по спидкубингу' },
+            
+            // Настольные игры
+            // { src: 'images/gallery/board-1.jpg', category: 'boardgames', label: 'Игротека' },
+            // { src: 'images/gallery/board-2.jpg', category: 'boardgames', label: 'Игротека' },
+        ];
+
+        function renderGallery(filter = 'all') {
+            const filtered = filter === 'all' ? photos : photos.filter(p => p.category === filter);
+            
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div class="gallery-empty">
+                        <i class="fas fa-images"></i>
+                        <p>В этой категории пока нет фотографий</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = filtered.map(photo => `
+                <div class="gallery-item" data-category="${photo.category}">
+                    <img src="${photo.src}" alt="${photo.label}" loading="lazy" onerror="this.src='https://placehold.co/400x300/2a3a5a/ffffff?text=Фото+скоро'">
+                    <div class="gallery-label">${photo.label}</div>
+                </div>
+            `).join('');
+        }
+
+        // ===== ФИЛЬТРАЦИЯ =====
+        filters.forEach(btn => {
+            btn.addEventListener('click', function() {
+                filters.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                renderGallery(this.dataset.filter);
+            });
+        });
+
+        // ===== ПЕРВАЯ ЗАГРУЗКА =====
+        renderGallery('all');
+    });
+</script>
+</body>
+</html>
