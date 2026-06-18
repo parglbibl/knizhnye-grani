@@ -313,8 +313,8 @@
         <div class="hero-lead">Интеллектуальный досуг. Бесплатно. Для всех.</div>
         <div class="hero-desc">Место, где встречаются любители настольных игр и спидкубинга. Тренировки, турниры, новые знакомства.</div>
         <div class="hero-buttons">
-            <a href="boardgames/index.html" class="btn btn-primary">НАСТОЛЬНЫЕ ИГРЫ</a>
-            <a href="speedcubing/index.html" class="btn btn-secondary">СПИДКУБИНГ</a>
+            <a href="boardgames/index.html" class="btn btn-outline">НАСТОЛЬНЫЕ ИГРЫ</a>
+            <a href="speedcubing/index.html" class="btn btn-outline">СПИДКУБИНГ</a>
         </div>
     </div>
 </header>
@@ -512,8 +512,16 @@
                 date: '17 июня 2026',
                 image: 'images/afisha/afisha1706.jpg',
                 description: 'Первая летняя игротека в Библиотеке-мастерской. Мастер-класс по сборке кубика Рубика и большая игротека от Hobby World.',
-                link: '#',
-                gallery: '#'
+                link: '/events/detail.html?id=summer-party',
+                gallery: '/gallery.html'
+            }
+        };
+        
+        // ===== ФУНКЦИЯ ЗАКРЫТИЯ ПОПАПА =====
+        window.closeModal = function() {
+            if (modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
             }
         };
         
@@ -522,21 +530,25 @@
             const data = archiveData[eventKey];
             if (!data) return;
             
-            modalBody.innerHTML = `
-                <div class="archive-modal-image">
-                    <img src="${data.image}" alt="${data.title}">
-                </div>
-                <div class="archive-modal-date">📅 ${data.date}</div>
-                <h2 class="archive-modal-title">${data.title}</h2>
-                <p class="archive-modal-desc">${data.description}</p>
-                <div class="archive-modal-actions">
-                    <a href="${data.gallery}" class="btn btn-sm" target="_blank">📸 Фотоотчёт</a>
-                    <a href="${data.link}" class="btn btn-sm" style="background: var(--neon-coral); color: #fff; border-color: var(--neon-coral);">📝 Подробнее</a>
-                </div>
-            `;
+            if (modalBody) {
+                modalBody.innerHTML = `
+                    <div class="archive-modal-image">
+                        <img src="${data.image}" alt="${data.title}">
+                    </div>
+                    <div class="archive-modal-date">📅 ${data.date}</div>
+                    <h2 class="archive-modal-title">${data.title}</h2>
+                    <p class="archive-modal-desc">${data.description}</p>
+                    <div class="archive-modal-actions">
+                        <a href="${data.gallery}" class="btn btn-sm" target="_blank" onclick="closeModal()">📸 Смотреть фотоотчёт</a>
+                        <a href="${data.link}" class="btn btn-sm" style="background: var(--neon-coral); color: #fff; border-color: var(--neon-coral);" onclick="closeModal()">📝 Подробнее</a>
+                    </div>
+                `;
+            }
             
-            modal.classList.add('active');
-            document.body.style.overflow = 'hidden';
+            if (modal) {
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
         };
         
         // ===== ЗАКРЫТИЕ ПОПАПА =====
@@ -579,7 +591,7 @@
             card.addEventListener('click', function() {
                 const eventName = this.dataset.event;
                 if (eventName && archiveData[eventName]) {
-                    openArchiveModal(eventName);
+                    window.openArchiveModal(eventName);
                 }
             });
         });
