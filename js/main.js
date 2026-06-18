@@ -315,8 +315,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 200);
     }
     
-    // ===== СЛАЙДЕР И ПОПАП «КАК ЭТО БЫЛО» (ДУБЛИРУЮЩАЯ ЛОГИКА ДЛЯ СТРАНИЦ, ГДЕ НЕТ СВОЕГО СКРИПТА) =====
-    // Эта логика уже есть в index.html и events.html, но добавляем её на случай, если она не сработает
+    // ===== СЛАЙДЕР И ПОПАП «КАК ЭТО БЫЛО» (ДУБЛИРУЮЩАЯ ЛОГИКА) =====
     const slider = document.getElementById('archiveSlider');
     const prevBtn = document.querySelector('.archive-arrow.prev');
     const nextBtn = document.querySelector('.archive-arrow.next');
@@ -350,12 +349,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 date: '17 июня 2026',
                 image: 'images/afisha/afisha1706.jpg',
                 description: 'Первая летняя игротека в Библиотеке-мастерской. Мастер-класс по сборке кубика Рубика и большая игротека от Hobby World.',
-                results: [
-                    '25 участников',
-                    '10 новых игроков освоили кубик Рубика',
-                    '3 семьи записались в библиотеку',
-                    '45+ партий в настольные игры'
-                ],
                 link: '#',
                 gallery: '#'
             }
@@ -365,8 +358,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const data = archiveData[eventKey];
             if (!data) return;
             
-            const resultsHtml = data.results ? data.results.map(r => `<li>${r}</li>`).join('') : '';
-            
             if (modalBody) {
                 modalBody.innerHTML = `
                     <div class="archive-modal-image">
@@ -375,12 +366,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="archive-modal-date">📅 ${data.date}</div>
                     <h2 class="archive-modal-title">${data.title}</h2>
                     <p class="archive-modal-desc">${data.description}</p>
-                    ${data.results ? `
-                        <div class="archive-modal-results">
-                            <h4>⭐ Результаты</h4>
-                            <ul>${resultsHtml}</ul>
-                        </div>
-                    ` : ''}
                     <div class="archive-modal-actions">
                         <a href="${data.gallery}" class="btn btn-sm" target="_blank">📸 Фотоотчёт</a>
                         <a href="${data.link}" class="btn btn-sm" style="background: var(--neon-coral); color: #fff; border-color: var(--neon-coral);">📝 Подробнее</a>
