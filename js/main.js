@@ -357,16 +357,15 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
         // ===== ДАННЫЕ ДЛЯ АРХИВНЫХ МЕРОПРИЯТИЙ =====
-        // ДОБАВЛЯЙТЕ НОВЫЕ МЕРОПРИЯТИЯ СЮДА
         const archiveData = {
-            // '17 июня': {
-            //     title: 'Летняя игротека',
-            //     date: '17 июня 2026',
-            //     image: 'images/afisha/afisha1706.jpg',
-            //     description: 'Первая летняя игротека в Библиотеке-мастерской. Мастер-класс по сборке кубика Рубика и большая игротека от Hobby World.',
-            //     link: 'events/detail.html?id=summer-party',
-            //     gallery: '../gallery.html'
-            // }
+            '17 июня': {
+                title: 'Летняя игротека',
+                date: '17 июня 2026',
+                image: 'images/afisha/afisha1706.jpg',
+                description: 'Первая летняя игротека в Библиотеке-мастерской. Мастер-класс по сборке кубика Рубика и большая игротека от Hobby World.',
+                link: 'events/detail.html?id=summer-party',
+                gallery: '../gallery.html'
+            }
         };
         
         window.openArchiveModal = function(eventKey) {
