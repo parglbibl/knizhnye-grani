@@ -824,6 +824,26 @@ header {
     padding: 0.4rem 1rem;
 }
 
+.btn-disabled {
+    display: inline-block;
+    padding: 0.4rem 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.3);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    border-radius: 4px;
+    pointer-events: none;
+    cursor: default;
+}
+
+.btn-disabled:hover {
+    transform: none !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    color: rgba(255, 255, 255, 0.3) !important;
+}
+
 /* ===== ТЁМНЫЕ ПЛАШКИ ===== */
 .dark-bg {
     background: #1e2a47;
@@ -973,6 +993,7 @@ header {
     align-items: center;
     justify-content: center;
     overflow: hidden;
+    position: relative;
 }
 
 .event-image img {
@@ -1135,6 +1156,31 @@ header {
     .team-card p {
         font-size: 0.75rem;
     }
+}
+
+/* ===== ПРОШЕДШИЕ СОБЫТИЯ ===== */
+.event-past {
+    opacity: 0.75;
+    position: relative;
+}
+
+.event-past .event-image img {
+    filter: grayscale(0.4);
+}
+
+.event-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: var(--neon-coral);
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 0.25rem 0.7rem;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    z-index: 5;
 }
 
 /* ===== ПАРТНЁРЫ ===== */
