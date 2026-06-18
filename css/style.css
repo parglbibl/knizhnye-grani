@@ -35,17 +35,17 @@ body {
     overflow-x: hidden;
 }
 
-/* ===== ЗАГОЛОВКИ — ШРИФТ KB TRANCEFORM ТОЛЬКО ДЛЯ ГЛАВНЫХ ===== */
+/* ===== ЗАГОЛОВКИ — ШРИФТ KB TRANCEFORM ===== */
 .hero h1, 
 .hero h1 span,
 .section-title {
     font-family: 'KB Tranceform', 'Montserrat', sans-serif;
     font-weight: 400;
     letter-spacing: 0.02em;
-    color: var(--graphite-dark);  /* тёмно-синий #1e2a47 вместо чёрного */
+    color: var(--graphite-dark);
 }
 
-/* Все остальные заголовки — обычный шрифт (цвет не меняется) */
+/* Все остальные заголовки — обычный шрифт */
 h1, h2, h3, h4, 
 .venue-title, 
 .team-card h3, 
@@ -1357,4 +1357,11 @@ footer {
 .event-card.visible, .direction-card.visible, .team-card.visible, .partner-item.visible {
     opacity: 1;
     transform: translateY(0);
+}
+
+/* ===== ПРИНУДИТЕЛЬНЫЙ ЦВЕТ ДЛЯ ЗАГОЛОВКОВ KB TRANCEFORM ===== */
+.hero h1,
+.hero h1 span,
+.section-title {
+    color: #1e2a47 !important;
 }
