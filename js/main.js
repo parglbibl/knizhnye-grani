@@ -189,7 +189,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const eventId = urlParams.get('id');
             if (eventId) {
                 const eventNames = {
-                    'summer-party': 'Летняя игротека'
+                    'summer-party': 'Игротека «Книжные грани»'
                 };
                 const eventName = eventNames[eventId] || 'Событие';
                 breadcrumbs.push({ name: eventName, href: null });
@@ -367,10 +367,10 @@ document.addEventListener('DOMContentLoaded', function() {
         // ===== ДАННЫЕ ДЛЯ АРХИВНЫХ МЕРОПРИЯТИЙ =====
         const archiveData = {
             '17 июня': {
-                title: 'Летняя игротека',
+                title: 'Игротека «Книжные грани»',
                 date: '17 июня 2026',
                 image: 'images/afisha/afisha1706.jpg',
-                description: 'Первая летняя игротека в Библиотеке-мастерской. Мастер-класс по сборке кубика Рубика и большая игротека от Hobby World.',
+                description: 'Большая игротека от Hobby World. Десятки настольных игр на любой вкус. Приходите один или с друзьями — найдём компанию!',
                 link: '/events/detail.html?id=summer-party',
                 gallery: '/gallery.html'
             }
@@ -390,7 +390,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <p class="archive-modal-desc">${data.description}</p>
                     <div class="archive-modal-actions">
                         <a href="${data.gallery}" class="btn btn-sm" target="_blank" onclick="closeModal()">📸 Смотреть фотоотчёт</a>
-                        <a href="${data.link}" class="btn btn-sm" style="background: var(--neon-coral); color: #fff; border-color: var(--neon-coral);" onclick="closeModal()">📝 Подробнее</a>
+                        <a href="${data.link}" class="btn btn-sm" onclick="closeModal()">📝 Подробнее</a>
                     </div>
                 `;
             }
