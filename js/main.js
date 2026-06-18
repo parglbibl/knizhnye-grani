@@ -337,6 +337,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const closeBtn = document.getElementById('archiveModalClose');
     const modalBody = document.getElementById('archiveModalBody');
     
+    // ===== ФУНКЦИЯ ЗАКРЫТИЯ ПОПАПА (ГЛОБАЛЬНАЯ) =====
+    window.closeModal = function() {
+        if (modal) {
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    };
+    
     if (slider && prevBtn && nextBtn && !slider._initialized) {
         slider._initialized = true;
         const cardWidth = 200 + 16;
@@ -381,8 +389,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     <h2 class="archive-modal-title">${data.title}</h2>
                     <p class="archive-modal-desc">${data.description}</p>
                     <div class="archive-modal-actions">
-                        <a href="${data.gallery}" class="btn btn-sm" target="_blank">📸 Смотреть фотоотчёт</a>
-                        <a href="${data.link}" class="btn btn-sm" style="background: var(--neon-coral); color: #fff; border-color: var(--neon-coral);">📝 Подробнее</a>
+                        <a href="${data.gallery}" class="btn btn-sm" target="_blank" onclick="closeModal()">📸 Смотреть фотоотчёт</a>
+                        <a href="${data.link}" class="btn btn-sm" style="background: var(--neon-coral); color: #fff; border-color: var(--neon-coral);" onclick="closeModal()">📝 Подробнее</a>
                     </div>
                 `;
             }
