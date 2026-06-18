@@ -76,18 +76,6 @@
     <div class="container">
         <h2 class="section-title">Ближайшие события</h2>
         <div class="events-grid">
-            <!-- 17 июня — ПРОШЛО -->
-            <div class="event-card event-featured event-past">
-                <div class="event-image" style="position: relative;">
-                    <img src="images/afisha/afisha1706.jpg" alt="Летняя игротека">
-                    <div class="event-badge">✅ Прошло</div>
-                </div>
-                <h3 class="event-title">Летняя игротека</h3>
-                <div class="event-datetime">17 июня, 15:00 – 19:00</div>
-                <p>Мастер-класс по сборке кубика Рубика (6+) и большая игротека от Hobby World (12+). Десятки настольных игр, новые знакомства и азарт.</p>
-                <span class="btn btn-disabled">Прошло</span>
-            </div>
-
             <!-- 1 июля -->
             <div class="event-card">
                 <div class="event-image" style="background: linear-gradient(135deg, #2a3a5a, #1a2a3a); display: flex; align-items: center; justify-content: center; min-height: 140px; border-radius: 12px;">
@@ -106,6 +94,17 @@
                 </div>
                 <h3 class="event-title">Игротека «Книжные грани»</h3>
                 <div class="event-datetime">29 июля, 15:00 – 19:00</div>
+                <p>Большая игротека от Hobby World. Десятки настольных игр на любой вкус. Приходите один или с друзьями — найдём компанию!</p>
+                <a href="#" class="btn btn-sm">Скоро</a>
+            </div>
+
+            <!-- 12 августа -->
+            <div class="event-card">
+                <div class="event-image" style="background: linear-gradient(135deg, #2a3a5a, #1a2a3a); display: flex; align-items: center; justify-content: center; min-height: 140px; border-radius: 12px;">
+                    <i class="fas fa-calendar-alt" style="font-size: 2.5rem; color: rgba(255,255,255,0.3);"></i>
+                </div>
+                <h3 class="event-title">Игротека «Книжные грани»</h3>
+                <div class="event-datetime">12 августа, 15:00 – 19:00</div>
                 <p>Большая игротека от Hobby World. Десятки настольных игр на любой вкус. Приходите один или с друзьями — найдём компанию!</p>
                 <a href="#" class="btn btn-sm">Скоро</a>
             </div>
@@ -131,6 +130,34 @@
                 <p>Собери кубик быстрее всех. Спидкубинг — это азарт, скорость и дружеское соперничество.</p>
                 <a href="speedcubing/index.html" class="btn btn-sm">Перейти</a>
             </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== СЛАЙДЕР «КАК ЭТО БЫЛО» ===== -->
+<section class="section" style="padding-top: 1rem; border-top: none;">
+    <div class="container">
+        <div class="archive-header">
+            <h3 class="archive-title">📸 Как это было</h3>
+            <span class="archive-count" id="archiveCount">1 мероприятие</span>
+        </div>
+        
+        <div class="archive-slider-wrapper">
+            <button class="archive-arrow prev" aria-label="Назад">‹</button>
+            <div class="archive-slider" id="archiveSlider">
+                <!-- 17 июня (прошедшее) -->
+                <div class="archive-card">
+                    <div class="archive-image">
+                        <img src="images/afisha/afisha1706.jpg" alt="Летняя игротека">
+                    </div>
+                    <div class="archive-info">
+                        <span class="archive-date">17 июня</span>
+                        <h4 class="archive-name">Летняя игротека</h4>
+                    </div>
+                </div>
+                <!-- Сюда будут добавляться новые прошедшие мероприятия -->
+            </div>
+            <button class="archive-arrow next" aria-label="Вперёд">›</button>
         </div>
     </div>
 </section>
@@ -164,9 +191,48 @@
         <div class="footer-bottom">
             <p>© <span id="current-year"></span> Книжные грани | ЦБС Выборгского района</p>
         </div>
+
+        <!-- Яндекс.Метрика информер -->
+        <div style="text-align: center; margin-top: 1.5rem;">
+            <a href="https://metrika.yandex.ru/stat/?id=109783209&amp;from=informer" target="_blank" rel="nofollow">
+                <img src="https://informer.yandex.ru/informer/109783209/3_1_FFFFFFFF_FEF9F0FF_0_pageviews"
+                     style="width:88px; height:31px; border:0;"
+                     alt="Яндекс.Метрика"
+                     title="Яндекс.Метрика: данные за сегодня (просмотры, визиты и уникальные посетители)"
+                     class="ym-advanced-informer" data-cid="109783209" data-lang="ru"/>
+            </a>
+        </div>
     </div>
 </footer>
 
 <script src="js/main.js"></script>
+<script>
+    // ===== СЛАЙДЕР «КАК ЭТО БЫЛО» =====
+    document.addEventListener('DOMContentLoaded', function() {
+        const slider = document.getElementById('archiveSlider');
+        const prevBtn = document.querySelector('.archive-arrow.prev');
+        const nextBtn = document.querySelector('.archive-arrow.next');
+        const countEl = document.getElementById('archiveCount');
+        
+        if (slider && prevBtn && nextBtn) {
+            const cardWidth = 200 + 16;
+            
+            const cards = slider.querySelectorAll('.archive-card');
+            if (countEl) {
+                const count = cards.length;
+                const word = count === 1 ? 'мероприятие' : (count < 5 ? 'мероприятия' : 'мероприятий');
+                countEl.textContent = count + ' ' + word;
+            }
+            
+            nextBtn.addEventListener('click', function() {
+                slider.scrollBy({ left: cardWidth * 2, behavior: 'smooth' });
+            });
+            
+            prevBtn.addEventListener('click', function() {
+                slider.scrollBy({ left: -cardWidth * 2, behavior: 'smooth' });
+            });
+        }
+    });
+</script>
 </body>
 </html>
