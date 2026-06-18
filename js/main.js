@@ -185,7 +185,6 @@ document.addEventListener('DOMContentLoaded', function() {
         else if (isInEvents) {
             breadcrumbs.push({ name: 'Мероприятия', href: prefix + 'events.html' });
             
-            // Для страницы события показываем его название из URL
             const urlParams = new URLSearchParams(window.location.search);
             const eventId = urlParams.get('id');
             if (eventId) {
@@ -360,24 +359,13 @@ document.addEventListener('DOMContentLoaded', function() {
         // ===== ДАННЫЕ ДЛЯ АРХИВНЫХ МЕРОПРИЯТИЙ =====
         // ДОБАВЛЯЙТЕ НОВЫЕ МЕРОПРИЯТИЯ СЮДА
         const archiveData = {
-            '17 июня': {
-                title: 'Летняя игротека',
-                date: '17 июня 2026',
-                image: 'images/afisha/afisha1706.jpg',
-                description: 'Первая летняя игротека в Библиотеке-мастерской. Мастер-класс по сборке кубика Рубика и большая игротека от Hobby World.',
-                link: 'events/detail.html?id=summer-party',
-                gallery: '../gallery.html?filter=summer'
-            }
-            // ===== ПРИМЕР ДОБАВЛЕНИЯ НОВОГО СОБЫТИЯ =====
-            // Раскомментируйте и заполните:
-            //
-            // '20 августа': {
-            //     title: 'Название события',
-            //     date: '20 августа 2026',
-            //     image: 'images/afisha/new-event.jpg',
-            //     description: 'Полное описание события.',
-            //     link: 'events/detail.html?id=new-event',
-            //     gallery: '../gallery.html?filter=summer'
+            // '17 июня': {
+            //     title: 'Летняя игротека',
+            //     date: '17 июня 2026',
+            //     image: 'images/afisha/afisha1706.jpg',
+            //     description: 'Первая летняя игротека в Библиотеке-мастерской. Мастер-класс по сборке кубика Рубика и большая игротека от Hobby World.',
+            //     link: 'events/detail.html?id=summer-party',
+            //     gallery: '../gallery.html'
             // }
         };
         
