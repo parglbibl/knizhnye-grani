@@ -7,6 +7,20 @@
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- Yandex.Metrika counter -->
+    <script type="text/javascript">
+        (function(m,e,t,r,i,k,a){
+            m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+            m[i].l=1*new Date();
+            for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+            k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+        })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=109783209', 'ym');
+    
+        ym(109783209, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
+    </script>
+    <noscript><div><img src="https://mc.yandex.ru/watch/109783209" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+    <!-- /Yandex.Metrika counter -->
 </head>
 <body>
 
@@ -35,17 +49,20 @@
         <h1 class="section-title">Афиша мероприятий</h1>
 
         <div class="events-grid">
-            <div class="event-card event-featured">
-                <div class="event-image">
+            <!-- 17 июня — ПРОШЛО -->
+            <div class="event-card event-featured event-past">
+                <div class="event-image" style="position: relative;">
                     <img src="images/afisha/afisha1706.jpg" alt="Летняя игротека">
+                    <div class="event-badge">✅ Прошло</div>
                 </div>
                 <h3 class="event-title">Летняя игротека</h3>
                 <div class="event-datetime">17 июня, 15:00 – 19:00</div>
                 <p><strong>Две параллельные площадки:</strong><br>🧩 Мастер-класс по сборке кубика Рубика (6+)<br>🎲 Большая игротека от Hobby World (12+)</p>
                 <p>Прийти можно и без компании — обещаем новые офлайн-знакомства!</p>
-                <a href="https://officecbsbvib.timepad.ru/event/4007898/" class="btn btn-sm" target="_blank">Записаться</a>
+                <span class="btn btn-disabled">Прошло</span>
             </div>
 
+            <!-- 1 июля -->
             <div class="event-card">
                 <div class="event-image" style="background: linear-gradient(135deg, #2a3a5a, #1a2a3a); display: flex; align-items: center; justify-content: center; min-height: 140px; border-radius: 12px;">
                     <i class="fas fa-calendar-alt" style="font-size: 2.5rem; color: rgba(255,255,255,0.3);"></i>
@@ -56,6 +73,7 @@
                 <a href="#" class="btn btn-sm">Скоро</a>
             </div>
 
+            <!-- 29 июля -->
             <div class="event-card">
                 <div class="event-image" style="background: linear-gradient(135deg, #2a3a5a, #1a2a3a); display: flex; align-items: center; justify-content: center; min-height: 140px; border-radius: 12px;">
                     <i class="fas fa-calendar-alt" style="font-size: 2.5rem; color: rgba(255,255,255,0.3);"></i>
@@ -66,6 +84,7 @@
                 <a href="#" class="btn btn-sm">Скоро</a>
             </div>
 
+            <!-- 12 августа -->
             <div class="event-card">
                 <div class="event-image" style="background: linear-gradient(135deg, #2a3a5a, #1a2a3a); display: flex; align-items: center; justify-content: center; min-height: 140px; border-radius: 12px;">
                     <i class="fas fa-calendar-alt" style="font-size: 2.5rem; color: rgba(255,255,255,0.3);"></i>
@@ -107,6 +126,17 @@
         </div>
         <div class="footer-bottom">
             <p>© <span id="current-year"></span> Книжные грани | ЦБС Выборгского района</p>
+        </div>
+
+        <!-- Яндекс.Метрика информер -->
+        <div style="text-align: center; margin-top: 1.5rem;">
+            <a href="https://metrika.yandex.ru/stat/?id=109783209&amp;from=informer" target="_blank" rel="nofollow">
+                <img src="https://informer.yandex.ru/informer/109783209/3_1_FFFFFFFF_FEF9F0FF_0_pageviews"
+                     style="width:88px; height:31px; border:0;"
+                     alt="Яндекс.Метрика"
+                     title="Яндекс.Метрика: данные за сегодня (просмотры, визиты и уникальные посетители)"
+                     class="ym-advanced-informer" data-cid="109783209" data-lang="ru"/>
+            </a>
         </div>
     </div>
 </footer>
