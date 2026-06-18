@@ -156,7 +156,6 @@
 
         <div class="gallery-filters" id="galleryFilters">
             <button class="btn-sm active" data-filter="all">Все</button>
-            <button class="btn-sm" data-filter="summer">Летняя игротека</button>
             <button class="btn-sm" data-filter="speedcubing">Спидкубинг</button>
             <button class="btn-sm" data-filter="boardgames">Настольные игры</button>
         </div>
@@ -222,12 +221,8 @@
         const filters = document.querySelectorAll('.gallery-filters .btn-sm');
 
         // ===== ДАННЫЕ ФОТО =====
+        // ДОБАВЛЯЙТЕ СВОИ ФОТО СЮДА
         const photos = [
-            // Летняя игротека (17 июня)
-            { src: 'images/gallery/summer-1.jpg', category: 'summer', label: 'Летняя игротека' },
-            { src: 'images/gallery/summer-2.jpg', category: 'summer', label: 'Летняя игротека' },
-            { src: 'images/gallery/summer-3.jpg', category: 'summer', label: 'Летняя игротека' },
-            
             // Спидкубинг
             // { src: 'images/gallery/speed-1.jpg', category: 'speedcubing', label: 'Турнир по спидкубингу' },
             // { src: 'images/gallery/speed-2.jpg', category: 'speedcubing', label: 'Турнир по спидкубингу' },
@@ -273,11 +268,8 @@
         if (filterParam) {
             const filterBtn = document.querySelector(`.gallery-filters .btn-sm[data-filter="${filterParam}"]`);
             if (filterBtn) {
-                // Убираем активный класс у всех
                 filters.forEach(b => b.classList.remove('active'));
-                // Активируем нужный
                 filterBtn.classList.add('active');
-                // Применяем фильтр
                 renderGallery(filterParam);
             } else {
                 renderGallery('all');
