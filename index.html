@@ -242,41 +242,6 @@
             margin-bottom: 1rem;
         }
 
-        .archive-modal-results {
-            background: var(--graphite-deep);
-            border-radius: 16px;
-            padding: 1.2rem 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .archive-modal-results h4 {
-            font-size: 0.85rem;
-            font-weight: 700;
-            color: var(--neon-coral);
-            margin-bottom: 0.5rem;
-        }
-
-        .archive-modal-results ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .archive-modal-results ul li {
-            padding: 0.2rem 0;
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .archive-modal-results ul li::before {
-            content: '✦';
-            color: var(--neon-coral);
-            font-size: 0.7rem;
-        }
-
         .archive-modal-actions {
             display: flex;
             gap: 1rem;
@@ -545,12 +510,6 @@
                 date: '17 июня 2026',
                 image: 'images/afisha/afisha1706.jpg',
                 description: 'Первая летняя игротека в Библиотеке-мастерской. Мастер-класс по сборке кубика Рубика и большая игротека от Hobby World.',
-                results: [
-                    '25 участников',
-                    '10 новых игроков освоили кубик Рубика',
-                    '3 семьи записались в библиотеку',
-                    '45+ партий в настольные игры'
-                ],
                 link: '#',
                 gallery: '#'
             }
@@ -561,8 +520,6 @@
             const data = archiveData[eventKey];
             if (!data) return;
             
-            const resultsHtml = data.results ? data.results.map(r => `<li>${r}</li>`).join('') : '';
-            
             modalBody.innerHTML = `
                 <div class="archive-modal-image">
                     <img src="${data.image}" alt="${data.title}">
@@ -570,12 +527,6 @@
                 <div class="archive-modal-date">📅 ${data.date}</div>
                 <h2 class="archive-modal-title">${data.title}</h2>
                 <p class="archive-modal-desc">${data.description}</p>
-                ${data.results ? `
-                    <div class="archive-modal-results">
-                        <h4>⭐ Результаты</h4>
-                        <ul>${resultsHtml}</ul>
-                    </div>
-                ` : ''}
                 <div class="archive-modal-actions">
                     <a href="${data.gallery}" class="btn btn-sm" target="_blank">📸 Фотоотчёт</a>
                     <a href="${data.link}" class="btn btn-sm" style="background: var(--neon-coral); color: #fff; border-color: var(--neon-coral);">📝 Подробнее</a>
