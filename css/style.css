@@ -1064,6 +1064,77 @@ header {
     font-family: 'Inter', sans-serif;
 }
 
+/* ===== ПРОШЕДШИЕ СОБЫТИЯ (В КОНЦЕ, ПРИГЛУШЕННЫЕ) ===== */
+.event-past {
+    order: 999;
+    opacity: 0.4;
+    filter: grayscale(0.5);
+    transform: scale(0.96);
+    transition: all 0.3s ease;
+    border-color: rgba(255,255,255,0.05);
+}
+
+.event-past:hover {
+    opacity: 0.6;
+    transform: scale(0.97);
+    border-color: rgba(255,255,255,0.1);
+}
+
+.event-past .event-title {
+    font-size: 0.9rem;
+    color: rgba(255,255,255,0.35);
+}
+
+.event-past .event-datetime {
+    font-size: 0.65rem;
+    color: rgba(255,255,255,0.25);
+    background: rgba(255,255,255,0.03);
+    padding: 0.1rem 0.5rem;
+    border-radius: 12px;
+}
+
+.event-past .event-image::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(30, 42, 58, 0.4);
+    pointer-events: none;
+}
+
+.event-past .event-image img {
+    filter: grayscale(0.7);
+    transform: scale(1.02);
+}
+
+.event-past .btn-disabled {
+    font-size: 0.55rem;
+    padding: 0.15rem 0.6rem;
+    background: rgba(255,255,255,0.03);
+    border-color: rgba(255,255,255,0.06);
+    color: rgba(255,255,255,0.2);
+    pointer-events: none;
+    cursor: default;
+}
+
+.event-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: var(--neon-coral);
+    color: #fff;
+    font-size: 0.5rem;
+    font-weight: 600;
+    padding: 0.1rem 0.5rem;
+    border-radius: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    opacity: 0.6;
+    z-index: 5;
+}
+
 /* ===== КОМАНДА — ПРЯМОУГОЛЬНЫЕ ФОТО (ВИДНЫ ЦЕЛИКОМ) ===== */
 .team-grid {
     display: grid;
@@ -1156,31 +1227,6 @@ header {
     .team-card p {
         font-size: 0.75rem;
     }
-}
-
-/* ===== ПРОШЕДШИЕ СОБЫТИЯ ===== */
-.event-past {
-    opacity: 0.75;
-    position: relative;
-}
-
-.event-past .event-image img {
-    filter: grayscale(0.4);
-}
-
-.event-badge {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    background: var(--neon-coral);
-    color: #fff;
-    font-size: 0.65rem;
-    font-weight: 700;
-    padding: 0.25rem 0.7rem;
-    border-radius: 20px;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    z-index: 5;
 }
 
 /* ===== ПАРТНЁРЫ ===== */
