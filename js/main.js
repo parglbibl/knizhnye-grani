@@ -2,6 +2,42 @@
 
 document.addEventListener('DOMContentLoaded', function() {
 
+    // ===== ФАВИКОНКИ (ДОБАВЛЯЮТСЯ АВТОМАТИЧЕСКИ) =====
+    function addFavicon() {
+        // Проверяем, есть ли уже фавиконки
+        if (document.querySelector('link[rel="icon"][type="image/x-icon"]')) return;
+        
+        const links = [
+            { rel: 'icon', type: 'image/x-icon', href: '/favicon/favicon.ico' },
+            { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicon/favicon-16x16.png' },
+            { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon/favicon-32x32.png' },
+            { rel: 'apple-touch-icon', sizes: '180x180', href: '/favicon/apple-touch-icon.png' },
+            { rel: 'manifest', href: '/favicon/site.webmanifest' }
+        ];
+        
+        links.forEach(linkData => {
+            const link = document.createElement('link');
+            Object.keys(linkData).forEach(key => {
+                link.setAttribute(key, linkData[key]);
+            });
+            document.head.appendChild(link);
+        });
+        
+        // Мета-теги
+        const metaTags = [
+            { name: 'msapplication-TileColor', content: '#ff2e5a' },
+            { name: 'theme-color', content: '#fef9f0' }
+        ];
+        
+        metaTags.forEach(metaData => {
+            const meta = document.createElement('meta');
+            Object.keys(metaData).forEach(key => {
+                meta.setAttribute(key, metaData[key]);
+            });
+            document.head.appendChild(meta);
+        });
+    }
+
     // ===== БУРГЕР-МЕНЮ =====
     const menuToggle = document.getElementById('menuToggle');
     const navMenu = document.getElementById('nav');
@@ -339,18 +375,13 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // ===== ФУНКЦИЯ ЗАКРЫТИЯ ПОПАПА И ПЕРЕХОДА ПО ССЫЛКЕ =====
     window.closeModalAndGo = function(event, url) {
-        // Закрываем попап
         if (modal) {
             modal.classList.remove('active');
             document.body.style.overflow = '';
         }
-        
-        // Переходим по ссылке
         if (url) {
             window.location.href = url;
         }
-        
-        // Предотвращаем стандартное поведение
         if (event) {
             event.preventDefault();
         }
@@ -383,7 +414,6 @@ document.addEventListener('DOMContentLoaded', function() {
             slider.scrollBy({ left: -cardWidth * 2, behavior: 'smooth' });
         });
         
-        // ===== ДАННЫЕ ДЛЯ АРХИВНЫХ МЕРОПРИЯТИЙ =====
         const archiveData = {
             '17 июня': {
                 title: 'Игротека «Книжные грани»',
@@ -447,4 +477,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
+    
+    // ===== ДОБАВЛЯЕМ ФАВИКОНКИ =====
+    addFavicon();
 });
