@@ -35,14 +35,13 @@ body {
     overflow-x: hidden;
 }
 
-/* ===== ЗАГОЛОВКИ — ШРИФТ KB TRANCEFORM ===== */
+/* ===== ЗАГОЛОВКИ — ШРИФТ KB TRANCEFORM ТОЛЬКО ДЛЯ ГЛАВНЫХ ===== */
 .hero h1, 
 .hero h1 span,
 .section-title {
     font-family: 'KB Tranceform', 'Montserrat', sans-serif;
     font-weight: 400;
     letter-spacing: 0.02em;
-    color: var(--graphite-dark);
 }
 
 /* Все остальные заголовки — обычный шрифт */
@@ -697,6 +696,7 @@ header {
     line-height: 1;
     margin-bottom: 1.5rem;
     letter-spacing: 0.02em;
+    color: #3a4a6e;  /* цвет карточек мероприятий */
 }
 
 @media (max-width: 768px) {
@@ -706,7 +706,7 @@ header {
 }
 
 .hero h1 span {
-    color: var(--neon-coral);
+    color: var(--neon-coral);  /* слово «ГРАНИ» — красный */
 }
 
 .hero-lead {
@@ -874,6 +874,7 @@ header {
     text-align: center;
     margin-bottom: 2.5rem;
     letter-spacing: 0.02em;
+    color: #3a4a6e;  /* цвет карточек мероприятий */
 }
 
 @media (max-width: 768px) {
@@ -1357,11 +1358,4 @@ footer {
 .event-card.visible, .direction-card.visible, .team-card.visible, .partner-item.visible {
     opacity: 1;
     transform: translateY(0);
-}
-
-/* ===== ПРИНУДИТЕЛЬНЫЙ ЦВЕТ ДЛЯ ЗАГОЛОВКОВ KB TRANCEFORM ===== */
-.hero h1,
-.hero h1 span,
-.section-title {
-    color: #1e2a47 !important;
 }
