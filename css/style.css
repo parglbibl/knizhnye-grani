@@ -696,7 +696,7 @@ header {
     line-height: 1;
     margin-bottom: 1.5rem;
     letter-spacing: 0.02em;
-    color: #3a4a6e;  /* цвет карточек мероприятий */
+    color: #3a4a6e;
 }
 
 @media (max-width: 768px) {
@@ -706,7 +706,7 @@ header {
 }
 
 .hero h1 span {
-    color: var(--neon-coral);  /* слово «ГРАНИ» — красный */
+    color: var(--neon-coral);
 }
 
 .hero-lead {
@@ -874,7 +874,7 @@ header {
     text-align: center;
     margin-bottom: 2.5rem;
     letter-spacing: 0.02em;
-    color: #3a4a6e;  /* цвет карточек мероприятий */
+    color: #3a4a6e;
 }
 
 @media (max-width: 768px) {
@@ -1024,7 +1024,7 @@ header {
     font-family: 'Inter', sans-serif;
 }
 
-/* ===== КОМАНДА ===== */
+/* ===== КОМАНДА — ПРЯМОУГОЛЬНЫЕ ФОТО ===== */
 .team-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -1057,10 +1057,11 @@ header {
 }
 
 .team-card .team-photo-wrapper {
-    width: 180px;
-    height: 180px;
+    width: 100%;
+    max-width: 280px;
+    height: 220px;
     margin: 0 auto 1rem auto;
-    border-radius: 50%;
+    border-radius: 16px;
     overflow: hidden;
     border: 3px solid var(--neon-coral);
     background: var(--graphite-dark);
@@ -1071,6 +1072,7 @@ header {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    object-position: center;
     display: block;
 }
 
@@ -1102,8 +1104,8 @@ header {
 
 @media (max-width: 768px) {
     .team-card .team-photo-wrapper {
-        width: 140px;
-        height: 140px;
+        max-width: 220px;
+        height: 180px;
     }
     .team-card {
         padding: 1.2rem;
