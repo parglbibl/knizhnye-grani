@@ -79,27 +79,24 @@
 <script src="../js/main.js"></script>
 <script>
     // ===== ДАННЫЕ О ВСЕХ СОБЫТИЯХ =====
-    // ДОБАВЛЯЙТЕ НОВЫЕ СОБЫТИЯ СЮДА
     const eventsData = {
-        // ===== ПРИМЕР ДОБАВЛЕНИЯ НОВОГО СОБЫТИЯ =====
-        // Раскомментируйте и заполните:
-        //
-        // 'new-event': {
-        //     id: 'new-event',
-        //     title: 'Название события',
-        //     date: '20 августа 2026',
-        //     time: '15:00 – 19:00',
-        //     location: 'Библиотека-мастерская',
-        //     image: '../images/afisha/new-event.jpg',
-        //     description: 'Полное описание события. Расскажите, что будет происходить, кто может прийти и что нужно знать.',
-        //     program: [
-        //         '🕒 15:00 — Начало, регистрация',
-        //         '🕒 16:00 — Основная часть',
-        //         '🕒 17:30 — Финальная часть',
-        //         '🕒 19:00 — Завершение'
-        //     ],
-        //     galleryLink: '../gallery.html?filter=boardgames'
-        // }
+        'summer-party': {
+            id: 'summer-party',
+            title: 'Летняя игротека',
+            date: '17 июня 2026',
+            time: '15:00 – 19:00',
+            location: 'Библиотека-мастерская (пр. Просвещения, 43, ТРК «Парк-Молл», 2 этаж)',
+            image: '../images/afisha/afisha1706.jpg',
+            description: 'Первая летняя игротека в Библиотеке-мастерской. Мастер-класс по сборке кубика Рубика и большая игротека от Hobby World. Мы собрали более 50 настольных игр для всех возрастов и уровней подготовки.',
+            program: [
+                '🕒 15:00 — Открытие, знакомство',
+                '🕒 15:30 — Мастер-класс по сборке кубика Рубика',
+                '🕒 16:30 — Большая игротека (настольные игры)',
+                '🕒 18:00 — Мини-турнир по настольным играм',
+                '🕒 19:00 — Закрытие'
+            ],
+            galleryLink: '../gallery.html'
+        }
     };
 
     // ===== ЗАГРУЗКА ДАННЫХ =====
@@ -116,7 +113,7 @@
                 <div style="background: #fff; border-radius: 24px; padding: 3rem; text-align: center; border: 1px solid rgba(0,0,0,0.05);">
                     <i class="fas fa-exclamation-circle" style="font-size: 3rem; color: var(--neon-coral); margin-bottom: 1rem;"></i>
                     <h2 style="color: var(--neon-coral);">Событие не найдено</h2>
-                    <p style="color: var(--text-secondary); margin: 1rem 0;">Возможно, вы перешли по неверной ссылке или событие уже завершилось.</p>
+                    <p style="color: var(--text-secondary); margin: 1rem 0;">Возможно, вы перешли по неверной ссылке.</p>
                     <a href="../events.html" class="btn btn-primary">Вернуться к афише</a>
                 </div>
             `;
