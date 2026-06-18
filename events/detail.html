@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="eventTitle">Событие — Книжные грани</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+
+<header>
+    <div class="container header-inner">
+        <div class="logo">
+            <div class="logo-cbs">
+                <img src="../images/logo-cbs.png" alt="ЦБС Выборгского района">
+            </div>
+            <div class="logo-rost">
+                <img src="../images/logo-rost.png" alt="Проектный офис РОСТ">
+            </div>
+            <a href="../index.html">
+                <img src="../images/logo-grani.png" alt="Книжные грани">
+            </a>
+        </div>
+        <div class="menu-toggle" id="menuToggle">
+            <i class="fas fa-bars"></i>
+        </div>
+        <nav class="nav" id="nav"></nav>
+    </div>
+</header>
+
+<section class="section">
+    <div class="container">
+        <h1 class="section-title" id="eventPageTitle">Событие</h1>
+        
+        <div id="eventContent" style="max-width: 800px; margin: 0 auto;">
+            <!-- Контент загружается из JS -->
+            <div style="text-align: center; padding: 3rem;">
+                <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: var(--neon-coral);"></i>
+                <p style="margin-top: 1rem; color: var(--text-secondary);">Загрузка...</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer>
+    <div class="container">
+        <div class="footer-grid">
+            <div class="footer-col">
+                <h3>Книжные грани</h3>
+                <p>Проект ЦБС Выборгского района</p>
+                <p>Работает на базе <strong>Библиотеки-мастерской</strong></p>
+                <p>пр. Просвещения, 43, ТРК «Парк-Молл», 2 этаж</p>
+                <p>+7 (812) 246-93-05</p>
+                <p>pargolovo@cbsvib.ru</p>
+            </div>
+            <div class="footer-col">
+                <h3>Разделы</h3>
+                <p><a href="../index.html">Главная</a></p>
+                <p><a href="../about.html">О проекте</a></p>
+                <p><a href="../events.html">Мероприятия</a></p>
+                <p><a href="../contacts.html">Контакты</a></p>
+            </div>
+            <div class="footer-col">
+                <h3>Мы в соцсетях</h3>
+                <div class="footer-social">
+                    <a href="https://vk.com/pargolovskaya_library" target="_blank"><i class="fab fa-vk"></i></a>
+                </div>
+                <p style="margin-top:1.5rem;">Следите за анонсами в нашей группе ВКонтакте</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© <span id="current-year"></span> Книжные грани | ЦБС Выборгского района</p>
+        </div>
+    </div>
+</footer>
+
+<script src="../js/main.js"></script>
+<script>
+    // ===== ДАННЫЕ О ВСЕХ СОБЫТИЯХ =====
+    const eventsData = {
+        'summer-party': {
+            title: 'Летняя игротека',
+            date: '17 июня 2026',
+            time: '15:00 – 19:00',
+            location: 'Библиотека-мастерская',
+            image: '../images/afisha/afisha1706.jpg',
+            description: 'Первая летняя игротека в Библиотеке-мастерской. Мастер-класс по сборке кубика Рубика и большая игротека от Hobby World. Мы собрали более 50 настольных игр для всех возрастов и уровней подготовки.',
+            program: [
+                '🕒 15:00 — Открытие, знакомство',
+                '🕒 15:30 — Мастер-класс по сборке кубика Рубика',
+                '🕒 16:30 — Большая игротека (настольные игры)',
+                '🕒 18:00 — Мини-турнир по настольным играм',
+                '🕒 19:00 — Закрытие'
+            ],
+            galleryLink: '../gallery.html?filter=summer'
+        },
+        'speed-tournament': {
+            title: 'Турнир по спидкубингу',
+            date: '5 июля 2026',
+            time: '14:00 – 18:00',
+            location: 'Библиотека-мастерская',
+            image: '../images/afisha/afisha-tournament.jpg',
+            description: 'Первый турнир по спидкубингу в нашей библиотеке. Соревнования по сборке кубика Рубика 3×3 на время. Приглашаются все желающие — от новичков до профессионалов.',
+            program: [
+                '🕒 14:00 — Регистрация участников',
+                '🕒 14:30 — Квалификация (первые попытки)',
+                '🕒 16:00 — Полуфиналы',
+                '🕒 17:30 — Финал и награждение победителей'
+            ],
+            galleryLink: '../gallery.html?filter=speedcubing'
+        }
+        // ДОБАВЛЯЙТЕ НОВЫЕ СОБЫТИЯ СЮДА
+    };
+
+    // ===== ЗАГРУЗКА ДАННЫХ =====
+    document.addEventListener('DOMContentLoaded', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const eventId = urlParams.get('id');
+        
+        const content = document.getElementById('eventContent');
+        const pageTitle = document.getElementById('eventPageTitle');
+        const titleTag = document.getElementById('eventTitle');
+        
+        if (!eventId || !eventsData[eventId]) {
+            content.innerHTML = `
+                <div style="background: #fff; border-radius: 24px; padding: 3rem; text-align: center; border: 1px solid rgba(0,0,0,0.05);">
+                    <i class="fas fa-exclamation-circle" style="font-size: 3rem; color: var(--neon-coral); margin-bottom: 1rem;"></i>
+                    <h2 style="color: var(--neon-coral);">Событие не найдено</h2>
+                    <p style="color: var(--text-secondary); margin: 1rem 0;">Возможно, вы перешли по неверной ссылке.</p>
+                    <a href="../events.html" class="btn btn-primary">Вернуться к афише</a>
+                </div>
+            `;
+            return;
+        }
+        
+        const event = eventsData[eventId];
+        
+        // Обновляем заголовки
+        pageTitle.textContent = event.title;
+        titleTag.textContent = event.title + ' — Книжные грани';
+        
+        // Формируем программу
+        let programHtml = '';
+        if (event.program && event.program.length > 0) {
+            programHtml = `
+                <h2 style="color: var(--neon-coral); margin: 1.5rem 0 1rem;">Программа</h2>
+                <ul style="color: var(--text-secondary); line-height: 2; margin-bottom: 1.5rem; padding-left: 1.5rem;">
+                    ${event.program.map(item => `<li>${item}</li>`).join('')}
+                </ul>
+            `;
+        }
+        
+        // Выводим контент
+        content.innerHTML = `
+            <div style="background: #fff; border-radius: 24px; padding: 2rem; border: 1px solid rgba(0,0,0,0.05);">
+                <div style="border-radius: 16px; overflow: hidden; margin-bottom: 1.5rem;">
+                    <img src="${event.image}" alt="${event.title}" style="width: 100%; height: auto; display: block;" onerror="this.src='https://placehold.co/800x400/2a3a5a/ffffff?text=Фото+скоро'">
+                </div>
+                
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
+                    <span style="background: var(--neon-coral); color: #fff; padding: 0.3rem 1rem; border-radius: 20px; font-size: 0.8rem;">
+                        <i class="fas fa-calendar-alt"></i> ${event.date}
+                    </span>
+                    <span style="background: rgba(0,0,0,0.05); padding: 0.3rem 1rem; border-radius: 20px; font-size: 0.8rem;">
+                        <i class="fas fa-clock"></i> ${event.time}
+                    </span>
+                    <span style="background: rgba(0,0,0,0.05); padding: 0.3rem 1rem; border-radius: 20px; font-size: 0.8rem;">
+                        <i class="fas fa-map-marker-alt"></i> ${event.location}
+                    </span>
+                </div>
+                
+                <h2 style="color: var(--neon-coral); margin-bottom: 1rem;">О мероприятии</h2>
+                <p style="color: var(--text-secondary); line-height: 1.8; margin-bottom: 1.5rem;">
+                    ${event.description}
+                </p>
+                
+                ${programHtml}
+                
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1.5rem; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 1.5rem;">
+                    <a href="${event.galleryLink}" class="btn" style="flex: 1; text-align: center;">
+                        <i class="fas fa-images"></i> Смотреть фотоотчёт
+                    </a>
+                    <a href="../events.html" class="btn btn-primary" style="flex: 1; text-align: center; background: var(--neon-coral); color: #fff; border-color: var(--neon-coral);">
+                        <i class="fas fa-arrow-left"></i> Все события
+                    </a>
+                </div>
+            </div>
+        `;
+    });
+</script>
+</body>
+</html>
