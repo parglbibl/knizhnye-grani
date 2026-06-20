@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Фотоотчёты — Книжные грани</title>
-    <meta name="description" content="Фотоотчёты с мероприятий проекта Книжные грани: игротеки, турниры по спидкубингу, мастер-классы.">
-    <link rel="stylesheet" href="css/style.css">
+    <title>Фотоотчёты с мероприятий Книжные грани</title>
+    <meta name="description" content="Фотографии с игротек, турниров по спидкубингу и мастер-классов в библиотеке. Смотрите, как это было!">
+    <link rel="stylesheet" href="/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     
@@ -23,8 +23,16 @@
     <noscript><div><img src="https://mc.yandex.ru/watch/109783209" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
     <!-- /Yandex.Metrika counter -->
 
+    <!-- ===== FAVICON ===== -->
+    <link rel="icon" type="image/x-icon" href="/favicon/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
+    <link rel="manifest" href="/favicon/site.webmanifest">
+    <meta name="msapplication-TileColor" content="#ff2e5a">
+    <meta name="theme-color" content="#fef9f0">
+
     <style>
-        /* ===== ГАЛЕРЕЯ ===== */
         .gallery-filters {
             display: flex;
             gap: 0.8rem;
@@ -131,13 +139,13 @@
     <div class="container header-inner">
         <div class="logo">
             <div class="logo-cbs">
-                <img src="images/logo-cbs.png" alt="ЦБС Выборгского района">
+                <img src="/images/logo-cbs.png" alt="ЦБС Выборгского района">
             </div>
             <div class="logo-rost">
-                <img src="images/logo-rost.png" alt="Проектный офис РОСТ">
+                <img src="/images/logo-rost.png" alt="Проектный офис РОСТ">
             </div>
-            <a href="index.html">
-                <img src="images/logo-grani.png" alt="Книжные грани">
+            <a href="/index.html">
+                <img src="/images/logo-grani.png" alt="Книжные грани">
             </a>
         </div>
         <div class="menu-toggle" id="menuToggle">
@@ -182,11 +190,11 @@
             </div>
             <div class="footer-col">
                 <h3>Разделы</h3>
-                <p><a href="index.html">Главная</a></p>
-                <p><a href="about.html">О проекте</a></p>
-                <p><a href="events.html">Мероприятия</a></p>
-                <p><a href="contacts.html">Контакты</a></p>
-                <p><a href="gallery.html">Фотоотчёты</a></p>
+                <p><a href="/index.html">Главная</a></p>
+                <p><a href="/about.html">О проекте</a></p>
+                <p><a href="/events.html">Мероприятия</a></p>
+                <p><a href="/contacts.html">Контакты</a></p>
+                <p><a href="/gallery.html">Фотоотчёты</a></p>
             </div>
             <div class="footer-col">
                 <h3>Мы в соцсетях</h3>
@@ -213,23 +221,13 @@
     </div>
 </footer>
 
-<script src="js/main.js"></script>
+<script src="/js/main.js"></script>
 <script>
-    // ===== ГАЛЕРЕЯ =====
     document.addEventListener('DOMContentLoaded', function() {
         const grid = document.getElementById('galleryGrid');
         const filters = document.querySelectorAll('.gallery-filters .btn-sm');
 
-        // ===== ДАННЫЕ ФОТО =====
-        const photos = [
-            // Спидкубинг
-            // { src: 'images/gallery/speed-1.jpg', category: 'speedcubing', label: 'Турнир по спидкубингу' },
-            // { src: 'images/gallery/speed-2.jpg', category: 'speedcubing', label: 'Турнир по спидкубингу' },
-            
-            // Настольные игры
-            // { src: 'images/gallery/board-1.jpg', category: 'boardgames', label: 'Игротека' },
-            // { src: 'images/gallery/board-2.jpg', category: 'boardgames', label: 'Игротека' },
-        ];
+        const photos = [];
 
         function renderGallery(filter = 'all') {
             const filtered = filter === 'all' ? photos : photos.filter(p => p.category === filter);
@@ -252,7 +250,6 @@
             `).join('');
         }
 
-        // ===== ФИЛЬТРАЦИЯ =====
         filters.forEach(btn => {
             btn.addEventListener('click', function() {
                 filters.forEach(b => b.classList.remove('active'));
@@ -261,7 +258,6 @@
             });
         });
 
-        // ===== АВТОМАТИЧЕСКАЯ АКТИВАЦИЯ ФИЛЬТРА ИЗ URL =====
         const urlParams = new URLSearchParams(window.location.search);
         const filterParam = urlParams.get('filter');
         if (filterParam) {
