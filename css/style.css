@@ -126,14 +126,14 @@ header {
     position: sticky;
     top: 0;
     z-index: 1000;
-    padding: 0.8rem 0;
+    padding: 0.4rem 0;
 }
 
 @media (min-width: 769px) {
     header {
         background: rgba(254, 249, 240, 0.95);
         backdrop-filter: blur(12px);
-        padding: 1.5rem 0;
+        padding: 0.8rem 0;
     }
 }
 
@@ -344,7 +344,7 @@ header {
     gap: 0.5rem;
     color: var(--text-primary);
     font-weight: 500;
-    padding: 0.6rem 0;
+    padding: 0.4rem 0;
     font-size: 0.75rem;
     letter-spacing: 0.12em;
     text-transform: uppercase;
