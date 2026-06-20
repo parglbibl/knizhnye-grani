@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Настольные игры в библиотеке — каталог и правила</title>
-    <meta name="description" content="Бесплатные настольные игры в библиотеке: от классики до современных хитов. Приходите играть один или с друзьями!">
+    <title>Книжные грани — настольные игры и спидкубинг в библиотеке</title>
+    <meta name="description" content="Книжные грани — бесплатные игротеки, турниры по спидкубингу и мастер-классы в библиотеке-мастерской. Приходите один или с друзьями!">
     <link rel="stylesheet" href="/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -31,6 +31,308 @@
     <link rel="manifest" href="/favicon/site.webmanifest">
     <meta name="msapplication-TileColor" content="#ff2e5a">
     <meta name="theme-color" content="#fef9f0">
+
+    <style>
+        /* ===== СЛАЙДЕР «КАК ЭТО БЫЛО» ===== */
+        .archive-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .archive-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--graphite-dark);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .archive-count {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            background: rgba(0,0,0,0.05);
+            padding: 0.2rem 0.6rem;
+            border-radius: 12px;
+        }
+
+        .archive-slider-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .archive-slider {
+            display: flex;
+            gap: 1rem;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            padding: 0.5rem 0;
+            scrollbar-width: none;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .archive-slider::-webkit-scrollbar {
+            display: none;
+        }
+
+        .archive-card {
+            flex: 0 0 200px;
+            background: #fff;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(0,0,0,0.06);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .archive-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+        }
+
+        .archive-image {
+            height: 120px;
+            overflow: hidden;
+            background: var(--graphite-dark);
+        }
+
+        .archive-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .archive-info {
+            padding: 0.8rem 1rem;
+        }
+
+        .archive-date {
+            font-size: 0.65rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .archive-name {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--graphite-dark);
+            margin: 0.2rem 0 0 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .archive-arrow {
+            flex-shrink: 0;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 1px solid rgba(0,0,0,0.08);
+            background: #fff;
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .archive-arrow:hover {
+            background: var(--neon-coral);
+            color: #fff;
+            border-color: var(--neon-coral);
+        }
+
+        .archive-arrow:active {
+            transform: scale(0.95);
+        }
+
+        /* ===== ПОПАП АРХИВА ===== */
+        .archive-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .archive-modal.active {
+            display: flex;
+        }
+
+        .archive-modal-content {
+            background: #fff;
+            border-radius: 24px;
+            max-width: 600px;
+            width: 100%;
+            padding: 2rem;
+            position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: modalFadeIn 0.3s ease;
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .archive-modal-close {
+            position: sticky;
+            top: 0;
+            float: right;
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: color 0.2s;
+            z-index: 10;
+        }
+
+        .archive-modal-close:hover {
+            color: var(--neon-coral);
+        }
+
+        .archive-modal-body {
+            padding-top: 0.5rem;
+        }
+
+        .archive-modal-image {
+            width: 100%;
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+
+        .archive-modal-image img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .archive-modal-date {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.3rem;
+        }
+
+        .archive-modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--graphite-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .archive-modal-desc {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .archive-modal-actions {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .archive-modal-actions .btn {
+            flex: 1;
+            text-align: center;
+            min-width: 120px;
+        }
+
+        @media (max-width: 768px) {
+            .archive-card {
+                flex: 0 0 160px;
+            }
+            .archive-image {
+                height: 100px;
+            }
+            .archive-name {
+                font-size: 0.75rem;
+            }
+            .archive-arrow {
+                width: 30px;
+                height: 30px;
+                font-size: 1rem;
+            }
+            .archive-modal-content {
+                padding: 1.5rem;
+                margin: 1rem;
+            }
+            .archive-modal-title {
+                font-size: 1.2rem;
+            }
+            .archive-modal-actions {
+                flex-direction: column;
+            }
+            .archive-modal-actions .btn {
+                width: 100%;
+            }
+        }
+
+        /* ===== КОМПАКТНЫЙ БЛОК СТАТЬИ ===== */
+        .article-teaser {
+            background: #1e2a47;
+            border-radius: 24px;
+            padding: 1.8rem 2rem;
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .article-teaser h3 {
+            color: #fff;
+            font-size: 1.2rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .article-teaser p {
+            color: rgba(255,255,255,0.7);
+            font-size: 0.9rem;
+            max-width: 500px;
+            margin: 0 auto 1.2rem;
+        }
+
+        .article-teaser .btn {
+            font-size: 0.8rem;
+            padding: 0.6rem 1.8rem;
+        }
+
+        @media (max-width: 768px) {
+            .article-teaser {
+                padding: 1.5rem;
+            }
+            .article-teaser h3 {
+                font-size: 1rem;
+            }
+            .article-teaser p {
+                font-size: 0.85rem;
+            }
+        }
+    </style>
 </head>
 <body>
 
@@ -54,39 +356,173 @@
     </div>
 </header>
 
+<section class="hero">
+    <div class="container">
+        <h1>КНИЖНЫЕ <span>ГРАНИ</span></h1>
+        <div class="hero-lead">Интеллектуальный досуг. Бесплатно. Для всех.</div>
+        <div class="hero-desc">Место, где встречаются любители настольных игр и спидкубинга. Тренировки, турниры, новые знакомства.</div>
+    </div>
+</section>
+
+<!-- ===== О ПРОЕКТЕ ===== -->
 <section class="section">
     <div class="container">
-        <h1 class="section-title">Настольные игры</h1>
-        <p style="text-align: center; margin-bottom: 2rem; color: var(--text-secondary);">Коллекция игр постоянно пополняется. Приходите играть бесплатно!</p>
-
-        <div class="directions-grid" style="margin-bottom: 2rem;">
-            <div class="direction-card">
-                <i class="fas fa-search"></i>
-                <h3>Каталог игр</h3>
-                <p>Список игр появится здесь. Следите за обновлениями.</p>
-                <a href="/boardgames/catalog.html" class="btn btn-sm">Смотреть каталог</a>
-            </div>
-            <div class="direction-card">
-                <i class="fas fa-clipboard-list"></i>
-                <h3>Правила посещения</h3>
-                <p>Как проходят игры и что нужно знать</p>
-                <a href="/boardgames/rules.html" class="btn btn-sm">Читать правила</a>
-            </div>
-            <div class="direction-card">
-                <i class="fas fa-calendar-alt"></i>
-                <h3>Афиша событий</h3>
-                <p>Все мероприятия проекта — игротеки, турниры, встречи</p>
-                <a href="/events.html" class="btn btn-sm">Смотреть афишу</a>
-            </div>
+        <h2 class="section-title">О проекте</h2>
+        <div class="section-text">
+            <p><strong>«Книжные грани»</strong> — это бесплатное пространство в библиотеке, где встречаются любители <strong>настольных игр</strong> и <strong>спидкубинга</strong>.</p>
+            <p>Здесь вы можете:</p>
+            <ul style="text-align: left; max-width: 600px; margin: 0 auto; padding-left: 1.5rem;">
+                <li>🔹 Играть в <strong>настольные игры</strong> бесплатно — от классики до новинок</li>
+                <li>🔹 Научиться собирать <strong>кубик Рубика</strong> на мастер-классах</li>
+                <li>🔹 Участвовать в <strong>турнирах</strong> и соревнованиях</li>
+                <li>🔹 Находить новых друзей и единомышленников</li>
+            </ul>
+            <p style="margin-top: 1rem;">Приходите один или с друзьями — мы всегда рады новым лицам! <strong>Вход бесплатный</strong>, все игры и кубики предоставляются.</p>
         </div>
-
-        <div class="dark-bg">
-            <h3>Приходите поиграть!</h3>
-            <p style="margin: 1rem 0;">Расписание игротек появится здесь. Следите за обновлениями в нашей группе ВКонтакте.</p>
-            <a href="/events.html" class="btn btn-primary">Записаться на игру</a>
+        <div style="text-align: center;">
+            <a href="/about.html" class="btn btn-outline">ПОДРОБНЕЕ</a>
         </div>
     </div>
 </section>
+
+<!-- ===== НАСТОЛЬНЫЕ ИГРЫ / СПИДКУБИНГ ===== -->
+<section class="section">
+    <div class="container">
+        <div class="directions-grid">
+            <div class="direction-card">
+                <i class="fas fa-dice-d6"></i>
+                <h3>Настольные игры</h3>
+                <p>Игры для любой компании — от классики до современных хитов. Коллекция постоянно пополняется.</p>
+                <a href="/boardgames/index.html" class="btn btn-sm">Перейти</a>
+            </div>
+            <div class="direction-card">
+                <i class="fas fa-cube"></i>
+                <h3>Спидкубинг</h3>
+                <p>Собери кубик быстрее всех. Спидкубинг — это азарт, скорость и дружеское соперничество.</p>
+                <a href="/speedcubing/index.html" class="btn btn-sm">Перейти</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== ГЛАВНАЯ ПЛОЩАДКА ===== -->
+<section class="section">
+    <div class="container">
+        <div class="venue-block" style="text-align: center;">
+            <div class="venue-icon" style="margin-left: auto; margin-right: auto;">
+                <i class="fas fa-map-marker-alt"></i>
+            </div>
+            <div class="venue-content">
+                <h2 class="venue-title">Главная площадка</h2>
+                <p class="venue-address">Библиотека-мастерская<br>пр. Просвещения, 43, ТРК «Парк-Молл», 2 этаж</p>
+                <p class="venue-desc">Здесь проходят игротеки, тренировки по спидкубингу, турниры и встречи. Пространство оборудовано всем необходимым для комфортного досуга.</p>
+                <a href="/contacts.html" class="btn btn-outline">Как пройти →</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== БЛИЖАЙШИЕ СОБЫТИЯ ===== -->
+<section class="section bg-light">
+    <div class="container">
+        <h2 class="section-title">Ближайшие события</h2>
+        <div class="events-grid">
+            <!-- 17 июня -->
+            <div class="event-card">
+                <div class="event-image" style="background: linear-gradient(135deg, #2a3a5a, #1a2a3a); display: flex; align-items: center; justify-content: center; min-height: 140px; border-radius: 12px;">
+                    <i class="fas fa-calendar-alt" style="font-size: 2.5rem; color: rgba(255,255,255,0.3);"></i>
+                </div>
+                <h3 class="event-title">Игротека «Книжные грани»</h3>
+                <div class="event-datetime">17 июня, 15:00 – 19:00</div>
+                <p>Большая игротека от Hobby World. Десятки настольных игр на любой вкус. Приходите один или с друзьями — найдём компанию!</p>
+                <a href="/events/detail.html?id=summer-party" class="btn btn-sm btn-outline">Подробнее</a>
+            </div>
+
+            <!-- 1 июля -->
+            <div class="event-card">
+                <div class="event-image" style="background: linear-gradient(135deg, #2a3a5a, #1a2a3a); display: flex; align-items: center; justify-content: center; min-height: 140px; border-radius: 12px;">
+                    <i class="fas fa-calendar-alt" style="font-size: 2.5rem; color: rgba(255,255,255,0.3);"></i>
+                </div>
+                <h3 class="event-title">Игротека «Книжные грани»</h3>
+                <div class="event-datetime">1 июля, 15:00 – 19:00</div>
+                <p>Большая игротека от Hobby World. Десятки настольных игр на любой вкус. Приходите один или с друзьями — найдём компанию!</p>
+                <a href="#" class="btn btn-sm btn-outline" style="opacity: 0.4; pointer-events: none;">Скоро</a>
+            </div>
+
+            <!-- 29 июля -->
+            <div class="event-card">
+                <div class="event-image" style="background: linear-gradient(135deg, #2a3a5a, #1a2a3a); display: flex; align-items: center; justify-content: center; min-height: 140px; border-radius: 12px;">
+                    <i class="fas fa-calendar-alt" style="font-size: 2.5rem; color: rgba(255,255,255,0.3);"></i>
+                </div>
+                <h3 class="event-title">Игротека «Книжные грани»</h3>
+                <div class="event-datetime">29 июля, 15:00 – 19:00</div>
+                <p>Большая игротека от Hobby World. Десятки настольных игр на любой вкус. Приходите один или с друзьями — найдём компанию!</p>
+                <a href="#" class="btn btn-sm btn-outline" style="opacity: 0.4; pointer-events: none;">Скоро</a>
+            </div>
+
+            <!-- 12 августа -->
+            <div class="event-card">
+                <div class="event-image" style="background: linear-gradient(135deg, #2a3a5a, #1a2a3a); display: flex; align-items: center; justify-content: center; min-height: 140px; border-radius: 12px;">
+                    <i class="fas fa-calendar-alt" style="font-size: 2.5rem; color: rgba(255,255,255,0.3);"></i>
+                </div>
+                <h3 class="event-title">Игротека «Книжные грани»</h3>
+                <div class="event-datetime">12 августа, 15:00 – 19:00</div>
+                <p>Большая игротека от Hobby World. Десятки настольных игр на любой вкус. Приходите один или с друзьями — найдём компанию!</p>
+                <a href="#" class="btn btn-sm btn-outline" style="opacity: 0.4; pointer-events: none;">Скоро</a>
+            </div>
+        </div>
+        <div style="text-align: center; margin-top: 2rem;">
+            <a href="/events.html" class="btn">Все мероприятия</a>
+        </div>
+    </div>
+</section>
+
+<!-- ===== СЛАЙДЕР «КАК ЭТО БЫЛО» ===== -->
+<section class="section" style="padding-top: 1rem; border-top: none;">
+    <div class="container">
+        <div class="archive-header">
+            <h3 class="archive-title">📸 Как это было</h3>
+            <span class="archive-count" id="archiveCount">1 мероприятие</span>
+        </div>
+        
+        <div class="archive-slider-wrapper">
+            <button class="archive-arrow prev" aria-label="Назад">‹</button>
+            <div class="archive-slider" id="archiveSlider">
+                <div class="archive-card" data-event="17 июня">
+                    <div class="archive-image">
+                        <img src="/images/afisha/afisha1706.jpg" alt="Летняя игротека">
+                    </div>
+                    <div class="archive-info">
+                        <span class="archive-date">17 июня</span>
+                        <h4 class="archive-name">Летняя игротека</h4>
+                    </div>
+                </div>
+            </div>
+            <button class="archive-arrow next" aria-label="Вперёд">›</button>
+        </div>
+    </div>
+</section>
+
+<!-- ===== СТАТЬЯ ===== -->
+<section class="section" style="padding-top: 0; border-top: none;">
+    <div class="container">
+        <div class="article-teaser">
+            <h3>Как научиться собирать кубик Рубика</h3>
+            <p>С чего начать, сколько времени нужно и почему лучше учиться с тренером</p>
+            <a href="/speedcubing/kak-nauchitsya-sobirat-kubik.html" class="btn btn-primary" style="background: var(--neon-coral); color: #fff; border-color: var(--neon-coral);">
+                Читать →
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- ===== ПОПАП АРХИВА ===== -->
+<div class="archive-modal" id="archiveModal">
+    <div class="archive-modal-content">
+        <button class="archive-modal-close" id="archiveModalClose">&times;</button>
+        <div class="archive-modal-body" id="archiveModalBody"></div>
+    </div>
+</div>
 
 <footer>
     <div class="container">
@@ -133,5 +569,115 @@
 </footer>
 
 <script src="/js/main.js"></script>
+<script>
+    // ===== СЛАЙДЕР И ПОПАП «КАК ЭТО БЫЛО» =====
+    document.addEventListener('DOMContentLoaded', function() {
+        const slider = document.getElementById('archiveSlider');
+        const prevBtn = document.querySelector('.archive-arrow.prev');
+        const nextBtn = document.querySelector('.archive-arrow.next');
+        const countEl = document.getElementById('archiveCount');
+        const modal = document.getElementById('archiveModal');
+        const closeBtn = document.getElementById('archiveModalClose');
+        const modalBody = document.getElementById('archiveModalBody');
+        
+        const archiveData = {
+            '17 июня': {
+                title: 'Летняя игротека',
+                date: '17 июня 2026',
+                image: '/images/afisha/afisha1706.jpg',
+                description: 'Первая летняя игротека в Библиотеке-мастерской. Мастер-класс по сборке кубика Рубика и большая игротека от Hobby World.',
+                link: '/events/detail.html?id=summer-party',
+                gallery: '/gallery.html'
+            }
+        };
+        
+        window.closeModal = function() {
+            if (modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        };
+        
+        window.closeModalAndGo = function(event, url) {
+            if (modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+            if (url) {
+                window.location.href = url;
+            }
+            if (event) {
+                event.preventDefault();
+            }
+        };
+        
+        window.openArchiveModal = function(eventKey) {
+            const data = archiveData[eventKey];
+            if (!data) return;
+            
+            if (modalBody) {
+                modalBody.innerHTML = `
+                    <div class="archive-modal-image">
+                        <img src="${data.image}" alt="${data.title}">
+                    </div>
+                    <div class="archive-modal-date">📅 ${data.date}</div>
+                    <h2 class="archive-modal-title">${data.title}</h2>
+                    <p class="archive-modal-desc">${data.description}</p>
+                    <div class="archive-modal-actions">
+                        <a href="${data.gallery}" class="btn btn-sm" target="_blank" onclick="closeModalAndGo(event, '${data.gallery}')">📸 Смотреть фотоотчёт</a>
+                        <a href="${data.link}" class="btn btn-sm" onclick="closeModalAndGo(event, '${data.link}')">📝 Подробнее</a>
+                    </div>
+                `;
+            }
+            
+            if (modal) {
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+        };
+        
+        if (closeBtn) {
+            closeBtn.addEventListener('click', function() {
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
+            });
+        }
+        
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        });
+        
+        if (slider && prevBtn && nextBtn) {
+            const cardWidth = 200 + 16;
+            
+            const cards = slider.querySelectorAll('.archive-card');
+            if (countEl) {
+                const count = cards.length;
+                const word = count === 1 ? 'мероприятие' : (count < 5 ? 'мероприятия' : 'мероприятий');
+                countEl.textContent = count + ' ' + word;
+            }
+            
+            nextBtn.addEventListener('click', function() {
+                slider.scrollBy({ left: cardWidth * 2, behavior: 'smooth' });
+            });
+            
+            prevBtn.addEventListener('click', function() {
+                slider.scrollBy({ left: -cardWidth * 2, behavior: 'smooth' });
+            });
+        }
+        
+        document.querySelectorAll('.archive-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const eventName = this.dataset.event;
+                if (eventName && archiveData[eventName]) {
+                    window.openArchiveModal(eventName);
+                }
+            });
+        });
+    });
+</script>
 </body>
 </html>
