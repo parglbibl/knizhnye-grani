@@ -3,10 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Фотогалерея — Книжные грани</title>
-    <link rel="stylesheet" href="../css/style.css">
+    <title>Фотогалерея спидкубинга — Книжные грани</title>
+    <meta name="description" content="Фотографии с турниров по спидкубингу, тренировок и мастер-классов в библиотеке.">
+    <link rel="stylesheet" href="/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- Yandex.Metrika counter -->
+    <script type="text/javascript">
+        (function(m,e,t,r,i,k,a){
+            m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+            m[i].l=1*new Date();
+            for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+            k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+        })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=109783209', 'ym');
+
+        ym(109783209, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
+    </script>
+    <noscript><div><img src="https://mc.yandex.ru/watch/109783209" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+    <!-- /Yandex.Metrika counter -->
+
+    <!-- ===== FAVICON ===== -->
+    <link rel="icon" type="image/x-icon" href="/favicon/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
+    <link rel="manifest" href="/favicon/site.webmanifest">
+    <meta name="msapplication-TileColor" content="#ff2e5a">
+    <meta name="theme-color" content="#fef9f0">
 </head>
 <body>
 
@@ -14,13 +38,13 @@
     <div class="container header-inner">
         <div class="logo">
             <div class="logo-cbs">
-                <img src="../images/logo-cbs.png" alt="ЦБС Выборгского района">
+                <img src="/images/logo-cbs.png" alt="ЦБС Выборгского района">
             </div>
             <div class="logo-rost">
-                <img src="../images/logo-rost.png" alt="Проектный офис РОСТ">
+                <img src="/images/logo-rost.png" alt="Проектный офис РОСТ">
             </div>
-            <a href="../index.html">
-                <img src="../images/logo-grani.png" alt="Книжные грани" style="height: 40px; width: auto;">
+            <a href="/index.html">
+                <img src="/images/logo-grani.png" alt="Книжные грани">
             </a>
         </div>
         <div class="menu-toggle" id="menuToggle">
@@ -32,12 +56,15 @@
 
 <section class="section">
     <div class="container">
-        <h1 class="section-title">Фотогалерея</h1>
-        <p style="text-align: center; margin-bottom: 2rem;">Как это было. Эмоции, победы и новые рекорды.</p>
+        <h1 class="section-title">📸 Фотогалерея спидкубинга</h1>
+        <p style="text-align: center; margin-bottom: 2rem; color: var(--text-secondary);">
+            Эмоции, победы и новые рекорды. Как это было!
+        </p>
 
         <div style="text-align: center; padding: 3rem; background: var(--graphite-card); border-radius: 24px;">
             <i class="fas fa-images" style="font-size: 3rem; color: var(--neon-coral); margin-bottom: 1rem; display: inline-block;"></i>
             <p style="color: var(--text-secondary);">Фотографии появятся здесь. Следите за обновлениями!</p>
+            <a href="/gallery.html" class="btn btn-primary" style="margin-top: 1rem; background: var(--neon-coral); color: #fff; border-color: var(--neon-coral);">Смотреть все фотоотчёты</a>
         </div>
     </div>
 </section>
@@ -55,10 +82,10 @@
             </div>
             <div class="footer-col">
                 <h3>Разделы</h3>
-                <p><a href="../index.html">Главная</a></p>
-                <p><a href="../about.html">О проекте</a></p>
-                <p><a href="../events.html">Мероприятия</a></p>
-                <p><a href="../contacts.html">Контакты</a></p>
+                <p><a href="/index.html">Главная</a></p>
+                <p><a href="/about.html">О проекте</a></p>
+                <p><a href="/events.html">Мероприятия</a></p>
+                <p><a href="/contacts.html">Контакты</a></p>
             </div>
             <div class="footer-col">
                 <h3>Мы в соцсетях</h3>
@@ -71,9 +98,22 @@
         <div class="footer-bottom">
             <p>© <span id="current-year"></span> Книжные грани | ЦБС Выборгского района</p>
         </div>
+
+        <!-- ===== ЯНДЕКС.МЕТРИКА ИНФОРМЕР ===== -->
+        <div style="text-align: center; margin-top: 1.5rem;">
+            <a href="https://metrika.yandex.ru/stat/?id=109783209&amp;from=informer" target="_blank" rel="nofollow">
+                <img src="https://informer.yandex.ru/informer/109783209/3_1_FFFFFFFF_EFEFEFFF_0_pageviews"
+                     style="width:88px; height:31px; border:0;"
+                     alt="Яндекс.Метрика"
+                     title="Яндекс.Метрика: данные за сегодня (просмотры, визиты и уникальные посетители)"
+                     class="ym-advanced-informer"
+                     data-cid="109783209"
+                     data-lang="ru"/>
+            </a>
+        </div>
     </div>
 </footer>
 
-<script src="../js/main.js"></script>
+<script src="/js/main.js"></script>
 </body>
 </html>
