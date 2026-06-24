@@ -86,32 +86,22 @@
             </div>
         </div>
 
-        <!-- ===== ПАЗЛ ===== -->
-        <div style="max-width: 500px; margin: 0 auto 2rem auto; padding: 1.5rem 1rem; background: #1e2a47; border-radius: 24px; text-align: center;">
-            <h3 style="color: var(--neon-coral); margin-bottom: 0.5rem; font-size: 1.3rem;">🧩 Собери лого</h3>
-            <p style="color: rgba(255,255,255,0.7); font-size: 0.85rem; margin-bottom: 1.5rem;">
+        <!-- ===== ПАЗЛ «СОБЕРИ ЛОГО» (с перетаскиванием) ===== -->
+        <div style="max-width: 500px; margin: 0 auto 2rem auto; padding: 2rem; background: #1e2a47; border-radius: 24px; text-align: center;">
+            <h3 style="color: var(--neon-coral); margin-bottom: 0.5rem;">🧩 Собери лого</h3>
+            <p style="color: rgba(255,255,255,0.7); font-size: 0.9rem; margin-bottom: 1.5rem;">
                 Перетащите части картинки в пустую ячейку.
             </p>
 
-            <div id="puzzleGrid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; max-width: 320px; margin: 0 auto; background: #2a3a5a; border-radius: 16px; padding: 8px; aspect-ratio: 1/1; width: 100%;"></div>
+            <div id="puzzleGrid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; max-width: 320px; margin: 0 auto; background: #2a3a5a; border-radius: 16px; padding: 8px; aspect-ratio: 1/1;"></div>
             
-            <div style="margin-top: 1.5rem; display: flex; gap: 0.8rem; justify-content: center; flex-wrap: wrap;">
-                <button id="shufflePuzzle" class="btn btn-sm" style="background: var(--neon-coral); color: #fff; border-color: var(--neon-coral); padding: 0.6rem 1.5rem; flex: 1; min-width: 120px;">Перемешать</button>
-                <button id="resetPuzzle" class="btn btn-sm btn-outline" style="color: #fff; border-color: rgba(255,255,255,0.3); padding: 0.6rem 1.5rem; flex: 1; min-width: 120px;">Сбросить</button>
+            <div style="margin-top: 1.5rem; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                <button id="shufflePuzzle" class="btn btn-sm" style="background: var(--neon-coral); color: #fff; border-color: var(--neon-coral);">Перемешать</button>
+                <button id="resetPuzzle" class="btn btn-sm btn-outline" style="color: #fff; border-color: rgba(255,255,255,0.3);">Сбросить</button>
             </div>
 
-            <div id="puzzleMessage" style="margin-top: 1rem; font-weight: 600; font-size: 1rem; min-height: 2rem; color: var(--neon-coral);"></div>
+            <div id="puzzleMessage" style="margin-top: 1rem; font-weight: 600; font-size: 1.1rem; min-height: 2rem; color: var(--neon-coral);"></div>
         </div>
-
-        <style>
-            @media (max-width: 480px) {
-                #puzzleGrid {
-                    max-width: 260px !important;
-                    padding: 6px !important;
-                    gap: 3px !important;
-                }
-            }
-        </style>
     </div>
 </section>
 
@@ -141,6 +131,7 @@
             </div>
         </div>
 
+        <!-- ===== НАШИ ПАРТНЁРЫ ===== -->
         <div class="footer-partners" style="border-top: 1px solid rgba(0,0,0,0.05); padding-top: 1.5rem; margin-top: 1.5rem;">
             <p style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-secondary); margin-bottom: 1rem;">Наши партнёры</p>
             <div style="display: flex; justify-content: center; align-items: center; gap: 2rem; flex-wrap: wrap;">
@@ -163,6 +154,7 @@
             <p>© <span id="current-year"></span> Книжные грани | ЦБС Выборгского района</p>
         </div>
 
+        <!-- ===== ЯНДЕКС.МЕТРИКА ИНФОРМЕР ===== -->
         <div style="text-align: center; margin-top: 1.5rem;">
             <a href="https://metrika.yandex.ru/stat/?id=109783209&amp;from=informer" target="_blank" rel="nofollow">
                 <img src="https://informer.yandex.ru/informer/109783209/3_1_FFFFFFFF_EFEFEFFF_0_pageviews"
@@ -180,7 +172,7 @@
 <script src="/js/main.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // ===== ПАЗЛ =====
+        // ===== ПАЗЛ «СОБЕРИ ЛОГО» =====
         const grid = document.getElementById('puzzleGrid');
         const shuffleBtn = document.getElementById('shufflePuzzle');
         const resetBtn = document.getElementById('resetPuzzle');
@@ -200,6 +192,7 @@
             img.onload = function() {
                 const pieceWidth = img.width / 3;
                 const pieceHeight = img.height / 3;
+
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
 
@@ -213,8 +206,9 @@
                         ctx.clearRect(0, 0, pieceWidth, pieceHeight);
                         ctx.drawImage(img, col * pieceWidth, row * pieceHeight, pieceWidth, pieceHeight, 0, 0, pieceWidth, pieceHeight);
                         
+                        const dataUrl = canvas.toDataURL('image/png');
                         pieces.push({
-                            src: canvas.toDataURL('image/png'),
+                            src: dataUrl,
                             correctIndex: row * 3 + col,
                             isVisible: true
                         });
@@ -346,7 +340,7 @@
                     touchStartY = 0;
                 }, { passive: true });
 
-                // Клик
+                // Клик как альтернатива
                 div.addEventListener('click', function() {
                     const fromIndex = parseInt(this.dataset.index);
                     const emptyRow = Math.floor(emptyIndex / 3);
