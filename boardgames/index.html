@@ -86,18 +86,18 @@
             </div>
         </div>
 
-        <!-- ===== ПАЗЛ «СОБЕРИ ЛОГО» (перетаскивание детальки на детальку) ===== -->
+        <!-- ===== ПАЗЛ «СОБЕРИ ЛОГО» ===== -->
         <div style="max-width: 500px; margin: 0 auto 2rem auto; padding: 2rem; background: #1e2a47; border-radius: 24px; text-align: center;">
             <h3 style="color: var(--neon-coral); margin-bottom: 0.5rem;">🧩 Собери лого</h3>
             <p style="color: rgba(255,255,255,0.7); font-size: 0.9rem; margin-bottom: 1.5rem;">
-                Перетащите одну часть на другую — они поменяются местами.
+                Нажимайте на части рядом с пустой ячейкой, чтобы переместить их.
             </p>
 
             <div id="puzzleGrid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; max-width: 320px; margin: 0 auto; background: #2a3a5a; border-radius: 16px; padding: 8px; aspect-ratio: 1/1;"></div>
             
             <div style="margin-top: 1.5rem; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
                 <button id="shufflePuzzle" class="btn btn-sm" style="background: var(--neon-coral); color: #fff; border-color: var(--neon-coral);">Перемешать</button>
-                <button id="resetPuzzle" class="btn btn-sm btn-outline" style="color: #fff; border-color: rgba(255,255,255,0.3);">Сбросить</button>
+                <button id="resetPuzzle" class="btn btn-sm btn-outline" style="color: #fff; border-color: rgba(255,255,255,0.3);">Собрать</button>
             </div>
 
             <div id="puzzleMessage" style="margin-top: 1rem; font-weight: 600; font-size: 1.1rem; min-height: 2rem; color: var(--neon-coral);"></div>
@@ -131,7 +131,6 @@
             </div>
         </div>
 
-        <!-- ===== НАШИ ПАРТНЁРЫ ===== -->
         <div class="footer-partners" style="border-top: 1px solid rgba(0,0,0,0.05); padding-top: 1.5rem; margin-top: 1.5rem;">
             <p style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-secondary); margin-bottom: 1rem;">Наши партнёры</p>
             <div style="display: flex; justify-content: center; align-items: center; gap: 2rem; flex-wrap: wrap;">
@@ -154,7 +153,6 @@
             <p>© <span id="current-year"></span> Книжные грани | ЦБС Выборгского района</p>
         </div>
 
-        <!-- ===== ЯНДЕКС.МЕТРИКА ИНФОРМЕР ===== -->
         <div style="text-align: center; margin-top: 1.5rem;">
             <a href="https://metrika.yandex.ru/stat/?id=109783209&amp;from=informer" target="_blank" rel="nofollow">
                 <img src="https://informer.yandex.ru/informer/109783209/3_1_FFFFFFFF_EFEFEFFF_0_pageviews"
@@ -172,7 +170,6 @@
 <script src="/js/main.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // ===== ПАЗЛ С ПЕРЕТАСКИВАНИЕМ =====
         const grid = document.getElementById('puzzleGrid');
         const shuffleBtn = document.getElementById('shufflePuzzle');
         const resetBtn = document.getElementById('resetPuzzle');
@@ -180,6 +177,7 @@
 
         let pieces = [];
         let piecePositions = [];
+        let emptyIndex = 8;
 
         const logoUrl = '/images/logo-grani.png';
 
@@ -191,7 +189,6 @@
             img.onload = function() {
                 const pieceWidth = img.width / 3;
                 const pieceHeight = img.height / 3;
-
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
 
@@ -205,33 +202,30 @@
                         ctx.clearRect(0, 0, pieceWidth, pieceHeight);
                         ctx.drawImage(img, col * pieceWidth, row * pieceHeight, pieceWidth, pieceHeight, 0, 0, pieceWidth, pieceHeight);
                         
-                        const dataUrl = canvas.toDataURL('image/png');
                         pieces.push({
-                            src: dataUrl,
+                            src: canvas.toDataURL('image/png'),
                             correctIndex: row * 3 + col,
-                            currentIndex: row * 3 + col
+                            isVisible: true
                         });
                         piecePositions.push(row * 3 + col);
                     }
                 }
 
+                emptyIndex = 8;
+                pieces[8].isVisible = false;
                 shufflePuzzle();
                 renderPuzzle();
             };
 
             img.onerror = function() {
-                pieces = [];
+                message.textContent = '⚠️ Логотип не загрузился';
                 for (let i = 0; i < 9; i++) {
-                    pieces.push({
-                        src: '',
-                        correctIndex: i,
-                        currentIndex: i
-                    });
+                    pieces.push({ src: '', correctIndex: i, isVisible: i !== 8 });
                     piecePositions.push(i);
                 }
+                emptyIndex = 8;
                 shufflePuzzle();
                 renderPuzzle();
-                message.textContent = '⚠️ Логотип не загрузился, но пазл работает!';
             };
         }
 
@@ -243,9 +237,17 @@
                 const piece = pieces[pos];
                 const div = document.createElement('div');
                 div.dataset.index = index;
-                div.dataset.pieceIndex = pos;
-                div.dataset.correctIndex = piece.correctIndex;
-                
+
+                if (!piece.isVisible) {
+                    div.style.background = 'rgba(255,255,255,0.08)';
+                    div.style.border = '2px dashed rgba(255,255,255,0.2)';
+                    div.style.borderRadius = '8px';
+                    div.style.aspectRatio = '1/1';
+                    div.style.cursor = 'default';
+                    grid.appendChild(div);
+                    return;
+                }
+
                 if (piece.src) {
                     div.style.backgroundImage = `url(${piece.src})`;
                     div.style.backgroundSize = 'cover';
@@ -262,125 +264,23 @@
 
                 div.style.borderRadius = '8px';
                 div.style.aspectRatio = '1/1';
-                div.style.cursor = 'grab';
+                div.style.cursor = 'pointer';
                 div.style.border = '2px solid rgba(255,255,255,0.1)';
                 div.style.transition = 'transform 0.15s ease';
-                div.draggable = true;
 
-                // Drag & Drop
-                div.addEventListener('dragstart', function(e) {
-                    e.dataTransfer.setData('text/plain', this.dataset.index);
-                    this.style.opacity = '0.5';
-                    this.style.transform = 'scale(0.95)';
-                });
-
-                div.addEventListener('dragend', function(e) {
-                    this.style.opacity = '1';
-                    this.style.transform = 'scale(1)';
-                });
-
-                // Разрешаем drop
-                div.addEventListener('dragover', function(e) {
-                    e.preventDefault();
-                    this.style.borderColor = 'var(--neon-coral)';
-                    this.style.transform = 'scale(1.03)';
-                });
-
-                div.addEventListener('dragleave', function(e) {
-                    this.style.borderColor = 'rgba(255,255,255,0.1)';
-                    this.style.transform = 'scale(1)';
-                });
-
-                div.addEventListener('drop', function(e) {
-                    e.preventDefault();
-                    this.style.borderColor = 'rgba(255,255,255,0.1)';
-                    this.style.transform = 'scale(1)';
-                    
-                    const fromIndex = parseInt(e.dataTransfer.getData('text/plain'));
-                    const toIndex = parseInt(this.dataset.index);
-                    
-                    if (fromIndex !== toIndex) {
-                        // Меняем местами
-                        const fromPos = piecePositions[fromIndex];
-                        const toPos = piecePositions[toIndex];
-                        piecePositions[fromIndex] = toPos;
-                        piecePositions[toIndex] = fromPos;
-                        renderPuzzle();
-                    }
-                });
-
-                // Touch для телефона (drag)
-                let touchStartX = 0, touchStartY = 0;
-                let isDragging = false;
-                let dragFromIndex = 0;
-
-                div.addEventListener('touchstart', function(e) {
-                    const touch = e.touches[0];
-                    touchStartX = touch.clientX;
-                    touchStartY = touch.clientY;
-                    isDragging = false;
-                    dragFromIndex = parseInt(this.dataset.index);
-                }, { passive: true });
-
-                div.addEventListener('touchmove', function(e) {
-                    e.preventDefault();
-                    const touch = e.touches[0];
-                    const dx = touch.clientX - touchStartX;
-                    const dy = touch.clientY - touchStartY;
-                    
-                    if (Math.sqrt(dx*dx + dy*dy) > 15) {
-                        isDragging = true;
-                        this.style.opacity = '0.7';
-                        this.style.transform = 'scale(0.95)';
-                    }
-                }, { passive: false });
-
-                div.addEventListener('touchend', function(e) {
-                    this.style.opacity = '1';
-                    this.style.transform = 'scale(1)';
-                    
-                    if (!isDragging) return;
-                    
-                    const touchEnd = e.changedTouches[0];
-                    const elements = document.elementsFromPoint(touchEnd.clientX, touchEnd.clientY);
-                    
-                    for (let el of elements) {
-                        if (el.dataset && el.dataset.index !== undefined) {
-                            const toIndex = parseInt(el.dataset.index);
-                            if (dragFromIndex !== toIndex) {
-                                const fromPos = piecePositions[dragFromIndex];
-                                const toPos = piecePositions[toIndex];
-                                piecePositions[dragFromIndex] = toPos;
-                                piecePositions[toIndex] = fromPos;
-                                renderPuzzle();
-                            }
-                            break;
-                        }
-                    }
-                    
-                    isDragging = false;
-                    touchStartX = 0;
-                    touchStartY = 0;
-                }, { passive: true });
-
-                // Клик как альтернатива (для простоты)
                 div.addEventListener('click', function() {
-                    const fromIndex = parseInt(this.dataset.index);
-                    // Ищем пустое место и меняем с ним
-                    let emptyIndex = -1;
-                    for (let i = 0; i < piecePositions.length; i++) {
-                        if (pieces[piecePositions[i]].correctIndex !== i) {
-                            emptyIndex = i;
-                            break;
-                        }
-                    }
-                    if (emptyIndex === -1) return;
-                    
-                    const fromPos = piecePositions[fromIndex];
-                    const toPos = piecePositions[emptyIndex];
-                    piecePositions[fromIndex] = toPos;
-                    piecePositions[emptyIndex] = fromPos;
-                    renderPuzzle();
+                    const clickedIndex = parseInt(this.dataset.index);
+                    handleClick(clickedIndex);
+                });
+
+                div.addEventListener('mouseenter', function() {
+                    this.style.transform = 'scale(1.03)';
+                    this.style.borderColor = 'var(--neon-coral)';
+                });
+
+                div.addEventListener('mouseleave', function() {
+                    this.style.transform = 'scale(1)';
+                    this.style.borderColor = 'rgba(255,255,255,0.1)';
                 });
 
                 grid.appendChild(div);
@@ -397,36 +297,70 @@
             }
         }
 
+        function handleClick(clickedIndex) {
+            const emptyRow = Math.floor(emptyIndex / 3);
+            const emptyCol = emptyIndex % 3;
+            const clickedRow = Math.floor(clickedIndex / 3);
+            const clickedCol = clickedIndex % 3;
+
+            const isAdjacent = (
+                (Math.abs(emptyRow - clickedRow) === 1 && emptyCol === clickedCol) ||
+                (Math.abs(emptyCol - clickedCol) === 1 && emptyRow === clickedRow)
+            );
+
+            if (!isAdjacent) return;
+
+            const emptyPieceIndex = piecePositions[emptyIndex];
+            const clickedPieceIndex = piecePositions[clickedIndex];
+
+            piecePositions[emptyIndex] = clickedPieceIndex;
+            piecePositions[clickedIndex] = emptyPieceIndex;
+
+            pieces[emptyPieceIndex].isVisible = true;
+            pieces[clickedPieceIndex].isVisible = false;
+
+            emptyIndex = clickedIndex;
+            renderPuzzle();
+        }
+
         function shufflePuzzle() {
-            let attempts = 0;
-            do {
-                for (let i = piecePositions.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [piecePositions[i], piecePositions[j]] = [piecePositions[j], piecePositions[i]];
-                }
-                attempts++;
-            } while (attempts < 20);
+            for (let step = 0; step < 80; step++) {
+                const emptyRow = Math.floor(emptyIndex / 3);
+                const emptyCol = emptyIndex % 3;
+                const neighbors = [];
+                if (emptyRow > 0) neighbors.push(emptyIndex - 3);
+                if (emptyRow < 2) neighbors.push(emptyIndex + 3);
+                if (emptyCol > 0) neighbors.push(emptyIndex - 1);
+                if (emptyCol < 2) neighbors.push(emptyIndex + 1);
+                const randomNeighbor = neighbors[Math.floor(Math.random() * neighbors.length)];
+                
+                const emptyPieceIndex = piecePositions[emptyIndex];
+                const clickedPieceIndex = piecePositions[randomNeighbor];
+                piecePositions[emptyIndex] = clickedPieceIndex;
+                piecePositions[randomNeighbor] = emptyPieceIndex;
+                pieces[emptyPieceIndex].isVisible = true;
+                pieces[clickedPieceIndex].isVisible = false;
+                emptyIndex = randomNeighbor;
+            }
             
             let solved = true;
             piecePositions.forEach((pos, index) => {
-                if (pieces[pos].correctIndex !== index) solved = false;
+                if (pieces[pos].correctIndex !== index || !pieces[pos].isVisible) solved = false;
             });
-            if (solved) {
-                for (let i = piecePositions.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [piecePositions[i], piecePositions[j]] = [piecePositions[j], piecePositions[i]];
-                }
-            }
+            if (solved) shufflePuzzle();
             renderPuzzle();
         }
 
         resetBtn.addEventListener('click', function() {
             piecePositions = pieces.map((p, i) => i);
+            emptyIndex = 8;
+            pieces.forEach((p, i) => { p.isVisible = i !== 8; });
             renderPuzzle();
         });
 
         shuffleBtn.addEventListener('click', function() {
-            shufflePuzzle();
+            resetBtn.click();
+            setTimeout(shufflePuzzle, 100);
         });
 
         createPuzzlePieces();
