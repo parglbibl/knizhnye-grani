@@ -1306,11 +1306,20 @@ footer {
 }
 
 /* ===== ЛОГОТИПЫ ПАРТНЁРОВ В ПОДВАЛЕ ===== */
+.footer-partners a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 50px;
+    width: 100px;
+}
+
 .footer-partners img {
     max-height: 40px;
-    max-width: 120px;
+    max-width: 100px;
     width: auto;
     height: auto;
+    object-fit: contain;
 }
 
 /* ===== КНОПКА НАВЕРХ ===== */
