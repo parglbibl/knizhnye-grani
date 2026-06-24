@@ -86,7 +86,7 @@
             </div>
         </div>
 
-        <!-- ===== ПАЗЛ С ПЕРЕТАСКИВАНИЕМ ===== -->
+        <!-- ===== ПАЗЛ ===== -->
         <div style="max-width: 500px; margin: 0 auto 2rem auto; padding: 1.5rem 1rem; background: #1e2a47; border-radius: 24px; text-align: center;">
             <h3 style="color: var(--neon-coral); margin-bottom: 0.5rem; font-size: 1.3rem;">🧩 Собери лого</h3>
             <p style="color: rgba(255,255,255,0.7); font-size: 0.85rem; margin-bottom: 1.5rem;">
@@ -180,6 +180,7 @@
 <script src="/js/main.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // ===== ПАЗЛ =====
         const grid = document.getElementById('puzzleGrid');
         const shuffleBtn = document.getElementById('shufflePuzzle');
         const resetBtn = document.getElementById('resetPuzzle');
@@ -280,7 +281,7 @@
                 div.style.transition = 'transform 0.15s ease';
                 div.draggable = true;
 
-                // Drag & Drop для десктопа
+                // Drag & Drop
                 div.addEventListener('dragstart', function(e) {
                     e.dataTransfer.setData('text/plain', this.dataset.index);
                     this.style.opacity = '0.5';
@@ -290,7 +291,6 @@
                     this.style.opacity = '1';
                 });
 
-                // Разрешаем drop на всей сетке
                 grid.addEventListener('dragover', function(e) {
                     e.preventDefault();
                 });
@@ -306,7 +306,7 @@
                     }
                 });
 
-                // Для телефона — touch events
+                // Touch для телефона
                 let touchStartX = 0, touchStartY = 0;
                 div.addEventListener('touchstart', function(e) {
                     const touch = e.touches[0];
@@ -320,10 +320,9 @@
                     const dx = touchEnd.clientX - touchStartX;
                     const dy = touchEnd.clientY - touchStartY;
 
-                    // Определяем направление свайпа
                     const absDx = Math.abs(dx);
                     const absDy = Math.abs(dy);
-                    if (Math.max(absDx, absDy) < 20) return; // слишком маленькое движение
+                    if (Math.max(absDx, absDy) < 20) return;
 
                     const fromIndex = parseInt(this.dataset.index);
                     let toIndex = -1;
@@ -333,11 +332,9 @@
                     const fromCol = fromIndex % 3;
 
                     if (absDx > absDy) {
-                        // Горизонтальный свайп
                         if (dx > 0 && fromRow === emptyRow && fromCol + 1 === emptyCol) toIndex = emptyIndex;
                         else if (dx < 0 && fromRow === emptyRow && fromCol - 1 === emptyCol) toIndex = emptyIndex;
                     } else {
-                        // Вертикальный свайп
                         if (dy > 0 && fromCol === emptyCol && fromRow + 1 === emptyRow) toIndex = emptyIndex;
                         else if (dy < 0 && fromCol === emptyCol && fromRow - 1 === emptyRow) toIndex = emptyIndex;
                     }
@@ -349,7 +346,7 @@
                     touchStartY = 0;
                 }, { passive: true });
 
-                // Клик как альтернатива
+                // Клик
                 div.addEventListener('click', function() {
                     const fromIndex = parseInt(this.dataset.index);
                     const emptyRow = Math.floor(emptyIndex / 3);
