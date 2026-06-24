@@ -86,11 +86,11 @@
             </div>
         </div>
 
-        <!-- ===== ПАЗЛ «СОБЕРИ ЛОГО» (по центру, на месте плашки) ===== -->
+        <!-- ===== ПАЗЛ «СОБЕРИ ЛОГО» (перетаскивание детальки на детальку) ===== -->
         <div style="max-width: 500px; margin: 0 auto 2rem auto; padding: 2rem; background: #1e2a47; border-radius: 24px; text-align: center;">
             <h3 style="color: var(--neon-coral); margin-bottom: 0.5rem;">🧩 Собери лого</h3>
             <p style="color: rgba(255,255,255,0.7); font-size: 0.9rem; margin-bottom: 1.5rem;">
-                Переставьте части картинки, чтобы собрать логотип «Книжные грани».
+                Перетащите одну часть на другую — они поменяются местами.
             </p>
 
             <div id="puzzleGrid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; max-width: 320px; margin: 0 auto; background: #2a3a5a; border-radius: 16px; padding: 8px; aspect-ratio: 1/1;"></div>
@@ -172,7 +172,7 @@
 <script src="/js/main.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // ===== ПАЗЛ «СОБЕРИ ЛОГО» =====
+        // ===== ПАЗЛ С ПЕРЕТАСКИВАНИЕМ =====
         const grid = document.getElementById('puzzleGrid');
         const shuffleBtn = document.getElementById('shufflePuzzle');
         const resetBtn = document.getElementById('resetPuzzle');
@@ -244,6 +244,7 @@
                 const div = document.createElement('div');
                 div.dataset.index = index;
                 div.dataset.pieceIndex = pos;
+                div.dataset.correctIndex = piece.correctIndex;
                 
                 if (piece.src) {
                     div.style.backgroundImage = `url(${piece.src})`;
@@ -260,24 +261,126 @@
                 }
 
                 div.style.borderRadius = '8px';
-                div.style.cursor = 'pointer';
                 div.style.aspectRatio = '1/1';
-                div.style.transition = 'transform 0.15s ease';
+                div.style.cursor = 'grab';
                 div.style.border = '2px solid rgba(255,255,255,0.1)';
+                div.style.transition = 'transform 0.15s ease';
+                div.draggable = true;
 
-                div.addEventListener('click', function() {
-                    const clickedIndex = parseInt(this.dataset.index);
-                    handlePieceClick(clickedIndex);
+                // Drag & Drop
+                div.addEventListener('dragstart', function(e) {
+                    e.dataTransfer.setData('text/plain', this.dataset.index);
+                    this.style.opacity = '0.5';
+                    this.style.transform = 'scale(0.95)';
                 });
 
-                div.addEventListener('mouseenter', function() {
-                    this.style.transform = 'scale(1.03)';
-                    this.style.borderColor = 'var(--neon-coral)';
-                });
-
-                div.addEventListener('mouseleave', function() {
+                div.addEventListener('dragend', function(e) {
+                    this.style.opacity = '1';
                     this.style.transform = 'scale(1)';
+                });
+
+                // Разрешаем drop
+                div.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    this.style.borderColor = 'var(--neon-coral)';
+                    this.style.transform = 'scale(1.03)';
+                });
+
+                div.addEventListener('dragleave', function(e) {
                     this.style.borderColor = 'rgba(255,255,255,0.1)';
+                    this.style.transform = 'scale(1)';
+                });
+
+                div.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    this.style.borderColor = 'rgba(255,255,255,0.1)';
+                    this.style.transform = 'scale(1)';
+                    
+                    const fromIndex = parseInt(e.dataTransfer.getData('text/plain'));
+                    const toIndex = parseInt(this.dataset.index);
+                    
+                    if (fromIndex !== toIndex) {
+                        // Меняем местами
+                        const fromPos = piecePositions[fromIndex];
+                        const toPos = piecePositions[toIndex];
+                        piecePositions[fromIndex] = toPos;
+                        piecePositions[toIndex] = fromPos;
+                        renderPuzzle();
+                    }
+                });
+
+                // Touch для телефона (drag)
+                let touchStartX = 0, touchStartY = 0;
+                let isDragging = false;
+                let dragFromIndex = 0;
+
+                div.addEventListener('touchstart', function(e) {
+                    const touch = e.touches[0];
+                    touchStartX = touch.clientX;
+                    touchStartY = touch.clientY;
+                    isDragging = false;
+                    dragFromIndex = parseInt(this.dataset.index);
+                }, { passive: true });
+
+                div.addEventListener('touchmove', function(e) {
+                    e.preventDefault();
+                    const touch = e.touches[0];
+                    const dx = touch.clientX - touchStartX;
+                    const dy = touch.clientY - touchStartY;
+                    
+                    if (Math.sqrt(dx*dx + dy*dy) > 15) {
+                        isDragging = true;
+                        this.style.opacity = '0.7';
+                        this.style.transform = 'scale(0.95)';
+                    }
+                }, { passive: false });
+
+                div.addEventListener('touchend', function(e) {
+                    this.style.opacity = '1';
+                    this.style.transform = 'scale(1)';
+                    
+                    if (!isDragging) return;
+                    
+                    const touchEnd = e.changedTouches[0];
+                    const elements = document.elementsFromPoint(touchEnd.clientX, touchEnd.clientY);
+                    
+                    for (let el of elements) {
+                        if (el.dataset && el.dataset.index !== undefined) {
+                            const toIndex = parseInt(el.dataset.index);
+                            if (dragFromIndex !== toIndex) {
+                                const fromPos = piecePositions[dragFromIndex];
+                                const toPos = piecePositions[toIndex];
+                                piecePositions[dragFromIndex] = toPos;
+                                piecePositions[toIndex] = fromPos;
+                                renderPuzzle();
+                            }
+                            break;
+                        }
+                    }
+                    
+                    isDragging = false;
+                    touchStartX = 0;
+                    touchStartY = 0;
+                }, { passive: true });
+
+                // Клик как альтернатива (для простоты)
+                div.addEventListener('click', function() {
+                    const fromIndex = parseInt(this.dataset.index);
+                    // Ищем пустое место и меняем с ним
+                    let emptyIndex = -1;
+                    for (let i = 0; i < piecePositions.length; i++) {
+                        if (pieces[piecePositions[i]].correctIndex !== i) {
+                            emptyIndex = i;
+                            break;
+                        }
+                    }
+                    if (emptyIndex === -1) return;
+                    
+                    const fromPos = piecePositions[fromIndex];
+                    const toPos = piecePositions[emptyIndex];
+                    piecePositions[fromIndex] = toPos;
+                    piecePositions[emptyIndex] = fromPos;
+                    renderPuzzle();
                 });
 
                 grid.appendChild(div);
@@ -294,19 +397,6 @@
             }
         }
 
-        function handlePieceClick(clickedIndex) {
-            const emptyIndex = piecePositions.findIndex(pos => pieces[pos].correctIndex !== pos);
-            if (emptyIndex === -1) return;
-
-            const currentPos = piecePositions[clickedIndex];
-            const emptyPos = piecePositions[emptyIndex];
-            
-            piecePositions[clickedIndex] = emptyPos;
-            piecePositions[emptyIndex] = currentPos;
-
-            renderPuzzle();
-        }
-
         function shufflePuzzle() {
             let attempts = 0;
             do {
@@ -315,7 +405,7 @@
                     [piecePositions[i], piecePositions[j]] = [piecePositions[j], piecePositions[i]];
                 }
                 attempts++;
-            } while (attempts < 10);
+            } while (attempts < 20);
             
             let solved = true;
             piecePositions.forEach((pos, index) => {
@@ -331,7 +421,8 @@
         }
 
         resetBtn.addEventListener('click', function() {
-            shufflePuzzle();
+            piecePositions = pieces.map((p, i) => i);
+            renderPuzzle();
         });
 
         shuffleBtn.addEventListener('click', function() {
