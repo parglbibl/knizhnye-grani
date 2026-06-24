@@ -86,10 +86,21 @@
             </div>
         </div>
 
-        <div class="dark-bg">
-            <h3>Приходите поиграть!</h3>
-            <p style="margin: 1rem 0;">Расписание игротек появится здесь. Следите за обновлениями в нашей группе ВКонтакте.</p>
-            <a href="/events.html" class="btn btn-primary">Записаться на игру</a>
+        <!-- ===== ПАЗЛ «СОБЕРИ ЛОГО» (по центру, на месте плашки) ===== -->
+        <div style="max-width: 500px; margin: 0 auto 2rem auto; padding: 2rem; background: #1e2a47; border-radius: 24px; text-align: center;">
+            <h3 style="color: var(--neon-coral); margin-bottom: 0.5rem;">🧩 Собери лого</h3>
+            <p style="color: rgba(255,255,255,0.7); font-size: 0.9rem; margin-bottom: 1.5rem;">
+                Переставьте части картинки, чтобы собрать логотип «Книжные грани».
+            </p>
+
+            <div id="puzzleGrid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; max-width: 320px; margin: 0 auto; background: #2a3a5a; border-radius: 16px; padding: 8px; aspect-ratio: 1/1;"></div>
+            
+            <div style="margin-top: 1.5rem; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                <button id="shufflePuzzle" class="btn btn-sm" style="background: var(--neon-coral); color: #fff; border-color: var(--neon-coral);">Перемешать</button>
+                <button id="resetPuzzle" class="btn btn-sm btn-outline" style="color: #fff; border-color: rgba(255,255,255,0.3);">Сбросить</button>
+            </div>
+
+            <div id="puzzleMessage" style="margin-top: 1rem; font-weight: 600; font-size: 1.1rem; min-height: 2rem; color: var(--neon-coral);"></div>
         </div>
     </div>
 </section>
@@ -159,5 +170,176 @@
 </footer>
 
 <script src="/js/main.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // ===== ПАЗЛ «СОБЕРИ ЛОГО» =====
+        const grid = document.getElementById('puzzleGrid');
+        const shuffleBtn = document.getElementById('shufflePuzzle');
+        const resetBtn = document.getElementById('resetPuzzle');
+        const message = document.getElementById('puzzleMessage');
+
+        let pieces = [];
+        let piecePositions = [];
+
+        const logoUrl = '/images/logo-grani.png';
+
+        function createPuzzlePieces() {
+            const img = new Image();
+            img.crossOrigin = 'Anonymous';
+            img.src = logoUrl;
+
+            img.onload = function() {
+                const pieceWidth = img.width / 3;
+                const pieceHeight = img.height / 3;
+
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+
+                pieces = [];
+                piecePositions = [];
+
+                for (let row = 0; row < 3; row++) {
+                    for (let col = 0; col < 3; col++) {
+                        canvas.width = pieceWidth;
+                        canvas.height = pieceHeight;
+                        ctx.clearRect(0, 0, pieceWidth, pieceHeight);
+                        ctx.drawImage(img, col * pieceWidth, row * pieceHeight, pieceWidth, pieceHeight, 0, 0, pieceWidth, pieceHeight);
+                        
+                        const dataUrl = canvas.toDataURL('image/png');
+                        pieces.push({
+                            src: dataUrl,
+                            correctIndex: row * 3 + col,
+                            currentIndex: row * 3 + col
+                        });
+                        piecePositions.push(row * 3 + col);
+                    }
+                }
+
+                shufflePuzzle();
+                renderPuzzle();
+            };
+
+            img.onerror = function() {
+                pieces = [];
+                for (let i = 0; i < 9; i++) {
+                    pieces.push({
+                        src: '',
+                        correctIndex: i,
+                        currentIndex: i
+                    });
+                    piecePositions.push(i);
+                }
+                shufflePuzzle();
+                renderPuzzle();
+                message.textContent = '⚠️ Логотип не загрузился, но пазл работает!';
+            };
+        }
+
+        function renderPuzzle() {
+            grid.innerHTML = '';
+            let isSolved = true;
+
+            piecePositions.forEach((pos, index) => {
+                const piece = pieces[pos];
+                const div = document.createElement('div');
+                div.dataset.index = index;
+                div.dataset.pieceIndex = pos;
+                
+                if (piece.src) {
+                    div.style.backgroundImage = `url(${piece.src})`;
+                    div.style.backgroundSize = 'cover';
+                    div.style.backgroundPosition = 'center';
+                } else {
+                    div.style.background = '#3a4a6e';
+                    div.textContent = '?';
+                    div.style.display = 'flex';
+                    div.style.alignItems = 'center';
+                    div.style.justifyContent = 'center';
+                    div.style.color = '#fff';
+                    div.style.fontSize = '2rem';
+                }
+
+                div.style.borderRadius = '8px';
+                div.style.cursor = 'pointer';
+                div.style.aspectRatio = '1/1';
+                div.style.transition = 'transform 0.15s ease';
+                div.style.border = '2px solid rgba(255,255,255,0.1)';
+
+                div.addEventListener('click', function() {
+                    const clickedIndex = parseInt(this.dataset.index);
+                    handlePieceClick(clickedIndex);
+                });
+
+                div.addEventListener('mouseenter', function() {
+                    this.style.transform = 'scale(1.03)';
+                    this.style.borderColor = 'var(--neon-coral)';
+                });
+
+                div.addEventListener('mouseleave', function() {
+                    this.style.transform = 'scale(1)';
+                    this.style.borderColor = 'rgba(255,255,255,0.1)';
+                });
+
+                grid.appendChild(div);
+
+                if (piece.correctIndex !== index) {
+                    isSolved = false;
+                }
+            });
+
+            if (isSolved && pieces.length > 0) {
+                message.textContent = '🎉 Поздравляем! Вы собрали логотип!';
+            } else {
+                message.textContent = '';
+            }
+        }
+
+        function handlePieceClick(clickedIndex) {
+            const emptyIndex = piecePositions.findIndex(pos => pieces[pos].correctIndex !== pos);
+            if (emptyIndex === -1) return;
+
+            const currentPos = piecePositions[clickedIndex];
+            const emptyPos = piecePositions[emptyIndex];
+            
+            piecePositions[clickedIndex] = emptyPos;
+            piecePositions[emptyIndex] = currentPos;
+
+            renderPuzzle();
+        }
+
+        function shufflePuzzle() {
+            let attempts = 0;
+            do {
+                for (let i = piecePositions.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [piecePositions[i], piecePositions[j]] = [piecePositions[j], piecePositions[i]];
+                }
+                attempts++;
+            } while (attempts < 10);
+            
+            let solved = true;
+            piecePositions.forEach((pos, index) => {
+                if (pieces[pos].correctIndex !== index) solved = false;
+            });
+            if (solved) {
+                for (let i = piecePositions.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [piecePositions[i], piecePositions[j]] = [piecePositions[j], piecePositions[i]];
+                }
+            }
+            renderPuzzle();
+        }
+
+        resetBtn.addEventListener('click', function() {
+            shufflePuzzle();
+        });
+
+        shuffleBtn.addEventListener('click', function() {
+            shufflePuzzle();
+        });
+
+        createPuzzlePieces();
+    });
+</script>
 </body>
 </html>
