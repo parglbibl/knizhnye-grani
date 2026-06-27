@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Игротека Книжные грани 17 июня — настольные игры и спидкубинг</title>
-    <meta name="description" content="Большая игротека от Hobby World и мастер-класс по спидкубингу в библиотеке. 17 июня, 15:00–19:00. Вход бесплатный!">
+    <title id="eventTitle">Событие — Книжные грани</title>
     <link rel="stylesheet" href="/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -88,36 +87,12 @@
 
 <section class="section">
     <div class="container">
-        <h1 class="section-title">Игротека «Книжные грани»</h1>
+        <h1 class="section-title" id="eventPageTitle">Событие</h1>
         
-        <div style="max-width: 800px; margin: 0 auto;">
-            <p style="font-size: 1.1rem; color: var(--text-secondary); text-align: center;">
-                <strong>Большая игротека от Hobby World</strong> и <strong>мастер-класс по спидкубингу</strong> 
-                в библиотеке. Приходите один или с друзьями — найдём компанию!
-            </p>
-            
-            <div style="background: #f5f0e8; border-radius: 16px; padding: 1.5rem; margin: 1.5rem 0;">
-                <p><strong>📅 Когда:</strong> 17 июня 2026, 15:00 – 19:00</p>
-                <p><strong>📍 Где:</strong> Библиотека-мастерская, пр. Просвещения, 43, ТРК «Парк-Молл», 2 этаж</p>
-                <p><strong>🎫 Вход:</strong> Бесплатный</p>
-                <p><strong>👥 Для кого:</strong> Для детей (6+) и взрослых</p>
-            </div>
-            
-            <h2 style="color: var(--neon-coral); margin: 1.5rem 0 1rem;">Что вас ждёт:</h2>
-            <ul style="color: var(--text-secondary); line-height: 2; margin-bottom: 1.5rem; padding-left: 1.5rem;">
-                <li>🎲 <strong>Десятки настольных игр</strong> на любой вкус — стратегии, семейные, кооперативные</li>
-                <li>🧩 <strong>Мастер-класс по сборке кубика Рубика</strong> для начинающих и опытных</li>
-                <li>🏆 <strong>Мини-турнир</strong> по настольным играм с призами</li>
-                <li>☕ Уютная атмосфера и общение</li>
-            </ul>
-            
-            <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1.5rem; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 1.5rem;">
-                <a href="/gallery.html" class="btn" style="flex: 1; text-align: center;">
-                    <i class="fas fa-images"></i> Смотреть фотоотчёт
-                </a>
-                <a href="/events.html" class="btn btn-primary" style="flex: 1; text-align: center; background: var(--neon-coral); color: #fff; border-color: var(--neon-coral);">
-                    <i class="fas fa-arrow-left"></i> Все события
-                </a>
+        <div id="eventContent" style="max-width: 800px; margin: 0 auto;">
+            <div style="text-align: center; padding: 3rem;">
+                <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: var(--neon-coral);"></i>
+                <p style="margin-top: 1rem; color: var(--text-secondary);">Загрузка...</p>
             </div>
         </div>
     </div>
@@ -149,26 +124,6 @@
                 <p style="margin-top:1.5rem;">Следите за анонсами в нашей группе ВКонтакте</p>
             </div>
         </div>
-
-        <!-- ===== НАШИ ПАРТНЁРЫ ===== -->
-        <div class="footer-partners" style="border-top: 1px solid rgba(0,0,0,0.05); padding-top: 1.5rem; margin-top: 1.5rem;">
-            <p style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-secondary); margin-bottom: 1rem;">Наши партнёры</p>
-            <div style="display: flex; justify-content: center; align-items: center; gap: 2rem; flex-wrap: wrap;">
-                <a href="https://ait-game.ru/" target="_blank" rel="noopener noreferrer" style="display: inline-block;">
-                    <img src="/images/partners/ait-logo.PNG" alt="Ассоциация Игровых Технологий" style="height: 35px; width: auto; opacity: 0.7; transition: opacity 0.3s;">
-                </a>
-                <a href="https://cubingrf.org/" target="_blank" rel="noopener noreferrer" style="display: inline-block;">
-                    <img src="/images/partners/cubingrf.PNG" alt="Федерация спидкубинга России" style="height: 40px; width: auto; opacity: 0.7; transition: opacity 0.3s;">
-                </a>
-                <a href="http://speedcubes.ru/" target="_blank" rel="noopener noreferrer" style="display: inline-block;">
-                    <img src="/images/partners/speedcubes.PNG" alt="SpeedCubes" style="height: 40px; width: auto; opacity: 0.7; transition: opacity 0.3s;">
-                </a>
-                <a href="https://cccstore.ru/" target="_blank" rel="noopener noreferrer" style="display: inline-block;">
-                    <img src="/images/partners/cccstore.PNG" alt="CCCStore" style="height: 40px; width: auto; opacity: 0.7; transition: opacity 0.3s;">
-                </a>
-            </div>
-        </div>
-
         <div class="footer-bottom">
             <p>© <span id="current-year"></span> Книжные грани | ЦБС Выборгского района</p>
         </div>
@@ -189,5 +144,123 @@
 </footer>
 
 <script src="/js/main.js"></script>
+<script>
+    // ============================================================
+    // ===== ДАННЫЕ О ВСЕХ СОБЫТИЯХ ================================
+    // ============================================================
+    const eventsData = {
+        // ===== 17 ИЮНЯ (ПРОШЕДШЕЕ) =====
+        'summer-party': {
+            id: 'summer-party',
+            title: 'Игротека «Книжные грани»',
+            date: '17 июня 2026',
+            time: '15:00 – 19:00',
+            location: 'Библиотека-мастерская (пр. Просвещения, 43, ТРК «Парк-Молл», 2 этаж)',
+            image: '../images/afisha/afisha1706.jpg',
+            description: 'Первая летняя игротека в Библиотеке-мастерской. Мастер-класс по сборке кубика Рубика и большая игротека от Hobby World. Мы собрали более 50 настольных игр для всех возрастов и уровней подготовки.',
+            program: [
+                '🕒 15:00 — Открытие, знакомство',
+                '🕒 15:30 — Мастер-класс по сборке кубика Рубика',
+                '🕒 16:30 — Большая игротека (настольные игры)',
+                '🕒 18:00 — Мини-турнир по настольным играм',
+                '🕒 19:00 — Закрытие'
+            ],
+            galleryLink: '../gallery.html'
+        },
+
+        // ===== 1 ИЮЛЯ =====
+        'july-party': {
+            id: 'july-party',
+            title: 'Игротека «Книжные грани»',
+            date: '1 июля 2026',
+            time: '15:00 – 19:00',
+            location: 'Библиотека-мастерская (пр. Просвещения, 43, ТРК «Парк-Молл», 2 этаж)',
+            image: '../images/afisha/afisha0107.PNG',
+            description: 'Большая игротека от Hobby World. Десятки настольных игр на любой вкус. Приходите один или с друзьями — найдём компанию!',
+            program: [
+                '🕒 15:00 — Открытие, знакомство',
+                '🕒 16:30 — Большая игротека (настольные игры)',
+                '🕒 18:00 — Мини-турнир по настольным играм',
+                '🕒 19:00 — Закрытие'
+            ],
+            galleryLink: '../gallery.html'
+        }
+    };
+
+    // ============================================================
+    // ===== ЗАГРУЗКА ДАННЫХ =======================================
+    // ============================================================
+    document.addEventListener('DOMContentLoaded', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const eventId = urlParams.get('id');
+        
+        const content = document.getElementById('eventContent');
+        const pageTitle = document.getElementById('eventPageTitle');
+        const titleTag = document.getElementById('eventTitle');
+        
+        if (!eventId || !eventsData[eventId]) {
+            content.innerHTML = `
+                <div style="background: #fff; border-radius: 24px; padding: 3rem; text-align: center; border: 1px solid rgba(0,0,0,0.05);">
+                    <i class="fas fa-exclamation-circle" style="font-size: 3rem; color: var(--neon-coral); margin-bottom: 1rem;"></i>
+                    <h2 style="color: var(--neon-coral);">Событие не найдено</h2>
+                    <p style="color: var(--text-secondary); margin: 1rem 0;">Возможно, вы перешли по неверной ссылке.</p>
+                    <a href="../events.html" class="btn btn-primary">Вернуться к афише</a>
+                </div>
+            `;
+            return;
+        }
+        
+        const event = eventsData[eventId];
+        
+        pageTitle.textContent = event.title;
+        titleTag.textContent = event.title + ' — Книжные грани';
+        
+        let programHtml = '';
+        if (event.program && event.program.length > 0) {
+            programHtml = `
+                <h2 style="color: var(--neon-coral); margin: 1.5rem 0 1rem;">Программа</h2>
+                <ul style="color: var(--text-secondary); line-height: 2; margin-bottom: 1.5rem; padding-left: 1.5rem;">
+                    ${event.program.map(item => `<li>${item}</li>`).join('')}
+                </ul>
+            `;
+        }
+        
+        content.innerHTML = `
+            <div style="background: #fff; border-radius: 24px; padding: 2rem; border: 1px solid rgba(0,0,0,0.05);">
+                <div style="border-radius: 16px; overflow: hidden; margin-bottom: 1.5rem;">
+                    <img src="${event.image}" alt="${event.title}" style="width: 100%; height: auto; display: block;" onerror="this.src='https://placehold.co/800x400/2a3a5a/ffffff?text=Фото+скоро'">
+                </div>
+                
+                <div style="display: flex; gap: 0.8rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
+                    <span style="background: var(--neon-coral); color: #fff; padding: 0.3rem 1rem; border-radius: 20px; font-size: 0.8rem;">
+                        <i class="fas fa-calendar-alt"></i> ${event.date}
+                    </span>
+                    <span style="background: rgba(0,0,0,0.05); padding: 0.3rem 1rem; border-radius: 20px; font-size: 0.8rem;">
+                        <i class="fas fa-clock"></i> ${event.time}
+                    </span>
+                    <span style="background: rgba(0,0,0,0.05); padding: 0.3rem 1rem; border-radius: 20px; font-size: 0.8rem;">
+                        <i class="fas fa-map-marker-alt"></i> ${event.location}
+                    </span>
+                </div>
+                
+                <h2 style="color: var(--neon-coral); margin-bottom: 1rem;">О мероприятии</h2>
+                <p style="color: var(--text-secondary); line-height: 1.8; margin-bottom: 1.5rem;">
+                    ${event.description}
+                </p>
+                
+                ${programHtml}
+                
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1.5rem; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 1.5rem;">
+                    <a href="${event.galleryLink}" class="btn" style="flex: 1; text-align: center;">
+                        <i class="fas fa-images"></i> Смотреть фотоотчёт
+                    </a>
+                    <a href="../events.html" class="btn btn-primary" style="flex: 1; text-align: center; background: var(--neon-coral); color: #fff; border-color: var(--neon-coral);">
+                        <i class="fas fa-arrow-left"></i> Все события
+                    </a>
+                </div>
+            </div>
+        `;
+    });
+</script>
 </body>
 </html>
