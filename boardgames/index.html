@@ -86,14 +86,14 @@
             </div>
         </div>
 
-        <!-- ===== ПАЗЛ «СОБЕРИ ЛОГО» (100% НАДЁЖНАЯ ВЕРСИЯ) ===== -->
+        <!-- ===== ПАЗЛ «СОБЕРИ ЛОГО» (ФИНАЛЬНАЯ РАБОЧАЯ ВЕРСИЯ) ===== -->
         <div style="max-width: 500px; margin: 0 auto 2rem auto; padding: 2rem; background: #1e2a47; border-radius: 24px; text-align: center;">
             <h3 style="color: var(--neon-coral); margin-bottom: 0.5rem;">🧩 Собери лого</h3>
             <p style="color: rgba(255,255,255,0.7); font-size: 0.9rem; margin-bottom: 1.5rem;">
                 Нажимайте на части рядом с пустой ячейкой, чтобы переместить их.
             </p>
 
-            <div id="puzzleGrid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; max-width: 320px; margin: 0 auto; border-radius: 16px; padding: 8px; aspect-ratio: 1/1;"></div>
+            <div id="puzzleGrid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; max-width: 320px; margin: 0 auto; background: #1e2a47; border-radius: 16px; padding: 8px; aspect-ratio: 1/1;"></div>
             
             <div style="margin-top: 1.5rem; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
                 <button id="shufflePuzzle" class="btn btn-sm" style="background: var(--neon-coral); color: #fff; border-color: var(--neon-coral);">Перемешать</button>
@@ -169,7 +169,7 @@
 
 <script src="/js/main.js"></script>
 
-<!-- ===== СКРИПТ ПАЗЛА (ГАРАНТИРОВАННО ПРАВИЛЬНАЯ СБОРКА) ===== -->
+<!-- ===== СКРИПТ ПАЗЛА (САМАЯ ПРОСТАЯ И РАБОЧАЯ ВЕРСИЯ) ===== -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const grid = document.getElementById('puzzleGrid');
@@ -177,7 +177,6 @@
         const resetBtn = document.getElementById('resetPuzzle');
         const message = document.getElementById('puzzleMessage');
 
-        // Массив: 0-7 — кусочки лого, 8 — пустота
         let pieces = [0, 1, 2, 3, 4, 5, 6, 7, 8];
         let emptyIndex = 8;
 
@@ -191,39 +190,28 @@
                 const div = document.createElement('div');
                 div.dataset.index = index;
 
-                // Базовый стиль ячейки
                 div.style.borderRadius = '8px';
                 div.style.aspectRatio = '1/1';
                 div.style.cursor = 'pointer';
-                div.style.border = '2px solid rgba(255,255,255,0.15)';
-                div.style.transition = 'transform 0.15s ease, border-color 0.2s ease';
-                div.style.background = '#1e2a47'; // подложка под прозрачные участки
-                div.style.overflow = 'hidden';
 
                 if (piece === 8) {
                     // Пустая ячейка
+                    div.style.background = 'rgba(255,255,255,0.05)';
                     div.style.border = '2px dashed rgba(255,255,255,0.2)';
                     div.style.cursor = 'default';
                     div.dataset.empty = 'true';
                 } else {
-                    // Вставляем картинку через тег <img> (самый надёжный способ)
+                    // Часть логотипа — заливаем фоном цвет сайта, чтобы логотип не просвечивал
+                    div.style.background = '#1e2a47'; 
+                    div.style.backgroundImage = `url(${logoUrl})`;
+                    div.style.backgroundSize = '300% 300%';
+                    div.style.backgroundRepeat = 'no-repeat';
+                    div.style.border = '1px solid rgba(255,255,255,0.1)';
+
                     const row = Math.floor(piece / 3);
                     const col = piece % 3;
+                    div.style.backgroundPosition = `${col * 100}% ${row * 100}%`;
 
-                    const img = document.createElement('img');
-                    img.src = logoUrl;
-                    img.style.width = '300%';
-                    img.style.height = '300%';
-                    img.style.maxWidth = 'none';
-                    img.style.objectFit = 'none'; // не масштабируем, а обрезаем
-                    img.style.objectPosition = `${col * 100}% ${row * 100}%`;
-                    img.style.display = 'block';
-                    img.draggable = false;
-                    img.alt = '';
-
-                    div.appendChild(img);
-
-                    // Обработчики
                     div.addEventListener('click', function(e) {
                         handleTileClick(parseInt(this.dataset.index));
                     });
@@ -232,19 +220,6 @@
                         e.preventDefault();
                         handleTileClick(parseInt(this.dataset.index));
                     }, { passive: false });
-
-                    div.addEventListener('mouseenter', function() {
-                        if (!this.dataset.empty) {
-                            this.style.transform = 'scale(1.05)';
-                            this.style.borderColor = 'var(--neon-coral)';
-                            this.style.zIndex = '2';
-                        }
-                    });
-                    div.addEventListener('mouseleave', function() {
-                        this.style.transform = 'scale(1)';
-                        this.style.borderColor = 'rgba(255,255,255,0.15)';
-                        this.style.zIndex = '1';
-                    });
                 }
 
                 grid.appendChild(div);
@@ -260,10 +235,6 @@
 
             if (isSolved) {
                 message.textContent = '🎉 Поздравляем! Вы собрали логотип!';
-                document.querySelectorAll('#puzzleGrid div:not([data-empty="true"])').forEach(el => {
-                    el.style.borderColor = 'var(--neon-coral)';
-                    el.style.boxShadow = '0 0 10px rgba(255, 46, 90, 0.3)';
-                });
             } else {
                 message.textContent = '';
             }
@@ -307,6 +278,7 @@
                 emptyIndex = randomNeighbor;
             }
 
+            // Проверка на случайную сборку
             let isSolved = true;
             for (let i = 0; i < 9; i++) {
                 if (pieces[i] !== i) {
@@ -322,7 +294,6 @@
             renderPuzzle();
         }
 
-        // ===== КНОПКА «СОБРАТЬ» (СТРОГО ПРАВИЛЬНАЯ) =====
         function resetPuzzle() {
             pieces = [0, 1, 2, 3, 4, 5, 6, 7, 8];
             emptyIndex = 8;
@@ -331,14 +302,14 @@
 
         shuffleBtn.addEventListener('click', function() {
             resetPuzzle();
-            setTimeout(shufflePuzzle, 100);
+            setTimeout(shufflePuzzle, 50);
         });
 
         resetBtn.addEventListener('click', function() {
             resetPuzzle();
         });
 
-        // Первый запуск
+        // Запуск
         resetPuzzle();
     });
 </script>
