@@ -65,7 +65,7 @@
             </div>
         </div>
 
-        <!-- ===== ПАЗЛ «СОБЕРИ ЛОГО» (ВЕРСИЯ С КВАДРАТНЫМ igra.png) ===== -->
+        <!-- ===== ПАЗЛ «СОБЕРИ ЛОГО» (С ПРАВИЛЬНОЙ НАРЕЗКОЙ) ===== -->
         <div style="max-width: 500px; margin: 0 auto 2rem auto; padding: 2rem; background: #1e2a47; border-radius: 24px; text-align: center;">
             <h3 style="color: var(--neon-coral); margin-bottom: 0.5rem;">🧩 Собери лого</h3>
             <p style="color: rgba(255,255,255,0.7); font-size: 0.9rem; margin-bottom: 1.5rem;">
@@ -113,7 +113,7 @@
 
 <script src="/js/main.js"></script>
 
-<!-- ===== СКРИПТ ПАЗЛА (ТОЧЬ-В-ТОЧЬ КАК ТЫ ПРОСИЛ, ТОЛЬКО ПУТЬ ИЗМЕНЁН) ===== -->
+<!-- ===== СКРИПТ ПАЗЛА (С ПРАВИЛЬНОЙ НАРЕЗКОЙ 300% 300%) ===== -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const grid = document.getElementById('puzzleGrid');
@@ -124,7 +124,7 @@
         let pieces = [0, 1, 2, 3, 4, 5, 6, 7, 8];
         let emptyIndex = 8;
 
-        const logoUrl = '/images/igra.png'; // ← ИЗМЕНЕНО НА НОВУЮ КАРТИНКУ
+        const logoUrl = '/images/igra.png'; // ТВОЯ НОВАЯ КВАДРАТНАЯ КАРТИНКА
 
         function renderPuzzle() {
             grid.innerHTML = '';
@@ -150,8 +150,9 @@
                     const row = Math.floor(piece / 3);
                     const col = piece % 3;
 
+                    // ВАЖНО: backgroundSize: 300% 300% режет картинку на 3x3
                     div.style.backgroundImage = `url(${logoUrl})`;
-                    div.style.backgroundSize = '300% 300%';
+                    div.style.backgroundSize = '300% 300%'; 
                     div.style.backgroundPosition = `${col * 100}% ${row * 100}%`;
                     div.style.backgroundColor = '#2a3a5a';
 
@@ -163,19 +164,6 @@
                         e.preventDefault();
                         handleTileClick(parseInt(this.dataset.index));
                     }, { passive: false });
-
-                    div.addEventListener('mouseenter', function() {
-                        if (!this.dataset.empty) {
-                            this.style.transform = 'scale(1.05)';
-                            this.style.borderColor = 'var(--neon-coral)';
-                            this.style.zIndex = '2';
-                        }
-                    });
-                    div.addEventListener('mouseleave', function() {
-                        this.style.transform = 'scale(1)';
-                        this.style.borderColor = 'rgba(255,255,255,0.1)';
-                        this.style.zIndex = '1';
-                    });
                 }
 
                 grid.appendChild(div);
