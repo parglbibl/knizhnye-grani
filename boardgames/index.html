@@ -86,14 +86,14 @@
             </div>
         </div>
 
-        <!-- ===== ПАЗЛ «СОБЕРИ ЛОГО» (ФИНАЛЬНАЯ РАБОЧАЯ ВЕРСИЯ) ===== -->
+        <!-- ===== ПАЗЛ «СОБЕРИ ЛОГО» (ИДЕАЛЬНАЯ ВЕРСИЯ С ДЕТАЛЯМИ) ===== -->
         <div style="max-width: 500px; margin: 0 auto 2rem auto; padding: 2rem; background: #1e2a47; border-radius: 24px; text-align: center;">
             <h3 style="color: var(--neon-coral); margin-bottom: 0.5rem;">🧩 Собери лого</h3>
             <p style="color: rgba(255,255,255,0.7); font-size: 0.9rem; margin-bottom: 1.5rem;">
                 Нажимайте на части рядом с пустой ячейкой, чтобы переместить их.
             </p>
 
-            <div id="puzzleGrid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; max-width: 320px; margin: 0 auto; background: #1e2a47; border-radius: 16px; padding: 8px; aspect-ratio: 1/1;"></div>
+            <div id="puzzleGrid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; max-width: 320px; margin: 0 auto; border-radius: 16px; padding: 2px; aspect-ratio: 1/1;"></div>
             
             <div style="margin-top: 1.5rem; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
                 <button id="shufflePuzzle" class="btn btn-sm" style="background: var(--neon-coral); color: #fff; border-color: var(--neon-coral);">Перемешать</button>
@@ -169,7 +169,7 @@
 
 <script src="/js/main.js"></script>
 
-<!-- ===== СКРИПТ ПАЗЛА (САМАЯ ПРОСТАЯ И РАБОЧАЯ ВЕРСИЯ) ===== -->
+<!-- ===== СКРИПТ ПАЗЛА (С ДЕТАЛЯМИ И ПРАВИЛЬНОЙ СБОРКОЙ) ===== -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const grid = document.getElementById('puzzleGrid');
@@ -190,9 +190,12 @@
                 const div = document.createElement('div');
                 div.dataset.index = index;
 
+                // Базовые стили (без фона, чтобы детали были видны)
                 div.style.borderRadius = '8px';
                 div.style.aspectRatio = '1/1';
                 div.style.cursor = 'pointer';
+                div.style.background = 'transparent';
+                div.style.border = '1px solid rgba(255,255,255,0.15)';
 
                 if (piece === 8) {
                     // Пустая ячейка
@@ -201,17 +204,16 @@
                     div.style.cursor = 'default';
                     div.dataset.empty = 'true';
                 } else {
-                    // Часть логотипа — заливаем фоном цвет сайта, чтобы логотип не просвечивал
-                    div.style.background = '#1e2a47'; 
-                    div.style.backgroundImage = `url(${logoUrl})`;
-                    div.style.backgroundSize = '300% 300%';
-                    div.style.backgroundRepeat = 'no-repeat';
-                    div.style.border = '1px solid rgba(255,255,255,0.1)';
-
+                    // Часть логотипа
                     const row = Math.floor(piece / 3);
                     const col = piece % 3;
-                    div.style.backgroundPosition = `${col * 100}% ${row * 100}%`;
 
+                    div.style.backgroundImage = `url(${logoUrl})`;
+                    div.style.backgroundSize = '300% 300%';
+                    div.style.backgroundPosition = `${col * 100}% ${row * 100}%`;
+                    div.style.backgroundRepeat = 'no-repeat';
+
+                    // Обработчики (комп + мобила)
                     div.addEventListener('click', function(e) {
                         handleTileClick(parseInt(this.dataset.index));
                     });
@@ -235,6 +237,9 @@
 
             if (isSolved) {
                 message.textContent = '🎉 Поздравляем! Вы собрали логотип!';
+                document.querySelectorAll('#puzzleGrid div:not([data-empty="true"])').forEach(el => {
+                    el.style.borderColor = 'var(--neon-coral)';
+                });
             } else {
                 message.textContent = '';
             }
@@ -294,6 +299,7 @@
             renderPuzzle();
         }
 
+        // Самая простая и правильная кнопка "Собрать"
         function resetPuzzle() {
             pieces = [0, 1, 2, 3, 4, 5, 6, 7, 8];
             emptyIndex = 8;
@@ -309,7 +315,7 @@
             resetPuzzle();
         });
 
-        // Запуск
+        // Первый запуск
         resetPuzzle();
     });
 </script>
