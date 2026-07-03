@@ -1,220 +1,253 @@
-<!-- ===== ИГРА «ХОД КОНЁМ» (ЛОГИЧЕСКАЯ ГОЛОВОЛОМКА) ===== -->
-<div style="max-width: 500px; margin: 0 auto 2rem auto; padding: 2rem; background: #1e2a47; border-radius: 24px; text-align: center;">
-    <h3 style="color: var(--neon-coral); margin-bottom: 0.5rem;">♟️ Ход конём</h3>
-    <p style="color: rgba(255,255,255,0.7); font-size: 0.9rem; margin-bottom: 1rem;">
-        Меняй местами соседние фишки, чтобы собрать все числа по порядку от 1 до 16!
-    </p>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Настольные игры в библиотеке — каталог и правила</title>
+    <meta name="description" content="Бесплатные настольные игры в библиотеке: от классики до современных хитов. Приходите играть один или с друзьями!">
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- Yandex.Metrika counter -->
+    <script type="text/javascript">
+        (function(m,e,t,r,i,k,a){
+            m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+            m[i].l=1*new Date();
+            for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+            k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+        })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=109783209', 'ym');
 
-    <!-- Счётчик ходов и таймер -->
-    <div style="display: flex; justify-content: center; gap: 2rem; margin-bottom: 1rem;">
-        <div style="color: #fff;">
-            <div style="font-size: 0.7rem; opacity: 0.6;">ХОДОВ</div>
-            <div id="moveCount" style="font-size: 1.5rem; font-weight: bold;">0</div>
+        ym(109783209, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
+    </script>
+    <noscript><div><img src="https://mc.yandex.ru/watch/109783209" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+    <!-- /Yandex.Metrika counter -->
+
+    <link rel="icon" type="image/x-icon" href="/favicon/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
+    <link rel="manifest" href="/favicon/site.webmanifest">
+    <meta name="msapplication-TileColor" content="#ff2e5a">
+    <meta name="theme-color" content="#fef9f0">
+</head>
+<body>
+
+<header>
+    <div class="container header-inner">
+        <div class="logo">
+            <div class="logo-cbs"><img src="/images/logo-cbs.png" alt="ЦБС Выборгского района"></div>
+            <div class="logo-rost"><img src="/images/logo-rost.png" alt="Проектный офис РОСТ"></div>
+            <a href="/index.html"><img src="/images/logo-grani.png" alt="Книжные грани"></a>
         </div>
-        <div style="color: #fff;">
-            <div style="font-size: 0.7rem; opacity: 0.6;">ВРЕМЯ</div>
-            <div id="timerDisplay" style="font-size: 1.5rem; font-weight: bold;">00:00</div>
+        <div class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></div>
+        <nav class="nav" id="nav"></nav>
+    </div>
+</header>
+
+<section class="section">
+    <div class="container">
+        <h1 class="section-title">Настольные игры</h1>
+        <p style="text-align: center; margin-bottom: 2rem; color: var(--text-secondary);">Коллекция игр постоянно пополняется. Приходите играть бесплатно!</p>
+
+        <div class="directions-grid" style="margin-bottom: 2rem;">
+            <div class="direction-card">
+                <i class="fas fa-search"></i>
+                <h3>Каталог игр</h3>
+                <p>Список игр появится здесь. Следите за обновлениями.</p>
+                <a href="/boardgames/catalog.html" class="btn btn-sm">Смотреть каталог</a>
+            </div>
+            <div class="direction-card">
+                <i class="fas fa-clipboard-list"></i>
+                <h3>Правила посещения</h3>
+                <p>Как проходят игры и что нужно знать</p>
+                <a href="/boardgames/rules.html" class="btn btn-sm">Читать правила</a>
+            </div>
+            <div class="direction-card">
+                <i class="fas fa-pen"></i>
+                <h3>Топ-10 настольных игр для компании</h3>
+                <p>Собрали для вас 10 лучших игр для любой компании: от классики до новинок.</p>
+                <a href="/boardgames/top-10-nastolnyh-igr.html" class="btn btn-sm">Читать →</a>
+            </div>
+            <div class="direction-card">
+                <i class="fas fa-calendar-alt"></i>
+                <h3>Афиша событий</h3>
+                <p>Все мероприятия проекта — игротеки, турниры, встречи</p>
+                <a href="/events.html" class="btn btn-sm">Смотреть афишу</a>
+            </div>
+        </div>
+
+        <!-- ===== ИГРА «ЧИСЛОВОЙ РЯД» ===== -->
+        <div style="max-width: 500px; margin: 0 auto 2rem auto; padding: 2rem; background: #1e2a47; border-radius: 24px; text-align: center;">
+            <h3 style="color: var(--neon-coral); margin-bottom: 0.5rem;">🔢 Числовой ряд</h3>
+            <p style="color: rgba(255,255,255,0.7); font-size: 0.9rem; margin-bottom: 1rem;">
+                Нажимай на числа по порядку от 1 до 16. Не ошибись!
+            </p>
+
+            <!-- Счётчик -->
+            <div style="margin-bottom: 1rem; color: #fff; font-size: 1.2rem;">
+                Следующее число: <strong id="nextNumberDisplay" style="color: var(--neon-coral);">1</strong>
+            </div>
+
+            <!-- Игровое поле 4×4 -->
+            <div id="numberGrid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; max-width: 320px; margin: 0 auto; aspect-ratio: 1/1;"></div>
+
+            <div style="margin-top: 1.5rem; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                <button id="shuffleNumbersBtn" class="btn btn-sm" style="background: var(--neon-coral); color: #fff; border-color: var(--neon-coral);">Перемешать</button>
+                <button id="resetNumbersBtn" class="btn btn-sm btn-outline" style="color: #fff; border-color: rgba(255,255,255,0.3);">Сбросить</button>
+            </div>
+
+            <div id="numberMessage" style="margin-top: 1rem; font-weight: 600; font-size: 1.1rem; min-height: 2rem; color: var(--neon-coral);"></div>
         </div>
     </div>
+</section>
 
-    <!-- Игровое поле 4×4 -->
-    <div id="gameGrid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; max-width: 320px; margin: 0 auto; aspect-ratio: 1/1;"></div>
-
-    <div style="margin-top: 1.5rem; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-        <button id="shuffleGameBtn" class="btn btn-sm" style="background: var(--neon-coral); color: #fff; border-color: var(--neon-coral);">Перемешать</button>
-        <button id="resetGameBtn" class="btn btn-sm btn-outline" style="color: #fff; border-color: rgba(255,255,255,0.3);">Собрать</button>
+<footer>
+    <div class="container">
+        <div class="footer-grid">
+            <div class="footer-col">
+                <h3>Книжные грани</h3>
+                <p>Проект ЦБС Выборгского района</p>
+                <p>Работает на базе <strong>Библиотеки-мастерской</strong></p>
+                <p>пр. Просвещения, 43, ТРК «Парк-Молл», 2 этаж</p>
+                <p><strong>+7 (812) 246-93-15</strong></p>
+            </div>
+            <div class="footer-col">
+                <h3>Разделы</h3>
+                <p><a href="/index.html">Главная</a></p>
+                <p><a href="/about.html">О проекте</a></p>
+                <p><a href="/events.html">Мероприятия</a></p>
+                <p><a href="/contacts.html">Контакты</a></p>
+            </div>
+            <div class="footer-col">
+                <h3>Мы в соцсетях</h3>
+                <div class="footer-social"><a href="https://vk.com/officecbsbvib" target="_blank"><i class="fab fa-vk"></i></a></div>
+                <p style="margin-top:1.5rem;">Следите за анонсами в нашей группе ВКонтакте</p>
+            </div>
+        </div>
+        <div class="footer-partners" style="border-top: 1px solid rgba(0,0,0,0.05); padding-top: 1.5rem; margin-top: 1.5rem;">
+            <p style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-secondary); margin-bottom: 1rem;">Наши партнёры</p>
+            <div style="display: flex; justify-content: center; align-items: center; gap: 2rem; flex-wrap: wrap;">
+                <a href="https://ait-game.ru/" target="_blank" rel="noopener noreferrer" style="display: inline-block;"><img src="/images/partners/ait-logo.PNG" style="height: 35px; width: auto; opacity: 0.7;"></a>
+                <a href="https://cubingrf.org/" target="_blank" rel="noopener noreferrer" style="display: inline-block;"><img src="/images/partners/cubingrf.PNG" style="height: 40px; width: auto; opacity: 0.7;"></a>
+                <a href="http://speedcubes.ru/" target="_blank" rel="noopener noreferrer" style="display: inline-block;"><img src="/images/partners/speedcubes.PNG" style="height: 40px; width: auto; opacity: 0.7;"></a>
+                <a href="https://cccstore.ru/" target="_blank" rel="noopener noreferrer" style="display: inline-block;"><img src="/images/partners/cccstore.PNG" style="height: 40px; width: auto; opacity: 0.7;"></a>
+            </div>
+        </div>
+        <div class="footer-bottom"><p>© <span id="current-year"></span> Книжные грани | ЦБС Выборгского района</p></div>
     </div>
+</footer>
 
-    <div id="gameMessage" style="margin-top: 1rem; font-weight: 600; font-size: 1.1rem; min-height: 2rem; color: var(--neon-coral);"></div>
-</div>
+<script src="/js/main.js"></script>
 
+<!-- ===== СКРИПТ ИГРЫ «ЧИСЛОВОЙ РЯД» ===== -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const grid = document.getElementById('gameGrid');
-        const shuffleBtn = document.getElementById('shuffleGameBtn');
-        const resetBtn = document.getElementById('resetGameBtn');
-        const message = document.getElementById('gameMessage');
-        const moveCountDisplay = document.getElementById('moveCount');
-        const timerDisplay = document.getElementById('timerDisplay');
+        const grid = document.getElementById('numberGrid');
+        const shuffleBtn = document.getElementById('shuffleNumbersBtn');
+        const resetBtn = document.getElementById('resetNumbersBtn');
+        const message = document.getElementById('numberMessage');
+        const nextNumberDisplay = document.getElementById('nextNumberDisplay');
 
-        let tiles = [];
-        let moves = 0;
-        let seconds = 0;
-        let timerInterval = null;
-        let isGameActive = false;
-        let selectedIndex = null;
+        let numbers = [];
+        let nextNumber = 1;
 
-        // Инициализация поля (числа от 1 до 16)
         function initGame() {
-            tiles = [];
+            numbers = [];
             for (let i = 1; i <= 16; i++) {
-                tiles.push(i);
+                numbers.push(i);
             }
-            moves = 0;
-            seconds = 0;
-            isGameActive = false;
-            selectedIndex = null;
-            moveCountDisplay.textContent = '0';
-            timerDisplay.textContent = '00:00';
+            shuffleArray(numbers);
+            nextNumber = 1;
+            nextNumberDisplay.textContent = '1';
             message.textContent = '';
-            if (timerInterval) {
-                clearInterval(timerInterval);
-                timerInterval = null;
-            }
             renderGrid();
         }
 
-        // Перемешивание (гарантирует, что головоломка решаема)
-        function shuffleTiles() {
-            for (let i = 0; i < 100; i++) {
-                const idx1 = Math.floor(Math.random() * 16);
-                const idx2 = Math.floor(Math.random() * 16);
-                if (idx1 !== idx2) {
-                    [tiles[idx1], tiles[idx2]] = [tiles[idx2], tiles[idx1]];
-                }
+        function shuffleArray(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
             }
-            moves = 0;
-            seconds = 0;
-            isGameActive = true;
-            moveCountDisplay.textContent = '0';
-            timerDisplay.textContent = '00:00';
-            message.textContent = '';
-            // Запускаем таймер
-            if (timerInterval) clearInterval(timerInterval);
-            timerInterval = setInterval(() => {
-                seconds++;
-                const mins = String(Math.floor(seconds / 60)).padStart(2, '0');
-                const secs = String(seconds % 60).padStart(2, '0');
-                timerDisplay.textContent = `${mins}:${secs}`;
-            }, 1000);
-            renderGrid();
         }
 
-        // Отрисовка сетки
         function renderGrid() {
             grid.innerHTML = '';
-            tiles.forEach((value, index) => {
+            numbers.forEach((num, index) => {
                 const div = document.createElement('div');
                 div.dataset.index = index;
-                div.textContent = value;
+                div.textContent = num;
                 div.style.borderRadius = '8px';
                 div.style.aspectRatio = '1/1';
                 div.style.display = 'flex';
                 div.style.alignItems = 'center';
                 div.style.justifyContent = 'center';
-                div.style.fontSize = '1.5rem';
+                div.style.fontSize = '1.8rem';
                 div.style.fontWeight = 'bold';
                 div.style.color = '#fff';
                 div.style.cursor = 'pointer';
-                div.style.background = 'transparent';
-                div.style.border = '2px solid rgba(255,255,255,0.15)';
+                div.style.background = '#2a3a5a';
+                div.style.border = '2px solid rgba(255,255,255,0.1)';
                 div.style.transition = 'all 0.2s';
 
-                // Если число на своём месте — подсветка
-                if (value === index + 1) {
-                    div.style.background = 'rgba(255,46,90,0.1)';
+                // Если число уже нажато
+                if (num < nextNumber) {
+                    div.style.background = 'rgba(255,46,90,0.2)';
                     div.style.borderColor = 'var(--neon-coral)';
+                    div.style.color = '#fff';
                 }
 
                 div.addEventListener('click', function() {
-                    handleTileClick(parseInt(this.dataset.index));
+                    handleNumberClick(parseInt(this.dataset.index));
                 });
                 div.addEventListener('touchstart', function(e) {
                     e.preventDefault();
-                    handleTileClick(parseInt(this.dataset.index));
+                    handleNumberClick(parseInt(this.dataset.index));
                 }, { passive: false });
 
                 grid.appendChild(div);
             });
+        }
 
-            // Проверка на победу
-            let isSolved = true;
-            for (let i = 0; i < 16; i++) {
-                if (tiles[i] !== i + 1) {
-                    isSolved = false;
-                    break;
+        function handleNumberClick(index) {
+            const num = numbers[index];
+            if (num === nextNumber) {
+                // Правильно!
+                nextNumber++;
+                nextNumberDisplay.textContent = nextNumber;
+                renderGrid();
+                if (nextNumber === 17) {
+                    message.textContent = '🎉 Поздравляем! Вы собрали весь ряд!';
+                    message.style.color = '#2ecc71';
                 }
-            }
-            if (isSolved && isGameActive) {
-                isGameActive = false;
-                if (timerInterval) {
-                    clearInterval(timerInterval);
-                    timerInterval = null;
-                }
-                message.textContent = '🎉 Поздравляем! Вы собрали головоломку!';
             } else {
-                if (!isSolved) message.textContent = '';
+                // Ошибка! Сбрасываем прогресс
+                if (num < nextNumber) {
+                    // Если нажали на уже пройденное число — ничего не делаем
+                    return;
+                }
+                nextNumber = 1;
+                nextNumberDisplay.textContent = '1';
+                message.textContent = '❌ Ошибка! Начинаем сначала.';
+                message.style.color = '#e74c3c';
+                renderGrid();
+                setTimeout(() => {
+                    message.textContent = '';
+                }, 2000);
             }
         }
 
-        // Логика клика (обмен соседних фишек)
-        function handleTileClick(index) {
-            if (!isGameActive) return;
-            if (selectedIndex === null) {
-                // Выбираем первую фишку
-                selectedIndex = index;
-                const el = grid.children[index];
-                el.style.borderColor = '#fff';
-                el.style.transform = 'scale(1.05)';
-                return;
-            }
-            if (selectedIndex === index) {
-                // Отменяем выбор
-                const el = grid.children[index];
-                el.style.borderColor = 'rgba(255,255,255,0.15)';
-                el.style.transform = 'scale(1)';
-                selectedIndex = null;
-                return;
-            }
-
-            // Проверяем, соседние ли ячейки
-            const row1 = Math.floor(selectedIndex / 4);
-            const col1 = selectedIndex % 4;
-            const row2 = Math.floor(index / 4);
-            const col2 = index % 4;
-            const isAdjacent = (Math.abs(row1 - row2) + Math.abs(col1 - col2)) === 1;
-
-            if (!isAdjacent) {
-                // Сбрасываем выбор
-                const el = grid.children[selectedIndex];
-                el.style.borderColor = 'rgba(255,255,255,0.15)';
-                el.style.transform = 'scale(1)';
-                selectedIndex = null;
-                return;
-            }
-
-            // Обмен
-            [tiles[selectedIndex], tiles[index]] = [tiles[index], tiles[selectedIndex]];
-            moves++;
-            moveCountDisplay.textContent = moves;
-
-            // Сбрасываем выделение
-            const el = grid.children[selectedIndex];
-            el.style.borderColor = 'rgba(255,255,255,0.15)';
-            el.style.transform = 'scale(1)';
-            selectedIndex = null;
-
-            renderGrid();
-        }
-
-        // Кнопки
         shuffleBtn.addEventListener('click', function() {
             initGame();
-            shuffleTiles();
         });
 
         resetBtn.addEventListener('click', function() {
             initGame();
-            // Сразу собираем
-            tiles = [];
-            for (let i = 1; i <= 16; i++) {
-                tiles.push(i);
-            }
-            renderGrid();
-            message.textContent = '🎉 Головоломка собрана!';
         });
 
-        // Старт
+        // Первый запуск
         initGame();
     });
 </script>
+</body>
+</html>
