@@ -77,19 +77,18 @@
             </div>
         </div>
 
-        <!-- ===== ИГРА «СОБЕРИ СЛОВО» (С КНОПКОЙ СТАРТ) ===== -->
+        <!-- ===== ИГРА «СОБЕРИ СЛОВО» (БЛОКИРОВКА УРОВНЕЙ ВО ВРЕМЯ ИГРЫ) ===== -->
         <div style="max-width: 500px; margin: 0 auto 2rem auto; padding: 2rem; background: #1e2a47; border-radius: 24px; text-align: center;">
             <h3 style="color: var(--neon-coral); margin-bottom: 0.5rem;">🧩 Собери слово</h3>
             <p style="color: rgba(255,255,255,0.7); font-size: 0.9rem; margin-bottom: 1rem;">
-                Собери <strong>3 слова ПОДРЯД</strong> без ошибок!<br>
-                <span style="font-size: 0.8rem; opacity: 0.6;">60с → 90с → 180с на каждое слово.</span>
+                Выбери уровень и собери <strong>3 слова подряд</strong> за отведённое время!
             </p>
 
-            <!-- Выбор сложности -->
-            <div style="display: flex; justify-content: center; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
-                <button class="difficulty-btn" data-difficulty="easy" style="padding: 0.4rem 1rem; border-radius: 20px; border: 2px solid var(--neon-coral); background: rgba(255,46,90,0.1); color: #fff; cursor: pointer; font-weight: 600; transition: all 0.2s;">Легко</button>
-                <button class="difficulty-btn" data-difficulty="medium" style="padding: 0.4rem 1rem; border-radius: 20px; border: 2px solid rgba(255,255,255,0.3); background: transparent; color: rgba(255,255,255,0.7); cursor: pointer; font-weight: 600; transition: all 0.2s;">Средне</button>
-                <button class="difficulty-btn" data-difficulty="hard" style="padding: 0.4rem 1rem; border-radius: 20px; border: 2px solid rgba(255,255,255,0.3); background: transparent; color: rgba(255,255,255,0.7); cursor: pointer; font-weight: 600; transition: all 0.2s;">Сложно</button>
+            <!-- Выбор уровня сложности -->
+            <div id="difficultyContainer" style="display: flex; justify-content: center; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
+                <button class="difficulty-btn" data-difficulty="easy" data-time="60" style="padding: 0.4rem 1rem; border-radius: 20px; border: 2px solid var(--neon-coral); background: rgba(255,46,90,0.1); color: #fff; cursor: pointer; font-weight: 600; transition: all 0.2s;">Легко (60с)</button>
+                <button class="difficulty-btn" data-difficulty="medium" data-time="90" style="padding: 0.4rem 1rem; border-radius: 20px; border: 2px solid rgba(255,255,255,0.3); background: transparent; color: rgba(255,255,255,0.7); cursor: pointer; font-weight: 600; transition: all 0.2s;">Средне (90с)</button>
+                <button class="difficulty-btn" data-difficulty="hard" data-time="180" style="padding: 0.4rem 1rem; border-radius: 20px; border: 2px solid rgba(255,255,255,0.3); background: transparent; color: rgba(255,255,255,0.7); cursor: pointer; font-weight: 600; transition: all 0.2s;">Сложно (180с)</button>
             </div>
 
             <!-- Статистика (изначально скрыта) -->
@@ -114,11 +113,6 @@
             <!-- Кнопка СТАРТ -->
             <div style="margin-top: 1.5rem;">
                 <button id="startGameBtn" class="btn btn-sm" style="background: var(--neon-coral); color: #fff; border-color: var(--neon-coral);">Начать игру</button>
-            </div>
-
-            <!-- Кнопка Новая игра (появляется после старта) -->
-            <div id="newGameContainer" style="display: none; margin-top: 1.5rem;">
-                <button id="newGameBtn" class="btn btn-sm" style="background: var(--neon-coral); color: #fff; border-color: var(--neon-coral);">Новая игра</button>
             </div>
 
             <div id="letterMessage" style="margin-top: 1rem; font-weight: 600; font-size: 1.1rem; min-height: 2rem; color: var(--neon-coral);"></div>
@@ -164,19 +158,18 @@
 
 <script src="/js/main.js"></script>
 
-<!-- ===== СКРИПТ ИГРЫ (С КНОПКОЙ СТАРТ) ===== -->
+<!-- ===== СКРИПТ ИГРЫ ===== -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const grid = document.getElementById('letterGrid');
         const startBtn = document.getElementById('startGameBtn');
-        const newGameBtn = document.getElementById('newGameBtn');
-        const newGameContainer = document.getElementById('newGameContainer');
         const gameStats = document.getElementById('gameStats');
         const message = document.getElementById('letterMessage');
         const nextLetterDisplay = document.getElementById('nextLetterDisplay');
         const timerDisplay = document.getElementById('timerDisplay');
         const wordCountDisplay = document.getElementById('wordCountDisplay');
         const difficultyBtns = document.querySelectorAll('.difficulty-btn');
+        const difficultyContainer = document.getElementById('difficultyContainer');
 
         // ===== ОГРОМНЫЙ БИБЛИОТЕЧНЫЙ СЛОВАРЬ =====
         const words = [
@@ -283,11 +276,29 @@
         let timeLeft = 60;
         let timerInterval = null;
         let isGameActive = false;
+        let isGameFinished = false;
         let usedWords = [];
+        let winMessages = {
+            easy: '🎉 Блестящее начало! Готов проверить силы на следующем уровне?',
+            medium: '🎉 Ты настоящий знаток! Остался последний и самый сложный уровень. Дерзай!',
+            hard: '🎉 Ты — Мастер слова! Ты прошёл все испытания. Гордись собой!'
+        };
 
-        function getTimeForWord() {
-            if (wordsCollected === 0) return 60;
-            if (wordsCollected === 1) return 90;
+        function setDifficultyButtonsState(enabled) {
+            difficultyBtns.forEach(btn => {
+                if (enabled) {
+                    btn.style.pointerEvents = 'auto';
+                    btn.style.opacity = '1';
+                } else {
+                    btn.style.pointerEvents = 'none';
+                    btn.style.opacity = '0.5';
+                }
+            });
+        }
+
+        function getTimeForLevel() {
+            if (difficulty === 'easy') return 60;
+            if (difficulty === 'medium') return 90;
             return 180;
         }
 
@@ -308,15 +319,17 @@
                 timerInterval = null;
             }
             
-            // Скрываем кнопку старт, показываем игру
+            // Блокируем кнопки уровней
+            setDifficultyButtonsState(false);
+            isGameFinished = false;
+            
             startBtn.style.display = 'none';
             gameStats.style.display = 'flex';
             grid.style.display = 'grid';
-            newGameContainer.style.display = 'block';
 
             wordsCollected = 0;
             usedWords = [];
-            timeLeft = getTimeForWord();
+            timeLeft = getTimeForLevel();
             isGameActive = true;
             
             timerDisplay.textContent = timeLeft;
@@ -331,8 +344,11 @@
                     clearInterval(timerInterval);
                     timerInterval = null;
                     isGameActive = false;
-                    message.textContent = '⏰ Время вышло! Нажми "Новая игра".';
+                    isGameFinished = true;
+                    message.textContent = '⏰ Время вышло! Выберите другой уровень и попробуйте снова.';
                     message.style.color = '#e74c3c';
+                    startBtn.style.display = 'inline-block';
+                    setDifficultyButtonsState(true);
                 }
             }, 1000);
 
@@ -441,10 +457,6 @@
                     wordCountDisplay.textContent = `${wordsCollected} / 3`;
                     
                     if (wordsCollected < 3) {
-                        const targetTime = getTimeForWord();
-                        timeLeft = targetTime;
-                        timerDisplay.textContent = timeLeft;
-                        
                         message.textContent = `✅ Слово собрано! Осталось ${3 - wordsCollected}`;
                         message.style.color = '#2ecc71';
                         setTimeout(() => {
@@ -455,8 +467,11 @@
                         clearInterval(timerInterval);
                         timerInterval = null;
                         isGameActive = false;
-                        message.textContent = '🎉 Поздравляем! Вы собрали 3 слова ПОДРЯД!';
+                        isGameFinished = true;
+                        message.textContent = winMessages[difficulty];
                         message.style.color = '#2ecc71';
+                        startBtn.style.display = 'inline-block';
+                        setDifficultyButtonsState(true);
                     }
                 }
             } else {
@@ -479,6 +494,9 @@
         // Переключение сложности
         difficultyBtns.forEach(btn => {
             btn.addEventListener('click', function() {
+                // Если игра идёт — блокируем
+                if (isGameActive || !isGameFinished) return;
+
                 difficultyBtns.forEach(b => {
                     b.style.borderColor = 'rgba(255,255,255,0.3)';
                     b.style.color = 'rgba(255,255,255,0.7)';
@@ -489,23 +507,31 @@
                 this.style.background = 'rgba(255,46,90,0.1)';
                 difficulty = this.dataset.difficulty;
                 
-                // Если игра уже запущена — перезапускаем
-                if (isGameActive) {
+                // Возвращаем всё в исходное состояние
+                if (timerInterval) {
                     clearInterval(timerInterval);
                     timerInterval = null;
-                    startGame();
                 }
+                isGameActive = false;
+                isGameFinished = false;
+                startBtn.style.display = 'inline-block';
+                gameStats.style.display = 'none';
+                grid.style.display = 'none';
+                message.textContent = '';
+                setDifficultyButtonsState(true);
+                
+                // Показываем таймер для выбранного уровня
+                const time = this.dataset.time;
+                timerDisplay.textContent = time;
+                wordCountDisplay.textContent = '0 / 3';
+                nextLetterDisplay.textContent = '?';
             });
         });
 
         startBtn.addEventListener('click', function() {
             startGame();
         });
-
-        newGameBtn.addEventListener('click', function() {
-            startGame();
-        });
     });
 </script>
 </body>
-</html> 
+</html>
