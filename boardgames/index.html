@@ -1,278 +1,220 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Настольные игры в библиотеке — каталог и правила</title>
-    <link rel="stylesheet" href="/css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    
-    <!-- Yandex.Metrika counter -->
-    <script type="text/javascript">
-        (function(m,e,t,r,i,k,a){
-            m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-            m[i].l=1*new Date();
-            for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
-            k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
-        })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=109783209', 'ym');
+<!-- ===== ИГРА «ХОД КОНЁМ» (ЛОГИЧЕСКАЯ ГОЛОВОЛОМКА) ===== -->
+<div style="max-width: 500px; margin: 0 auto 2rem auto; padding: 2rem; background: #1e2a47; border-radius: 24px; text-align: center;">
+    <h3 style="color: var(--neon-coral); margin-bottom: 0.5rem;">♟️ Ход конём</h3>
+    <p style="color: rgba(255,255,255,0.7); font-size: 0.9rem; margin-bottom: 1rem;">
+        Меняй местами соседние фишки, чтобы собрать все числа по порядку от 1 до 16!
+    </p>
 
-        ym(109783209, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
-    </script>
-    <noscript><div><img src="https://mc.yandex.ru/watch/109783209" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
-    <!-- /Yandex.Metrika counter -->
-
-    <link rel="icon" type="image/x-icon" href="/favicon/favicon.ico">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
-    <link rel="manifest" href="/favicon/site.webmanifest">
-    <meta name="msapplication-TileColor" content="#ff2e5a">
-    <meta name="theme-color" content="#fef9f0">
-</head>
-<body>
-
-<header>
-    <div class="container header-inner">
-        <div class="logo">
-            <div class="logo-cbs"><img src="/images/logo-cbs.png" alt="ЦБС Выборгского района"></div>
-            <div class="logo-rost"><img src="/images/logo-rost.png" alt="Проектный офис РОСТ"></div>
-            <a href="/index.html"><img src="/images/logo-grani.png" alt="Книжные грани"></a>
+    <!-- Счётчик ходов и таймер -->
+    <div style="display: flex; justify-content: center; gap: 2rem; margin-bottom: 1rem;">
+        <div style="color: #fff;">
+            <div style="font-size: 0.7rem; opacity: 0.6;">ХОДОВ</div>
+            <div id="moveCount" style="font-size: 1.5rem; font-weight: bold;">0</div>
         </div>
-        <div class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></div>
-        <nav class="nav" id="nav"></nav>
-    </div>
-</header>
-
-<section class="section">
-    <div class="container">
-        <h1 class="section-title">Настольные игры</h1>
-        <p style="text-align: center; margin-bottom: 2rem; color: var(--text-secondary);">Коллекция игр постоянно пополняется. Приходите играть бесплатно!</p>
-
-        <div class="directions-grid" style="margin-bottom: 2rem;">
-            <div class="direction-card">
-                <i class="fas fa-search"></i><h3>Каталог игр</h3><p>Список игр появится здесь. Следите за обновлениями.</p><a href="/boardgames/catalog.html" class="btn btn-sm">Смотреть каталог</a>
-            </div>
-            <div class="direction-card">
-                <i class="fas fa-clipboard-list"></i><h3>Правила посещения</h3><p>Как проходят игры и что нужно знать</p><a href="/boardgames/rules.html" class="btn btn-sm">Читать правила</a>
-            </div>
-            <div class="direction-card">
-                <i class="fas fa-pen"></i><h3>Топ-10 настольных игр для компании</h3><p>Собрали для вас 10 лучших игр для любой компании: от классики до новинок.</p><a href="/boardgames/top-10-nastolnyh-igr.html" class="btn btn-sm">Читать →</a>
-            </div>
-            <div class="direction-card">
-                <i class="fas fa-calendar-alt"></i><h3>Афиша событий</h3><p>Все мероприятия проекта — игротеки, турниры, встречи</p><a href="/events.html" class="btn btn-sm">Смотреть афишу</a>
-            </div>
-        </div>
-
-        <!-- ===== ПАЗЛ «СОБЕРИ ЛОГО» ===== -->
-        <div style="max-width: 500px; margin: 0 auto 2rem auto; padding: 2rem; background: #1e2a47; border-radius: 24px; text-align: center;">
-            <h3 style="color: var(--neon-coral); margin-bottom: 0.5rem;">🧩 Собери лого</h3>
-            <p style="color: rgba(255,255,255,0.7); font-size: 0.9rem; margin-bottom: 1.5rem;">
-                Нажимайте на части рядом с пустой ячейкой, чтобы переместить их.
-            </p>
-
-            <div id="puzzleGrid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; max-width: 320px; margin: 0 auto; background: #2a3a5a; border-radius: 16px; padding: 8px; aspect-ratio: 1/1;"></div>
-            
-            <div style="margin-top: 1.5rem; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-                <button id="shufflePuzzle" class="btn btn-sm" style="background: var(--neon-coral); color: #fff; border-color: var(--neon-coral);">Перемешать</button>
-                <button id="resetPuzzle" class="btn btn-sm btn-outline" style="color: #fff; border-color: rgba(255,255,255,0.3);">Собрать</button>
-            </div>
-
-            <div id="puzzleMessage" style="margin-top: 1rem; font-weight: 600; font-size: 1.1rem; min-height: 2rem; color: var(--neon-coral);"></div>
+        <div style="color: #fff;">
+            <div style="font-size: 0.7rem; opacity: 0.6;">ВРЕМЯ</div>
+            <div id="timerDisplay" style="font-size: 1.5rem; font-weight: bold;">00:00</div>
         </div>
     </div>
-</section>
 
-<footer>
-    <div class="container">
-        <div class="footer-grid">
-            <div class="footer-col">
-                <h3>Книжные грани</h3>
-                <p>Проект ЦБС Выборгского района</p>
-                <p>Работает на базе <strong>Библиотеки-мастерской</strong></p>
-                <p>пр. Просвещения, 43, ТРК «Парк-Молл», 2 этаж</p>
-                <p><strong>+7 (812) 246-93-15</strong></p>
-            </div>
-            <div class="footer-col">
-                <h3>Разделы</h3>
-                <p><a href="/index.html">Главная</a></p>
-                <p><a href="/about.html">О проекте</a></p>
-                <p><a href="/events.html">Мероприятия</a></p>
-                <p><a href="/contacts.html">Контакты</a></p>
-            </div>
-            <div class="footer-col">
-                <h3>Мы в соцсетях</h3>
-                <div class="footer-social"><a href="https://vk.com/officecbsbvib" target="_blank"><i class="fab fa-vk"></i></a></div>
-                <p style="margin-top:1.5rem;">Следите за анонсами в нашей группе ВКонтакте</p>
-            </div>
-        </div>
-        <div class="footer-bottom"><p>© <span id="current-year"></span> Книжные грани | ЦБС Выборгского района</p></div>
+    <!-- Игровое поле 4×4 -->
+    <div id="gameGrid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; max-width: 320px; margin: 0 auto; aspect-ratio: 1/1;"></div>
+
+    <div style="margin-top: 1.5rem; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+        <button id="shuffleGameBtn" class="btn btn-sm" style="background: var(--neon-coral); color: #fff; border-color: var(--neon-coral);">Перемешать</button>
+        <button id="resetGameBtn" class="btn btn-sm btn-outline" style="color: #fff; border-color: rgba(255,255,255,0.3);">Собрать</button>
     </div>
-</footer>
 
-<script src="/js/main.js"></script>
+    <div id="gameMessage" style="margin-top: 1rem; font-weight: 600; font-size: 1.1rem; min-height: 2rem; color: var(--neon-coral);"></div>
+</div>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const grid = document.getElementById('puzzleGrid');
-        const shuffleBtn = document.getElementById('shufflePuzzle');
-        const resetBtn = document.getElementById('resetPuzzle');
-        const message = document.getElementById('puzzleMessage');
+        const grid = document.getElementById('gameGrid');
+        const shuffleBtn = document.getElementById('shuffleGameBtn');
+        const resetBtn = document.getElementById('resetGameBtn');
+        const message = document.getElementById('gameMessage');
+        const moveCountDisplay = document.getElementById('moveCount');
+        const timerDisplay = document.getElementById('timerDisplay');
 
-        let pieces = [0, 1, 2, 3, 4, 5, 6, 7, 8];
-        let emptyIndex = 8;
+        let tiles = [];
+        let moves = 0;
+        let seconds = 0;
+        let timerInterval = null;
+        let isGameActive = false;
+        let selectedIndex = null;
 
-        const logoUrl = '/images/igra.png';
+        // Инициализация поля (числа от 1 до 16)
+        function initGame() {
+            tiles = [];
+            for (let i = 1; i <= 16; i++) {
+                tiles.push(i);
+            }
+            moves = 0;
+            seconds = 0;
+            isGameActive = false;
+            selectedIndex = null;
+            moveCountDisplay.textContent = '0';
+            timerDisplay.textContent = '00:00';
+            message.textContent = '';
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            renderGrid();
+        }
 
-        function renderPuzzle() {
+        // Перемешивание (гарантирует, что головоломка решаема)
+        function shuffleTiles() {
+            for (let i = 0; i < 100; i++) {
+                const idx1 = Math.floor(Math.random() * 16);
+                const idx2 = Math.floor(Math.random() * 16);
+                if (idx1 !== idx2) {
+                    [tiles[idx1], tiles[idx2]] = [tiles[idx2], tiles[idx1]];
+                }
+            }
+            moves = 0;
+            seconds = 0;
+            isGameActive = true;
+            moveCountDisplay.textContent = '0';
+            timerDisplay.textContent = '00:00';
+            message.textContent = '';
+            // Запускаем таймер
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                seconds++;
+                const mins = String(Math.floor(seconds / 60)).padStart(2, '0');
+                const secs = String(seconds % 60).padStart(2, '0');
+                timerDisplay.textContent = `${mins}:${secs}`;
+            }, 1000);
+            renderGrid();
+        }
+
+        // Отрисовка сетки
+        function renderGrid() {
             grid.innerHTML = '';
-            let isSolved = true;
-
-            pieces.forEach((piece, index) => {
+            tiles.forEach((value, index) => {
                 const div = document.createElement('div');
                 div.dataset.index = index;
-
+                div.textContent = value;
                 div.style.borderRadius = '8px';
                 div.style.aspectRatio = '1/1';
+                div.style.display = 'flex';
+                div.style.alignItems = 'center';
+                div.style.justifyContent = 'center';
+                div.style.fontSize = '1.5rem';
+                div.style.fontWeight = 'bold';
+                div.style.color = '#fff';
                 div.style.cursor = 'pointer';
-                div.style.border = '2px solid rgba(255,255,255,0.1)';
-                div.style.transition = 'transform 0.15s ease, background 0.2s ease';
-                div.style.background = '#2a3a5a';
+                div.style.background = 'transparent';
+                div.style.border = '2px solid rgba(255,255,255,0.15)';
+                div.style.transition = 'all 0.2s';
 
-                if (piece === 8) {
-                    div.style.background = 'rgba(255,255,255,0.05)';
-                    div.style.border = '2px dashed rgba(255,255,255,0.2)';
-                    div.style.cursor = 'default';
-                    div.dataset.empty = 'true';
-                } else {
-                    const row = Math.floor(piece / 3);
-                    const col = piece % 3;
-
-                    div.style.backgroundImage = `url(${logoUrl})`;
-                    div.style.backgroundSize = '300% 300%';
-                    div.style.backgroundPosition = `${col * 100}% ${row * 100}%`;
-                    div.style.backgroundColor = '#2a3a5a';
-
-                    div.addEventListener('click', function(e) {
-                        handleTileClick(parseInt(this.dataset.index));
-                    });
-                    
-                    div.addEventListener('touchstart', function(e) {
-                        e.preventDefault();
-                        handleTileClick(parseInt(this.dataset.index));
-                    }, { passive: false });
+                // Если число на своём месте — подсветка
+                if (value === index + 1) {
+                    div.style.background = 'rgba(255,46,90,0.1)';
+                    div.style.borderColor = 'var(--neon-coral)';
                 }
+
+                div.addEventListener('click', function() {
+                    handleTileClick(parseInt(this.dataset.index));
+                });
+                div.addEventListener('touchstart', function(e) {
+                    e.preventDefault();
+                    handleTileClick(parseInt(this.dataset.index));
+                }, { passive: false });
 
                 grid.appendChild(div);
             });
 
-            for (let i = 0; i < 9; i++) {
-                if (pieces[i] !== i) {
-                    isSolved = false;
-                    break;
-                }
-            }
-
-            if (isSolved) {
-                message.textContent = '🎉 Поздравляем! Вы собрали логотип!';
-                document.querySelectorAll('#puzzleGrid div:not([data-empty="true"])').forEach(el => {
-                    el.style.borderColor = 'var(--neon-coral)';
-                });
-            } else {
-                message.textContent = '';
-            }
-        }
-
-        function handleTileClick(clickedIndex) {
-            const emptyRow = Math.floor(emptyIndex / 3);
-            const emptyCol = emptyIndex % 3;
-            const clickedRow = Math.floor(clickedIndex / 3);
-            const clickedCol = clickedIndex % 3;
-
-            const isAdjacent = (
-                (Math.abs(emptyRow - clickedRow) === 1 && emptyCol === clickedCol) ||
-                (Math.abs(emptyCol - clickedCol) === 1 && emptyRow === clickedRow)
-            );
-
-            if (!isAdjacent) return;
-
-            pieces[emptyIndex] = pieces[clickedIndex];
-            pieces[clickedIndex] = 8;
-            emptyIndex = clickedIndex;
-
-            renderPuzzle();
-        }
-
-        function shufflePuzzle() {
-            for (let step = 0; step < 150; step++) {
-                const emptyRow = Math.floor(emptyIndex / 3);
-                const emptyCol = emptyIndex % 3;
-                const neighbors = [];
-                
-                if (emptyRow > 0) neighbors.push(emptyIndex - 3);
-                if (emptyRow < 2) neighbors.push(emptyIndex + 3);
-                if (emptyCol > 0) neighbors.push(emptyIndex - 1);
-                if (emptyCol < 2) neighbors.push(emptyIndex + 1);
-                
-                const randomNeighbor = neighbors[Math.floor(Math.random() * neighbors.length)];
-                
-                pieces[emptyIndex] = pieces[randomNeighbor];
-                pieces[randomNeighbor] = 8;
-                emptyIndex = randomNeighbor;
-            }
-
+            // Проверка на победу
             let isSolved = true;
-            for (let i = 0; i < 9; i++) {
-                if (pieces[i] !== i) {
+            for (let i = 0; i < 16; i++) {
+                if (tiles[i] !== i + 1) {
                     isSolved = false;
                     break;
                 }
             }
-            if (isSolved) {
-                shufflePuzzle();
+            if (isSolved && isGameActive) {
+                isGameActive = false;
+                if (timerInterval) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                }
+                message.textContent = '🎉 Поздравляем! Вы собрали головоломку!';
+            } else {
+                if (!isSolved) message.textContent = '';
+            }
+        }
+
+        // Логика клика (обмен соседних фишек)
+        function handleTileClick(index) {
+            if (!isGameActive) return;
+            if (selectedIndex === null) {
+                // Выбираем первую фишку
+                selectedIndex = index;
+                const el = grid.children[index];
+                el.style.borderColor = '#fff';
+                el.style.transform = 'scale(1.05)';
+                return;
+            }
+            if (selectedIndex === index) {
+                // Отменяем выбор
+                const el = grid.children[index];
+                el.style.borderColor = 'rgba(255,255,255,0.15)';
+                el.style.transform = 'scale(1)';
+                selectedIndex = null;
                 return;
             }
 
-            renderPuzzle();
-        }
+            // Проверяем, соседние ли ячейки
+            const row1 = Math.floor(selectedIndex / 4);
+            const col1 = selectedIndex % 4;
+            const row2 = Math.floor(index / 4);
+            const col2 = index % 4;
+            const isAdjacent = (Math.abs(row1 - row2) + Math.abs(col1 - col2)) === 1;
 
-        // ===== ФУНКЦИЯ ДОВЕДЕНИЯ ДО ПОБЕДЫ =====
-        function autoFinishPuzzle() {
-            // Перемещаем пустую ячейку из центра в правый нижний угол (8)
-            // Если пустота не в углу, делаем 2 хода
-            if (emptyIndex !== 8) {
-                // Сначала двигаем вправо, если пустота в центре (4)
-                if (emptyIndex === 4) {
-                    handleTileClick(5); // Меняем с правой клеткой
-                }
-                // Теперь пустота либо в 5 (если была в 4), либо уже в 5.
-                // Двигаем вниз до 8
-                if (emptyIndex === 5) {
-                    handleTileClick(8); // Меняем с нижней правой клеткой
-                }
+            if (!isAdjacent) {
+                // Сбрасываем выбор
+                const el = grid.children[selectedIndex];
+                el.style.borderColor = 'rgba(255,255,255,0.15)';
+                el.style.transform = 'scale(1)';
+                selectedIndex = null;
+                return;
             }
-            renderPuzzle(); // Перерисовываем и проверяем победу
+
+            // Обмен
+            [tiles[selectedIndex], tiles[index]] = [tiles[index], tiles[selectedIndex]];
+            moves++;
+            moveCountDisplay.textContent = moves;
+
+            // Сбрасываем выделение
+            const el = grid.children[selectedIndex];
+            el.style.borderColor = 'rgba(255,255,255,0.15)';
+            el.style.transform = 'scale(1)';
+            selectedIndex = null;
+
+            renderGrid();
         }
 
-        function resetPuzzle() {
-            pieces = [0, 1, 2, 3, 4, 5, 6, 7, 8];
-            emptyIndex = 8;
-            renderPuzzle();
-        }
-
+        // Кнопки
         shuffleBtn.addEventListener('click', function() {
-            resetPuzzle();
-            setTimeout(shufflePuzzle, 50);
+            initGame();
+            shuffleTiles();
         });
 
-        // ===== ОБНОВЛЁННАЯ КНОПКА «СОБРАТЬ» =====
         resetBtn.addEventListener('click', function() {
-            resetPuzzle();        // Расставляем части по порядку
-            autoFinishPuzzle();   // Двигаем пустоту в угол и поздравляем
+            initGame();
+            // Сразу собираем
+            tiles = [];
+            for (let i = 1; i <= 16; i++) {
+                tiles.push(i);
+            }
+            renderGrid();
+            message.textContent = '🎉 Головоломка собрана!';
         });
 
-        resetPuzzle();
+        // Старт
+        initGame();
     });
 </script>
-</body>
-</html>
