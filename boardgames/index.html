@@ -77,29 +77,34 @@
             </div>
         </div>
 
-        <!-- ===== ИГРА «СОБЕРИ СЛОВО» С ТРЕМЯ УРОВНЯМИ СЛОЖНОСТИ ===== -->
+        <!-- ===== ИГРА «СОБЕРИ СЛОВО» (3 СЛОВА ПОДРЯД) ===== -->
         <div style="max-width: 500px; margin: 0 auto 2rem auto; padding: 2rem; background: #1e2a47; border-radius: 24px; text-align: center;">
             <h3 style="color: var(--neon-coral); margin-bottom: 0.5rem;">🧩 Собери слово</h3>
             <p style="color: rgba(255,255,255,0.7); font-size: 0.9rem; margin-bottom: 1rem;">
-                Нажимай на буквы в правильном порядке. Ошибка — начинай сначала!
+                Собери <strong>3 слова ПОДРЯД</strong> без ошибок за 60 секунд!<br>
+                <span style="font-size: 0.8rem; opacity: 0.6;">Ошибка — начинай слово заново, счётчик не сбрасывается.</span>
             </p>
 
             <!-- Выбор сложности -->
             <div style="display: flex; justify-content: center; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
-                <button class="difficulty-btn" data-difficulty="easy" style="padding: 0.4rem 1rem; border-radius: 20px; border: 2px solid var(--neon-coral); background: transparent; color: #fff; cursor: pointer; font-weight: 600; transition: all 0.2s;">Легко</button>
+                <button class="difficulty-btn" data-difficulty="easy" style="padding: 0.4rem 1rem; border-radius: 20px; border: 2px solid var(--neon-coral); background: rgba(255,46,90,0.1); color: #fff; cursor: pointer; font-weight: 600; transition: all 0.2s;">Легко</button>
                 <button class="difficulty-btn" data-difficulty="medium" style="padding: 0.4rem 1rem; border-radius: 20px; border: 2px solid rgba(255,255,255,0.3); background: transparent; color: rgba(255,255,255,0.7); cursor: pointer; font-weight: 600; transition: all 0.2s;">Средне</button>
                 <button class="difficulty-btn" data-difficulty="hard" style="padding: 0.4rem 1rem; border-radius: 20px; border: 2px solid rgba(255,255,255,0.3); background: transparent; color: rgba(255,255,255,0.7); cursor: pointer; font-weight: 600; transition: all 0.2s;">Сложно</button>
             </div>
 
-            <!-- Статистика -->
+            <!-- Статистика (Таймер + Слова) -->
             <div style="display: flex; justify-content: center; gap: 2rem; margin-bottom: 1.5rem; color: #fff;">
                 <div>
-                    <div style="font-size: 0.7rem; opacity: 0.6;">СЛЕДУЮЩАЯ</div>
-                    <div id="nextLetterDisplay" style="font-size: 1.5rem; font-weight: bold; color: var(--neon-coral);">?</div>
+                    <div style="font-size: 0.7rem; opacity: 0.6;">⏱ ВРЕМЯ</div>
+                    <div id="timerDisplay" style="font-size: 1.8rem; font-weight: bold; color: var(--neon-coral);">60</div>
                 </div>
                 <div>
-                    <div style="font-size: 0.7rem; opacity: 0.6;">ПРОГРЕСС</div>
-                    <div id="progressDisplay" style="font-size: 1.5rem; font-weight: bold; color: #fff;">0 / 9</div>
+                    <div style="font-size: 0.7rem; opacity: 0.6;">📚 СЛОВА ПОДРЯД</div>
+                    <div id="wordCountDisplay" style="font-size: 1.8rem; font-weight: bold; color: #2ecc71;">0 / 3</div>
+                </div>
+                <div>
+                    <div style="font-size: 0.7rem; opacity: 0.6;">🔤 БУКВА</div>
+                    <div id="nextLetterDisplay" style="font-size: 1.8rem; font-weight: bold; color: var(--neon-coral);">?</div>
                 </div>
             </div>
 
@@ -107,7 +112,7 @@
             <div id="letterGrid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; max-width: 320px; margin: 0 auto; aspect-ratio: 1/1;"></div>
 
             <div style="margin-top: 1.5rem; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-                <button id="shuffleLettersBtn" class="btn btn-sm" style="background: var(--neon-coral); color: #fff; border-color: var(--neon-coral);">Новое слово</button>
+                <button id="newGameBtn" class="btn btn-sm" style="background: var(--neon-coral); color: #fff; border-color: var(--neon-coral);">Новая игра</button>
             </div>
 
             <div id="letterMessage" style="margin-top: 1rem; font-weight: 600; font-size: 1.1rem; min-height: 2rem; color: var(--neon-coral);"></div>
@@ -153,14 +158,15 @@
 
 <script src="/js/main.js"></script>
 
-<!-- ===== СКРИПТ ИГРЫ С ТРЕМЯ УРОВНЯМИ ===== -->
+<!-- ===== СКРИПТ ИГРЫ (3 СЛОВА ПОДРЯД) ===== -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const grid = document.getElementById('letterGrid');
-        const shuffleBtn = document.getElementById('shuffleLettersBtn');
+        const newGameBtn = document.getElementById('newGameBtn');
         const message = document.getElementById('letterMessage');
         const nextLetterDisplay = document.getElementById('nextLetterDisplay');
-        const progressDisplay = document.getElementById('progressDisplay');
+        const timerDisplay = document.getElementById('timerDisplay');
+        const wordCountDisplay = document.getElementById('wordCountDisplay');
         const difficultyBtns = document.querySelectorAll('.difficulty-btn');
 
         const words = [
@@ -175,9 +181,44 @@
         let currentWord = "";
         let currentLetters = [];
         let nextIndex = 0;
-        let difficulty = 'easy'; // 'easy', 'medium', 'hard'
+        let difficulty = 'easy';
+        let wordsCollected = 0;
+        let timeLeft = 60;
+        let timerInterval = null;
+        let isGameActive = false;
 
-        function initGame() {
+        function startNewGame() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            wordsCollected = 0;
+            timeLeft = 60;
+            isGameActive = true;
+            
+            timerDisplay.textContent = '60';
+            wordCountDisplay.textContent = '0 / 3';
+            message.textContent = '';
+            message.style.color = 'var(--neon-coral)';
+
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                timerDisplay.textContent = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                    isGameActive = false;
+                    message.textContent = '⏰ Время вышло! Нажми "Новая игра".';
+                    message.style.color = '#e74c3c';
+                }
+            }, 1000);
+
+            loadNewWord();
+        }
+
+        function loadNewWord() {
+            if (!isGameActive) return;
+            
             const wordObj = words[Math.floor(Math.random() * words.length)];
             currentWord = wordObj.word;
             
@@ -193,14 +234,11 @@
             currentLetters = letters;
             nextIndex = 0;
 
-            // Обновляем интерфейс в зависимости от сложности
             if (difficulty === 'hard') {
                 nextLetterDisplay.textContent = '?';
             } else {
                 nextLetterDisplay.textContent = currentWord[0];
             }
-            progressDisplay.textContent = `0 / ${currentWord.length}`;
-            message.textContent = '';
             renderGrid();
         }
 
@@ -234,6 +272,11 @@
                     div.style.background = 'rgba(255,46,90,0.2)';
                     div.style.borderColor = 'var(--neon-coral)';
                 }
+                
+                if (difficulty === 'hard' && index === 0 && nextIndex === 0) {
+                    div.style.borderColor = 'var(--neon-coral)';
+                    div.style.boxShadow = '0 0 10px rgba(255,46,90,0.3)';
+                }
 
                 div.addEventListener('click', function() {
                     handleLetterClick(parseInt(this.dataset.index));
@@ -248,27 +291,22 @@
         }
 
         function handleLetterClick(index) {
+            if (!isGameActive) return;
             const letter = currentLetters[index];
             const expectedLetter = currentWord[nextIndex];
 
             if (letter === expectedLetter) {
-                // Правильно!
-                // Меняем букву местами с текущей позицией
                 [currentLetters[index], currentLetters[nextIndex]] = [currentLetters[nextIndex], currentLetters[index]];
                 nextIndex++;
                 
-                // Обновляем следующую букву
                 if (difficulty === 'hard') {
                     nextLetterDisplay.textContent = '?';
                 } else {
                     nextLetterDisplay.textContent = currentWord[nextIndex] || '✓';
                 }
-                progressDisplay.textContent = `${nextIndex} / ${currentWord.length}`;
                 renderGrid();
 
-                // СЛОЖНОСТЬ "СРЕДНЕ": перемешиваем буквы после каждого правильного хода
                 if (difficulty === 'medium' && nextIndex < currentWord.length) {
-                    // Перемешиваем только неиспользованные буквы (начиная с nextIndex)
                     const usedLetters = currentLetters.slice(0, nextIndex);
                     const unusedLetters = currentLetters.slice(nextIndex);
                     shuffleArray(unusedLetters);
@@ -277,22 +315,36 @@
                 }
 
                 if (nextIndex === currentWord.length) {
-                    message.textContent = '🎉 Поздравляем! Вы собрали слово!';
-                    message.style.color = '#2ecc71';
+                    // Слово собрано ПОДРЯД!
+                    wordsCollected++;
+                    wordCountDisplay.textContent = `${wordsCollected} / 3`;
+                    
+                    if (wordsCollected >= 3) {
+                        // ПОБЕДА! 3 слова подряд без ошибок
+                        clearInterval(timerInterval);
+                        timerInterval = null;
+                        isGameActive = false;
+                        message.textContent = '🎉 Поздравляем! Вы собрали 3 слова ПОДРЯД!';
+                        message.style.color = '#2ecc71';
+                    } else {
+                        message.textContent = `✅ Слово собрано! Осталось ${3 - wordsCollected}`;
+                        message.style.color = '#2ecc71';
+                        setTimeout(() => {
+                            message.textContent = '';
+                            if (isGameActive) loadNewWord();
+                        }, 1000);
+                    }
                 }
             } else {
-                // Ошибка! Сбрасываем прогресс
-                if (index < nextIndex) {
-                    return;
-                }
+                if (index < nextIndex) return;
+                // Ошибка — сбрасываем только текущее слово, счётчик НЕ сбрасывается
                 nextIndex = 0;
                 if (difficulty === 'hard') {
                     nextLetterDisplay.textContent = '?';
                 } else {
                     nextLetterDisplay.textContent = currentWord[0];
                 }
-                progressDisplay.textContent = `0 / ${currentWord.length}`;
-                message.textContent = '❌ Ошибка! Начинаем сначала.';
+                message.textContent = '❌ Ошибка! Начинаем слово заново.';
                 message.style.color = '#e74c3c';
                 renderGrid();
                 setTimeout(() => {
@@ -313,15 +365,15 @@
                 this.style.color = '#fff';
                 this.style.background = 'rgba(255,46,90,0.1)';
                 difficulty = this.dataset.difficulty;
-                initGame();
+                startNewGame();
             });
         });
 
-        shuffleBtn.addEventListener('click', function() {
-            initGame();
+        newGameBtn.addEventListener('click', function() {
+            startNewGame();
         });
 
-        // Первый запуск (по умолчанию Легко)
+        // Первый запуск
         document.querySelector('.difficulty-btn[data-difficulty="easy"]').click();
     });
 </script>
