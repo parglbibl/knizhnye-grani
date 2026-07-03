@@ -23,7 +23,6 @@
     <noscript><div><img src="https://mc.yandex.ru/watch/109783209" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
     <!-- /Yandex.Metrika counter -->
 
-    <!-- ===== FAVICON ===== -->
     <link rel="icon" type="image/x-icon" href="../favicon/favicon.ico">
     <link rel="icon" type="image/png" sizes="16x16" href="../favicon/favicon-16x16.png">
     <link rel="icon" type="image/png" sizes="32x32" href="../favicon/favicon-32x32.png">
@@ -57,14 +56,116 @@
             object-fit: cover;
             display: block;
         }
-        .back-link {
-            display: inline-block;
-            margin-top: 2rem;
+
+        /* ===== ЛАЙТБОКС ===== */
+        .lightbox {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.92);
+            backdrop-filter: blur(6px);
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 1rem;
         }
+
+        .lightbox.active {
+            display: flex;
+        }
+
+        .lightbox-content {
+            position: relative;
+            max-width: 90vw;
+            max-height: 80vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .lightbox-content img {
+            max-width: 100%;
+            max-height: 80vh;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+            object-fit: contain;
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: -50px;
+            right: 0;
+            color: #fff;
+            font-size: 2.5rem;
+            cursor: pointer;
+            transition: color 0.2s;
+            background: none;
+            border: none;
+        }
+        .lightbox-close:hover {
+            color: var(--neon-coral);
+        }
+
+        .lightbox-prev,
+        .lightbox-next {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #fff;
+            font-size: 2.5rem;
+            cursor: pointer;
+            background: rgba(0,0,0,0.4);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+            border: none;
+        }
+        .lightbox-prev:hover,
+        .lightbox-next:hover {
+            background: var(--neon-coral);
+        }
+        .lightbox-prev {
+            left: -70px;
+        }
+        .lightbox-next {
+            right: -70px;
+        }
+
+        .lightbox-counter {
+            color: rgba(255,255,255,0.6);
+            font-size: 0.9rem;
+            margin-top: 1rem;
+            font-family: 'Inter', sans-serif;
+        }
+
         @media (max-width: 768px) {
             .gallery-grid {
                 grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
                 gap: 0.8rem;
+            }
+            .lightbox-prev {
+                left: 10px;
+                width: 40px;
+                height: 40px;
+                font-size: 1.5rem;
+            }
+            .lightbox-next {
+                right: 10px;
+                width: 40px;
+                height: 40px;
+                font-size: 1.5rem;
+            }
+            .lightbox-close {
+                top: -40px;
+                font-size: 2rem;
             }
         }
     </style>
@@ -102,6 +203,17 @@
     </div>
 </section>
 
+<!-- ===== ЛАЙТБОКС ===== -->
+<div class="lightbox" id="lightbox">
+    <button class="lightbox-close" id="lightboxClose">&times;</button>
+    <button class="lightbox-prev" id="lightboxPrev">‹</button>
+    <button class="lightbox-next" id="lightboxNext">›</button>
+    <div class="lightbox-content">
+        <img id="lightboxImage" src="" alt="">
+    </div>
+    <div class="lightbox-counter" id="lightboxCounter">1 / 10</div>
+</div>
+
 <footer>
     <div class="container">
         <div class="footer-grid">
@@ -138,7 +250,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         const grid = document.getElementById('galleryGrid');
         
-        // ===== ПРАВИЛЬНЫЙ ПУТЬ ОТНОСИТЕЛЬНО ПАПКИ gallery/ =====
+        // ===== МАССИВ ФОТО =====
         const photos = [
             '../images/july-01/1.jpg',
             '../images/july-01/2.jpg',
@@ -152,12 +264,83 @@
             '../images/july-01/10.jpg'
         ];
 
-        // Собираем сетку
-        grid.innerHTML = photos.map(src => `
-            <div class="gallery-item">
+        // ===== СОЗДАЁМ СЕТКУ =====
+        grid.innerHTML = photos.map((src, index) => `
+            <div class="gallery-item" data-index="${index}">
                 <img src="${src}" alt="Фото с игротеки 1 июля" loading="lazy" onerror="this.src='https://placehold.co/400x300/2a3a5a/ffffff?text=Фото+скоро'">
             </div>
         `).join('');
+
+        // ===== ЛАЙТБОКС =====
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImage = document.getElementById('lightboxImage');
+        const lightboxCounter = document.getElementById('lightboxCounter');
+        const lightboxClose = document.getElementById('lightboxClose');
+        const lightboxPrev = document.getElementById('lightboxPrev');
+        const lightboxNext = document.getElementById('lightboxNext');
+
+        let currentIndex = 0;
+
+        function openLightbox(index) {
+            currentIndex = index;
+            lightboxImage.src = photos[currentIndex];
+            lightboxCounter.textContent = `${currentIndex + 1} / ${photos.length}`;
+            lightbox.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLightbox() {
+            lightbox.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        function prevImage() {
+            currentIndex = (currentIndex - 1 + photos.length) % photos.length;
+            lightboxImage.src = photos[currentIndex];
+            lightboxCounter.textContent = `${currentIndex + 1} / ${photos.length}`;
+        }
+
+        function nextImage() {
+            currentIndex = (currentIndex + 1) % photos.length;
+            lightboxImage.src = photos[currentIndex];
+            lightboxCounter.textContent = `${currentIndex + 1} / ${photos.length}`;
+        }
+
+        // Клик по превью
+        document.querySelectorAll('.gallery-item').forEach((item, index) => {
+            item.addEventListener('click', () => openLightbox(index));
+        });
+
+        // Кнопки
+        lightboxClose.addEventListener('click', closeLightbox);
+        lightboxPrev.addEventListener('click', prevImage);
+        lightboxNext.addEventListener('click', nextImage);
+
+        // Клик по фону (закрытие)
+        lightbox.addEventListener('click', (e) => {
+            if (e.target === lightbox) closeLightbox();
+        });
+
+        // Клавиатура (стрелки и Escape)
+        document.addEventListener('keydown', (e) => {
+            if (!lightbox.classList.contains('active')) return;
+            if (e.key === 'Escape') closeLightbox();
+            if (e.key === 'ArrowLeft') prevImage();
+            if (e.key === 'ArrowRight') nextImage();
+        });
+
+        // Свайпы на мобильных
+        let touchStartX = 0;
+        lightbox.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+        lightbox.addEventListener('touchend', (e) => {
+            const diff = touchStartX - e.changedTouches[0].screenX;
+            if (Math.abs(diff) > 50) {
+                if (diff > 0) nextImage();
+                else prevImage();
+            }
+        });
     });
 </script>
 </body>
