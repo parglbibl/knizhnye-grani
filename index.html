@@ -573,135 +573,136 @@
 <script src="/js/main.js"></script>
 <script>
     // ===== СЛАЙДЕР И ПОПАП «КАК ЭТО БЫЛО» =====
-    document.addEventListener('DOMContentLoaded', function() {
-        const slider = document.getElementById('archiveSlider');
-        const prevBtn = document.querySelector('.archive-arrow.prev');
-        const nextBtn = document.querySelector('.archive-arrow.next');
-        const countEl = document.getElementById('archiveCount');
-        const modal = document.getElementById('archiveModal');
-        const closeBtn = document.getElementById('archiveModalClose');
-        const modalBody = document.getElementById('archiveModalBody');
+document.addEventListener('DOMContentLoaded', function() {
+    const slider = document.getElementById('archiveSlider');
+    const prevBtn = document.querySelector('.archive-arrow.prev');
+    const nextBtn = document.querySelector('.archive-arrow.next');
+    const countEl = document.getElementById('archiveCount');
+    const modal = document.getElementById('archiveModal');
+    const closeBtn = document.getElementById('archiveModalClose');
+    const modalBody = document.getElementById('archiveModalBody');
+    
+    const archiveData = {
+        '17 июня': {
+            title: 'Игротека «Книжные грани»',
+            date: '17 июня 2026',
+            image: '/images/afisha/afisha1706.jpg',
+            description: 'Первая летняя игротека в Библиотеке-мастерской. Мастер-класс по сборке кубика Рубика и большая игротека от Hobby World.',
+            link: '/events/detail.html?id=summer-party',
+            video: '/gallery/june-17.html'  // ← теперь это ссылка на страницу с видео
+        },
+        '1 июля': {
+            title: 'Игротека «Книжные грани»',
+            date: '1 июля 2026',
+            image: '/images/afisha/afisha0107.PNG',
+            description: 'Большая игротека от Hobby World. Десятки настольных игр на любой вкус. Приходите один или с друзьями — найдём компанию!',
+            link: '/events/detail.html?id=july-party',
+            gallery: '/gallery/july-01.html'
+        }
+    };
+    
+    window.closeModal = function() {
+        if (modal) {
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    };
+    
+    window.closeAndGo = function(url) {
+        closeModal();
+        window.location.href = url;
+    };
+    
+    window.openArchiveModal = function(eventKey) {
+        const data = archiveData[eventKey];
+        if (!data) return;
         
-        const archiveData = {
-            '17 июня': {
-                title: 'Игротека «Книжные грани»',
-                date: '17 июня 2026',
-                image: '/images/afisha/afisha1706.jpg',
-                description: 'Первая летняя игротека в Библиотеке-мастерской. Мастер-класс по сборке кубика Рубика и большая игротека от Hobby World.',
-                link: '/events/detail.html?id=summer-party',
-                video: 'https://vk.com/video_ext.php?oid=-235758347&id=456239103&autoplay=0&hd=1'
-            },
-            '1 июля': {
-                title: 'Игротека «Книжные грани»',
-                date: '1 июля 2026',
-                image: '/images/afisha/afisha0107.PNG',
-                description: 'Большая игротека от Hobby World. Десятки настольных игр на любой вкус. Приходите один или с друзьями — найдём компанию!',
-                link: '/events/detail.html?id=july-party',
-                gallery: '/gallery/july-01.html'
-            }
-        };
+        let mediaHtml = '';
+        let actionHtml = '';
         
-        window.closeModal = function() {
-            if (modal) {
-                modal.classList.remove('active');
-                document.body.style.overflow = '';
-            }
-        };
-        
-        window.closeModalAndGo = function(event, url) {
-            if (modal) {
-                modal.classList.remove('active');
-                document.body.style.overflow = '';
-            }
-            if (url) {
-                window.location.href = url;
-            }
-            if (event) {
-                event.preventDefault();
-            }
-        };
-        
-        window.openArchiveModal = function(eventKey) {
-            const data = archiveData[eventKey];
-            if (!data) return;
-            
-            let mediaHtml = '';
-            if (data.image) {
-                mediaHtml = `<div class="archive-modal-image"><img src="${data.image}" alt="${data.title}"></div>`;
-            } else {
-                mediaHtml = `<div class="archive-modal-image" style="background: linear-gradient(135deg, #2a3a5a, #1a2a3a); height: 200px; display: flex; align-items: center; justify-content: center;">
-                    <i class="fas fa-calendar-alt" style="font-size: 3rem; color: rgba(255,255,255,0.2);"></i>
-                </div>`;
-            }
-            
-            let reportBtn = '';
-            if (data.video) {
-                reportBtn = `<a href="${data.video}" class="btn btn-sm" target="_blank" onclick="closeModalAndGo(event, '${data.video}')">📹 Смотреть видеоотчёт</a>`;
-            } else if (data.gallery) {
-                reportBtn = `<a href="${data.gallery}" class="btn btn-sm" target="_blank" onclick="closeModalAndGo(event, '${data.gallery}')">📸 Смотреть фотоотчёт</a>`;
-            }
-            
-            if (modalBody) {
-                modalBody.innerHTML = `
-                    ${mediaHtml}
-                    <div class="archive-modal-date">📅 ${data.date}</div>
-                    <h2 class="archive-modal-title">${data.title}</h2>
-                    <p class="archive-modal-desc">${data.description}</p>
-                    <div class="archive-modal-actions">
-                        ${reportBtn}
-                        <a href="${data.link}" class="btn btn-sm" onclick="closeModalAndGo(event, '${data.link}')">📝 Подробнее</a>
-                    </div>
-                `;
-            }
-            
-            if (modal) {
-                modal.classList.add('active');
-                document.body.style.overflow = 'hidden';
-            }
-        };
-        
-        if (closeBtn) {
-            closeBtn.addEventListener('click', function() {
-                modal.classList.remove('active');
-                document.body.style.overflow = '';
-            });
+        if (data.image) {
+            mediaHtml = `<div class="archive-modal-image"><img src="${data.image}" alt="${data.title}"></div>`;
+        } else {
+            mediaHtml = `<div class="archive-modal-image" style="background: linear-gradient(135deg, #2a3a5a, #1a2a3a); height: 200px; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-calendar-alt" style="font-size: 3rem; color: rgba(255,255,255,0.2);"></i>
+            </div>`;
         }
         
-        modal.addEventListener('click', function(e) {
-            if (e.target === modal) {
-                modal.classList.remove('active');
-                document.body.style.overflow = '';
-            }
+        // Если есть видео — кнопка ведёт на страницу с видео
+        if (data.video) {
+            actionHtml = `
+                <a href="#" class="btn btn-sm" onclick="closeAndGo('${data.video}')">📹 Смотреть видеоотчёт</a>
+                <a href="#" class="btn btn-sm" onclick="closeAndGo('${data.link}')">📝 Подробнее</a>
+            `;
+        }
+        // Если есть фото — кнопка ведёт на страницу с фото
+        else if (data.gallery) {
+            actionHtml = `
+                <a href="#" class="btn btn-sm" onclick="closeAndGo('${data.gallery}')">📸 Смотреть фотоотчёт</a>
+                <a href="#" class="btn btn-sm" onclick="closeAndGo('${data.link}')">📝 Подробнее</a>
+            `;
+        }
+        
+        if (modalBody) {
+            modalBody.innerHTML = `
+                ${mediaHtml}
+                <div class="archive-modal-date">📅 ${data.date}</div>
+                <h2 class="archive-modal-title">${data.title}</h2>
+                <p class="archive-modal-desc">${data.description}</p>
+                <div class="archive-modal-actions" style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem;">
+                    ${actionHtml}
+                </div>
+            `;
+        }
+        
+        if (modal) {
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+    };
+    
+    if (closeBtn) {
+        closeBtn.addEventListener('click', function() {
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        });
+    }
+    
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    });
+    
+    if (slider && prevBtn && nextBtn) {
+        const cardWidth = 200 + 16;
+        
+        const cards = slider.querySelectorAll('.archive-card');
+        if (countEl) {
+            const count = cards.length;
+            const word = count === 1 ? 'мероприятие' : (count < 5 ? 'мероприятия' : 'мероприятий');
+            countEl.textContent = count + ' ' + word;
+        }
+        
+        nextBtn.addEventListener('click', function() {
+            slider.scrollBy({ left: cardWidth * 2, behavior: 'smooth' });
         });
         
-        if (slider && prevBtn && nextBtn) {
-            const cardWidth = 200 + 16;
-            
-            const cards = slider.querySelectorAll('.archive-card');
-            if (countEl) {
-                const count = cards.length;
-                const word = count === 1 ? 'мероприятие' : (count < 5 ? 'мероприятия' : 'мероприятий');
-                countEl.textContent = count + ' ' + word;
+        prevBtn.addEventListener('click', function() {
+            slider.scrollBy({ left: -cardWidth * 2, behavior: 'smooth' });
+        });
+    }
+    
+    document.querySelectorAll('.archive-card').forEach(card => {
+        card.addEventListener('click', function() {
+            const eventName = this.dataset.event;
+            if (eventName && archiveData[eventName]) {
+                window.openArchiveModal(eventName);
             }
-            
-            nextBtn.addEventListener('click', function() {
-                slider.scrollBy({ left: cardWidth * 2, behavior: 'smooth' });
-            });
-            
-            prevBtn.addEventListener('click', function() {
-                slider.scrollBy({ left: -cardWidth * 2, behavior: 'smooth' });
-            });
-        }
-        
-        document.querySelectorAll('.archive-card').forEach(card => {
-            card.addEventListener('click', function() {
-                const eventName = this.dataset.event;
-                if (eventName && archiveData[eventName]) {
-                    window.openArchiveModal(eventName);
-                }
-            });
         });
     });
+});
 </script>
 </body>
 </html>
