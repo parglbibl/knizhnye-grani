@@ -86,14 +86,14 @@
             </div>
         </div>
 
-        <!-- ===== ПАЗЛ «СОБЕРИ ЛОГО» ===== -->
+        <!-- ===== ПАЗЛ «СОБЕРИ ЛОГО» (НОВАЯ РАБОЧАЯ ВЕРСИЯ) ===== -->
         <div style="max-width: 500px; margin: 0 auto 2rem auto; padding: 2rem; background: #1e2a47; border-radius: 24px; text-align: center;">
             <h3 style="color: var(--neon-coral); margin-bottom: 0.5rem;">🧩 Собери лого</h3>
             <p style="color: rgba(255,255,255,0.7); font-size: 0.9rem; margin-bottom: 1.5rem;">
                 Нажимайте на части рядом с пустой ячейкой, чтобы переместить их.
             </p>
 
-            <div id="puzzleGrid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; max-width: 320px; margin: 0 auto; background: #2a3a5a; border-radius: 16px; padding: 8px; aspect-ratio: 1/1;"></div>
+            <div id="puzzleGrid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; max-width: 320px; margin: 0 auto; background: #2a3a5a; border-radius: 16px; padding: 8px; aspect-ratio: 1/1;"></div>
             
             <div style="margin-top: 1.5rem; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
                 <button id="shufflePuzzle" class="btn btn-sm" style="background: var(--neon-coral); color: #fff; border-color: var(--neon-coral);">Перемешать</button>
@@ -168,6 +168,8 @@
 </footer>
 
 <script src="/js/main.js"></script>
+
+<!-- ===== СКРИПТ ПАЗЛА (ВСТРОЕННЫЙ, ЧТОБЫ ГАРАНТИРОВАТЬ РАБОТУ) ===== -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const grid = document.getElementById('puzzleGrid');
@@ -175,129 +177,92 @@
         const resetBtn = document.getElementById('resetPuzzle');
         const message = document.getElementById('puzzleMessage');
 
-        let pieces = [];
-        let piecePositions = [];
-        let emptyIndex = 8;
+        // Исходный порядок (от 0 до 8). 8 — это пустая ячейка.
+        let pieces = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+        let emptyIndex = 8; // Индекс пустой ячейки
 
+        // Ссылка на логотип (корневая, так как файл в папке boardgames)
         const logoUrl = '/images/logo-grani.png';
-
-        function createPuzzlePieces() {
-            const img = new Image();
-            img.crossOrigin = 'Anonymous';
-            img.src = logoUrl;
-
-            img.onload = function() {
-                const pieceWidth = img.width / 3;
-                const pieceHeight = img.height / 3;
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-
-                pieces = [];
-                piecePositions = [];
-
-                for (let row = 0; row < 3; row++) {
-                    for (let col = 0; col < 3; col++) {
-                        canvas.width = pieceWidth;
-                        canvas.height = pieceHeight;
-                        ctx.clearRect(0, 0, pieceWidth, pieceHeight);
-                        ctx.drawImage(img, col * pieceWidth, row * pieceHeight, pieceWidth, pieceHeight, 0, 0, pieceWidth, pieceHeight);
-                        
-                        pieces.push({
-                            src: canvas.toDataURL('image/png'),
-                            correctIndex: row * 3 + col,
-                            isVisible: true
-                        });
-                        piecePositions.push(row * 3 + col);
-                    }
-                }
-
-                emptyIndex = 8;
-                pieces[8].isVisible = false;
-                shufflePuzzle();
-                renderPuzzle();
-            };
-
-            img.onerror = function() {
-                message.textContent = '⚠️ Логотип не загрузился';
-                for (let i = 0; i < 9; i++) {
-                    pieces.push({ src: '', correctIndex: i, isVisible: i !== 8 });
-                    piecePositions.push(i);
-                }
-                emptyIndex = 8;
-                shufflePuzzle();
-                renderPuzzle();
-            };
-        }
 
         function renderPuzzle() {
             grid.innerHTML = '';
             let isSolved = true;
 
-            piecePositions.forEach((pos, index) => {
-                const piece = pieces[pos];
+            pieces.forEach((piece, index) => {
                 const div = document.createElement('div');
                 div.dataset.index = index;
 
-                if (!piece.isVisible) {
-                    div.style.background = 'rgba(255,255,255,0.08)';
-                    div.style.border = '2px dashed rgba(255,255,255,0.2)';
-                    div.style.borderRadius = '8px';
-                    div.style.aspectRatio = '1/1';
-                    div.style.cursor = 'default';
-                    grid.appendChild(div);
-                    return;
-                }
-
-                if (piece.src) {
-                    div.style.backgroundImage = `url(${piece.src})`;
-                    div.style.backgroundSize = 'cover';
-                    div.style.backgroundPosition = 'center';
-                } else {
-                    div.style.background = '#3a4a6e';
-                    div.textContent = '?';
-                    div.style.display = 'flex';
-                    div.style.alignItems = 'center';
-                    div.style.justifyContent = 'center';
-                    div.style.color = '#fff';
-                    div.style.fontSize = '2rem';
-                }
-
+                // Стили для каждой ячейки
                 div.style.borderRadius = '8px';
                 div.style.aspectRatio = '1/1';
                 div.style.cursor = 'pointer';
                 div.style.border = '2px solid rgba(255,255,255,0.1)';
-                div.style.transition = 'transform 0.15s ease';
+                div.style.transition = 'transform 0.15s ease, background 0.2s ease';
+                div.style.background = '#2a3a5a';
 
-                div.addEventListener('click', function() {
-                    const clickedIndex = parseInt(this.dataset.index);
-                    handleClick(clickedIndex);
-                });
+                if (piece === 8) {
+                    // Это пустая ячейка
+                    div.style.background = 'rgba(255,255,255,0.05)';
+                    div.style.border = '2px dashed rgba(255,255,255,0.2)';
+                    div.style.cursor = 'default';
+                    div.dataset.empty = 'true';
+                } else {
+                    // Это часть логотипа. Используем background-image.
+                    const row = Math.floor(piece / 3);
+                    const col = piece % 3;
 
-                div.addEventListener('mouseenter', function() {
-                    this.style.transform = 'scale(1.03)';
-                    this.style.borderColor = 'var(--neon-coral)';
-                });
+                    div.style.backgroundImage = `url(${logoUrl})`;
+                    div.style.backgroundSize = '300% 300%'; // 3x3 сетка
+                    div.style.backgroundPosition = `${col * 100}% ${row * 100}%`;
+                    div.style.backgroundColor = '#2a3a5a';
 
-                div.addEventListener('mouseleave', function() {
-                    this.style.transform = 'scale(1)';
-                    this.style.borderColor = 'rgba(255,255,255,0.1)';
-                });
+                    // Обработчик клика (комп и мобильные)
+                    div.addEventListener('click', function(e) {
+                        handleTileClick(parseInt(this.dataset.index));
+                    });
+                    
+                    div.addEventListener('touchstart', function(e) {
+                        e.preventDefault();
+                        handleTileClick(parseInt(this.dataset.index));
+                    }, { passive: false });
+
+                    // Hover эффект
+                    div.addEventListener('mouseenter', function() {
+                        if (!this.dataset.empty) {
+                            this.style.transform = 'scale(1.05)';
+                            this.style.borderColor = 'var(--neon-coral)';
+                            this.style.zIndex = '2';
+                        }
+                    });
+                    div.addEventListener('mouseleave', function() {
+                        this.style.transform = 'scale(1)';
+                        this.style.borderColor = 'rgba(255,255,255,0.1)';
+                        this.style.zIndex = '1';
+                    });
+                }
 
                 grid.appendChild(div);
-
-                if (piece.correctIndex !== index) {
-                    isSolved = false;
-                }
             });
 
-            if (isSolved && pieces.length > 0) {
+            // Проверка на собранность
+            for (let i = 0; i < 9; i++) {
+                if (pieces[i] !== i) {
+                    isSolved = false;
+                    break;
+                }
+            }
+
+            if (isSolved) {
                 message.textContent = '🎉 Поздравляем! Вы собрали логотип!';
+                document.querySelectorAll('#puzzleGrid div:not([data-empty="true"])').forEach(el => {
+                    el.style.borderColor = 'var(--neon-coral)';
+                });
             } else {
                 message.textContent = '';
             }
         }
 
-        function handleClick(clickedIndex) {
+        function handleTileClick(clickedIndex) {
             const emptyRow = Math.floor(emptyIndex / 3);
             const emptyCol = emptyIndex % 3;
             const clickedRow = Math.floor(clickedIndex / 3);
@@ -310,60 +275,76 @@
 
             if (!isAdjacent) return;
 
-            const emptyPieceIndex = piecePositions[emptyIndex];
-            const clickedPieceIndex = piecePositions[clickedIndex];
-
-            piecePositions[emptyIndex] = clickedPieceIndex;
-            piecePositions[clickedIndex] = emptyPieceIndex;
-
-            pieces[emptyPieceIndex].isVisible = true;
-            pieces[clickedPieceIndex].isVisible = false;
-
+            // Меняем местами
+            pieces[emptyIndex] = pieces[clickedIndex];
+            pieces[clickedIndex] = 8;
             emptyIndex = clickedIndex;
+
             renderPuzzle();
         }
 
         function shufflePuzzle() {
-            for (let step = 0; step < 80; step++) {
+            for (let step = 0; step < 150; step++) {
                 const emptyRow = Math.floor(emptyIndex / 3);
                 const emptyCol = emptyIndex % 3;
                 const neighbors = [];
+                
                 if (emptyRow > 0) neighbors.push(emptyIndex - 3);
                 if (emptyRow < 2) neighbors.push(emptyIndex + 3);
                 if (emptyCol > 0) neighbors.push(emptyIndex - 1);
                 if (emptyCol < 2) neighbors.push(emptyIndex + 1);
+                
                 const randomNeighbor = neighbors[Math.floor(Math.random() * neighbors.length)];
                 
-                const emptyPieceIndex = piecePositions[emptyIndex];
-                const clickedPieceIndex = piecePositions[randomNeighbor];
-                piecePositions[emptyIndex] = clickedPieceIndex;
-                piecePositions[randomNeighbor] = emptyPieceIndex;
-                pieces[emptyPieceIndex].isVisible = true;
-                pieces[clickedPieceIndex].isVisible = false;
+                pieces[emptyIndex] = pieces[randomNeighbor];
+                pieces[randomNeighbor] = 8;
                 emptyIndex = randomNeighbor;
             }
-            
-            let solved = true;
-            piecePositions.forEach((pos, index) => {
-                if (pieces[pos].correctIndex !== index || !pieces[pos].isVisible) solved = false;
-            });
-            if (solved) shufflePuzzle();
+
+            // Проверка на случайную сборку
+            let isSolved = true;
+            for (let i = 0; i < 9; i++) {
+                if (pieces[i] !== i) {
+                    isSolved = false;
+                    break;
+                }
+            }
+            if (isSolved) {
+                shufflePuzzle();
+                return;
+            }
+
             renderPuzzle();
         }
 
-        resetBtn.addEventListener('click', function() {
-            piecePositions = pieces.map((p, i) => i);
+        function resetPuzzle() {
+            pieces = [0, 1, 2, 3, 4, 5, 6, 7, 8];
             emptyIndex = 8;
-            pieces.forEach((p, i) => { p.isVisible = i !== 8; });
             renderPuzzle();
-        });
+        }
 
+        // Кнопки
         shuffleBtn.addEventListener('click', function() {
-            resetBtn.click();
-            setTimeout(shufflePuzzle, 100);
+            resetPuzzle();
+            setTimeout(shufflePuzzle, 50);
         });
 
-        createPuzzlePieces();
+        resetBtn.addEventListener('click', function() {
+            resetPuzzle();
+        });
+
+        // Загрузка логотипа
+        const img = new Image();
+        img.src = logoUrl;
+        
+        img.onload = function() {
+            resetPuzzle();
+        };
+        
+        img.onerror = function() {
+            console.warn('Логотип не найден, игра будет с цифрами');
+            resetPuzzle();
+        };
     });
 </script>
 </body>
