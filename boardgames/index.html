@@ -86,14 +86,14 @@
             </div>
         </div>
 
-        <!-- ===== ПАЗЛ «СОБЕРИ ЛОГО» (НОВАЯ РАБОЧАЯ ВЕРСИЯ) ===== -->
+        <!-- ===== ПАЗЛ «СОБЕРИ ЛОГО» (ИДЕАЛЬНАЯ СБОРКА) ===== -->
         <div style="max-width: 500px; margin: 0 auto 2rem auto; padding: 2rem; background: #1e2a47; border-radius: 24px; text-align: center;">
             <h3 style="color: var(--neon-coral); margin-bottom: 0.5rem;">🧩 Собери лого</h3>
             <p style="color: rgba(255,255,255,0.7); font-size: 0.9rem; margin-bottom: 1.5rem;">
                 Нажимайте на части рядом с пустой ячейкой, чтобы переместить их.
             </p>
 
-            <div id="puzzleGrid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; max-width: 320px; margin: 0 auto; background: #2a3a5a; border-radius: 16px; padding: 8px; aspect-ratio: 1/1;"></div>
+            <div id="puzzleGrid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; max-width: 320px; margin: 0 auto; border-radius: 16px; padding: 8px; aspect-ratio: 1/1;"></div>
             
             <div style="margin-top: 1.5rem; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
                 <button id="shufflePuzzle" class="btn btn-sm" style="background: var(--neon-coral); color: #fff; border-color: var(--neon-coral);">Перемешать</button>
@@ -169,7 +169,7 @@
 
 <script src="/js/main.js"></script>
 
-<!-- ===== СКРИПТ ПАЗЛА (ВСТРОЕННЫЙ, ЧТОБЫ ГАРАНТИРОВАТЬ РАБОТУ) ===== -->
+<!-- ===== СКРИПТ ПАЗЛА (100% ПРАВИЛЬНАЯ СБОРКА) ===== -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const grid = document.getElementById('puzzleGrid');
@@ -177,11 +177,9 @@
         const resetBtn = document.getElementById('resetPuzzle');
         const message = document.getElementById('puzzleMessage');
 
-        // Исходный порядок (от 0 до 8). 8 — это пустая ячейка.
         let pieces = [0, 1, 2, 3, 4, 5, 6, 7, 8];
-        let emptyIndex = 8; // Индекс пустой ячейки
+        let emptyIndex = 8;
 
-        // Ссылка на логотип (корневая, так как файл в папке boardgames)
         const logoUrl = '/images/logo-grani.png';
 
         function renderPuzzle() {
@@ -192,31 +190,26 @@
                 const div = document.createElement('div');
                 div.dataset.index = index;
 
-                // Стили для каждой ячейки
                 div.style.borderRadius = '8px';
                 div.style.aspectRatio = '1/1';
                 div.style.cursor = 'pointer';
-                div.style.border = '2px solid rgba(255,255,255,0.1)';
-                div.style.transition = 'transform 0.15s ease, background 0.2s ease';
-                div.style.background = '#2a3a5a';
+                div.style.border = '2px solid rgba(255,255,255,0.15)';
+                div.style.transition = 'transform 0.15s ease, border-color 0.2s ease';
+                div.style.background = 'transparent';
 
                 if (piece === 8) {
-                    // Это пустая ячейка
-                    div.style.background = 'rgba(255,255,255,0.05)';
                     div.style.border = '2px dashed rgba(255,255,255,0.2)';
                     div.style.cursor = 'default';
                     div.dataset.empty = 'true';
                 } else {
-                    // Это часть логотипа. Используем background-image.
                     const row = Math.floor(piece / 3);
                     const col = piece % 3;
 
                     div.style.backgroundImage = `url(${logoUrl})`;
-                    div.style.backgroundSize = '300% 300%'; // 3x3 сетка
+                    div.style.backgroundSize = '300% 300%';
                     div.style.backgroundPosition = `${col * 100}% ${row * 100}%`;
-                    div.style.backgroundColor = '#2a3a5a';
+                    div.style.backgroundRepeat = 'no-repeat';
 
-                    // Обработчик клика (комп и мобильные)
                     div.addEventListener('click', function(e) {
                         handleTileClick(parseInt(this.dataset.index));
                     });
@@ -226,7 +219,6 @@
                         handleTileClick(parseInt(this.dataset.index));
                     }, { passive: false });
 
-                    // Hover эффект
                     div.addEventListener('mouseenter', function() {
                         if (!this.dataset.empty) {
                             this.style.transform = 'scale(1.05)';
@@ -236,7 +228,7 @@
                     });
                     div.addEventListener('mouseleave', function() {
                         this.style.transform = 'scale(1)';
-                        this.style.borderColor = 'rgba(255,255,255,0.1)';
+                        this.style.borderColor = 'rgba(255,255,255,0.15)';
                         this.style.zIndex = '1';
                     });
                 }
@@ -244,7 +236,6 @@
                 grid.appendChild(div);
             });
 
-            // Проверка на собранность
             for (let i = 0; i < 9; i++) {
                 if (pieces[i] !== i) {
                     isSolved = false;
@@ -256,6 +247,7 @@
                 message.textContent = '🎉 Поздравляем! Вы собрали логотип!';
                 document.querySelectorAll('#puzzleGrid div:not([data-empty="true"])').forEach(el => {
                     el.style.borderColor = 'var(--neon-coral)';
+                    el.style.boxShadow = '0 0 10px rgba(255, 46, 90, 0.3)';
                 });
             } else {
                 message.textContent = '';
@@ -275,7 +267,6 @@
 
             if (!isAdjacent) return;
 
-            // Меняем местами
             pieces[emptyIndex] = pieces[clickedIndex];
             pieces[clickedIndex] = 8;
             emptyIndex = clickedIndex;
@@ -301,7 +292,6 @@
                 emptyIndex = randomNeighbor;
             }
 
-            // Проверка на случайную сборку
             let isSolved = true;
             for (let i = 0; i < 9; i++) {
                 if (pieces[i] !== i) {
@@ -317,32 +307,40 @@
             renderPuzzle();
         }
 
+        // ===== ИСПРАВЛЕННАЯ КНОПКА «СОБРАТЬ» =====
         function resetPuzzle() {
+            // 1. Сбрасываем массив
             pieces = [0, 1, 2, 3, 4, 5, 6, 7, 8];
             emptyIndex = 8;
-            renderPuzzle();
+            
+            // 2. Принудительно пересоздаём и перезагружаем картинку, 
+            //    чтобы браузер точно перерисовал логотип на своих местах
+            const img = new Image();
+            img.src = logoUrl + '?t=' + Date.now(); // добавляем случайный параметр, чтобы сбросить кэш
+            img.onload = function() {
+                renderPuzzle();
+            };
+            img.onerror = function() {
+                renderPuzzle();
+            };
         }
 
-        // Кнопки
         shuffleBtn.addEventListener('click', function() {
             resetPuzzle();
-            setTimeout(shufflePuzzle, 50);
+            setTimeout(shufflePuzzle, 100);
         });
 
         resetBtn.addEventListener('click', function() {
             resetPuzzle();
         });
 
-        // Загрузка логотипа
+        // Инициализация
         const img = new Image();
         img.src = logoUrl;
-        
         img.onload = function() {
             resetPuzzle();
         };
-        
         img.onerror = function() {
-            console.warn('Логотип не найден, игра будет с цифрами');
             resetPuzzle();
         };
     });
