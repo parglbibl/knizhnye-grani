@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Настольные игры в библиотеке — каталог и правила</title>
-    <meta name="description" content="Бесплатные настольные игры в библиотеке: от классики до современных хитов. Приходите играть один или с друзьями!">
     <link rel="stylesheet" href="/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -65,7 +64,7 @@
             </div>
         </div>
 
-        <!-- ===== ПАЗЛ «СОБЕРИ ЛОГО» (С ПРАВИЛЬНОЙ НАРЕЗКОЙ) ===== -->
+        <!-- ===== ПАЗЛ «СОБЕРИ ЛОГО» ===== -->
         <div style="max-width: 500px; margin: 0 auto 2rem auto; padding: 2rem; background: #1e2a47; border-radius: 24px; text-align: center;">
             <h3 style="color: var(--neon-coral); margin-bottom: 0.5rem;">🧩 Собери лого</h3>
             <p style="color: rgba(255,255,255,0.7); font-size: 0.9rem; margin-bottom: 1.5rem;">
@@ -113,7 +112,6 @@
 
 <script src="/js/main.js"></script>
 
-<!-- ===== СКРИПТ ПАЗЛА (С ПРАВИЛЬНОЙ НАРЕЗКОЙ 300% 300%) ===== -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const grid = document.getElementById('puzzleGrid');
@@ -124,7 +122,7 @@
         let pieces = [0, 1, 2, 3, 4, 5, 6, 7, 8];
         let emptyIndex = 8;
 
-        const logoUrl = '/images/igra.png'; // ТВОЯ НОВАЯ КВАДРАТНАЯ КАРТИНКА
+        const logoUrl = '/images/igra.png';
 
         function renderPuzzle() {
             grid.innerHTML = '';
@@ -150,9 +148,8 @@
                     const row = Math.floor(piece / 3);
                     const col = piece % 3;
 
-                    // ВАЖНО: backgroundSize: 300% 300% режет картинку на 3x3
                     div.style.backgroundImage = `url(${logoUrl})`;
-                    div.style.backgroundSize = '300% 300%'; 
+                    div.style.backgroundSize = '300% 300%';
                     div.style.backgroundPosition = `${col * 100}% ${row * 100}%`;
                     div.style.backgroundColor = '#2a3a5a';
 
@@ -239,6 +236,24 @@
             renderPuzzle();
         }
 
+        // ===== ФУНКЦИЯ ДОВЕДЕНИЯ ДО ПОБЕДЫ =====
+        function autoFinishPuzzle() {
+            // Перемещаем пустую ячейку из центра в правый нижний угол (8)
+            // Если пустота не в углу, делаем 2 хода
+            if (emptyIndex !== 8) {
+                // Сначала двигаем вправо, если пустота в центре (4)
+                if (emptyIndex === 4) {
+                    handleTileClick(5); // Меняем с правой клеткой
+                }
+                // Теперь пустота либо в 5 (если была в 4), либо уже в 5.
+                // Двигаем вниз до 8
+                if (emptyIndex === 5) {
+                    handleTileClick(8); // Меняем с нижней правой клеткой
+                }
+            }
+            renderPuzzle(); // Перерисовываем и проверяем победу
+        }
+
         function resetPuzzle() {
             pieces = [0, 1, 2, 3, 4, 5, 6, 7, 8];
             emptyIndex = 8;
@@ -250,8 +265,10 @@
             setTimeout(shufflePuzzle, 50);
         });
 
+        // ===== ОБНОВЛЁННАЯ КНОПКА «СОБРАТЬ» =====
         resetBtn.addEventListener('click', function() {
-            resetPuzzle();
+            resetPuzzle();        // Расставляем части по порядку
+            autoFinishPuzzle();   // Двигаем пустоту в угол и поздравляем
         });
 
         resetPuzzle();
