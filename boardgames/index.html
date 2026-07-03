@@ -23,7 +23,6 @@
     <noscript><div><img src="https://mc.yandex.ru/watch/109783209" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
     <!-- /Yandex.Metrika counter -->
 
-    <!-- ===== FAVICON ===== -->
     <link rel="icon" type="image/x-icon" href="/favicon/favicon.ico">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
@@ -37,19 +36,11 @@
 <header>
     <div class="container header-inner">
         <div class="logo">
-            <div class="logo-cbs">
-                <img src="/images/logo-cbs.png" alt="ЦБС Выборгского района">
-            </div>
-            <div class="logo-rost">
-                <img src="/images/logo-rost.png" alt="Проектный офис РОСТ">
-            </div>
-            <a href="/index.html">
-                <img src="/images/logo-grani.png" alt="Книжные грани">
-            </a>
+            <div class="logo-cbs"><img src="/images/logo-cbs.png" alt="ЦБС Выборгского района"></div>
+            <div class="logo-rost"><img src="/images/logo-rost.png" alt="Проектный офис РОСТ"></div>
+            <a href="/index.html"><img src="/images/logo-grani.png" alt="Книжные грани"></a>
         </div>
-        <div class="menu-toggle" id="menuToggle">
-            <i class="fas fa-bars"></i>
-        </div>
+        <div class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></div>
         <nav class="nav" id="nav"></nav>
     </div>
 </header>
@@ -61,39 +52,25 @@
 
         <div class="directions-grid" style="margin-bottom: 2rem;">
             <div class="direction-card">
-                <i class="fas fa-search"></i>
-                <h3>Каталог игр</h3>
-                <p>Список игр появится здесь. Следите за обновлениями.</p>
-                <a href="/boardgames/catalog.html" class="btn btn-sm">Смотреть каталог</a>
+                <i class="fas fa-search"></i><h3>Каталог игр</h3><p>Список игр появится здесь. Следите за обновлениями.</p><a href="/boardgames/catalog.html" class="btn btn-sm">Смотреть каталог</a>
             </div>
             <div class="direction-card">
-                <i class="fas fa-clipboard-list"></i>
-                <h3>Правила посещения</h3>
-                <p>Как проходят игры и что нужно знать</p>
-                <a href="/boardgames/rules.html" class="btn btn-sm">Читать правила</a>
+                <i class="fas fa-clipboard-list"></i><h3>Правила посещения</h3><p>Как проходят игры и что нужно знать</p><a href="/boardgames/rules.html" class="btn btn-sm">Читать правила</a>
             </div>
             <div class="direction-card">
-                <i class="fas fa-pen"></i>
-                <h3>Топ-10 настольных игр для компании</h3>
-                <p>Собрали для вас 10 лучших игр для любой компании: от классики до новинок.</p>
-                <a href="/boardgames/top-10-nastolnyh-igr.html" class="btn btn-sm">Читать →</a>
+                <i class="fas fa-pen"></i><h3>Топ-10 настольных игр для компании</h3><p>Собрали для вас 10 лучших игр для любой компании.</p><a href="/boardgames/top-10-nastolnyh-igr.html" class="btn btn-sm">Читать →</a>
             </div>
             <div class="direction-card">
-                <i class="fas fa-calendar-alt"></i>
-                <h3>Афиша событий</h3>
-                <p>Все мероприятия проекта — игротеки, турниры, встречи</p>
-                <a href="/events.html" class="btn btn-sm">Смотреть афишу</a>
+                <i class="fas fa-calendar-alt"></i><h3>Афиша событий</h3><p>Все мероприятия проекта — игротеки, турниры, встречи</p><a href="/events.html" class="btn btn-sm">Смотреть афишу</a>
             </div>
         </div>
 
-        <!-- ===== ПАЗЛ «СОБЕРИ ЛОГО» (ИДЕАЛЬНАЯ ВЕРСИЯ С ДЕТАЛЯМИ) ===== -->
+        <!-- ===== ПАЗЛ «СОБЕРИ ЛОГО» (ИДЕАЛЬНАЯ ВЕРСИЯ БЕЗ ЛИШНИХ ПРАВОК) ===== -->
         <div style="max-width: 500px; margin: 0 auto 2rem auto; padding: 2rem; background: #1e2a47; border-radius: 24px; text-align: center;">
             <h3 style="color: var(--neon-coral); margin-bottom: 0.5rem;">🧩 Собери лого</h3>
-            <p style="color: rgba(255,255,255,0.7); font-size: 0.9rem; margin-bottom: 1.5rem;">
-                Нажимайте на части рядом с пустой ячейкой, чтобы переместить их.
-            </p>
+            <p style="color: rgba(255,255,255,0.7); font-size: 0.9rem; margin-bottom: 1.5rem;">Нажимайте на части рядом с пустой ячейкой, чтобы переместить их.</p>
 
-            <div id="puzzleGrid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; max-width: 320px; margin: 0 auto; border-radius: 16px; padding: 2px; aspect-ratio: 1/1;"></div>
+            <div id="puzzleGrid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; max-width: 320px; margin: 0 auto; border-radius: 16px; padding: 8px; aspect-ratio: 1/1;"></div>
             
             <div style="margin-top: 1.5rem; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
                 <button id="shufflePuzzle" class="btn btn-sm" style="background: var(--neon-coral); color: #fff; border-color: var(--neon-coral);">Перемешать</button>
@@ -124,52 +101,16 @@
             </div>
             <div class="footer-col">
                 <h3>Мы в соцсетях</h3>
-                <div class="footer-social">
-                    <a href="https://vk.com/officecbsbvib" target="_blank"><i class="fab fa-vk"></i></a>
-                </div>
+                <div class="footer-social"><a href="https://vk.com/officecbsbvib" target="_blank"><i class="fab fa-vk"></i></a></div>
                 <p style="margin-top:1.5rem;">Следите за анонсами в нашей группе ВКонтакте</p>
             </div>
         </div>
-
-        <div class="footer-partners" style="border-top: 1px solid rgba(0,0,0,0.05); padding-top: 1.5rem; margin-top: 1.5rem;">
-            <p style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-secondary); margin-bottom: 1rem;">Наши партнёры</p>
-            <div style="display: flex; justify-content: center; align-items: center; gap: 2rem; flex-wrap: wrap;">
-                <a href="https://ait-game.ru/" target="_blank" rel="noopener noreferrer" style="display: inline-block;">
-                    <img src="/images/partners/ait-logo.PNG" alt="Ассоциация Игровых Технологий" style="height: 35px; width: auto; opacity: 0.7; transition: opacity 0.3s;">
-                </a>
-                <a href="https://cubingrf.org/" target="_blank" rel="noopener noreferrer" style="display: inline-block;">
-                    <img src="/images/partners/cubingrf.PNG" alt="Федерация спидкубинга России" style="height: 40px; width: auto; opacity: 0.7; transition: opacity 0.3s;">
-                </a>
-                <a href="http://speedcubes.ru/" target="_blank" rel="noopener noreferrer" style="display: inline-block;">
-                    <img src="/images/partners/speedcubes.PNG" alt="SpeedCubes" style="height: 40px; width: auto; opacity: 0.7; transition: opacity 0.3s;">
-                </a>
-                <a href="https://cccstore.ru/" target="_blank" rel="noopener noreferrer" style="display: inline-block;">
-                    <img src="/images/partners/cccstore.PNG" alt="CCCStore" style="height: 40px; width: auto; opacity: 0.7; transition: opacity 0.3s;">
-                </a>
-            </div>
-        </div>
-
-        <div class="footer-bottom">
-            <p>© <span id="current-year"></span> Книжные грани | ЦБС Выборгского района</p>
-        </div>
-
-        <div style="text-align: center; margin-top: 1.5rem;">
-            <a href="https://metrika.yandex.ru/stat/?id=109783209&amp;from=informer" target="_blank" rel="nofollow">
-                <img src="https://informer.yandex.ru/informer/109783209/3_1_FFFFFFFF_EFEFEFFF_0_pageviews"
-                     style="width:88px; height:31px; border:0;"
-                     alt="Яндекс.Метрика"
-                     title="Яндекс.Метрика: данные за сегодня (просмотры, визиты и уникальные посетители)"
-                     class="ym-advanced-informer"
-                     data-cid="109783209"
-                     data-lang="ru"/>
-            </a>
-        </div>
+        <div class="footer-bottom"><p>© <span id="current-year"></span> Книжные грани | ЦБС Выборгского района</p></div>
     </div>
 </footer>
 
 <script src="/js/main.js"></script>
 
-<!-- ===== СКРИПТ ПАЗЛА (С ДЕТАЛЯМИ И ПРАВИЛЬНОЙ СБОРКОЙ) ===== -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const grid = document.getElementById('puzzleGrid');
@@ -190,21 +131,18 @@
                 const div = document.createElement('div');
                 div.dataset.index = index;
 
-                // Базовые стили (без фона, чтобы детали были видны)
+                // Только нарезка картинки, без лишнего фона и обводок
                 div.style.borderRadius = '8px';
                 div.style.aspectRatio = '1/1';
                 div.style.cursor = 'pointer';
-                div.style.background = 'transparent';
-                div.style.border = '1px solid rgba(255,255,255,0.15)';
+                div.style.border = '1px solid rgba(255,255,255,0.1)';
 
                 if (piece === 8) {
-                    // Пустая ячейка
                     div.style.background = 'rgba(255,255,255,0.05)';
                     div.style.border = '2px dashed rgba(255,255,255,0.2)';
                     div.style.cursor = 'default';
                     div.dataset.empty = 'true';
                 } else {
-                    // Часть логотипа
                     const row = Math.floor(piece / 3);
                     const col = piece % 3;
 
@@ -213,7 +151,6 @@
                     div.style.backgroundPosition = `${col * 100}% ${row * 100}%`;
                     div.style.backgroundRepeat = 'no-repeat';
 
-                    // Обработчики (комп + мобила)
                     div.addEventListener('click', function(e) {
                         handleTileClick(parseInt(this.dataset.index));
                     });
@@ -227,7 +164,6 @@
                 grid.appendChild(div);
             });
 
-            // Проверка на победу
             for (let i = 0; i < 9; i++) {
                 if (pieces[i] !== i) {
                     isSolved = false;
@@ -237,9 +173,6 @@
 
             if (isSolved) {
                 message.textContent = '🎉 Поздравляем! Вы собрали логотип!';
-                document.querySelectorAll('#puzzleGrid div:not([data-empty="true"])').forEach(el => {
-                    el.style.borderColor = 'var(--neon-coral)';
-                });
             } else {
                 message.textContent = '';
             }
@@ -283,7 +216,6 @@
                 emptyIndex = randomNeighbor;
             }
 
-            // Проверка на случайную сборку
             let isSolved = true;
             for (let i = 0; i < 9; i++) {
                 if (pieces[i] !== i) {
@@ -299,7 +231,6 @@
             renderPuzzle();
         }
 
-        // Самая простая и правильная кнопка "Собрать"
         function resetPuzzle() {
             pieces = [0, 1, 2, 3, 4, 5, 6, 7, 8];
             emptyIndex = 8;
@@ -315,7 +246,6 @@
             resetPuzzle();
         });
 
-        // Первый запуск
         resetPuzzle();
     });
 </script>
