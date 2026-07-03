@@ -77,12 +77,12 @@
             </div>
         </div>
 
-        <!-- ===== ИГРА «СОБЕРИ СЛОВО» (ОГРОМНЫЙ СЛОВАРЬ) ===== -->
+        <!-- ===== ИГРА «СОБЕРИ СЛОВО» (С КНОПКОЙ СТАРТ) ===== -->
         <div style="max-width: 500px; margin: 0 auto 2rem auto; padding: 2rem; background: #1e2a47; border-radius: 24px; text-align: center;">
             <h3 style="color: var(--neon-coral); margin-bottom: 0.5rem;">🧩 Собери слово</h3>
             <p style="color: rgba(255,255,255,0.7); font-size: 0.9rem; margin-bottom: 1rem;">
                 Собери <strong>3 слова ПОДРЯД</strong> без ошибок!<br>
-                <span style="font-size: 0.8rem; opacity: 0.6;">60с → 90с → 180с на каждое слово. Ошибка — начинай заново.</span>
+                <span style="font-size: 0.8rem; opacity: 0.6;">60с → 90с → 180с на каждое слово.</span>
             </p>
 
             <!-- Выбор сложности -->
@@ -92,8 +92,8 @@
                 <button class="difficulty-btn" data-difficulty="hard" style="padding: 0.4rem 1rem; border-radius: 20px; border: 2px solid rgba(255,255,255,0.3); background: transparent; color: rgba(255,255,255,0.7); cursor: pointer; font-weight: 600; transition: all 0.2s;">Сложно</button>
             </div>
 
-            <!-- Статистика -->
-            <div style="display: flex; justify-content: center; gap: 2rem; margin-bottom: 1.5rem; color: #fff;">
+            <!-- Статистика (изначально скрыта) -->
+            <div id="gameStats" style="display: none; justify-content: center; gap: 2rem; margin-bottom: 1.5rem; color: #fff;">
                 <div>
                     <div style="font-size: 0.7rem; opacity: 0.6;">⏱ ВРЕМЯ</div>
                     <div id="timerDisplay" style="font-size: 1.8rem; font-weight: bold; color: var(--neon-coral);">60</div>
@@ -108,10 +108,16 @@
                 </div>
             </div>
 
-            <!-- Игровое поле -->
-            <div id="letterGrid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; max-width: 320px; margin: 0 auto; aspect-ratio: 1/1;"></div>
+            <!-- Игровое поле (изначально скрыто) -->
+            <div id="letterGrid" style="display: none; grid-template-columns: repeat(4, 1fr); gap: 8px; max-width: 320px; margin: 0 auto; aspect-ratio: 1/1;"></div>
 
-            <div style="margin-top: 1.5rem; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+            <!-- Кнопка СТАРТ -->
+            <div style="margin-top: 1.5rem;">
+                <button id="startGameBtn" class="btn btn-sm" style="background: var(--neon-coral); color: #fff; border-color: var(--neon-coral);">Начать игру</button>
+            </div>
+
+            <!-- Кнопка Новая игра (появляется после старта) -->
+            <div id="newGameContainer" style="display: none; margin-top: 1.5rem;">
                 <button id="newGameBtn" class="btn btn-sm" style="background: var(--neon-coral); color: #fff; border-color: var(--neon-coral);">Новая игра</button>
             </div>
 
@@ -158,20 +164,22 @@
 
 <script src="/js/main.js"></script>
 
-<!-- ===== СКРИПТ ИГРЫ (С ОГРОМНЫМ СЛОВАРЁМ) ===== -->
+<!-- ===== СКРИПТ ИГРЫ (С КНОПКОЙ СТАРТ) ===== -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const grid = document.getElementById('letterGrid');
+        const startBtn = document.getElementById('startGameBtn');
         const newGameBtn = document.getElementById('newGameBtn');
+        const newGameContainer = document.getElementById('newGameContainer');
+        const gameStats = document.getElementById('gameStats');
         const message = document.getElementById('letterMessage');
         const nextLetterDisplay = document.getElementById('nextLetterDisplay');
         const timerDisplay = document.getElementById('timerDisplay');
         const wordCountDisplay = document.getElementById('wordCountDisplay');
         const difficultyBtns = document.querySelectorAll('.difficulty-btn');
 
-        // ===== ОГРОМНЫЙ БИБЛИОТЕЧНЫЙ СЛОВАРЬ (более 80 слов!) =====
+        // ===== ОГРОМНЫЙ БИБЛИОТЕЧНЫЙ СЛОВАРЬ =====
         const words = [
-            // ЛИТЕРАТУРА И КНИГИ
             { word: "БИБЛИОТЕКА", hint: "Хранилище знаний" },
             { word: "КНИГОЛЮБ", hint: "Тот, кто обожает читать" },
             { word: "ЧИТАТЕЛЬ", hint: "Тот, кто берёт книгу в руки" },
@@ -188,8 +196,6 @@
             { word: "СЛОВО", hint: "Единица языка" },
             { word: "АБЗАЦ", hint: "Красная строка в тексте" },
             { word: "ЦИТАТА", hint: "Дословная выдержка" },
-            
-            // ЛОГИКА И ИНТЕЛЛЕКТ
             { word: "СТРАТЕГИЯ", hint: "План достижения цели" },
             { word: "ЛОГИКА", hint: "Наука о правильном мышлении" },
             { word: "АНАЛИЗ", hint: "Разбор по частям" },
@@ -203,8 +209,6 @@
             { word: "ЭРУДИЦИЯ", hint: "Глубокие знания" },
             { word: "ГЕНИЙ", hint: "Человек с выдающимися способностями" },
             { word: "ОЗАРЕНИЕ", hint: "Внезапное понимание" },
-            
-            // НАСТОЛЬНЫЕ ИГРЫ И ДОСУГ
             { word: "КУБИК", hint: "Игральная кость" },
             { word: "ФИШКА", hint: "Передвижной жетон" },
             { word: "КАРТА", hint: "Что сдают в начале игры" },
@@ -221,8 +225,6 @@
             { word: "ШАХМАТЫ", hint: "Древняя игра на доске" },
             { word: "ШАШКИ", hint: "Игра на клетчатой доске" },
             { word: "ДОМИНО", hint: "Игра с костяшками" },
-            
-            // ИСКУССТВО И ТВОРЧЕСТВО
             { word: "ТВОРЧЕСТВО", hint: "Создание нового" },
             { word: "ВДОХНОВЕНИЕ", hint: "Прилив творческих сил" },
             { word: "ПОЭТ", hint: "Сочинитель стихов" },
@@ -237,8 +239,6 @@
             { word: "ЦВЕТ", hint: "Оттенок краски" },
             { word: "МРАМОР", hint: "Благородный камень" },
             { word: "СТИХ", hint: "Поэтическое произведение" },
-            
-            // ПУТЕШЕСТВИЯ И ГЕОГРАФИЯ
             { word: "ГОРОД", hint: "Крупный населённый пункт" },
             { word: "СТРАНА", hint: "Территория с границами" },
             { word: "ПЛАНЕТА", hint: "Небесное тело" },
@@ -254,8 +254,6 @@
             { word: "САВАННА", hint: "Африканская степь" },
             { word: "РЕКА", hint: "Водный поток" },
             { word: "ОЗЕРО", hint: "Замкнутый водоём" },
-            
-            // ВРЕМЯ И ИСТОРИЯ
             { word: "КАЛЕНДАРЬ", hint: "Система счисления дней" },
             { word: "ЭПОХА", hint: "Большой исторический период" },
             { word: "ВЕК", hint: "Сто лет" },
@@ -264,8 +262,6 @@
             { word: "ЧАС", hint: "Шестьдесят минут" },
             { word: "ИСТОРИЯ", hint: "Наука о прошлом" },
             { word: "ЛЕТОПИСЬ", hint: "Запись событий по годам" },
-            
-            // ОБЩИЕ ИНТЕЛЛЕКТУАЛЬНЫЕ
             { word: "ОТКРЫТИЕ", hint: "Новое знание" },
             { word: "ИЗОБРЕТЕНИЕ", hint: "Создание нового устройства" },
             { word: "ПРОГРЕСС", hint: "Поступательное развитие" },
@@ -296,25 +292,28 @@
         }
 
         function getNewWord() {
-            // Фильтруем слова, которые уже были использованы в текущей игровой сессии
             const availableWords = words.filter(w => !usedWords.includes(w.word));
-            
-            // Если все слова закончились — сбрасываем историю и начинаем заново
             if (availableWords.length === 0) {
                 usedWords = [];
                 return words[Math.floor(Math.random() * words.length)].word;
             }
-            
             const wordObj = availableWords[Math.floor(Math.random() * availableWords.length)];
             usedWords.push(wordObj.word);
             return wordObj.word;
         }
 
-        function startNewGame() {
+        function startGame() {
             if (timerInterval) {
                 clearInterval(timerInterval);
                 timerInterval = null;
             }
+            
+            // Скрываем кнопку старт, показываем игру
+            startBtn.style.display = 'none';
+            gameStats.style.display = 'flex';
+            grid.style.display = 'grid';
+            newGameContainer.style.display = 'block';
+
             wordsCollected = 0;
             usedWords = [];
             timeLeft = getTimeForWord();
@@ -438,7 +437,6 @@
                 }
 
                 if (nextIndex === currentWord.length) {
-                    // Слово собрано ПОДРЯД!
                     wordsCollected++;
                     wordCountDisplay.textContent = `${wordsCollected} / 3`;
                     
@@ -454,7 +452,6 @@
                             if (isGameActive) loadNewWord();
                         }, 1000);
                     } else {
-                        // ПОБЕДА! 3 слова подряд!
                         clearInterval(timerInterval);
                         timerInterval = null;
                         isGameActive = false;
@@ -464,7 +461,6 @@
                 }
             } else {
                 if (index < nextIndex) return;
-                // Ошибка — сбрасываем только текущее слово
                 nextIndex = 0;
                 if (difficulty === 'hard') {
                     nextLetterDisplay.textContent = '?';
@@ -492,16 +488,23 @@
                 this.style.color = '#fff';
                 this.style.background = 'rgba(255,46,90,0.1)';
                 difficulty = this.dataset.difficulty;
-                startNewGame();
+                
+                // Если игра уже запущена — перезапускаем
+                if (isGameActive) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                    startGame();
+                }
             });
         });
 
-        newGameBtn.addEventListener('click', function() {
-            startNewGame();
+        startBtn.addEventListener('click', function() {
+            startGame();
         });
 
-        // Первый запуск
-        document.querySelector('.difficulty-btn[data-difficulty="easy"]').click();
+        newGameBtn.addEventListener('click', function() {
+            startGame();
+        });
     });
 </script>
 </body>
