@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Фотоотчёт: Игротека 1 июля — Книжные грани</title>
+    <meta name="description" content="Фотографии с игротеки «Книжные грани» 1 июля 2026 года. Настольные игры, улыбки и отличная компания!">
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- Yandex.Metrika counter -->
+    <script type="text/javascript">
+        (function(m,e,t,r,i,k,a){
+            m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+            m[i].l=1*new Date();
+            for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+            k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+        })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=109783209', 'ym');
+
+        ym(109783209, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
+    </script>
+    <noscript><div><img src="https://mc.yandex.ru/watch/109783209" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+    <!-- /Yandex.Metrika counter -->
+
+    <link rel="icon" type="image/x-icon" href="/favicon/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
+    <link rel="manifest" href="/favicon/site.webmanifest">
+    <meta name="msapplication-TileColor" content="#ff2e5a">
+    <meta name="theme-color" content="#fef9f0">
+
+    <style>
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.2rem;
+            margin-top: 2rem;
+        }
+        .gallery-item {
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(0,0,0,0.06);
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+        .gallery-item:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+        }
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            aspect-ratio: 4/3;
+            object-fit: cover;
+            display: block;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 2rem;
+        }
+        @media (max-width: 768px) {
+            .gallery-grid {
+                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+                gap: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="container header-inner">
+        <div class="logo">
+            <div class="logo-cbs"><img src="/images/logo-cbs.png" alt="ЦБС Выборгского района"></div>
+            <div class="logo-rost"><img src="/images/logo-rost.png" alt="Проектный офис РОСТ"></div>
+            <a href="/index.html"><img src="/images/logo-grani.png" alt="Книжные грани"></a>
+        </div>
+        <div class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></div>
+        <nav class="nav" id="nav"></nav>
+    </div>
+</header>
+
+<section class="section">
+    <div class="container">
+        <h1 class="section-title">Фотоотчёт: Игротека 1 июля</h1>
+        <p style="text-align: center; color: var(--text-secondary); margin-bottom: 2rem;">
+            Десятки настольных игр, новые знакомства и отличное настроение. Спасибо, что были с нами!
+        </p>
+
+        <div class="gallery-grid" id="galleryGrid">
+            <!-- Фотографии будут вставлены через JS -->
+        </div>
+
+        <div style="text-align: center; margin-top: 2rem;">
+            <a href="/events.html" class="btn btn-primary" style="background: var(--neon-coral); color: #fff; border-color: var(--neon-coral);">
+                <i class="fas fa-arrow-left"></i> Вернуться к афише
+            </a>
+        </div>
+    </div>
+</section>
+
+<footer>
+    <div class="container">
+        <div class="footer-grid">
+            <div class="footer-col">
+                <h3>Книжные грани</h3>
+                <p>Проект ЦБС Выборгского района</p>
+                <p>Работает на базе <strong>Библиотеки-мастерской</strong></p>
+                <p>пр. Просвещения, 43, ТРК «Парк-Молл», 2 этаж</p>
+                <p><strong>+7 (812) 246-93-15</strong></p>
+            </div>
+            <div class="footer-col">
+                <h3>Разделы</h3>
+                <p><a href="/index.html">Главная</a></p>
+                <p><a href="/about.html">О проекте</a></p>
+                <p><a href="/events.html">Мероприятия</a></p>
+                <p><a href="/contacts.html">Контакты</a></p>
+            </div>
+            <div class="footer-col">
+                <h3>Мы в соцсетях</h3>
+                <div class="footer-social">
+                    <a href="https://vk.com/officecbsbvib" target="_blank"><i class="fab fa-vk"></i></a>
+                </div>
+                <p style="margin-top:1.5rem;">Следите за анонсами в нашей группе ВКонтакте</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© <span id="current-year"></span> Книжные грани | ЦБС Выборгского района</p>
+        </div>
+    </div>
+</footer>
+
+<script src="/js/main.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const grid = document.getElementById('galleryGrid');
+        
+        // ===== ЗАМЕНИ ЭТИ ССЫЛКИ НА СВОИ ФОТОГРАФИИ =====
+        const photos = [
+            '/images/gallery/july-01/photo1.jpg',
+            '/images/gallery/july-01/photo2.jpg',
+            '/images/gallery/july-01/photo3.jpg',
+            '/images/gallery/july-01/photo4.jpg',
+            '/images/gallery/july-01/photo5.jpg',
+            '/images/gallery/july-01/photo6.jpg',
+            // ... добавляй сколько нужно
+        ];
+
+        if (photos.length === 0) {
+            grid.innerHTML = `
+                <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: var(--text-secondary);">
+                    <i class="fas fa-images" style="font-size: 3rem; display: block; margin-bottom: 1rem; color: rgba(0,0,0,0.06);"></i>
+                    <p>Фотографии скоро появятся!</p>
+                </div>
+            `;
+            return;
+        }
+
+        grid.innerHTML = photos.map(src => `
+            <div class="gallery-item">
+                <img src="${src}" alt="Фото с игротеки 1 июля" loading="lazy" onerror="this.src='https://placehold.co/400x300/2a3a5a/ffffff?text=Фото+скоро'">
+            </div>
+        `).join('');
+    });
+</script>
+</body>
+</html>
