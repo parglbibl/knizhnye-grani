@@ -77,12 +77,12 @@
             </div>
         </div>
 
-        <!-- ===== ИГРА «СОБЕРИ СЛОВО» (3 СЛОВА ПОДРЯД) ===== -->
+        <!-- ===== ИГРА «СОБЕРИ СЛОВО» (ОГРОМНЫЙ СЛОВАРЬ) ===== -->
         <div style="max-width: 500px; margin: 0 auto 2rem auto; padding: 2rem; background: #1e2a47; border-radius: 24px; text-align: center;">
             <h3 style="color: var(--neon-coral); margin-bottom: 0.5rem;">🧩 Собери слово</h3>
             <p style="color: rgba(255,255,255,0.7); font-size: 0.9rem; margin-bottom: 1rem;">
-                Собери <strong>3 слова ПОДРЯД</strong> без ошибок за 60 секунд!<br>
-                <span style="font-size: 0.8rem; opacity: 0.6;">Ошибка — начинай слово заново, счётчик не сбрасывается.</span>
+                Собери <strong>3 слова ПОДРЯД</strong> без ошибок!<br>
+                <span style="font-size: 0.8rem; opacity: 0.6;">60с → 90с → 180с на каждое слово. Ошибка — начинай заново.</span>
             </p>
 
             <!-- Выбор сложности -->
@@ -92,7 +92,7 @@
                 <button class="difficulty-btn" data-difficulty="hard" style="padding: 0.4rem 1rem; border-radius: 20px; border: 2px solid rgba(255,255,255,0.3); background: transparent; color: rgba(255,255,255,0.7); cursor: pointer; font-weight: 600; transition: all 0.2s;">Сложно</button>
             </div>
 
-            <!-- Статистика (Таймер + Слова) -->
+            <!-- Статистика -->
             <div style="display: flex; justify-content: center; gap: 2rem; margin-bottom: 1.5rem; color: #fff;">
                 <div>
                     <div style="font-size: 0.7rem; opacity: 0.6;">⏱ ВРЕМЯ</div>
@@ -158,7 +158,7 @@
 
 <script src="/js/main.js"></script>
 
-<!-- ===== СКРИПТ ИГРЫ (3 СЛОВА ПОДРЯД) ===== -->
+<!-- ===== СКРИПТ ИГРЫ (С ОГРОМНЫМ СЛОВАРЁМ) ===== -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const grid = document.getElementById('letterGrid');
@@ -169,13 +169,114 @@
         const wordCountDisplay = document.getElementById('wordCountDisplay');
         const difficultyBtns = document.querySelectorAll('.difficulty-btn');
 
+        // ===== ОГРОМНЫЙ БИБЛИОТЕЧНЫЙ СЛОВАРЬ (более 80 слов!) =====
         const words = [
-            { word: "СТРАТЕГИЯ", hint: "Что нужно, чтобы выиграть в настолку?" },
-            { word: "КУБИК", hint: "Что крутят спидкуберы?" },
-            { word: "ФИШКА", hint: "Чем двигают по полю?" },
-            { word: "КАРТА", hint: "Что сдают в начале игры?" },
-            { word: "ПАМЯТЬ", hint: "Что тренирует эта игра?" },
-            { word: "ЛОГИКА", hint: "Без чего не победить в шахматы?" }
+            // ЛИТЕРАТУРА И КНИГИ
+            { word: "БИБЛИОТЕКА", hint: "Хранилище знаний" },
+            { word: "КНИГОЛЮБ", hint: "Тот, кто обожает читать" },
+            { word: "ЧИТАТЕЛЬ", hint: "Тот, кто берёт книгу в руки" },
+            { word: "РУКОПИСЬ", hint: "Написанное от руки" },
+            { word: "ИЗДАТЕЛЬ", hint: "Тот, кто выпускает книги" },
+            { word: "ПЕРЕПЛЁТ", hint: "Твёрдая обложка книги" },
+            { word: "СТРАНИЦА", hint: "Лист в книге" },
+            { word: "ЭПИЛОГ", hint: "Заключительная часть" },
+            { word: "ПРОЛОГ", hint: "Вводная часть произведения" },
+            { word: "ГЛАВА", hint: "Раздел книги" },
+            { word: "ТОМ", hint: "Книга в составе собрания" },
+            { word: "ФОЛИАНТ", hint: "Большая старинная книга" },
+            { word: "БУКВА", hint: "Символ алфавита" },
+            { word: "СЛОВО", hint: "Единица языка" },
+            { word: "АБЗАЦ", hint: "Красная строка в тексте" },
+            { word: "ЦИТАТА", hint: "Дословная выдержка" },
+            
+            // ЛОГИКА И ИНТЕЛЛЕКТ
+            { word: "СТРАТЕГИЯ", hint: "План достижения цели" },
+            { word: "ЛОГИКА", hint: "Наука о правильном мышлении" },
+            { word: "АНАЛИЗ", hint: "Разбор по частям" },
+            { word: "ПАМЯТЬ", hint: "Способность запоминать" },
+            { word: "ВНИМАНИЕ", hint: "Сосредоточенность" },
+            { word: "РЕШЕНИЕ", hint: "Найденный ответ" },
+            { word: "АЛГОРИТМ", hint: "Последовательность действий" },
+            { word: "ИНТЕЛЛЕКТ", hint: "Умственные способности" },
+            { word: "РАЗУМ", hint: "Высшая способность познания" },
+            { word: "МЫШЛЕНИЕ", hint: "Процесс обработки информации" },
+            { word: "ЭРУДИЦИЯ", hint: "Глубокие знания" },
+            { word: "ГЕНИЙ", hint: "Человек с выдающимися способностями" },
+            { word: "ОЗАРЕНИЕ", hint: "Внезапное понимание" },
+            
+            // НАСТОЛЬНЫЕ ИГРЫ И ДОСУГ
+            { word: "КУБИК", hint: "Игральная кость" },
+            { word: "ФИШКА", hint: "Передвижной жетон" },
+            { word: "КАРТА", hint: "Что сдают в начале игры" },
+            { word: "ПАЗЛ", hint: "Собираемая картинка" },
+            { word: "ГОЛОВОЛОМКА", hint: "Задача на сообразительность" },
+            { word: "ШУЛЕР", hint: "Нечестный игрок" },
+            { word: "КОН", hint: "Партия в игре" },
+            { word: "БРОСОК", hint: "Действие с кубиком" },
+            { word: "ХОД", hint: "Передвижение фишки" },
+            { word: "ПОБЕДА", hint: "Успех в соревновании" },
+            { word: "ТУРНИР", hint: "Соревнование" },
+            { word: "СОПЕРНИК", hint: "Противник в игре" },
+            { word: "КОЛОДА", hint: "Набор карт" },
+            { word: "ШАХМАТЫ", hint: "Древняя игра на доске" },
+            { word: "ШАШКИ", hint: "Игра на клетчатой доске" },
+            { word: "ДОМИНО", hint: "Игра с костяшками" },
+            
+            // ИСКУССТВО И ТВОРЧЕСТВО
+            { word: "ТВОРЧЕСТВО", hint: "Создание нового" },
+            { word: "ВДОХНОВЕНИЕ", hint: "Прилив творческих сил" },
+            { word: "ПОЭТ", hint: "Сочинитель стихов" },
+            { word: "КРАСОТА", hint: "Эстетическое совершенство" },
+            { word: "МУЗЫКА", hint: "Искусство звуков" },
+            { word: "ТАНЕЦ", hint: "Ритмичные движения" },
+            { word: "ПЕСНЯ", hint: "Вокальное произведение" },
+            { word: "АККОРД", hint: "Созвучие" },
+            { word: "МЕЛОДИЯ", hint: "Музыкальная тема" },
+            { word: "ЭТЮД", hint: "Небольшое произведение" },
+            { word: "ФАНТАЗИЯ", hint: "Творческое воображение" },
+            { word: "ЦВЕТ", hint: "Оттенок краски" },
+            { word: "МРАМОР", hint: "Благородный камень" },
+            { word: "СТИХ", hint: "Поэтическое произведение" },
+            
+            // ПУТЕШЕСТВИЯ И ГЕОГРАФИЯ
+            { word: "ГОРОД", hint: "Крупный населённый пункт" },
+            { word: "СТРАНА", hint: "Территория с границами" },
+            { word: "ПЛАНЕТА", hint: "Небесное тело" },
+            { word: "ЗЕМЛЯ", hint: "Наша планета" },
+            { word: "АРКТИКА", hint: "Северный полярный пояс" },
+            { word: "ГЕОГРАФИЯ", hint: "Наука о Земле" },
+            { word: "КОНТИНЕНТ", hint: "Большой массив суши" },
+            { word: "ОКЕАН", hint: "Великий водоём" },
+            { word: "МОРЕ", hint: "Часть океана" },
+            { word: "ГОРА", hint: "Высокое возвышение" },
+            { word: "ВУЛКАН", hint: "Гора с кратером" },
+            { word: "ДЖУНГЛИ", hint: "Густые тропические леса" },
+            { word: "САВАННА", hint: "Африканская степь" },
+            { word: "РЕКА", hint: "Водный поток" },
+            { word: "ОЗЕРО", hint: "Замкнутый водоём" },
+            
+            // ВРЕМЯ И ИСТОРИЯ
+            { word: "КАЛЕНДАРЬ", hint: "Система счисления дней" },
+            { word: "ЭПОХА", hint: "Большой исторический период" },
+            { word: "ВЕК", hint: "Сто лет" },
+            { word: "СЕКУНДА", hint: "Мгновение времени" },
+            { word: "МИНУТА", hint: "Шестьдесят секунд" },
+            { word: "ЧАС", hint: "Шестьдесят минут" },
+            { word: "ИСТОРИЯ", hint: "Наука о прошлом" },
+            { word: "ЛЕТОПИСЬ", hint: "Запись событий по годам" },
+            
+            // ОБЩИЕ ИНТЕЛЛЕКТУАЛЬНЫЕ
+            { word: "ОТКРЫТИЕ", hint: "Новое знание" },
+            { word: "ИЗОБРЕТЕНИЕ", hint: "Создание нового устройства" },
+            { word: "ПРОГРЕСС", hint: "Поступательное развитие" },
+            { word: "НАУКА", hint: "Система знаний" },
+            { word: "СТУДЕНТ", hint: "Учащийся вуза" },
+            { word: "УЧИТЕЛЬ", hint: "Наставник" },
+            { word: "УЧЕНИК", hint: "Тот, кто учится" },
+            { word: "ЗНАНИЕ", hint: "Совокупность сведений" },
+            { word: "МУДРОСТЬ", hint: "Глубокий жизненный опыт" },
+            { word: "ПОИСК", hint: "Процесс нахождения" },
+            { word: "ИССЛЕДОВАНИЕ", hint: "Научное изучение" }
         ];
 
         let currentWord = "";
@@ -186,6 +287,28 @@
         let timeLeft = 60;
         let timerInterval = null;
         let isGameActive = false;
+        let usedWords = [];
+
+        function getTimeForWord() {
+            if (wordsCollected === 0) return 60;
+            if (wordsCollected === 1) return 90;
+            return 180;
+        }
+
+        function getNewWord() {
+            // Фильтруем слова, которые уже были использованы в текущей игровой сессии
+            const availableWords = words.filter(w => !usedWords.includes(w.word));
+            
+            // Если все слова закончились — сбрасываем историю и начинаем заново
+            if (availableWords.length === 0) {
+                usedWords = [];
+                return words[Math.floor(Math.random() * words.length)].word;
+            }
+            
+            const wordObj = availableWords[Math.floor(Math.random() * availableWords.length)];
+            usedWords.push(wordObj.word);
+            return wordObj.word;
+        }
 
         function startNewGame() {
             if (timerInterval) {
@@ -193,10 +316,11 @@
                 timerInterval = null;
             }
             wordsCollected = 0;
-            timeLeft = 60;
+            usedWords = [];
+            timeLeft = getTimeForWord();
             isGameActive = true;
             
-            timerDisplay.textContent = '60';
+            timerDisplay.textContent = timeLeft;
             wordCountDisplay.textContent = '0 / 3';
             message.textContent = '';
             message.style.color = 'var(--neon-coral)';
@@ -219,8 +343,7 @@
         function loadNewWord() {
             if (!isGameActive) return;
             
-            const wordObj = words[Math.floor(Math.random() * words.length)];
-            currentWord = wordObj.word;
+            currentWord = getNewWord();
             
             let letters = currentWord.split('');
             const extraLetters = ['А', 'О', 'Е', 'И', 'Н', 'Т', 'С', 'Р', 'Л', 'К', 'М'];
@@ -319,25 +442,29 @@
                     wordsCollected++;
                     wordCountDisplay.textContent = `${wordsCollected} / 3`;
                     
-                    if (wordsCollected >= 3) {
-                        // ПОБЕДА! 3 слова подряд без ошибок
-                        clearInterval(timerInterval);
-                        timerInterval = null;
-                        isGameActive = false;
-                        message.textContent = '🎉 Поздравляем! Вы собрали 3 слова ПОДРЯД!';
-                        message.style.color = '#2ecc71';
-                    } else {
+                    if (wordsCollected < 3) {
+                        const targetTime = getTimeForWord();
+                        timeLeft = targetTime;
+                        timerDisplay.textContent = timeLeft;
+                        
                         message.textContent = `✅ Слово собрано! Осталось ${3 - wordsCollected}`;
                         message.style.color = '#2ecc71';
                         setTimeout(() => {
                             message.textContent = '';
                             if (isGameActive) loadNewWord();
                         }, 1000);
+                    } else {
+                        // ПОБЕДА! 3 слова подряд!
+                        clearInterval(timerInterval);
+                        timerInterval = null;
+                        isGameActive = false;
+                        message.textContent = '🎉 Поздравляем! Вы собрали 3 слова ПОДРЯД!';
+                        message.style.color = '#2ecc71';
                     }
                 }
             } else {
                 if (index < nextIndex) return;
-                // Ошибка — сбрасываем только текущее слово, счётчик НЕ сбрасывается
+                // Ошибка — сбрасываем только текущее слово
                 nextIndex = 0;
                 if (difficulty === 'hard') {
                     nextLetterDisplay.textContent = '?';
