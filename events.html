@@ -358,6 +358,17 @@
             <div class="archive-slider-wrapper">
                 <button class="archive-arrow prev" aria-label="Назад">‹</button>
                 <div class="archive-slider" id="archiveSlider">
+                    <!-- ===== 17 ИЮНЯ ===== -->
+                    <div class="archive-card" data-event="17 июня">
+                        <div class="archive-image">
+                            <img src="/images/afisha/afisha1706.jpg" alt="Игротека «Книжные грани» 17 июня">
+                        </div>
+                        <div class="archive-info">
+                            <span class="archive-date">17 июня</span>
+                            <h4 class="archive-name">Игротека «Книжные грани»</h4>
+                        </div>
+                    </div>
+
                     <!-- ===== 1 ИЮЛЯ ===== -->
                     <div class="archive-card" data-event="1 июля">
                         <div class="archive-image">
@@ -365,17 +376,6 @@
                         </div>
                         <div class="archive-info">
                             <span class="archive-date">1 июля</span>
-                            <h4 class="archive-name">Игротека «Книжные грани»</h4>
-                        </div>
-                    </div>
-
-                    <!-- ===== 22 ИЮЛЯ ===== -->
-                    <div class="archive-card" data-event="22 июля">
-                        <div class="archive-image" style="background: linear-gradient(135deg, #2a3a5a, #1a2a3a); display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-calendar-alt" style="font-size: 2.5rem; color: rgba(255,255,255,0.3);"></i>
-                        </div>
-                        <div class="archive-info">
-                            <span class="archive-date">22 июля</span>
                             <h4 class="archive-name">Игротека «Книжные грани»</h4>
                         </div>
                     </div>
@@ -471,20 +471,20 @@
         const modalBody = document.getElementById('archiveModalBody');
         
         const archiveData = {
+            '17 июня': {
+                title: 'Игротека «Книжные грани»',
+                date: '17 июня 2026',
+                image: '/images/afisha/afisha1706.jpg',
+                description: 'Первая летняя игротека в Библиотеке-мастерской. Мастер-класс по сборке кубика Рубика и большая игротека от Hobby World.',
+                link: '/events/detail.html?id=summer-party',
+                gallery: '/gallery.html'
+            },
             '1 июля': {
                 title: 'Игротека «Книжные грани»',
                 date: '1 июля 2026',
                 image: '/images/afisha/afisha0107.PNG',
                 description: 'Большая игротека от Hobby World. Десятки настольных игр на любой вкус. Приходите один или с друзьями — найдём компанию!',
                 link: '/events/detail.html?id=july-party',
-                gallery: '/gallery.html'
-            },
-            '22 июля': {
-                title: 'Игротека «Книжные грани»',
-                date: '22 июля 2026',
-                image: '',
-                description: 'Большая игротека. Десятки настольных игр на любой вкус. Приходите один или с друзьями — найдём компанию!',
-                link: '/events/detail.html?id=july-22',
                 gallery: '/gallery.html'
             }
         };
@@ -513,18 +513,11 @@
             const data = archiveData[eventKey];
             if (!data) return;
             
-            let imageHtml = '';
-            if (data.image) {
-                imageHtml = `<div class="archive-modal-image"><img src="${data.image}" alt="${data.title}"></div>`;
-            } else {
-                imageHtml = `<div class="archive-modal-image" style="background: linear-gradient(135deg, #2a3a5a, #1a2a3a); height: 200px; display: flex; align-items: center; justify-content: center;">
-                    <i class="fas fa-calendar-alt" style="font-size: 3rem; color: rgba(255,255,255,0.2);"></i>
-                </div>`;
-            }
-            
             if (modalBody) {
                 modalBody.innerHTML = `
-                    ${imageHtml}
+                    <div class="archive-modal-image">
+                        <img src="${data.image}" alt="${data.title}">
+                    </div>
                     <div class="archive-modal-date">📅 ${data.date}</div>
                     <h2 class="archive-modal-title">${data.title}</h2>
                     <p class="archive-modal-desc">${data.description}</p>
