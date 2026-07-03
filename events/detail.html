@@ -168,7 +168,7 @@
             galleryLink: '../gallery.html'
         },
 
-        // ===== 1 ИЮЛЯ =====
+        // ===== 1 ИЮЛЯ (ПРОШЕДШЕЕ) =====
         'july-party': {
             id: 'july-party',
             title: 'Игротека «Книжные грани»',
@@ -182,6 +182,24 @@
                 '🕒 16:30 — Большая игротека (настольные игры)',
                 '🕒 18:00 — Мини-турнир по настольным играм',
                 '🕒 19:00 — Закрытие'
+            ],
+            galleryLink: '../gallery.html'
+        },
+
+        // ===== 22 ИЮЛЯ =====
+        'july-22': {
+            id: 'july-22',
+            title: 'Игротека «Книжные грани»',
+            date: '22 июля 2026',
+            time: '13:00 – 17:00',
+            location: 'Библиотека-мастерская (пр. Просвещения, 43, ТРК «Парк-Молл», 2 этаж)',
+            image: '',
+            description: 'Большая игротека. Десятки настольных игр на любой вкус. Приходите один или с друзьями — найдём компанию!',
+            program: [
+                '🕒 13:00 — Открытие, знакомство',
+                '🕒 14:00 — Большая игротека (настольные игры)',
+                '🕒 16:00 — Мини-турнир по настольным играм',
+                '🕒 17:00 — Закрытие'
             ],
             galleryLink: '../gallery.html'
         }
@@ -225,11 +243,20 @@
             `;
         }
         
+        let imageHtml = '';
+        if (event.image) {
+            imageHtml = `<div style="border-radius: 16px; overflow: hidden; margin-bottom: 1.5rem;">
+                <img src="${event.image}" alt="${event.title}" style="width: 100%; height: auto; display: block;" onerror="this.src='https://placehold.co/800x400/2a3a5a/ffffff?text=Фото+скоро'">
+            </div>`;
+        } else {
+            imageHtml = `<div style="border-radius: 16px; overflow: hidden; margin-bottom: 1.5rem; background: linear-gradient(135deg, #2a3a5a, #1a2a3a); height: 200px; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-calendar-alt" style="font-size: 3rem; color: rgba(255,255,255,0.2);"></i>
+            </div>`;
+        }
+        
         content.innerHTML = `
             <div style="background: #fff; border-radius: 24px; padding: 2rem; border: 1px solid rgba(0,0,0,0.05);">
-                <div style="border-radius: 16px; overflow: hidden; margin-bottom: 1.5rem;">
-                    <img src="${event.image}" alt="${event.title}" style="width: 100%; height: auto; display: block;" onerror="this.src='https://placehold.co/800x400/2a3a5a/ffffff?text=Фото+скоро'">
-                </div>
+                ${imageHtml}
                 
                 <div style="display: flex; gap: 0.8rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
                     <span style="background: var(--neon-coral); color: #fff; padding: 0.3rem 1rem; border-radius: 20px; font-size: 0.8rem;">
