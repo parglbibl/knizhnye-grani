@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -77,7 +77,7 @@
             </div>
         </div>
 
-        <!-- ===== ИГРА «СОБЕРИ СЛОВО» (БЛОКИРОВКА УРОВНЕЙ ВО ВРЕМЯ ИГРЫ) ===== -->
+        <!-- ===== ИГРА «СОБЕРИ СЛОВО» (ФИНАЛЬНАЯ ЛОГИКА) ===== -->
         <div style="max-width: 500px; margin: 0 auto 2rem auto; padding: 2rem; background: #1e2a47; border-radius: 24px; text-align: center;">
             <h3 style="color: var(--neon-coral); margin-bottom: 0.5rem;">🧩 Собери слово</h3>
             <p style="color: rgba(255,255,255,0.7); font-size: 0.9rem; margin-bottom: 1rem;">
@@ -169,7 +169,6 @@
         const timerDisplay = document.getElementById('timerDisplay');
         const wordCountDisplay = document.getElementById('wordCountDisplay');
         const difficultyBtns = document.querySelectorAll('.difficulty-btn');
-        const difficultyContainer = document.getElementById('difficultyContainer');
 
         // ===== ОГРОМНЫЙ БИБЛИОТЕЧНЫЙ СЛОВАРЬ =====
         const words = [
@@ -276,7 +275,7 @@
         let timeLeft = 60;
         let timerInterval = null;
         let isGameActive = false;
-        let isGameFinished = false;
+        let isGameFinished = false; // true, если игра завершена (победа или поражение)
         let usedWords = [];
         let winMessages = {
             easy: '🎉 Блестящее начало! Готов проверить силы на следующем уровне?',
@@ -319,7 +318,7 @@
                 timerInterval = null;
             }
             
-            // Блокируем кнопки уровней
+            // Блокируем кнопки уровней во время игры
             setDifficultyButtonsState(false);
             isGameFinished = false;
             
@@ -348,7 +347,7 @@
                     message.textContent = '⏰ Время вышло! Выберите другой уровень и попробуйте снова.';
                     message.style.color = '#e74c3c';
                     startBtn.style.display = 'inline-block';
-                    setDifficultyButtonsState(true);
+                    setDifficultyButtonsState(true); // Разблокируем кнопки
                 }
             }, 1000);
 
@@ -471,7 +470,7 @@
                         message.textContent = winMessages[difficulty];
                         message.style.color = '#2ecc71';
                         startBtn.style.display = 'inline-block';
-                        setDifficultyButtonsState(true);
+                        setDifficultyButtonsState(true); // Разблокируем кнопки
                     }
                 }
             } else {
@@ -491,11 +490,11 @@
             }
         }
 
-        // Переключение сложности
+        // Переключение сложности (работает только когда игра не активна)
         difficultyBtns.forEach(btn => {
             btn.addEventListener('click', function() {
-                // Если игра идёт — блокируем
-                if (isGameActive || !isGameFinished) return;
+                // Если игра активна или завершена — НЕ блокируем, просто меняем
+                if (isGameActive) return; // Защита от дурака, но блокировка уже стоит
 
                 difficultyBtns.forEach(b => {
                     b.style.borderColor = 'rgba(255,255,255,0.3)';
@@ -507,7 +506,7 @@
                 this.style.background = 'rgba(255,46,90,0.1)';
                 difficulty = this.dataset.difficulty;
                 
-                // Возвращаем всё в исходное состояние
+                // Сбрасываем UI в исходное состояние
                 if (timerInterval) {
                     clearInterval(timerInterval);
                     timerInterval = null;
@@ -518,7 +517,7 @@
                 gameStats.style.display = 'none';
                 grid.style.display = 'none';
                 message.textContent = '';
-                setDifficultyButtonsState(true);
+                setDifficultyButtonsState(true); // Кнопки всегда активны до старта
                 
                 // Показываем таймер для выбранного уровня
                 const time = this.dataset.time;
@@ -531,6 +530,9 @@
         startBtn.addEventListener('click', function() {
             startGame();
         });
+
+        // Инициализация
+        document.querySelector('.difficulty-btn[data-difficulty="easy"]').click();
     });
 </script>
 </body>
