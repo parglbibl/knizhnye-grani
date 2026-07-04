@@ -1,10 +1,9 @@
-// main.js — Книжные грани (с динамическими хлебными крошками)
+// main.js — Книжные грани (с динамическими хлебными крошками и новостями)
 
 document.addEventListener('DOMContentLoaded', function() {
 
     // ===== ФАВИКОНКИ (ДОБАВЛЯЮТСЯ АВТОМАТИЧЕСКИ) =====
     function addFavicon() {
-        // Проверяем, есть ли уже фавиконки
         if (document.querySelector('link[rel="icon"][type="image/x-icon"]')) return;
         
         const links = [
@@ -23,7 +22,6 @@ document.addEventListener('DOMContentLoaded', function() {
             document.head.appendChild(link);
         });
         
-        // Мета-теги
         const metaTags = [
             { name: 'msapplication-TileColor', content: '#ff2e5a' },
             { name: 'theme-color', content: '#fef9f0' }
@@ -119,7 +117,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     { name: 'Партнёры', href: prefix + 'partners.html', icon: 'fas fa-handshake' },
                     { name: 'Контакты', href: prefix + 'contacts.html', icon: 'fas fa-phone-alt' },
                     { name: 'Обратная связь', href: prefix + 'feedback.html', icon: 'fas fa-envelope' },
-                    { name: 'FAQ', href: prefix + 'faq.html', icon: 'fas fa-question-circle' }
+                    { name: 'FAQ', href: prefix + 'faq.html', icon: 'fas fa-question-circle' },
+                    { name: 'Новости', href: prefix + 'news.html', icon: 'fas fa-newspaper' }
                 ]
             }
         ];
@@ -252,6 +251,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 breadcrumbs.push({ name: 'Обратная связь', href: null });
             } else if (fileName === 'gallery.html') {
                 breadcrumbs.push({ name: 'Фотоотчёты', href: null });
+            } else if (fileName === 'news.html') {
+                breadcrumbs.push({ name: 'Новости', href: null });
             }
         }
         
@@ -419,7 +420,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 title: 'Игротека «Книжные грани»',
                 date: '17 июня 2026',
                 image: 'images/afisha/afisha1706.jpg',
-                description: 'Большая игротека от Hobby World. Десятки настольных игр на любой вкус. Приходите один или с друзьями — найдём компанию!',
+                description: 'Первая летняя игротека в Библиотеке-мастерской. Мастер-класс по сборке кубика Рубика и большая игротека от Hobby World.',
                 link: '/events/detail.html?id=summer-party',
                 gallery: '/gallery.html'
             }
