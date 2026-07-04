@@ -1,4 +1,4 @@
-// main.js — Книжные грани (с динамическими хлебными крошками и новостями)
+// main.js — Книжные грани (обновлённый порядок меню)
 
 document.addEventListener('DOMContentLoaded', function() {
 
@@ -105,7 +105,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 items: [
                     { name: 'Афиша', href: prefix + 'events.html', icon: 'fas fa-calendar-alt' },
                     { name: 'Настольные игры', href: prefix + 'boardgames/index.html', icon: 'fas fa-dice-d6' },
-                    { name: 'Спидкубинг', href: prefix + 'speedcubing/index.html', icon: 'fas fa-cube' },
+                    { name: 'Спидкубинг', href: prefix + 'speedcubing/index.html', icon: 'fas fa-cube' }
+                ]
+            },
+            {
+                type: 'dropdown',
+                title: 'Новости',
+                icon: 'fas fa-newspaper',
+                items: [
+                    { name: 'Новости', href: prefix + 'news.html', icon: 'fas fa-newspaper' },
                     { name: 'Фотоотчёты', href: prefix + 'gallery.html', icon: 'fas fa-images' }
                 ]
             },
@@ -117,8 +125,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     { name: 'Партнёры', href: prefix + 'partners.html', icon: 'fas fa-handshake' },
                     { name: 'Контакты', href: prefix + 'contacts.html', icon: 'fas fa-phone-alt' },
                     { name: 'Обратная связь', href: prefix + 'feedback.html', icon: 'fas fa-envelope' },
-                    { name: 'FAQ', href: prefix + 'faq.html', icon: 'fas fa-question-circle' },
-                    { name: 'Новости', href: prefix + 'news.html', icon: 'fas fa-newspaper' }
+                    { name: 'FAQ', href: prefix + 'faq.html', icon: 'fas fa-question-circle' }
                 ]
             }
         ];
