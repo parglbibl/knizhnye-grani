@@ -155,7 +155,7 @@
         .gallery-lightbox-image-wrapper {
             position: relative;
             max-width: 90vw;
-            max-height: 80vh;
+            max-height: 90vh;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -163,7 +163,7 @@
 
         .gallery-lightbox-image-wrapper img {
             max-width: 100%;
-            max-height: 80vh;
+            max-height: 90vh;
             border-radius: 16px;
             object-fit: contain;
             box-shadow: 0 20px 60px rgba(0,0,0,0.6);
@@ -240,6 +240,10 @@
             }
             .gallery-lightbox-image-wrapper {
                 max-width: 95vw;
+                max-height: 90vh;
+            }
+            .gallery-lightbox-image-wrapper img {
+                max-height: 90vh;
             }
         }
     </style>
@@ -365,7 +369,6 @@
 
 <script src="/js/main.js"></script>
 
-<!-- ===== СКРИПТ ГАЛЕРЕИ И ЛАЙТБОКСА ===== -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const grid = document.getElementById('galleryGrid');
@@ -381,17 +384,17 @@
 
         // ===== ВСЕ ФОТО С ПРАВИЛЬНЫМ РАСПРЕДЕЛЕНИЕМ =====
         const photos = [
-            // ===== СПИДКУБИНГ (5 фото) =====
+            // ===== СПИДКУБИНГ (6 фото) =====
             { src: '/images/july-01/1.jpg', category: 'speedcubing', label: 'Спидкубинг' },
             { src: '/images/july-01/3.jpg', category: 'speedcubing', label: 'Спидкубинг' },
             { src: '/images/july-01/4.jpg', category: 'speedcubing', label: 'Спидкубинг' },
             { src: '/images/july-01/6.jpg', category: 'speedcubing', label: 'Спидкубинг' },
+            { src: '/images/july-01/7.jpg', category: 'speedcubing', label: 'Спидкубинг' },
             { src: '/images/july-01/10.jpg', category: 'speedcubing', label: 'Спидкубинг' },
 
-            // ===== НАСТОЛЬНЫЕ ИГРЫ (5 фото) =====
+            // ===== НАСТОЛЬНЫЕ ИГРЫ (4 фото) =====
             { src: '/images/july-01/2.jpg', category: 'boardgames', label: 'Настольные игры' },
             { src: '/images/july-01/5.jpg', category: 'boardgames', label: 'Настольные игры' },
-            { src: '/images/july-01/7.jpg', category: 'boardgames', label: 'Настольные игры' },
             { src: '/images/july-01/8.jpg', category: 'boardgames', label: 'Настольные игры' },
             { src: '/images/july-01/9.jpg', category: 'boardgames', label: 'Настольные игры' }
         ];
@@ -414,7 +417,6 @@
             }
 
             grid.innerHTML = filtered.map((photo, index) => {
-                // Сохраняем оригинальный индекс в массиве photos для лайтбокса
                 const originalIndex = photos.indexOf(photo);
                 return `
                     <div class="gallery-item" data-category="${photo.category}" data-index="${originalIndex}">
@@ -424,15 +426,11 @@
                 `;
             }).join('');
 
-            // Добавляем обработчики клика на новые элементы
             document.querySelectorAll('.gallery-item').forEach(item => {
                 item.addEventListener('click', function() {
                     const index = parseInt(this.dataset.index);
                     openLightbox(index);
                 });
-                item.addEventListener('touchstart', function(e) {
-                    // Для мобильных
-                }, { passive: true });
             });
         }
 
