@@ -4,82 +4,119 @@
       xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-  xmlns:fo="http://www.w3.org/1999/XSL/Format"
-  xmlns:xhtml="http://www.w3.org/1999/xhtml"
+      xmlns:fo="http://www.w3.org/1999/XSL/Format"
+      xmlns:xhtml="http://www.w3.org/1999/xhtml"
       xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
             http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
-<!-- created with Free Online Sitemap Generator www.xml-sitemaps.com -->
-
 
 <url>
   <loc>https://knig-grani.ru/</loc>
-  <lastmod>2026-06-18T23:25:51+00:00</lastmod>
+  <lastmod>2026-07-04T00:00:00+00:00</lastmod>
   <priority>1.00</priority>
 </url>
 <url>
   <loc>https://knig-grani.ru/index.html</loc>
-  <lastmod>2026-06-18T23:25:51+00:00</lastmod>
-  <priority>0.80</priority>
-</url>
-<url>
-  <loc>https://knig-grani.ru/boardgames/index.html</loc>
-  <lastmod>2026-06-18T23:25:51+00:00</lastmod>
-  <priority>0.80</priority>
-</url>
-<url>
-  <loc>https://knig-grani.ru/speedcubing/index.html</loc>
-  <lastmod>2026-06-18T23:25:51+00:00</lastmod>
+  <lastmod>2026-07-04T00:00:00+00:00</lastmod>
   <priority>0.80</priority>
 </url>
 <url>
   <loc>https://knig-grani.ru/about.html</loc>
-  <lastmod>2026-06-18T23:25:51+00:00</lastmod>
+  <lastmod>2026-07-04T00:00:00+00:00</lastmod>
   <priority>0.80</priority>
 </url>
 <url>
   <loc>https://knig-grani.ru/contacts.html</loc>
-  <lastmod>2026-06-18T23:25:51+00:00</lastmod>
+  <lastmod>2026-07-04T00:00:00+00:00</lastmod>
   <priority>0.80</priority>
 </url>
 <url>
   <loc>https://knig-grani.ru/events.html</loc>
-  <lastmod>2026-06-18T23:25:51+00:00</lastmod>
+  <lastmod>2026-07-04T00:00:00+00:00</lastmod>
   <priority>0.80</priority>
 </url>
 <url>
+  <loc>https://knig-grani.ru/boardgames/index.html</loc>
+  <lastmod>2026-07-04T00:00:00+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://knig-grani.ru/speedcubing/index.html</loc>
+  <lastmod>2026-07-04T00:00:00+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://knig-grani.ru/gallery.html</loc>
+  <lastmod>2026-07-04T00:00:00+00:00</lastmod>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://knig-grani.ru/news.html</loc>
+  <lastmod>2026-07-04T00:00:00+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://knig-grani.ru/partners.html</loc>
+  <lastmod>2026-07-04T00:00:00+00:00</lastmod>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://knig-grani.ru/faq.html</loc>
+  <lastmod>2026-07-04T00:00:00+00:00</lastmod>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://knig-grani.ru/feedback.html</loc>
+  <lastmod>2026-07-04T00:00:00+00:00</lastmod>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://knig-grani.ru/organizers.html</loc>
+  <lastmod>2026-07-04T00:00:00+00:00</lastmod>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://knig-grani.ru/team.html</loc>
+  <lastmod>2026-07-04T00:00:00+00:00</lastmod>
+  <priority>0.64</priority>
+</url>
+<url>
   <loc>https://knig-grani.ru/boardgames/catalog.html</loc>
-  <lastmod>2026-06-18T23:25:51+00:00</lastmod>
+  <lastmod>2026-07-04T00:00:00+00:00</lastmod>
   <priority>0.64</priority>
 </url>
 <url>
   <loc>https://knig-grani.ru/boardgames/rules.html</loc>
-  <lastmod>2026-06-18T23:25:51+00:00</lastmod>
+  <lastmod>2026-07-04T00:00:00+00:00</lastmod>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://knig-grani.ru/boardgames/top-10-nastolnyh-igr.html</loc>
+  <lastmod>2026-07-04T00:00:00+00:00</lastmod>
   <priority>0.64</priority>
 </url>
 <url>
   <loc>https://knig-grani.ru/speedcubing/about-sport.html</loc>
-  <lastmod>2026-06-18T23:25:51+00:00</lastmod>
+  <lastmod>2026-07-04T00:00:00+00:00</lastmod>
   <priority>0.64</priority>
 </url>
 <url>
   <loc>https://knig-grani.ru/speedcubing/levels.html</loc>
-  <lastmod>2026-06-18T23:25:51+00:00</lastmod>
+  <lastmod>2026-07-04T00:00:00+00:00</lastmod>
   <priority>0.64</priority>
 </url>
 <url>
-  <loc>https://knig-grani.ru/gallery.html?filter=speedcubing</loc>
-  <lastmod>2026-06-18T23:25:51+00:00</lastmod>
+  <loc>https://knig-grani.ru/speedcubing/kak-nauchitsya-sobirat-kubik.html</loc>
+  <lastmod>2026-07-04T00:00:00+00:00</lastmod>
   <priority>0.64</priority>
 </url>
 <url>
-  <loc>https://knig-grani.ru/events/detail.html?id=summer-party</loc>
-  <lastmod>2026-06-18T23:25:51+00:00</lastmod>
+  <loc>https://knig-grani.ru/gallery/july-01.html</loc>
+  <lastmod>2026-07-04T00:00:00+00:00</lastmod>
   <priority>0.64</priority>
 </url>
 <url>
-  <loc>https://knig-grani.ru/gallery.html</loc>
-  <lastmod>2026-06-18T23:25:51+00:00</lastmod>
-  <priority>0.51</priority>
+  <loc>https://knig-grani.ru/gallery/june-17.html</loc>
+  <lastmod>2026-07-04T00:00:00+00:00</lastmod>
+  <priority>0.64</priority>
 </url>
-
 </urlset>
