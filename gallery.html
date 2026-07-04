@@ -193,7 +193,6 @@
                 <p><a href="/about.html">О проекте</a></p>
                 <p><a href="/events.html">Мероприятия</a></p>
                 <p><a href="/contacts.html">Контакты</a></p>
-                <p><a href="/gallery.html">Фотоотчёты</a></p>
             </div>
             <div class="footer-col">
                 <h3>Мы в соцсетях</h3>
@@ -243,57 +242,21 @@
 </footer>
 
 <script src="/js/main.js"></script>
+
+<!-- ===== СКРИПТ ГАЛЕРЕИ ===== -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const grid = document.getElementById('galleryGrid');
         const filters = document.querySelectorAll('.gallery-filters .btn-sm');
 
-        const photos = [];
+        // ===== ВСЕ ФОТО С РАСПРЕДЕЛЕНИЕМ ПО КАТЕГОРИЯМ =====
+        const photos = [
+            // ===== СПИДКУБИНГ (5 фото) =====
+            { src: '/images/july-01/1.jpg', category: 'speedcubing', label: 'Спидкубинг' },
+            { src: '/images/july-01/3.jpg', category: 'speedcubing', label: 'Спидкубинг' },
+            { src: '/images/july-01/4.jpg', category: 'speedcubing', label: 'Спидкубинг' },
+            { src: '/images/july-01/6.jpg', category: 'speedcubing', label: 'Спидкубинг' },
+            { src: '/images/july-01/10.jpg', category: 'speedcubing', label: 'Спидкубинг' },
 
-        function renderGallery(filter = 'all') {
-            const filtered = filter === 'all' ? photos : photos.filter(p => p.category === filter);
-            
-            if (filtered.length === 0) {
-                grid.innerHTML = `
-                    <div class="gallery-empty">
-                        <i class="fas fa-images"></i>
-                        <p>В этой категории пока нет фотографий</p>
-                    </div>
-                `;
-                return;
-            }
-
-            grid.innerHTML = filtered.map(photo => `
-                <div class="gallery-item" data-category="${photo.category}">
-                    <img src="${photo.src}" alt="${photo.label}" loading="lazy" onerror="this.src='https://placehold.co/400x300/2a3a5a/ffffff?text=Фото+скоро'">
-                    <div class="gallery-label">${photo.label}</div>
-                </div>
-            `).join('');
-        }
-
-        filters.forEach(btn => {
-            btn.addEventListener('click', function() {
-                filters.forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                renderGallery(this.dataset.filter);
-            });
-        });
-
-        const urlParams = new URLSearchParams(window.location.search);
-        const filterParam = urlParams.get('filter');
-        if (filterParam) {
-            const filterBtn = document.querySelector(`.gallery-filters .btn-sm[data-filter="${filterParam}"]`);
-            if (filterBtn) {
-                filters.forEach(b => b.classList.remove('active'));
-                filterBtn.classList.add('active');
-                renderGallery(filterParam);
-            } else {
-                renderGallery('all');
-            }
-        } else {
-            renderGallery('all');
-        }
-    });
-</script>
-</body>
-</html>
+            // ===== НАСТОЛЬНЫЕ ИГРЫ (5 фото) =====
+            { src: '/images/july-01/2.jpg', category: 'boardgames', label: 'Настольные игры'
