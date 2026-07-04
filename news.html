@@ -7,6 +7,64 @@
     <link rel="stylesheet" href="/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        /* ===== ЛАЙТБОКС ДЛЯ НОВОСТЕЙ ===== */
+        .news-lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.92);
+            backdrop-filter: blur(8px);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .news-lightbox.active {
+            display: flex;
+        }
+
+        .news-lightbox img {
+            max-width: 90vw;
+            max-height: 90vh;
+            border-radius: 16px;
+            object-fit: contain;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+        }
+
+        .news-lightbox-close {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            color: #fff;
+            font-size: 2.5rem;
+            cursor: pointer;
+            background: none;
+            border: none;
+            transition: color 0.2s;
+        }
+
+        .news-lightbox-close:hover {
+            color: var(--neon-coral);
+        }
+
+        @media (max-width: 768px) {
+            .news-lightbox-close {
+                top: 1rem;
+                right: 1rem;
+                font-size: 2rem;
+            }
+            .news-lightbox img {
+                max-width: 95vw;
+                max-height: 80vh;
+            }
+        }
+    </style>
 </head>
 <body>
 
@@ -29,9 +87,15 @@
         <div class="events-grid">
             <!-- ===== НОВОСТЬ: БИБЛИОЛАБОРАТОРИЯ 2026 ===== -->
             <div class="event-card" style="grid-column: 1 / -1;">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
-                    <img src="/images/news/bibliolaboratoriya-1.png" alt="Библиолаборатория 2026" style="border-radius: 12px; width: 100%; height: auto; aspect-ratio: 4/3; object-fit: cover;" onerror="this.style.display='none'">
-                    <img src="/images/news/bibliolaboratoriya-2.png" alt="Библиолаборатория 2026" style="border-radius: 12px; width: 100%; height: auto; aspect-ratio: 4/3; object-fit: cover;" onerror="this.style.display='none'">
+                
+                <!-- Две фотографии с возможностью клика -->
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; margin-bottom: 1.5rem;">
+                    <img src="/images/news/bibliolaboratoriya-1.png" alt="Библиолаборатория 2026" 
+                         style="border-radius: 12px; width: 100%; max-width: 400px; height: auto; aspect-ratio: 4/3; object-fit: cover; cursor: pointer; transition: transform 0.2s;"
+                         onclick="openNewsLightbox(this.src)">
+                    <img src="/images/news/bibliolaboratoriya-2.png" alt="Библиолаборатория 2026" 
+                         style="border-radius: 12px; width: 100%; max-width: 400px; height: auto; aspect-ratio: 4/3; object-fit: cover; cursor: pointer; transition: transform 0.2s;"
+                         onclick="openNewsLightbox(this.src)">
                 </div>
 
                 <div class="event-datetime" style="margin-bottom: 0.5rem;">Среда, Библиотека Старая Коломна</div>
@@ -53,6 +117,12 @@
         </div>
     </div>
 </section>
+
+<!-- ===== ЛАЙТБОКС ДЛЯ НОВОСТЕЙ ===== -->
+<div class="news-lightbox" id="newsLightbox" onclick="closeNewsLightbox()">
+    <button class="news-lightbox-close" onclick="closeNewsLightbox()">&times;</button>
+    <img id="newsLightboxImage" src="" alt="">
+</div>
 
 <footer>
     <div class="container">
@@ -92,5 +162,29 @@
 </footer>
 
 <script src="/js/main.js"></script>
+
+<script>
+    // ===== ЛАЙТБОКС ДЛЯ НОВОСТЕЙ =====
+    function openNewsLightbox(src) {
+        const lightbox = document.getElementById('newsLightbox');
+        const image = document.getElementById('newsLightboxImage');
+        image.src = src;
+        lightbox.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeNewsLightbox() {
+        const lightbox = document.getElementById('newsLightbox');
+        lightbox.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    // Закрытие по Escape
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeNewsLightbox();
+        }
+    });
+</script>
 </body>
 </html>
