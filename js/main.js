@@ -1,4 +1,4 @@
-// main.js — Книжные грани (обновлённый порядок меню)
+// main.js — Книжные грани (меню с Фотоотчётами)
 
 document.addEventListener('DOMContentLoaded', function() {
 
@@ -113,8 +113,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 title: 'Новости',
                 icon: 'fas fa-newspaper',
                 items: [
-                    { name: 'Новости', href: prefix + 'news.html', icon: 'fas fa-newspaper' },
-                    { name: 'Фотоотчёты', href: prefix + 'gallery.html', icon: 'fas fa-images' }
+                    { name: 'Новости', href: prefix + 'news.html', icon: 'fas fa-newspaper' }
+                ]
+            },
+            {
+                type: 'dropdown',
+                title: 'Фотоотчёты',
+                icon: 'fas fa-images',
+                items: [
+                    { name: 'Все фото', href: prefix + 'gallery.html', icon: 'fas fa-images' }
                 ]
             },
             {
