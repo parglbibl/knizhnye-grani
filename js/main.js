@@ -429,13 +429,30 @@ document.addEventListener('DOMContentLoaded', function() {
             slider.scrollBy({ left: -cardWidth * 2, behavior: 'smooth' });
         });
         
+        // ===== ДАННЫЕ ДЛЯ АРХИВНЫХ СОБЫТИЙ =====
         const archiveData = {
             '17 июня': {
                 title: 'Игротека «Книжные грани»',
                 date: '17 июня 2026',
-                image: 'images/afisha/afisha1706.jpg',
+                image: '/images/afisha/afisha1706.jpg',
                 description: 'Первая летняя игротека в Библиотеке-мастерской. Мастер-класс по сборке кубика Рубика и большая игротека от Hobby World.',
                 link: '/events/detail.html?id=summer-party',
+                gallery: '/gallery.html'
+            },
+            '1 июля': {
+                title: 'Игротека «Книжные грани»',
+                date: '1 июля 2026',
+                image: '/images/afisha/afisha0107.PNG',
+                description: 'Большая игротека от Hobby World. Десятки настольных игр на любой вкус. Приходите один или с друзьями — найдём компанию!',
+                link: '/events/detail.html?id=july-party',
+                gallery: '/gallery.html'
+            },
+            '22 июля': {
+                title: 'Игротека «Книжные грани»',
+                date: '22 июля 2026',
+                image: '/images/afisha/afisha2207.PNG',
+                description: 'В библиотеке «Мастерская» продолжает работу пространство с головоломками и настолками для детей и подростков. Вас ждут две площадки: мастер-класс по сборке кубика Рубика (6+) от тренера, который покажет секреты и алгоритмы сборки на скорость, и тестирование головоломок от CCCstore. Приходите, чтобы первыми оценить новинку и повлиять на финальный результат тестирования!',
+                link: '/events/detail.html?id=july-22',
                 gallery: '/gallery.html'
             }
         };
