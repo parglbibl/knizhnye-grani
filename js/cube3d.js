@@ -1,12 +1,10 @@
 import * as THREE from 'three';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 
 const container = document.getElementById('cube-container');
 if (!container) {
     console.error('Контейнер для кубика не найден');
 } else {
-    // Сначала добавляем CSS-эффекты прямо на контейнер
-    container.style.setProperty('--rounded-shadow', 'inset 0 0 0 1px rgba(255,255,255,0.05), 0 8px 20px rgba(0,0,0,0.15)');
-    
     const scene = new THREE.Scene();
     scene.background = null;
 
@@ -20,11 +18,8 @@ if (!container) {
     renderer.setClearColor(0x000000, 0);
     container.appendChild(renderer.domElement);
     
-    // Делаем плавное скругление самого канваса
-    renderer.domElement.style.borderRadius = '28px';
-    renderer.domElement.style.boxShadow = '0 12px 50px rgba(0,0,0,0.12), inset 0 0 0 1px rgba(255,255,255,0.15)';
-    renderer.domElement.style.transform = 'scale(1.01)';
-    renderer.domElement.style.overflow = 'hidden';
+    // Лёгкая тень без скруглений (чтобы не портить вид)
+    renderer.domElement.style.boxShadow = '0 8px 30px rgba(0,0,0,0.08)';
 
     const cubeGroup = new THREE.Group();
     scene.add(cubeGroup);
@@ -49,21 +44,21 @@ if (!container) {
     };
 
     const textureMaterials = {
-        red: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.red), roughness: 0.3, metalness: 0.05 }),
-        blue: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.blue), roughness: 0.3, metalness: 0.05 }),
-        yellow: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.yellow), roughness: 0.3, metalness: 0.05 }),
-        green: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.green), roughness: 0.3, metalness: 0.05 }),
-        white: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.white), roughness: 0.3, metalness: 0.05 }),
-        orange: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.orange), roughness: 0.3, metalness: 0.05 })
+        red: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.red), roughness: 0.2, metalness: 0.05 }),
+        blue: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.blue), roughness: 0.2, metalness: 0.05 }),
+        yellow: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.yellow), roughness: 0.2, metalness: 0.05 }),
+        green: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.green), roughness: 0.2, metalness: 0.05 }),
+        white: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.white), roughness: 0.2, metalness: 0.05 }),
+        orange: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.orange), roughness: 0.2, metalness: 0.05 })
     };
 
     const fallbackMaterials = {
-        red: new THREE.MeshStandardMaterial({ color: 0xc41e3a, roughness: 0.3 }),
-        blue: new THREE.MeshStandardMaterial({ color: 0x0051ba, roughness: 0.3 }),
-        yellow: new THREE.MeshStandardMaterial({ color: 0xffd700, roughness: 0.3 }),
-        green: new THREE.MeshStandardMaterial({ color: 0x009e60, roughness: 0.3 }),
-        white: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.3 }),
-        orange: new THREE.MeshStandardMaterial({ color: 0xff8c00, roughness: 0.3 })
+        red: new THREE.MeshStandardMaterial({ color: 0xc41e3a, roughness: 0.2 }),
+        blue: new THREE.MeshStandardMaterial({ color: 0x0051ba, roughness: 0.2 }),
+        yellow: new THREE.MeshStandardMaterial({ color: 0xffd700, roughness: 0.2 }),
+        green: new THREE.MeshStandardMaterial({ color: 0x009e60, roughness: 0.2 }),
+        white: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.2 }),
+        orange: new THREE.MeshStandardMaterial({ color: 0xff8c00, roughness: 0.2 })
     };
 
     const colorMap = {
@@ -75,9 +70,11 @@ if (!container) {
         0xff8c00: 'orange'
     };
 
-    // === МИНИМАЛЬНЫЕ ЗАЗОРЫ (БЕЗ 3D-СКРУГЛЕНИЙ) ===
-    const offset = 0.69;
-    const size = 0.68;
+    // === СКРУГЛЕНИЯ + ИДЕАЛЬНЫЙ КЛИК ===
+    const offset = 0.685;  
+    const size = 0.675;    
+    const radius = 0.08;    // Хороший радиус для плавности
+    const segments = 4;     // Ключевой параметр! Меньше 4 — ломает клик.
 
     const cubies = [];
 
@@ -93,7 +90,8 @@ if (!container) {
                     z === -1 ? textureMaterials.blue || fallbackMaterials.blue : (z === 1 ? textureMaterials.green || fallbackMaterials.green : textureMaterials.blue || fallbackMaterials.blue)
                 ];
                 
-                const geometry = new THREE.BoxGeometry(size, size, size);
+                // Используем RoundedBoxGeometry с нужными параметрами
+                const geometry = new RoundedBoxGeometry(size, size, size, segments, radius);
                 const cubie = new THREE.Mesh(geometry, matArray);
                 cubie.userData = { 
                     originalPos: { x: x * offset, y: y * offset, z: z * offset },
@@ -121,7 +119,7 @@ if (!container) {
     backLight.position.set(0, 1, -3);
     scene.add(backLight);
 
-    // ===== ЛОГИКА КЛИКА =====
+    // ===== ЛОГИКА КЛИКА (ЗАЩИЩЁННАЯ ОТ СБОЕВ) =====
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
 
@@ -228,7 +226,7 @@ if (!container) {
     window.addEventListener('mousemove', onMove);
     window.addEventListener('mouseup', onEnd);
 
-    // ===== ДЛЯ ТЕЛЕФОНА =====
+    // ===== ДЛЯ ТЕЛЕФОНА (УЛУЧШЕННЫЙ ОБРАБОТЧИК) =====
     let touchStartX = 0, touchStartY = 0;
     let touchMoved = false;
 
@@ -254,7 +252,10 @@ if (!container) {
     canvas.addEventListener('touchend', function(e) {
         onEnd();
         if (!touchMoved) {
-            onMouseClick(e.changedTouches[0]);
+            // Эмулируем клик в обход конфликтов
+            const touch = e.changedTouches[0];
+            const fakeEvent = { clientX: touch.clientX, clientY: touch.clientY };
+            onMouseClick(fakeEvent);
         }
     }, { passive: true });
 
