@@ -227,7 +227,39 @@ if (!container) {
     window.addEventListener('mousemove', onMove);
     window.addEventListener('mouseup', onEnd);
 
-    // ===== ДЛЯ ТЕЛЕФОНА: ВРАЩЕНИЕ + КЛИК =====
+    // ===== ДЛЯ ТЕЛЕФОНА: ВРАЩЕНИЕ на container, КЛИК на canvas (НЕ ПЕРЕСЕКАЮТСЯ) =====
+    
+    // Вращение
+    container.addEventListener('touchstart', function(e) {
+        const touch = e.touches[0];
+        lastX = touch.clientX;
+        lastY = touch.clientY;
+        isDragging = true;
+        container.style.cursor = 'grabbing';
+    }, { passive: false });
+
+    container.addEventListener('touchmove', function(e) {
+        if (!isDragging) return;
+        const touch = e.touches[0];
+        const deltaX = touch.clientX - lastX;
+        const deltaY = touch.clientY - lastY;
+        if (deltaX !== 0 || deltaY !== 0) {
+            targetRotationY += deltaX * 0.008;
+            targetRotationX += deltaY * 0.008;
+            cubeGroup.rotation.x = targetRotationX;
+            cubeGroup.rotation.y = targetRotationY;
+            lastX = touch.clientX;
+            lastY = touch.clientY;
+        }
+        e.preventDefault();
+    }, { passive: false });
+
+    container.addEventListener('touchend', function(e) {
+        isDragging = false;
+        container.style.cursor = 'pointer';
+    }, { passive: true });
+
+    // Клик (только на canvas, без движения)
     let touchStartX = 0, touchStartY = 0;
     let touchMoved = false;
 
@@ -236,8 +268,7 @@ if (!container) {
         touchStartX = touch.clientX;
         touchStartY = touch.clientY;
         touchMoved = false;
-        onStart(e);
-    }, { passive: false });
+    }, { passive: true });
 
     canvas.addEventListener('touchmove', function(e) {
         const touch = e.touches[0];
@@ -246,12 +277,9 @@ if (!container) {
         if (dx > 10 || dy > 10) {
             touchMoved = true;
         }
-        onMove(e);
-        e.preventDefault();
-    }, { passive: false });
+    }, { passive: true });
 
     canvas.addEventListener('touchend', function(e) {
-        onEnd();
         if (!touchMoved) {
             onMouseClick(e.changedTouches[0]);
         }
