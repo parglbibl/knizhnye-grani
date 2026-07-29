@@ -1,10 +1,12 @@
 import * as THREE from 'three';
-import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 
 const container = document.getElementById('cube-container');
 if (!container) {
     console.error('Контейнер для кубика не найден');
 } else {
+    // Сначала добавляем CSS-эффекты прямо на контейнер
+    container.style.setProperty('--rounded-shadow', 'inset 0 0 0 1px rgba(255,255,255,0.05), 0 8px 20px rgba(0,0,0,0.15)');
+    
     const scene = new THREE.Scene();
     scene.background = null;
 
@@ -17,11 +19,16 @@ if (!container) {
     renderer.setSize(320, 320);
     renderer.setClearColor(0x000000, 0);
     container.appendChild(renderer.domElement);
+    
+    // Добавляем визуальное скругление и тень через CSS
+    renderer.domElement.style.borderRadius = '16px';
+    renderer.domElement.style.boxShadow = '0 8px 40px rgba(0,0,0,0.1), inset 0 0 0 1px rgba(255,255,255,0.2)';
+    renderer.domElement.style.transform = 'scale(1.01)';
 
     const cubeGroup = new THREE.Group();
     scene.add(cubeGroup);
 
-    // ===== ЗАГРУЗКА ТЕКСТУР =====
+    // ===== ЗАГРУЗКА ТЕКСТУР (ТВОИ 6 КАРТИНОК) =====
     const textureLoader = new THREE.TextureLoader();
     
     const textureFiles = {
@@ -67,9 +74,9 @@ if (!container) {
         0xff8c00: 'orange'
     };
 
-    // === СКРУГЛЕНИЯ + ИДЕАЛЬНЫЙ КЛИК ===
-    const offset = 0.685;  // Чуть плотнее
-    const size = 0.675;    // Чуть больше кубики, чтобы скругления были чётче
+    // === МИНИМАЛЬНЫЕ ЗАЗОРЫ (БЕЗ 3D-СКРУГЛЕНИЙ) ===
+    const offset = 0.69;
+    const size = 0.68;
 
     const cubies = [];
 
@@ -85,8 +92,7 @@ if (!container) {
                     z === -1 ? textureMaterials.blue || fallbackMaterials.blue : (z === 1 ? textureMaterials.green || fallbackMaterials.green : textureMaterials.blue || fallbackMaterials.blue)
                 ];
                 
-                // Скруглённые углы (радиус 0.08)
-                const geometry = new RoundedBoxGeometry(size, size, size, 4, 0.08);
+                const geometry = new THREE.BoxGeometry(size, size, size);
                 const cubie = new THREE.Mesh(geometry, matArray);
                 cubie.userData = { 
                     originalPos: { x: x * offset, y: y * offset, z: z * offset },
