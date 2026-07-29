@@ -115,22 +115,19 @@ if (!container) {
         return { x, y, z };
     }
 
-    function onCanvasClick(event) {
-        event.stopPropagation();
-        
-        let clientX, clientY;
-        if (event.touches) {
-            clientX = event.touches[0].clientX;
-            clientY = event.touches[0].clientY;
-            event.preventDefault();
-        } else {
-            clientX = event.clientX;
-            clientY = event.clientY;
+    function openGran(colorName, gx, gy) {
+        gx = Math.min(2, Math.max(0, gx));
+        gy = Math.min(2, Math.max(0, gy));
+        if (window.openBookGran) {
+            window.openBookGran(colorName, gx, gy);
         }
+    }
 
+    // ===== КЛИК МЫШКОЙ (компьютер) =====
+    function onMouseClick(event) {
         const rect = renderer.domElement.getBoundingClientRect();
-        mouse.x = ((clientX - rect.left) / rect.width) * 2 - 1;
-        mouse.y = -((clientY - rect.top) / rect.height) * 2 + 1;
+        mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+        mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
 
         raycaster.setFromCamera(mouse, camera);
         const intersects = raycaster.intersectObjects(cubies);
@@ -158,18 +155,12 @@ if (!container) {
                 gy = coords.y + 1;
             }
             
-            gx = Math.min(2, Math.max(0, gx));
-            gy = Math.min(2, Math.max(0, gy));
-            
-            if (window.openBookGran) {
-                window.openBookGran(colorName, gx, gy);
-            }
+            openGran(colorName, gx, gy);
         }
     }
 
-    // ===== КЛИК (для мыши) =====
     const canvas = renderer.domElement;
-    canvas.addEventListener('click', onCanvasClick);
+    canvas.addEventListener('click', onMouseClick);
 
     // ===== ВРАЩЕНИЕ МЫШКОЙ =====
     let isDragging = false;
@@ -177,7 +168,7 @@ if (!container) {
     let targetRotationX = 0;
     let targetRotationY = 0;
 
-    function getTouchXY(e) {
+    function getXY(e) {
         if (e.touches) {
             return { x: e.touches[0].clientX, y: e.touches[0].clientY };
         }
@@ -185,9 +176,8 @@ if (!container) {
     }
 
     function onStart(e) {
-        e.preventDefault();
         isDragging = true;
-        const coords = getTouchXY(e);
+        const coords = getXY(e);
         lastX = coords.x;
         lastY = coords.y;
         container.style.cursor = 'grabbing';
@@ -195,81 +185,58 @@ if (!container) {
 
     function onMove(e) {
         if (!isDragging) return;
-        e.preventDefault();
-        
-        const coords = getTouchXY(e);
+        const coords = getXY(e);
         const deltaX = coords.x - lastX;
         const deltaY = coords.y - lastY;
         
         if (deltaX !== 0 || deltaY !== 0) {
             targetRotationY += deltaX * 0.008;
             targetRotationX += deltaY * 0.008;
-            
             cubeGroup.rotation.x = targetRotationX;
             cubeGroup.rotation.y = targetRotationY;
-            
             lastX = coords.x;
             lastY = coords.y;
         }
     }
 
-    function onEnd(e) {
+    function onEnd() {
         isDragging = false;
         container.style.cursor = 'pointer';
     }
 
-    // Мышь
     container.addEventListener('mousedown', onStart);
     window.addEventListener('mousemove', onMove);
     window.addEventListener('mouseup', onEnd);
-    
-    // ===== ДЛЯ ТЕЛЕФОНА: ТОЛЬКО ВРАЩЕНИЕ (без конфликтов) =====
-    // Мы РАЗДЕЛЯЕМ события: вращение слушает только container, а клик слушает canvas.
-    // Но на телефоне используем простой способ — событие touchstart на canvas,
-    // и смотрим, двигался ли палец.
 
+    // ===== ДЛЯ ТЕЛЕФОНА: ВРАЩЕНИЕ + КЛИК =====
     let touchStartX = 0, touchStartY = 0;
-    let touchIsClick = true;
+    let touchMoved = false;
 
-    // При касании запоминаем точку
     canvas.addEventListener('touchstart', function(e) {
         const touch = e.touches[0];
         touchStartX = touch.clientX;
         touchStartY = touch.clientY;
-        touchIsClick = true; // изначально считаем, что это клик
-    }, { passive: true });
+        touchMoved = false;
+        onStart(e); // начинаем вращение
+    }, { passive: false });
 
-    // При движении — это вращение, отменяем клик
     canvas.addEventListener('touchmove', function(e) {
         const touch = e.touches[0];
         const dx = Math.abs(touch.clientX - touchStartX);
         const dy = Math.abs(touch.clientY - touchStartY);
         if (dx > 10 || dy > 10) {
-            touchIsClick = false; // двигались — это вращение
+            touchMoved = true; // был свайп
         }
-        // Передаём управление вращению
-        if (touchIsClick === false) {
-            // Имитируем события для вращения
-            onStart(e);
-            onMove(e);
-        }
+        onMove(e); // вращаем
         e.preventDefault();
     }, { passive: false });
 
-    // Когда палец убран — если это был клик (без движения), вызываем клик
     canvas.addEventListener('touchend', function(e) {
-        if (touchIsClick === true) {
-            // Это был клик без движения
-            const touch = e.changedTouches[0];
-            const fakeEvent = {
-                clientX: touch.clientX,
-                clientY: touch.clientY,
-                touches: e.touches,
-                preventDefault: function() {}
-            };
-            onCanvasClick(fakeEvent);
+        onEnd();
+        if (!touchMoved) {
+            // Это был тап без движения — вызываем клик
+            onMouseClick(e.changedTouches[0]);
         }
-        onEnd(e);
     }, { passive: true });
 
     // ===== АНИМАЦИЯ ВРАЩЕНИЯ =====
