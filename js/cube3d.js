@@ -21,7 +21,7 @@ if (!container) {
     const cubeGroup = new THREE.Group();
     scene.add(cubeGroup);
 
-    // ===== ЗАГРУЗКА ТЕКСТУР (ТВОИ 6 КАРТИНОК) =====
+    // ===== ЗАГРУЗКА ТЕКСТУР =====
     const textureLoader = new THREE.TextureLoader();
     
     const textureFiles = {
@@ -50,7 +50,6 @@ if (!container) {
         orange: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.orange), roughness: 0.3, metalness: 0.05 })
     };
 
-    // Запасные материалы (на случай если картинка не загрузится)
     const fallbackMaterials = {
         red: new THREE.MeshStandardMaterial({ color: 0xc41e3a, roughness: 0.3 }),
         blue: new THREE.MeshStandardMaterial({ color: 0x0051ba, roughness: 0.3 }),
@@ -60,7 +59,6 @@ if (!container) {
         orange: new THREE.MeshStandardMaterial({ color: 0xff8c00, roughness: 0.3 })
     };
 
-    // Карта цветов для определения тем
     const colorMap = {
         0xc41e3a: 'red',
         0x0051ba: 'blue',
@@ -71,16 +69,14 @@ if (!container) {
     };
 
     // === МИНИМАЛЬНЫЙ ЗАЗОР ===
-    const offset = 0.69;   // Расстояние между центрами
-    const size = 0.68;     // Размер кубика (чуть меньше offset)
+    const offset = 0.69;
+    const size = 0.68;
 
-    // Создаём 27 кубиков со скруглёнными углами
     const cubies = [];
 
     for (let x = -1; x <= 1; x++) {
         for (let y = -1; y <= 1; y++) {
             for (let z = -1; z <= 1; z++) {
-                // Материалы для каждой грани
                 const matArray = [
                     x === 1 ? textureMaterials.red || fallbackMaterials.red : (x === -1 ? textureMaterials.orange || fallbackMaterials.orange : textureMaterials.red || fallbackMaterials.red),
                     x === -1 ? textureMaterials.orange || fallbackMaterials.orange : (x === 1 ? textureMaterials.red || fallbackMaterials.red : textureMaterials.orange || fallbackMaterials.orange),
@@ -90,7 +86,6 @@ if (!container) {
                     z === -1 ? textureMaterials.blue || fallbackMaterials.blue : (z === 1 ? textureMaterials.green || fallbackMaterials.green : textureMaterials.blue || fallbackMaterials.blue)
                 ];
                 
-                // Скруглённая геометрия
                 const geometry = new RoundedBoxGeometry(size, size, size, 2, 0.04);
                 const cubie = new THREE.Mesh(geometry, matArray);
                 cubie.userData = { 
@@ -120,7 +115,7 @@ if (!container) {
     backLight.position.set(0, 1, -3);
     scene.add(backLight);
 
-    // ===== ЛОГИКА КЛИКА (ПО КООРДИНАТАМ) =====
+    // ===== ЛОГИКА КЛИКА =====
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
 
@@ -181,7 +176,7 @@ if (!container) {
     const canvas = renderer.domElement;
     canvas.addEventListener('click', onMouseClick);
 
-    // ===== ВРАЩЕНИЕ МЫШКОЙ =====
+    // ===== ВРАЩЕНИЕ МЫШКОЙ И ПАЛЬЦЕМ (НА CANVAS) =====
     let isDragging = false;
     let lastX = 0, lastY = 0;
     let targetRotationX = 0;
@@ -223,67 +218,14 @@ if (!container) {
         container.style.cursor = 'pointer';
     }
 
-    container.addEventListener('mousedown', onStart);
+    // === САМОЕ ВАЖНОЕ: ОДИН НАБОР СОБЫТИЙ ДЛЯ ВСЕХ УСТРОЙСТВ ===
+    canvas.addEventListener('mousedown', onStart);
     window.addEventListener('mousemove', onMove);
     window.addEventListener('mouseup', onEnd);
 
-    // ===== ДЛЯ ТЕЛЕФОНА: ВРАЩЕНИЕ на container, КЛИК на canvas (НЕ ПЕРЕСЕКАЮТСЯ) =====
-    
-    // Вращение
-    container.addEventListener('touchstart', function(e) {
-        const touch = e.touches[0];
-        lastX = touch.clientX;
-        lastY = touch.clientY;
-        isDragging = true;
-        container.style.cursor = 'grabbing';
-    }, { passive: false });
-
-    container.addEventListener('touchmove', function(e) {
-        if (!isDragging) return;
-        const touch = e.touches[0];
-        const deltaX = touch.clientX - lastX;
-        const deltaY = touch.clientY - lastY;
-        if (deltaX !== 0 || deltaY !== 0) {
-            targetRotationY += deltaX * 0.008;
-            targetRotationX += deltaY * 0.008;
-            cubeGroup.rotation.x = targetRotationX;
-            cubeGroup.rotation.y = targetRotationY;
-            lastX = touch.clientX;
-            lastY = touch.clientY;
-        }
-        e.preventDefault();
-    }, { passive: false });
-
-    container.addEventListener('touchend', function(e) {
-        isDragging = false;
-        container.style.cursor = 'pointer';
-    }, { passive: true });
-
-    // Клик (только на canvas, без движения)
-    let touchStartX = 0, touchStartY = 0;
-    let touchMoved = false;
-
-    canvas.addEventListener('touchstart', function(e) {
-        const touch = e.touches[0];
-        touchStartX = touch.clientX;
-        touchStartY = touch.clientY;
-        touchMoved = false;
-    }, { passive: true });
-
-    canvas.addEventListener('touchmove', function(e) {
-        const touch = e.touches[0];
-        const dx = Math.abs(touch.clientX - touchStartX);
-        const dy = Math.abs(touch.clientY - touchStartY);
-        if (dx > 10 || dy > 10) {
-            touchMoved = true;
-        }
-    }, { passive: true });
-
-    canvas.addEventListener('touchend', function(e) {
-        if (!touchMoved) {
-            onMouseClick(e.changedTouches[0]);
-        }
-    }, { passive: true });
+    canvas.addEventListener('touchstart', onStart, { passive: false });
+    canvas.addEventListener('touchmove', onMove, { passive: false });
+    canvas.addEventListener('touchend', onEnd, { passive: true });
 
     // ===== ЗУМ =====
     let currentZoom = 4.5;
