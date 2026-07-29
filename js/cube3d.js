@@ -12,23 +12,15 @@ if (!container) {
     camera.position.set(3.5, 2.5, 4.5);
     camera.lookAt(0, 0, 0);
 
-    // Делаем рендер БОЛЬШЕ контейнера, чтобы края были скрыты
-    const canvasSize = 380; 
+    // Увеличиваем размер рендера, но оставляем в центре без сдвигов
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.setSize(canvasSize, canvasSize);
+    renderer.setSize(360, 360); // чуть больше контейнера
     renderer.setClearColor(0x000000, 0);
-    
-    // Центрируем канвас внутри контейнера (он будет выступать за края)
-    renderer.domElement.style.position = 'absolute';
-    renderer.domElement.style.top = '50%';
-    renderer.domElement.style.left = '50%';
-    renderer.domElement.style.transform = 'translate(-50%, -50%)';
     renderer.domElement.style.borderRadius = '28px';
     renderer.domElement.style.boxShadow = '0 8px 30px rgba(0,0,0,0.08)';
     
-    container.style.position = 'relative';
-    container.style.overflow = 'hidden'; // скрываем выступающие края
+    // ВАЖНО: убираем абсолютное позиционирование — возвращаем как было
     container.appendChild(renderer.domElement);
 
     const cubeGroup = new THREE.Group();
@@ -203,68 +195,6 @@ if (!container) {
         }
     }
 
-    // Обработка кликов с учётом смещённого канваса
-    function getRelativeMouse(event) {
-        const rect = renderer.domElement.getBoundingClientRect();
-        // Вычисляем координаты относительно центра канваса (который смещён на 50%)
-        const x = (event.clientX - rect.left) / rect.width;
-        const y = (event.clientY - rect.top) / rect.height;
-        return { x: x * 2 - 1, y: -(y * 2 - 1) };
-    }
-
-    function onMouseClick(event) {
-        const rel = getRelativeMouse(event);
-        if (Math.abs(rel.x) > 1 || Math.abs(rel.y) > 1) return; // клик за пределами
-
-        mouse.x = rel.x;
-        mouse.y = rel.y;
-
-        raycaster.setFromCamera(mouse, camera);
-        const intersects = raycaster.intersectObjects(cubies);
-
-        if (intersects.length > 0) {
-            const clickedCubie = intersects[0].object;
-            const pos = clickedCubie.position;
-            const coords = getGridCoords(pos);
-            
-            const normal = intersects[0].face.normal.clone();
-            normal.applyQuaternion(clickedCubie.quaternion);
-            
-            let materialIndex = 0;
-            const nx = Math.round(normal.x);
-            const ny = Math.round(normal.y);
-            const nz = Math.round(normal.z);
-            
-            if (nx === 1) materialIndex = 0;
-            else if (nx === -1) materialIndex = 1;
-            else if (ny === 1) materialIndex = 2;
-            else if (ny === -1) materialIndex = 3;
-            else if (nz === 1) materialIndex = 4;
-            else if (nz === -1) materialIndex = 5;
-            else materialIndex = 0;
-            
-            const mat = clickedCubie.userData.materials[materialIndex];
-            if (!mat) return;
-            
-            const colorName = getColorName(mat.color);
-            
-            let gx = 0, gy = 0;
-            
-            if (materialIndex === 0 || materialIndex === 1) {
-                gx = coords.y + 1;
-                gy = coords.z + 1;
-            } else if (materialIndex === 2 || materialIndex === 3) {
-                gx = coords.x + 1;
-                gy = coords.z + 1;
-            } else {
-                gx = coords.x + 1;
-                gy = coords.y + 1;
-            }
-            
-            openGran(colorName, gx, gy);
-        }
-    }
-
     const canvas = renderer.domElement;
     canvas.addEventListener('click', onMouseClick);
 
@@ -388,6 +318,6 @@ if (!container) {
     render();
 
     window.addEventListener('resize', () => {
-        // Размер рендера остаётся фиксированным, чтобы не было дёрганий
+        // Размер рендера остаётся фиксированным
     });
 }
