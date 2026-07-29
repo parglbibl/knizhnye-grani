@@ -20,10 +20,11 @@ if (!container) {
     renderer.setClearColor(0x000000, 0);
     container.appendChild(renderer.domElement);
     
-    // Добавляем визуальное скругление и тень через CSS
-    renderer.domElement.style.borderRadius = '16px';
-    renderer.domElement.style.boxShadow = '0 8px 40px rgba(0,0,0,0.1), inset 0 0 0 1px rgba(255,255,255,0.2)';
+    // Делаем плавное скругление самого канваса
+    renderer.domElement.style.borderRadius = '28px';
+    renderer.domElement.style.boxShadow = '0 12px 50px rgba(0,0,0,0.12), inset 0 0 0 1px rgba(255,255,255,0.15)';
     renderer.domElement.style.transform = 'scale(1.01)';
+    renderer.domElement.style.overflow = 'hidden';
 
     const cubeGroup = new THREE.Group();
     scene.add(cubeGroup);
