@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 
 const container = document.getElementById('cube-container');
 if (!container) {
@@ -67,7 +66,7 @@ if (!container) {
         0xff8c00: 'orange'
     };
 
-    // === МИНИМАЛЬНЫЕ ЗАЗОРЫ + СКРУГЛЕНИЯ ===
+    // === МИНИМАЛЬНЫЕ ЗАЗОРЫ (БЕЗ СКРУГЛЕНИЙ) ===
     const offset = 0.69;
     const size = 0.68;
 
@@ -85,7 +84,7 @@ if (!container) {
                     z === -1 ? textureMaterials.blue || fallbackMaterials.blue : (z === 1 ? textureMaterials.green || fallbackMaterials.green : textureMaterials.blue || fallbackMaterials.blue)
                 ];
                 
-                const geometry = new RoundedBoxGeometry(size, size, size, 4, 0.06);
+                const geometry = new THREE.BoxGeometry(size, size, size);
                 const cubie = new THREE.Mesh(geometry, matArray);
                 cubie.userData = { 
                     originalPos: { x: x * offset, y: y * offset, z: z * offset },
