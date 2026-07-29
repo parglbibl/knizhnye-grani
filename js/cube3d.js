@@ -115,10 +115,22 @@ if (!container) {
         return { x, y, z };
     }
 
-    function onClick(event) {
+    function onCanvasClick(event) {
+        event.stopPropagation();
+        
+        let clientX, clientY;
+        if (event.touches) {
+            clientX = event.touches[0].clientX;
+            clientY = event.touches[0].clientY;
+            event.preventDefault();
+        } else {
+            clientX = event.clientX;
+            clientY = event.clientY;
+        }
+
         const rect = renderer.domElement.getBoundingClientRect();
-        mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-        mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+        mouse.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+        mouse.y = -((clientY - rect.top) / rect.height) * 2 + 1;
 
         raycaster.setFromCamera(mouse, camera);
         const intersects = raycaster.intersectObjects(cubies);
@@ -146,15 +158,19 @@ if (!container) {
                 gy = coords.y + 1;
             }
             
+            gx = Math.min(2, Math.max(0, gx));
+            gy = Math.min(2, Math.max(0, gy));
+            
             if (window.openBookGran) {
                 window.openBookGran(colorName, gx, gy);
-            } else {
-                console.warn('Функция openBookGran не найдена. Убедись, что main.js загружен.');
             }
         }
     }
 
-    renderer.domElement.addEventListener('click', onClick);
+    // ===== ОСНОВНОЙ ОБРАБОТЧИК =====
+    const canvas = renderer.domElement;
+    canvas.addEventListener('click', onCanvasClick);
+    canvas.addEventListener('touchstart', onCanvasClick, { passive: false });
 
     // ===== ВРАЩЕНИЕ МЫШКОЙ И ПАЛЬЦЕМ =====
     let isDragging = false;
