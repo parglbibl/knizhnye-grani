@@ -40,7 +40,6 @@ if (!container) {
         return tex;
     };
 
-    // Теперь материал у каждого кубика свой, и мы будем брать его напрямую
     const textureMaterials = {
         red: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.red), roughness: 0.2, metalness: 0.05 }),
         blue: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.blue), roughness: 0.2, metalness: 0.05 }),
@@ -68,7 +67,7 @@ if (!container) {
         0xff8c00: 'orange'
     };
 
-    // === СКРУГЛЕНИЯ (но теперь с правильным определением материала) ===
+    // === СКРУГЛЕНИЯ ===
     const offset = 0.685;  
     const size = 0.675;    
     const radius = 0.08;    
@@ -79,7 +78,6 @@ if (!container) {
     for (let x = -1; x <= 1; x++) {
         for (let y = -1; y <= 1; y++) {
             for (let z = -1; z <= 1; z++) {
-                // Материалы для каждой грани
                 const matArray = [
                     x === 1 ? textureMaterials.red || fallbackMaterials.red : (x === -1 ? textureMaterials.orange || fallbackMaterials.orange : textureMaterials.red || fallbackMaterials.red),
                     x === -1 ? textureMaterials.orange || fallbackMaterials.orange : (x === 1 ? textureMaterials.red || fallbackMaterials.red : textureMaterials.orange || fallbackMaterials.orange),
@@ -94,7 +92,7 @@ if (!container) {
                 cubie.userData = { 
                     originalPos: { x: x * offset, y: y * offset, z: z * offset },
                     gridX: x, gridY: y, gridZ: z,
-                    materials: matArray // Сохраняем ссылку на материалы
+                    materials: matArray
                 };
                 cubie.position.set(x * offset, y * offset, z * offset);
                 cubeGroup.add(cubie);
@@ -118,12 +116,11 @@ if (!container) {
     backLight.position.set(0, 1, -3);
     scene.add(backLight);
 
-    // ===== ЛОГИКА КЛИКА (ИСПРАВЛЕННАЯ ДЛЯ СКРУГЛЕНИЙ) =====
+    // ===== ЛОГИКА КЛИКА =====
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
 
     function getColorName(materialColor) {
-        // Преобразуем цвет материала в строку
         const colorHex = materialColor.getHex();
         return colorMap[colorHex] || 'unknown';
     }
@@ -156,30 +153,22 @@ if (!container) {
             const pos = clickedCubie.position;
             const coords = getGridCoords(pos);
             
-            // === ГЛАВНОЕ ИСПРАВЛЕНИЕ ===
-            // Не используем faceIndex. Берём цвет материала напрямую из массива материалов кубика.
-            // Для скруглённой геометрии это единственный надёжный способ.
-            
-            // Определяем, какая грань была задетта, по нормали
             const normal = intersects[0].face.normal.clone();
-            // Преобразуем нормаль в мировые координаты
             normal.applyQuaternion(clickedCubie.quaternion);
             
-            // Определяем индекс материала на основе направления нормали
             let materialIndex = 0;
             const nx = Math.round(normal.x);
             const ny = Math.round(normal.y);
             const nz = Math.round(normal.z);
             
-            if (nx === 1) materialIndex = 0;        // Правая (+X)
-            else if (nx === -1) materialIndex = 1;  // Левая (-X)
-            else if (ny === 1) materialIndex = 2;   // Верхняя (+Y)
-            else if (ny === -1) materialIndex = 3;  // Нижняя (-Y)
-            else if (nz === 1) materialIndex = 4;   // Передняя (+Z)
-            else if (nz === -1) materialIndex = 5;  // Задняя (-Z)
-            else materialIndex = 0; // Дефолт
+            if (nx === 1) materialIndex = 0;
+            else if (nx === -1) materialIndex = 1;
+            else if (ny === 1) materialIndex = 2;
+            else if (ny === -1) materialIndex = 3;
+            else if (nz === 1) materialIndex = 4;
+            else if (nz === -1) materialIndex = 5;
+            else materialIndex = 0;
             
-            // Берём материал из сохранённых материалов
             const mat = clickedCubie.userData.materials[materialIndex];
             if (!mat) return;
             
@@ -187,7 +176,6 @@ if (!container) {
             
             let gx = 0, gy = 0;
             
-            // Определяем координаты сетки на основе нормали
             if (materialIndex === 0 || materialIndex === 1) {
                 gx = coords.y + 1;
                 gy = coords.z + 1;
@@ -206,11 +194,9 @@ if (!container) {
     const canvas = renderer.domElement;
     canvas.addEventListener('click', onMouseClick);
 
-    // ===== ВРАЩЕНИЕ =====
+    // ===== ВРАЩЕНИЕ (СВОБОДНОЕ 360°) =====
     let isDragging = false;
     let lastX = 0, lastY = 0;
-    let targetRotationX = 0;
-    let targetRotationY = 0;
 
     function getXY(e) {
         if (e.touches) {
@@ -234,10 +220,8 @@ if (!container) {
         const deltaY = coords.y - lastY;
         
         if (deltaX !== 0 || deltaY !== 0) {
-            targetRotationY += deltaX * 0.008;
-            targetRotationX += deltaY * 0.008;
-            cubeGroup.rotation.x = targetRotationX;
-            cubeGroup.rotation.y = targetRotationY;
+            cubeGroup.rotation.y += deltaX * 0.008;
+            cubeGroup.rotation.x += deltaY * 0.008;
             lastX = coords.x;
             lastY = coords.y;
         }
@@ -252,7 +236,7 @@ if (!container) {
     window.addEventListener('mousemove', onMove);
     window.addEventListener('mouseup', onEnd);
 
-    // ===== ДЛЯ ТЕЛЕФОНА (НАДЁЖНАЯ ЛОГИКА) =====
+    // ===== ДЛЯ ТЕЛЕФОНА =====
     let touchStartX = 0, touchStartY = 0;
     let touchMoved = false;
 
