@@ -167,17 +167,16 @@ if (!container) {
         }
     }
 
-    // ===== КЛИК И ТАЧ =====
+    // ===== КЛИК (для мыши) =====
     const canvas = renderer.domElement;
     canvas.addEventListener('click', onCanvasClick);
 
-    // ===== ВРАЩЕНИЕ МЫШКОЙ И ПАЛЬЦЕМ =====
+    // ===== ВРАЩЕНИЕ МЫШКОЙ =====
     let isDragging = false;
     let lastX = 0, lastY = 0;
     let targetRotationX = 0;
     let targetRotationY = 0;
 
-    // Разделим движение на мобилке и на мышке
     function getTouchXY(e) {
         if (e.touches) {
             return { x: e.touches[0].clientX, y: e.touches[0].clientY };
@@ -219,42 +218,49 @@ if (!container) {
         container.style.cursor = 'pointer';
     }
 
-    // Вращение с мыши (компьютер)
+    // Мышь
     container.addEventListener('mousedown', onStart);
     window.addEventListener('mousemove', onMove);
     window.addEventListener('mouseup', onEnd);
     
-    // Вращение с пальца (мобильный) — используем ПЕРЕДВИЖЕНИЕ по canvas
-    canvas.addEventListener('touchmove', onMove, { passive: false });
-    canvas.addEventListener('touchstart', onStart, { passive: false });
-    canvas.addEventListener('touchend', onEnd, { passive: false });
+    // ===== ДЛЯ ТЕЛЕФОНА: ТОЛЬКО ВРАЩЕНИЕ (без конфликтов) =====
+    // Мы РАЗДЕЛЯЕМ события: вращение слушает только container, а клик слушает canvas.
+    // Но на телефоне используем простой способ — событие touchstart на canvas,
+    // и смотрим, двигался ли палец.
 
-    // ===== ОТДЕЛЬНЫЙ ОБРАБОТЧИК ДЛЯ ТАПА (НАЖАТИЕ БЕЗ ДВИЖЕНИЯ) НА МОБИЛЬНОМ =====
-    // Это критично: если палец не двигался — считаем это кликом
-    let touchStartPos = { x: 0, y: 0 };
-    let touchMoved = false;
+    let touchStartX = 0, touchStartY = 0;
+    let touchIsClick = true;
 
+    // При касании запоминаем точку
     canvas.addEventListener('touchstart', function(e) {
         const touch = e.touches[0];
-        touchStartPos.x = touch.clientX;
-        touchStartPos.y = touch.clientY;
-        touchMoved = false;
+        touchStartX = touch.clientX;
+        touchStartY = touch.clientY;
+        touchIsClick = true; // изначально считаем, что это клик
     }, { passive: true });
 
+    // При движении — это вращение, отменяем клик
     canvas.addEventListener('touchmove', function(e) {
         const touch = e.touches[0];
-        const dx = Math.abs(touch.clientX - touchStartPos.x);
-        const dy = Math.abs(touch.clientY - touchStartPos.y);
+        const dx = Math.abs(touch.clientX - touchStartX);
+        const dy = Math.abs(touch.clientY - touchStartY);
         if (dx > 10 || dy > 10) {
-            touchMoved = true; // был свайп — не будет клика
+            touchIsClick = false; // двигались — это вращение
         }
-    }, { passive: true });
+        // Передаём управление вращению
+        if (touchIsClick === false) {
+            // Имитируем события для вращения
+            onStart(e);
+            onMove(e);
+        }
+        e.preventDefault();
+    }, { passive: false });
 
+    // Когда палец убран — если это был клик (без движения), вызываем клик
     canvas.addEventListener('touchend', function(e) {
-        if (!touchMoved) {
-            // Это был именно клик (тап) без движения
+        if (touchIsClick === true) {
+            // Это был клик без движения
             const touch = e.changedTouches[0];
-            // Искусственно генерируем событие
             const fakeEvent = {
                 clientX: touch.clientX,
                 clientY: touch.clientY,
@@ -263,6 +269,7 @@ if (!container) {
             };
             onCanvasClick(fakeEvent);
         }
+        onEnd(e);
     }, { passive: true });
 
     // ===== АНИМАЦИЯ ВРАЩЕНИЯ =====
