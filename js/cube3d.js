@@ -167,10 +167,9 @@ if (!container) {
         }
     }
 
-    // ===== ОСНОВНОЙ ОБРАБОТЧИК =====
+    // ===== КЛИК И ТАЧ =====
     const canvas = renderer.domElement;
     canvas.addEventListener('click', onCanvasClick);
-    canvas.addEventListener('touchstart', onCanvasClick, { passive: false });
 
     // ===== ВРАЩЕНИЕ МЫШКОЙ И ПАЛЬЦЕМ =====
     let isDragging = false;
@@ -178,7 +177,8 @@ if (!container) {
     let targetRotationX = 0;
     let targetRotationY = 0;
 
-    function getClientXY(e) {
+    // Разделим движение на мобилке и на мышке
+    function getTouchXY(e) {
         if (e.touches) {
             return { x: e.touches[0].clientX, y: e.touches[0].clientY };
         }
@@ -188,7 +188,7 @@ if (!container) {
     function onStart(e) {
         e.preventDefault();
         isDragging = true;
-        const coords = getClientXY(e);
+        const coords = getTouchXY(e);
         lastX = coords.x;
         lastY = coords.y;
         container.style.cursor = 'grabbing';
@@ -198,7 +198,7 @@ if (!container) {
         if (!isDragging) return;
         e.preventDefault();
         
-        const coords = getClientXY(e);
+        const coords = getTouchXY(e);
         const deltaX = coords.x - lastX;
         const deltaY = coords.y - lastY;
         
@@ -219,13 +219,51 @@ if (!container) {
         container.style.cursor = 'pointer';
     }
 
+    // Вращение с мыши (компьютер)
     container.addEventListener('mousedown', onStart);
     window.addEventListener('mousemove', onMove);
     window.addEventListener('mouseup', onEnd);
     
-    container.addEventListener('touchstart', onStart, { passive: false });
-    container.addEventListener('touchmove', onMove, { passive: false });
-    container.addEventListener('touchend', onEnd);
+    // Вращение с пальца (мобильный) — используем ПЕРЕДВИЖЕНИЕ по canvas
+    canvas.addEventListener('touchmove', onMove, { passive: false });
+    canvas.addEventListener('touchstart', onStart, { passive: false });
+    canvas.addEventListener('touchend', onEnd, { passive: false });
+
+    // ===== ОТДЕЛЬНЫЙ ОБРАБОТЧИК ДЛЯ ТАПА (НАЖАТИЕ БЕЗ ДВИЖЕНИЯ) НА МОБИЛЬНОМ =====
+    // Это критично: если палец не двигался — считаем это кликом
+    let touchStartPos = { x: 0, y: 0 };
+    let touchMoved = false;
+
+    canvas.addEventListener('touchstart', function(e) {
+        const touch = e.touches[0];
+        touchStartPos.x = touch.clientX;
+        touchStartPos.y = touch.clientY;
+        touchMoved = false;
+    }, { passive: true });
+
+    canvas.addEventListener('touchmove', function(e) {
+        const touch = e.touches[0];
+        const dx = Math.abs(touch.clientX - touchStartPos.x);
+        const dy = Math.abs(touch.clientY - touchStartPos.y);
+        if (dx > 10 || dy > 10) {
+            touchMoved = true; // был свайп — не будет клика
+        }
+    }, { passive: true });
+
+    canvas.addEventListener('touchend', function(e) {
+        if (!touchMoved) {
+            // Это был именно клик (тап) без движения
+            const touch = e.changedTouches[0];
+            // Искусственно генерируем событие
+            const fakeEvent = {
+                clientX: touch.clientX,
+                clientY: touch.clientY,
+                touches: e.touches,
+                preventDefault: function() {}
+            };
+            onCanvasClick(fakeEvent);
+        }
+    }, { passive: true });
 
     // ===== АНИМАЦИЯ ВРАЩЕНИЯ =====
     function render() {
