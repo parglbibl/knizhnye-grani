@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 
 const container = document.getElementById('cube-container');
 if (!container) {
@@ -32,99 +33,106 @@ if (!container) {
         orange: '/images/cube_textures/orange.jpg'
     };
 
-    // Карта цветов для определения тем
-    const colorMap = {
-        'red': 'red',
-        'blue': 'blue',
-        'yellow': 'yellow',
-        'green': 'green',
-        'white': 'white',
-        'orange': 'orange'
+    const loadTexture = (url) => {
+        const tex = textureLoader.load(url);
+        tex.wrapS = THREE.RepeatWrapping;
+        tex.wrapT = THREE.RepeatWrapping;
+        tex.repeat.set(1, 1);
+        return tex;
     };
 
-    // Создаём единый куб с натянутыми текстурами
-    const size = 1.8;
-    // Слегка скругляем углы для мягкости, но делаем блок цельным
-    // Чтобы зазоров не было, мы не используем 27 кубиков
-    
-    // Материалы для 6 граней (по одной текстуре на грань)
-    const materials = [
-        textureLoader.load(textureFiles.red),   // Правая (+X)
-        textureLoader.load(textureFiles.orange), // Левая (-X)
-        textureLoader.load(textureFiles.white),  // Верхняя (+Y)
-        textureLoader.load(textureFiles.yellow), // Нижняя (-Y)
-        textureLoader.load(textureFiles.green),  // Передняя (+Z)
-        textureLoader.load(textureFiles.blue)    // Задняя (-Z)
-    ].map(texture => new THREE.MeshStandardMaterial({ 
-        map: texture, 
-        roughness: 0.2, 
-        metalness: 0.05 
-    }));
+    const textureMaterials = {
+        red: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.red), roughness: 0.3, metalness: 0.05 }),
+        blue: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.blue), roughness: 0.3, metalness: 0.05 }),
+        yellow: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.yellow), roughness: 0.3, metalness: 0.05 }),
+        green: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.green), roughness: 0.3, metalness: 0.05 }),
+        white: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.white), roughness: 0.3, metalness: 0.05 }),
+        orange: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.orange), roughness: 0.3, metalness: 0.05 })
+    };
 
-    // Один большой скруглённый куб
-    const geometry = new THREE.BoxGeometry(size, size, size);
-    const cube = new THREE.Mesh(geometry, materials);
-    cube.userData = { isMainCube: true };
-    cubeGroup.add(cube);
+    // Запасные материалы (на случай если картинка не загрузится)
+    const fallbackMaterials = {
+        red: new THREE.MeshStandardMaterial({ color: 0xc41e3a, roughness: 0.3 }),
+        blue: new THREE.MeshStandardMaterial({ color: 0x0051ba, roughness: 0.3 }),
+        yellow: new THREE.MeshStandardMaterial({ color: 0xffd700, roughness: 0.3 }),
+        green: new THREE.MeshStandardMaterial({ color: 0x009e60, roughness: 0.3 }),
+        white: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.3 }),
+        orange: new THREE.MeshStandardMaterial({ color: 0xff8c00, roughness: 0.3 })
+    };
 
-    // Добавляем тонкие линии-разделители, чтобы было видно квадратики (визуальный эффект)
-    const lineMaterial = new THREE.LineBasicMaterial({ color: 0x222222, transparent: true, opacity: 0.15 });
-    const lineOffset = 0.6;
-    
-    for (let i = -1; i <= 1; i++) {
-        // Вертикальные линии по X
-        const pointsX = [
-            new THREE.Vector3(i * lineOffset, -1.0, -1.0),
-            new THREE.Vector3(i * lineOffset, -1.0, 1.0),
-            new THREE.Vector3(i * lineOffset, 1.0, 1.0),
-            new THREE.Vector3(i * lineOffset, 1.0, -1.0),
-            new THREE.Vector3(i * lineOffset, -1.0, -1.0)
-        ];
-        const lineX = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pointsX), lineMaterial);
-        cubeGroup.add(lineX);
+    // Карта цветов для определения тем
+    const colorMap = {
+        0xc41e3a: 'red',
+        0x0051ba: 'blue',
+        0xffd700: 'yellow',
+        0x009e60: 'green',
+        0xffffff: 'white',
+        0xff8c00: 'orange'
+    };
 
-        // Горизонтальные линии по Y
-        const pointsY = [
-            new THREE.Vector3(-1.0, i * lineOffset, -1.0),
-            new THREE.Vector3(1.0, i * lineOffset, -1.0),
-            new THREE.Vector3(1.0, i * lineOffset, 1.0),
-            new THREE.Vector3(-1.0, i * lineOffset, 1.0),
-            new THREE.Vector3(-1.0, i * lineOffset, -1.0)
-        ];
-        const lineY = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pointsY), lineMaterial);
-        cubeGroup.add(lineY);
+    // === МИКРОСКОПИЧЕСКИЙ ЗАЗОР ===
+    const offset = 0.69;   // Расстояние между центрами (почти вплотную)
+    const size = 0.68;     // Размер кубика (чуть меньше offset)
 
-        // Линии по Z (для глубины)
-        const pointsZ = [
-            new THREE.Vector3(-1.0, -1.0, i * lineOffset),
-            new THREE.Vector3(1.0, -1.0, i * lineOffset),
-            new THREE.Vector3(1.0, 1.0, i * lineOffset),
-            new THREE.Vector3(-1.0, 1.0, i * lineOffset),
-            new THREE.Vector3(-1.0, -1.0, i * lineOffset)
-        ];
-        const lineZ = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pointsZ), lineMaterial);
-        cubeGroup.add(lineZ);
+    // Создаём 27 кубиков со скруглёнными углами
+    const cubies = [];
+
+    for (let x = -1; x <= 1; x++) {
+        for (let y = -1; y <= 1; y++) {
+            for (let z = -1; z <= 1; z++) {
+                // Определяем материалы для каждой грани
+                const matArray = [
+                    x === 1 ? textureMaterials.red || fallbackMaterials.red : (x === -1 ? textureMaterials.orange || fallbackMaterials.orange : textureMaterials.red || fallbackMaterials.red),
+                    x === -1 ? textureMaterials.orange || fallbackMaterials.orange : (x === 1 ? textureMaterials.red || fallbackMaterials.red : textureMaterials.orange || fallbackMaterials.orange),
+                    y === 1 ? textureMaterials.white || fallbackMaterials.white : (y === -1 ? textureMaterials.yellow || fallbackMaterials.yellow : textureMaterials.white || fallbackMaterials.white),
+                    y === -1 ? textureMaterials.yellow || fallbackMaterials.yellow : (y === 1 ? textureMaterials.white || fallbackMaterials.white : textureMaterials.yellow || fallbackMaterials.yellow),
+                    z === 1 ? textureMaterials.green || fallbackMaterials.green : (z === -1 ? textureMaterials.blue || fallbackMaterials.blue : textureMaterials.green || fallbackMaterials.green),
+                    z === -1 ? textureMaterials.blue || fallbackMaterials.blue : (z === 1 ? textureMaterials.green || fallbackMaterials.green : textureMaterials.blue || fallbackMaterials.blue)
+                ];
+                
+                // Скруглённая геометрия
+                const geometry = new RoundedBoxGeometry(size, size, size, 2, 0.04);
+                const cubie = new THREE.Mesh(geometry, matArray);
+                cubie.userData = { 
+                    originalPos: { x: x * offset, y: y * offset, z: z * offset },
+                    gridX: x, gridY: y, gridZ: z
+                };
+                cubie.position.set(x * offset, y * offset, z * offset);
+                cubeGroup.add(cubie);
+                cubies.push(cubie);
+            }
+        }
     }
 
     // Освещение
-    const ambientLight = new THREE.AmbientLight(0x606080, 1.0);
+    const ambientLight = new THREE.AmbientLight(0x606080, 0.6);
     scene.add(ambientLight);
     
-    const mainLight = new THREE.DirectionalLight(0xffffff, 1.5);
+    const mainLight = new THREE.DirectionalLight(0xffffff, 1.2);
     mainLight.position.set(2, 4, 3);
     scene.add(mainLight);
     
-    const fillLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    const fillLight = new THREE.DirectionalLight(0xffffff, 0.6);
     fillLight.position.set(-2, 1, 2);
     scene.add(fillLight);
+    
+    const backLight = new THREE.DirectionalLight(0xffffff, 0.3);
+    backLight.position.set(0, 1, -3);
+    scene.add(backLight);
 
-    // ===== ЛОГИКА КЛИКА (РАБОТАЕТ ПО КООРДИНАТАМ ПОВЕРХНОСТИ) =====
+    // ===== ЛОГИКА КЛИКА =====
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
 
-    function getColorName(materialIndex) {
-        const colorKeys = ['red', 'orange', 'white', 'yellow', 'green', 'blue'];
-        return colorKeys[materialIndex] || 'unknown';
+    function getColorName(colorHex) {
+        return colorMap[colorHex] || 'unknown';
+    }
+
+    function getGridCoords(position) {
+        const x = Math.round(position.x / offset);
+        const y = Math.round(position.y / offset);
+        const z = Math.round(position.z / offset);
+        return { x, y, z };
     }
 
     function openGran(colorName, gx, gy) {
@@ -141,24 +149,32 @@ if (!container) {
         mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
 
         raycaster.setFromCamera(mouse, camera);
-        const intersects = raycaster.intersectObjects(cubeGroup.children, true);
+        const intersects = raycaster.intersectObjects(cubies);
 
         if (intersects.length > 0) {
-            const hit = intersects[0];
-            // Определяем грань по нормали (faceIndex)
-            const faceIndex = hit.faceIndex;
+            const clickedCubie = intersects[0].object;
+            const pos = clickedCubie.position;
+            const coords = getGridCoords(pos);
+            
+            const faceIndex = intersects[0].faceIndex;
             const materialIndex = Math.floor(faceIndex / 2);
+            const colorHex = clickedCubie.material[materialIndex].color.getHex();
+            const colorName = getColorName(colorHex);
             
-            const colorName = getColorName(materialIndex);
+            let gx = 0, gy = 0;
             
-            // Получаем координаты UV (от 0 до 1) на текстуре
-            const uv = hit.uv;
-            if (uv) {
-                // Преобразуем UV (0..1) в координаты сетки 3x3 (0, 1, 2)
-                const gx = Math.min(2, Math.floor(uv.x * 3));
-                const gy = Math.min(2, Math.floor((1 - uv.y) * 3));
-                openGran(colorName, gx, gy);
+            if (materialIndex === 0 || materialIndex === 1) {
+                gx = coords.y + 1;
+                gy = coords.z + 1;
+            } else if (materialIndex === 2 || materialIndex === 3) {
+                gx = coords.x + 1;
+                gy = coords.z + 1;
+            } else {
+                gx = coords.x + 1;
+                gy = coords.y + 1;
             }
+            
+            openGran(colorName, gx, gy);
         }
     }
 
@@ -237,14 +253,11 @@ if (!container) {
     canvas.addEventListener('touchend', function(e) {
         onEnd();
         if (!touchMoved) {
-            // Эмулируем клик для тапа без движения
-            const touch = e.changedTouches[0];
-            const fakeEvent = { clientX: touch.clientX, clientY: touch.clientY };
-            onMouseClick(fakeEvent);
+            onMouseClick(e.changedTouches[0]);
         }
     }, { passive: true });
 
-    // ===== ЗУМ =====
+    // ===== ЗУМ (КОЛЕСИКО МЫШИ И ПАЛЬЦЫ) =====
     let currentZoom = 4.5;
 
     container.addEventListener('wheel', function(e) {
