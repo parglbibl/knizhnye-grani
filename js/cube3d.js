@@ -18,9 +18,6 @@ if (!container) {
     renderer.setClearColor(0x000000, 0);
     container.appendChild(renderer.domElement);
 
-    // Лёгкая тень для красоты (без скруглений CSS)
-    renderer.domElement.style.boxShadow = '0 8px 30px rgba(0,0,0,0.08)';
-
     const cubeGroup = new THREE.Group();
     scene.add(cubeGroup);
 
@@ -43,6 +40,7 @@ if (!container) {
         return tex;
     };
 
+    // Теперь материал у каждого кубика свой, и мы будем брать его напрямую
     const textureMaterials = {
         red: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.red), roughness: 0.2, metalness: 0.05 }),
         blue: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.blue), roughness: 0.2, metalness: 0.05 }),
@@ -70,7 +68,7 @@ if (!container) {
         0xff8c00: 'orange'
     };
 
-    // === СКРУГЛЕНИЯ + ИДЕАЛЬНЫЙ КЛИК ===
+    // === СКРУГЛЕНИЯ (но теперь с правильным определением материала) ===
     const offset = 0.685;  
     const size = 0.675;    
     const radius = 0.08;    
@@ -81,6 +79,7 @@ if (!container) {
     for (let x = -1; x <= 1; x++) {
         for (let y = -1; y <= 1; y++) {
             for (let z = -1; z <= 1; z++) {
+                // Материалы для каждой грани
                 const matArray = [
                     x === 1 ? textureMaterials.red || fallbackMaterials.red : (x === -1 ? textureMaterials.orange || fallbackMaterials.orange : textureMaterials.red || fallbackMaterials.red),
                     x === -1 ? textureMaterials.orange || fallbackMaterials.orange : (x === 1 ? textureMaterials.red || fallbackMaterials.red : textureMaterials.orange || fallbackMaterials.orange),
@@ -94,7 +93,8 @@ if (!container) {
                 const cubie = new THREE.Mesh(geometry, matArray);
                 cubie.userData = { 
                     originalPos: { x: x * offset, y: y * offset, z: z * offset },
-                    gridX: x, gridY: y, gridZ: z
+                    gridX: x, gridY: y, gridZ: z,
+                    materials: matArray // Сохраняем ссылку на материалы
                 };
                 cubie.position.set(x * offset, y * offset, z * offset);
                 cubeGroup.add(cubie);
@@ -118,11 +118,13 @@ if (!container) {
     backLight.position.set(0, 1, -3);
     scene.add(backLight);
 
-    // ===== ЛОГИКА КЛИКА =====
+    // ===== ЛОГИКА КЛИКА (ИСПРАВЛЕННАЯ ДЛЯ СКРУГЛЕНИЙ) =====
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
 
-    function getColorName(colorHex) {
+    function getColorName(materialColor) {
+        // Преобразуем цвет материала в строку
+        const colorHex = materialColor.getHex();
         return colorMap[colorHex] || 'unknown';
     }
 
@@ -154,13 +156,38 @@ if (!container) {
             const pos = clickedCubie.position;
             const coords = getGridCoords(pos);
             
-            const faceIndex = intersects[0].faceIndex;
-            const materialIndex = Math.floor(faceIndex / 2);
-            const colorHex = clickedCubie.material[materialIndex].color.getHex();
-            const colorName = getColorName(colorHex);
+            // === ГЛАВНОЕ ИСПРАВЛЕНИЕ ===
+            // Не используем faceIndex. Берём цвет материала напрямую из массива материалов кубика.
+            // Для скруглённой геометрии это единственный надёжный способ.
+            
+            // Определяем, какая грань была задетта, по нормали
+            const normal = intersects[0].face.normal.clone();
+            // Преобразуем нормаль в мировые координаты
+            normal.applyQuaternion(clickedCubie.quaternion);
+            
+            // Определяем индекс материала на основе направления нормали
+            let materialIndex = 0;
+            const nx = Math.round(normal.x);
+            const ny = Math.round(normal.y);
+            const nz = Math.round(normal.z);
+            
+            if (nx === 1) materialIndex = 0;        // Правая (+X)
+            else if (nx === -1) materialIndex = 1;  // Левая (-X)
+            else if (ny === 1) materialIndex = 2;   // Верхняя (+Y)
+            else if (ny === -1) materialIndex = 3;  // Нижняя (-Y)
+            else if (nz === 1) materialIndex = 4;   // Передняя (+Z)
+            else if (nz === -1) materialIndex = 5;  // Задняя (-Z)
+            else materialIndex = 0; // Дефолт
+            
+            // Берём материал из сохранённых материалов
+            const mat = clickedCubie.userData.materials[materialIndex];
+            if (!mat) return;
+            
+            const colorName = getColorName(mat.color);
             
             let gx = 0, gy = 0;
             
+            // Определяем координаты сетки на основе нормали
             if (materialIndex === 0 || materialIndex === 1) {
                 gx = coords.y + 1;
                 gy = coords.z + 1;
@@ -179,7 +206,7 @@ if (!container) {
     const canvas = renderer.domElement;
     canvas.addEventListener('click', onMouseClick);
 
-    // ===== ВРАЩЕНИЕ (С ПОДДЕРЖКОЙ МЫШИ И ПАЛЬЦА) =====
+    // ===== ВРАЩЕНИЕ =====
     let isDragging = false;
     let lastX = 0, lastY = 0;
     let targetRotationX = 0;
@@ -225,17 +252,15 @@ if (!container) {
     window.addEventListener('mousemove', onMove);
     window.addEventListener('mouseup', onEnd);
 
-    // ===== ДЛЯ ТЕЛЕФОНА (НОВЫЙ, САМЫЙ НАДЁЖНЫЙ МЕТОД) =====
+    // ===== ДЛЯ ТЕЛЕФОНА (НАДЁЖНАЯ ЛОГИКА) =====
     let touchStartX = 0, touchStartY = 0;
     let touchMoved = false;
-    let isClickPending = false;
 
     canvas.addEventListener('touchstart', function(e) {
         const touch = e.touches[0];
         touchStartX = touch.clientX;
         touchStartY = touch.clientY;
         touchMoved = false;
-        isClickPending = false;
         onStart(e);
     }, { passive: false });
 
@@ -245,7 +270,6 @@ if (!container) {
         const dy = Math.abs(touch.clientY - touchStartY);
         if (dx > 10 || dy > 10) {
             touchMoved = true;
-            isClickPending = false;
         }
         onMove(e);
         e.preventDefault();
@@ -254,19 +278,7 @@ if (!container) {
     canvas.addEventListener('touchend', function(e) {
         onEnd();
         if (!touchMoved) {
-            // Устанавливаем флаг клика, но выполняем его через setTimeout,
-            // чтобы телефон точно успел обработать окончание касания
-            if (!isClickPending) {
-                isClickPending = true;
-                setTimeout(() => {
-                    if (isClickPending) {
-                        const touch = e.changedTouches[0];
-                        const fakeEvent = { clientX: touch.clientX, clientY: touch.clientY };
-                        onMouseClick(fakeEvent);
-                        isClickPending = false;
-                    }
-                }, 120); // Задержка 120мс — достаточно для телефона
-            }
+            onMouseClick(e.changedTouches[0]);
         }
     }, { passive: true });
 
