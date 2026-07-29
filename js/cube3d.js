@@ -21,7 +21,7 @@ if (!container) {
     const cubeGroup = new THREE.Group();
     scene.add(cubeGroup);
 
-    // ===== ЗАГРУЗКА ТЕКСТУР (ТВОИ 6 КАРТИНОК) =====
+    // ===== ЗАГРУЗКА ТЕКСТУР =====
     const textureLoader = new THREE.TextureLoader();
     
     const textureFiles = {
@@ -67,7 +67,6 @@ if (!container) {
         0xff8c00: 'orange'
     };
 
-    // === СКРУГЛЕНИЯ ===
     const offset = 0.685;  
     const size = 0.675;    
     const radius = 0.08;    
@@ -194,7 +193,7 @@ if (!container) {
     const canvas = renderer.domElement;
     canvas.addEventListener('click', onMouseClick);
 
-    // ===== ВРАЩЕНИЕ (СВОБОДНОЕ 360°) =====
+    // ===== ВРАЩЕНИЕ (НА КВАТЕРНИОНАХ — АБСОЛЮТНО СВОБОДНОЕ) =====
     let isDragging = false;
     let lastX = 0, lastY = 0;
 
@@ -220,8 +219,14 @@ if (!container) {
         const deltaY = coords.y - lastY;
         
         if (deltaX !== 0 || deltaY !== 0) {
-            cubeGroup.rotation.y += deltaX * 0.008;
-            cubeGroup.rotation.x += deltaY * 0.008;
+            // Создаём ось вращения: (deltaY, deltaX, 0) — это естественное 3D-вращение
+            const axis = new THREE.Vector3(deltaY, deltaX, 0).normalize();
+            const angle = Math.sqrt(deltaX * deltaX + deltaY * deltaY) * 0.008;
+            
+            // Применяем вращение через кватернион
+            const quaternion = new THREE.Quaternion().setFromAxisAngle(axis, angle);
+            cubeGroup.quaternion.multiply(quaternion);
+            
             lastX = coords.x;
             lastY = coords.y;
         }
