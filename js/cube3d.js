@@ -41,21 +41,21 @@ if (!container) {
     };
 
     const textureMaterials = {
-        red: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.red), roughness: 0.2, metalness: 0.05 }),
-        blue: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.blue), roughness: 0.2, metalness: 0.05 }),
-        yellow: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.yellow), roughness: 0.2, metalness: 0.05 }),
-        green: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.green), roughness: 0.2, metalness: 0.05 }),
-        white: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.white), roughness: 0.2, metalness: 0.05 }),
-        orange: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.orange), roughness: 0.2, metalness: 0.05 })
+        red: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.red), roughness: 0.9, metalness: 0.0 }),
+        blue: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.blue), roughness: 0.9, metalness: 0.0 }),
+        yellow: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.yellow), roughness: 0.9, metalness: 0.0 }),
+        green: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.green), roughness: 0.9, metalness: 0.0 }),
+        white: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.white), roughness: 0.9, metalness: 0.0 }),
+        orange: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.orange), roughness: 0.9, metalness: 0.0 })
     };
 
     const fallbackMaterials = {
-        red: new THREE.MeshStandardMaterial({ color: 0xc41e3a, roughness: 0.2 }),
-        blue: new THREE.MeshStandardMaterial({ color: 0x0051ba, roughness: 0.2 }),
-        yellow: new THREE.MeshStandardMaterial({ color: 0xffd700, roughness: 0.2 }),
-        green: new THREE.MeshStandardMaterial({ color: 0x009e60, roughness: 0.2 }),
-        white: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.2 }),
-        orange: new THREE.MeshStandardMaterial({ color: 0xff8c00, roughness: 0.2 })
+        red: new THREE.MeshStandardMaterial({ color: 0xc41e3a, roughness: 0.9, metalness: 0.0 }),
+        blue: new THREE.MeshStandardMaterial({ color: 0x0051ba, roughness: 0.9, metalness: 0.0 }),
+        yellow: new THREE.MeshStandardMaterial({ color: 0xffd700, roughness: 0.9, metalness: 0.0 }),
+        green: new THREE.MeshStandardMaterial({ color: 0x009e60, roughness: 0.9, metalness: 0.0 }),
+        white: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9, metalness: 0.0 }),
+        orange: new THREE.MeshStandardMaterial({ color: 0xff8c00, roughness: 0.9, metalness: 0.0 })
     };
 
     const colorMap = {
@@ -103,15 +103,15 @@ if (!container) {
     const ambientLight = new THREE.AmbientLight(0x606080, 0.6);
     scene.add(ambientLight);
     
-    const mainLight = new THREE.DirectionalLight(0xffffff, 1.2);
+    const mainLight = new THREE.DirectionalLight(0xffffff, 0.9);
     mainLight.position.set(2, 4, 3);
     scene.add(mainLight);
     
-    const fillLight = new THREE.DirectionalLight(0xffffff, 0.6);
+    const fillLight = new THREE.DirectionalLight(0xffffff, 0.5);
     fillLight.position.set(-2, 1, 2);
     scene.add(fillLight);
     
-    const backLight = new THREE.DirectionalLight(0xffffff, 0.3);
+    const backLight = new THREE.DirectionalLight(0xffffff, 0.2);
     backLight.position.set(0, 1, -3);
     scene.add(backLight);
 
@@ -193,7 +193,7 @@ if (!container) {
     const canvas = renderer.domElement;
     canvas.addEventListener('click', onMouseClick);
 
-    // ===== ВРАЩЕНИЕ (НА КВАТЕРНИОНАХ — АБСОЛЮТНО СВОБОДНОЕ) =====
+    // ===== ВРАЩЕНИЕ (КВАТЕРНИОНЫ) =====
     let isDragging = false;
     let lastX = 0, lastY = 0;
 
@@ -219,11 +219,9 @@ if (!container) {
         const deltaY = coords.y - lastY;
         
         if (deltaX !== 0 || deltaY !== 0) {
-            // Создаём ось вращения: (deltaY, deltaX, 0) — это естественное 3D-вращение
             const axis = new THREE.Vector3(deltaY, deltaX, 0).normalize();
             const angle = Math.sqrt(deltaX * deltaX + deltaY * deltaY) * 0.008;
             
-            // Применяем вращение через кватернион
             const quaternion = new THREE.Quaternion().setFromAxisAngle(axis, angle);
             cubeGroup.quaternion.multiply(quaternion);
             
