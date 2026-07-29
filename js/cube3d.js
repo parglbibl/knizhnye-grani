@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 
 const container = document.getElementById('cube-container');
 if (!container) {
@@ -20,7 +21,7 @@ if (!container) {
     const cubeGroup = new THREE.Group();
     scene.add(cubeGroup);
 
-    // ===== ЗАГРУЗКА ТЕКСТУР (ТВОИ 6 КАРТИНОК) =====
+    // ===== ЗАГРУЗКА ТЕКСТУР =====
     const textureLoader = new THREE.TextureLoader();
     
     const textureFiles = {
@@ -66,9 +67,9 @@ if (!container) {
         0xff8c00: 'orange'
     };
 
-    // === МИНИМАЛЬНЫЕ ЗАЗОРЫ (БЕЗ СКРУГЛЕНИЙ) ===
-    const offset = 0.69;
-    const size = 0.68;
+    // === СКРУГЛЕНИЯ + ИДЕАЛЬНЫЙ КЛИК ===
+    const offset = 0.685;  // Чуть плотнее
+    const size = 0.675;    // Чуть больше кубики, чтобы скругления были чётче
 
     const cubies = [];
 
@@ -84,7 +85,8 @@ if (!container) {
                     z === -1 ? textureMaterials.blue || fallbackMaterials.blue : (z === 1 ? textureMaterials.green || fallbackMaterials.green : textureMaterials.blue || fallbackMaterials.blue)
                 ];
                 
-                const geometry = new THREE.BoxGeometry(size, size, size);
+                // Скруглённые углы (радиус 0.08)
+                const geometry = new RoundedBoxGeometry(size, size, size, 4, 0.08);
                 const cubie = new THREE.Mesh(geometry, matArray);
                 cubie.userData = { 
                     originalPos: { x: x * offset, y: y * offset, z: z * offset },
@@ -112,7 +114,7 @@ if (!container) {
     backLight.position.set(0, 1, -3);
     scene.add(backLight);
 
-    // ===== ЛОГИКА КЛИКА (ТВОЯ РАБОЧАЯ) =====
+    // ===== ЛОГИКА КЛИКА =====
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
 
@@ -173,7 +175,7 @@ if (!container) {
     const canvas = renderer.domElement;
     canvas.addEventListener('click', onMouseClick);
 
-    // ===== ВРАЩЕНИЕ (ТВОЯ РАБОЧАЯ) =====
+    // ===== ВРАЩЕНИЕ =====
     let isDragging = false;
     let lastX = 0, lastY = 0;
     let targetRotationX = 0;
@@ -219,7 +221,7 @@ if (!container) {
     window.addEventListener('mousemove', onMove);
     window.addEventListener('mouseup', onEnd);
 
-    // ===== ДЛЯ ТЕЛЕФОНА (ТВОЯ РАБОЧАЯ) =====
+    // ===== ДЛЯ ТЕЛЕФОНА =====
     let touchStartX = 0, touchStartY = 0;
     let touchMoved = false;
 
@@ -249,7 +251,7 @@ if (!container) {
         }
     }, { passive: true });
 
-    // ===== ЗУМ (ИЗ МОЕГО ДИЗАЙНА) =====
+    // ===== ЗУМ =====
     let currentZoom = 4.5;
 
     container.addEventListener('wheel', function(e) {
