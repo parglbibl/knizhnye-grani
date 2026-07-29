@@ -1,8 +1,8 @@
-// main.js — Книжные грани (меню с Фотоотчётами)
+// main.js — Книжные грани
 
 document.addEventListener('DOMContentLoaded', function() {
 
-    // ===== ФАВИКОНКИ (ДОБАВЛЯЮТСЯ АВТОМАТИЧЕСКИ) =====
+    // ===== ФАВИКОНКИ =====
     function addFavicon() {
         if (document.querySelector('link[rel="icon"][type="image/x-icon"]')) return;
         
@@ -168,7 +168,6 @@ document.addEventListener('DOMContentLoaded', function() {
         navContainer.innerHTML = html;
     }
     
-    // ОТКРЫТИЕ ПОДМЕНЮ НА МОБИЛКАХ (АВТОЗАКРЫТИЕ ДРУГИХ)
     function bindDropdownEvents() {
         const dropdowns = document.querySelectorAll('.dropdown');
         dropdowns.forEach(function(dropdown) {
@@ -194,7 +193,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     bindDropdownEvents();
     
-    // ===== ДИНАМИЧЕСКИЕ ХЛЕБНЫЕ КРОШКИ =====
+    // ===== ХЛЕБНЫЕ КРОШКИ =====
     function generateBreadcrumbs() {
         const currentPath = window.location.pathname;
         const fileName = currentPath.split('/').pop() || 'index.html';
@@ -213,7 +212,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (isInBoardgames) {
             breadcrumbs.push({ name: 'Настольные игры', href: prefix + 'boardgames/index.html' });
-            
             if (fileName === 'catalog.html') {
                 breadcrumbs.push({ name: 'Каталог игр', href: null });
             } else if (fileName === 'rules.html') {
@@ -222,7 +220,6 @@ document.addEventListener('DOMContentLoaded', function() {
         } 
         else if (isInSpeedcubing) {
             breadcrumbs.push({ name: 'Спидкубинг', href: prefix + 'speedcubing/index.html' });
-            
             if (fileName === 'about-sport.html') {
                 breadcrumbs.push({ name: 'Что такое спидкубинг', href: null });
             } else if (fileName === 'levels.html') {
@@ -233,7 +230,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         else if (isInEvents) {
             breadcrumbs.push({ name: 'Мероприятия', href: prefix + 'events.html' });
-            
             const urlParams = new URLSearchParams(window.location.search);
             const eventId = urlParams.get('id');
             if (eventId) {
@@ -388,7 +384,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const closeBtn = document.getElementById('archiveModalClose');
     const modalBody = document.getElementById('archiveModalBody');
     
-    // ===== ФУНКЦИЯ ЗАКРЫТИЯ ПОПАПА И ПЕРЕХОДА ПО ССЫЛКЕ =====
     window.closeModalAndGo = function(event, url) {
         if (modal) {
             modal.classList.remove('active');
@@ -402,7 +397,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
     
-    // ===== ФУНКЦИЯ ЗАКРЫТИЯ ПОПАПА =====
     window.closeModal = function() {
         if (modal) {
             modal.classList.remove('active');
@@ -429,12 +423,11 @@ document.addEventListener('DOMContentLoaded', function() {
             slider.scrollBy({ left: -cardWidth * 2, behavior: 'smooth' });
         });
         
-        // ===== ДАННЫЕ ДЛЯ АРХИВНЫХ СОБЫТИЙ =====
         const archiveData = {
             '17 июня': {
                 title: 'Игротека «Книжные грани»',
                 date: '17 июня 2026',
-                image: '/images/afisha/afisha1706.jpg',
+                image: 'images/afisha/afisha1706.jpg',
                 description: 'Первая летняя игротека в Библиотеке-мастерской. Мастер-класс по сборке кубика Рубика и большая игротека от Hobby World.',
                 link: '/events/detail.html?id=summer-party',
                 gallery: '/gallery.html'
@@ -442,7 +435,7 @@ document.addEventListener('DOMContentLoaded', function() {
             '1 июля': {
                 title: 'Игротека «Книжные грани»',
                 date: '1 июля 2026',
-                image: '/images/afisha/afisha0107.PNG',
+                image: 'images/afisha/afisha0107.PNG',
                 description: 'Большая игротека от Hobby World. Десятки настольных игр на любой вкус. Приходите один или с друзьями — найдём компанию!',
                 link: '/events/detail.html?id=july-party',
                 gallery: '/gallery.html'
@@ -450,7 +443,7 @@ document.addEventListener('DOMContentLoaded', function() {
             '22 июля': {
                 title: 'Игротека «Книжные грани»',
                 date: '22 июля 2026',
-                image: '/images/afisha/afisha2207.PNG',
+                image: 'images/afisha/afisha2207.PNG',
                 description: 'В библиотеке «Мастерская» продолжает работу пространство с головоломками и настолками для детей и подростков. Вас ждут две площадки: мастер-класс по сборке кубика Рубика (6+) от тренера, который покажет секреты и алгоритмы сборки на скорость, и тестирование головоломок от CCCstore. Приходите, чтобы первыми оценить новинку и повлиять на финальный результат тестирования!',
                 link: '/events/detail.html?id=july-22',
                 gallery: '/gallery.html'
