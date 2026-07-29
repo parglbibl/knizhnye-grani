@@ -60,16 +60,15 @@ if (!container) {
         orange: new THREE.MeshStandardMaterial({ color: 0xff8c00, roughness: 0.3 })
     };
 
-    // ===== СОЗДАЁМ КУБИКИ (ОЧЕНЬ МАЛЕНЬКИЙ ЗАЗОР) =====
-    const offset = 0.69;   // Расстояние между центрами (почти вплотную)
-    const size = 0.68;     // Размер кубика
+    // ===== СОЗДАЁМ КУБИКИ (МИНИМАЛЬНЫЙ ЗАЗОР) =====
+    const offset = 0.69;
+    const size = 0.68;
 
     const cubies = [];
 
     for (let x = -1; x <= 1; x++) {
         for (let y = -1; y <= 1; y++) {
             for (let z = -1; z <= 1; z++) {
-                // Материалы для каждой грани
                 const matArray = [
                     x === 1 ? textureMaterials.red || fallbackMaterials.red : (x === -1 ? textureMaterials.orange || fallbackMaterials.orange : textureMaterials.red || fallbackMaterials.red),
                     x === -1 ? textureMaterials.orange || fallbackMaterials.orange : (x === 1 ? textureMaterials.red || fallbackMaterials.red : textureMaterials.orange || fallbackMaterials.orange),
@@ -79,7 +78,6 @@ if (!container) {
                     z === -1 ? textureMaterials.blue || fallbackMaterials.blue : (z === 1 ? textureMaterials.green || fallbackMaterials.green : textureMaterials.blue || fallbackMaterials.blue)
                 ];
                 
-                // Скруглённая геометрия
                 const geometry = new RoundedBoxGeometry(size, size, size, 2, 0.04);
                 const cubie = new THREE.Mesh(geometry, matArray);
                 cubie.position.set(x * offset, y * offset, z * offset);
@@ -105,7 +103,7 @@ if (!container) {
     backLight.position.set(0, 1, -3);
     scene.add(backLight);
 
-    // ===== ЛОГИКА КЛИКА (ПО ТЕКСТУРЕ — 100% ТОЧНО) =====
+    // ===== ЛОГИКА КЛИКА (ПО ТЕКСТУРЕ) =====
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
 
@@ -135,12 +133,12 @@ if (!container) {
             
             const colorName = colorIndexMap[materialIndex] || 'unknown';
             
-            // === САМОЕ ВАЖНОЕ: БЕРЁМ КООРДИНАТЫ ПРЯМО С ТЕКСТУРЫ ===
+            // ===== БЕРЁМ КООРДИНАТЫ С ТЕКСТУРЫ =====
             const uv = hit.uv;
             if (uv) {
-                // Преобразуем координаты текстуры в сетку 3х3
+                // ВАЖНО: меняем оси местами, чтобы вопросы совпадали с раскладкой
                 const gx = Math.min(2, Math.floor(uv.x * 3));
-                const gy = Math.min(2, Math.floor((1 - uv.y) * 3));
+                const gy = Math.min(2, Math.floor(uv.y * 3));
                 openGran(colorName, gx, gy);
             }
         }
@@ -221,14 +219,13 @@ if (!container) {
     canvas.addEventListener('touchend', function(e) {
         onEnd();
         if (!touchMoved) {
-            // Эмулируем клик для тапа без движения
             const touch = e.changedTouches[0];
             const fakeEvent = { clientX: touch.clientX, clientY: touch.clientY };
             onMouseClick(fakeEvent);
         }
     }, { passive: true });
 
-    // ===== ЗУМ (КОЛЕСИКО МЫШИ И ПАЛЬЦЫ) =====
+    // ===== ЗУМ =====
     let currentZoom = 4.5;
 
     container.addEventListener('wheel', function(e) {
