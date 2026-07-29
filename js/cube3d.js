@@ -49,7 +49,6 @@ if (!container) {
         orange: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.orange), roughness: 0.3, metalness: 0.05 })
     };
 
-    // Запасные материалы (на случай если картинка не загрузится)
     const fallbackMaterials = {
         red: new THREE.MeshStandardMaterial({ color: 0xc41e3a, roughness: 0.3 }),
         blue: new THREE.MeshStandardMaterial({ color: 0x0051ba, roughness: 0.3 }),
@@ -59,7 +58,6 @@ if (!container) {
         orange: new THREE.MeshStandardMaterial({ color: 0xff8c00, roughness: 0.3 })
     };
 
-    // Карта цветов для определения тем
     const colorMap = {
         0xc41e3a: 'red',
         0x0051ba: 'blue',
@@ -69,17 +67,15 @@ if (!container) {
         0xff8c00: 'orange'
     };
 
-    // === КРАСИВЫЙ ДИЗАЙН + МИНИМАЛЬНЫЕ ЗАЗОРЫ ===
-    const offset = 0.69;   // Расстояние между центрами
-    const size = 0.68;     // Размер кубика
+    // === МИНИМАЛЬНЫЕ ЗАЗОРЫ + СКРУГЛЕНИЯ ===
+    const offset = 0.69;
+    const size = 0.68;
 
-    // Создаём 27 кубиков со скруглёнными углами
     const cubies = [];
 
     for (let x = -1; x <= 1; x++) {
         for (let y = -1; y <= 1; y++) {
             for (let z = -1; z <= 1; z++) {
-                // Материалы для каждой грани
                 const matArray = [
                     x === 1 ? textureMaterials.red || fallbackMaterials.red : (x === -1 ? textureMaterials.orange || fallbackMaterials.orange : textureMaterials.red || fallbackMaterials.red),
                     x === -1 ? textureMaterials.orange || fallbackMaterials.orange : (x === 1 ? textureMaterials.red || fallbackMaterials.red : textureMaterials.orange || fallbackMaterials.orange),
@@ -89,7 +85,6 @@ if (!container) {
                     z === -1 ? textureMaterials.blue || fallbackMaterials.blue : (z === 1 ? textureMaterials.green || fallbackMaterials.green : textureMaterials.blue || fallbackMaterials.blue)
                 ];
                 
-                // Скруглённая геометрия
                 const geometry = new RoundedBoxGeometry(size, size, size, 4, 0.06);
                 const cubie = new THREE.Mesh(geometry, matArray);
                 cubie.userData = { 
@@ -103,7 +98,6 @@ if (!container) {
         }
     }
 
-    // Освещение
     const ambientLight = new THREE.AmbientLight(0x606080, 0.6);
     scene.add(ambientLight);
     
@@ -180,7 +174,7 @@ if (!container) {
     const canvas = renderer.domElement;
     canvas.addEventListener('click', onMouseClick);
 
-    // ===== ВРАЩЕНИЕ МЫШКОЙ И ПАЛЬЦЕМ (ТВОЯ РАБОЧАЯ) =====
+    // ===== ВРАЩЕНИЕ (ТВОЯ РАБОЧАЯ) =====
     let isDragging = false;
     let lastX = 0, lastY = 0;
     let targetRotationX = 0;
@@ -256,7 +250,7 @@ if (!container) {
         }
     }, { passive: true });
 
-    // ===== ЗУМ (ИЗ ПОЗАПРОШЛОГО) =====
+    // ===== ЗУМ (ИЗ МОЕГО ДИЗАЙНА) =====
     let currentZoom = 4.5;
 
     container.addEventListener('wheel', function(e) {
@@ -293,7 +287,6 @@ if (!container) {
         camera.lookAt(0, 0, 0);
     }
 
-    // ===== АНИМАЦИЯ =====
     function render() {
         renderer.render(scene, camera);
         requestAnimationFrame(render);
