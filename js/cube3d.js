@@ -19,55 +19,74 @@ if (!container) {
     const cubeGroup = new THREE.Group();
     scene.add(cubeGroup);
 
-    // Цвета
-    const colorValues = {
-        white: 0xffffff,
-        yellow: 0xffd700,
-        red: 0xc41e3a,
-        orange: 0xff8c00,
-        green: 0x009e60,
-        blue: 0x0051ba
+    // ===== ЗАГРУЗКА ТЕКСТУР (ТВОИ КАРТИНКИ) =====
+    const textureLoader = new THREE.TextureLoader();
+    
+    const textureFiles = {
+        red: '/images/cube_textures/red.jpg',
+        blue: '/images/cube_textures/blue.jpg',
+        yellow: '/images/cube_textures/yellow.jpg',
+        green: '/images/cube_textures/green.jpg',
+        white: '/images/cube_textures/white.jpg',
+        orange: '/images/cube_textures/orange.jpg'
     };
 
-    const createMaterial = (color) => {
-        return new THREE.MeshStandardMaterial({ color: color, roughness: 0.25, metalness: 0.05 });
+    // Создаём материалы с текстурами
+    const textureMaterials = {};
+    const loadTexture = (color, url) => {
+        const texture = textureLoader.load(url);
+        textureMaterials[color] = new THREE.MeshStandardMaterial({ 
+            map: texture, 
+            roughness: 0.3, 
+            metalness: 0.05 
+        });
     };
 
-    const materials = {
-        white: createMaterial(colorValues.white),
-        yellow: createMaterial(colorValues.yellow),
-        red: createMaterial(colorValues.red),
-        orange: createMaterial(colorValues.orange),
-        green: createMaterial(colorValues.green),
-        blue: createMaterial(colorValues.blue)
+    loadTexture('red', textureFiles.red);
+    loadTexture('blue', textureFiles.blue);
+    loadTexture('yellow', textureFiles.yellow);
+    loadTexture('green', textureFiles.green);
+    loadTexture('white', textureFiles.white);
+    loadTexture('orange', textureFiles.orange);
+
+    // Временные материалы на случай, если картинка не загрузится
+    const fallbackMaterials = {
+        red: new THREE.MeshStandardMaterial({ color: 0xc41e3a }),
+        blue: new THREE.MeshStandardMaterial({ color: 0x0051ba }),
+        yellow: new THREE.MeshStandardMaterial({ color: 0xffd700 }),
+        green: new THREE.MeshStandardMaterial({ color: 0x009e60 }),
+        white: new THREE.MeshStandardMaterial({ color: 0xffffff }),
+        orange: new THREE.MeshStandardMaterial({ color: 0xff8c00 })
     };
+
+    // Маппинг цветов для определения темы
+    const colorMap = {
+        0xc41e3a: 'red',
+        0x0051ba: 'blue',
+        0xffd700: 'yellow',
+        0x009e60: 'green',
+        0xffffff: 'white',
+        0xff8c00: 'orange'
+    };
+
+    const offset = 0.72;
+    const size = 0.68;
 
     // Создаём 27 кубиков
     const cubies = [];
     const cubiesMap = new Map();
-    const offset = 0.72;
-    const size = 0.68;
-
-    // Маппинг цветов для тем
-    const colorMap = {
-        0xffffff: 'white',
-        0xffd700: 'yellow',
-        0xc41e3a: 'red',
-        0xff8c00: 'orange',
-        0x009e60: 'green',
-        0x0051ba: 'blue'
-    };
 
     for (let x = -1; x <= 1; x++) {
         for (let y = -1; y <= 1; y++) {
             for (let z = -1; z <= 1; z++) {
+                // Определяем материалы для каждой грани (с картинками)
                 const matArray = [
-                    x === 1 ? materials.red : (x === -1 ? materials.orange : materials.red),
-                    x === -1 ? materials.orange : (x === 1 ? materials.red : materials.orange),
-                    y === 1 ? materials.white : (y === -1 ? materials.yellow : materials.white),
-                    y === -1 ? materials.yellow : (y === 1 ? materials.white : materials.yellow),
-                    z === 1 ? materials.green : (z === -1 ? materials.blue : materials.green),
-                    z === -1 ? materials.blue : (z === 1 ? materials.green : materials.blue)
+                    x === 1 ? textureMaterials.red || fallbackMaterials.red : (x === -1 ? textureMaterials.orange || fallbackMaterials.orange : textureMaterials.red || fallbackMaterials.red),
+                    x === -1 ? textureMaterials.orange || fallbackMaterials.orange : (x === 1 ? textureMaterials.red || fallbackMaterials.red : textureMaterials.orange || fallbackMaterials.orange),
+                    y === 1 ? textureMaterials.white || fallbackMaterials.white : (y === -1 ? textureMaterials.yellow || fallbackMaterials.yellow : textureMaterials.white || fallbackMaterials.white),
+                    y === -1 ? textureMaterials.yellow || fallbackMaterials.yellow : (y === 1 ? textureMaterials.white || fallbackMaterials.white : textureMaterials.yellow || fallbackMaterials.yellow),
+                    z === 1 ? textureMaterials.green || fallbackMaterials.green : (z === -1 ? textureMaterials.blue || fallbackMaterials.blue : textureMaterials.green || fallbackMaterials.green),
+                    z === -1 ? textureMaterials.blue || fallbackMaterials.blue : (z === 1 ? textureMaterials.green || fallbackMaterials.green : textureMaterials.blue || fallbackMaterials.blue)
                 ];
                 
                 const geometry = new THREE.BoxGeometry(size, size, size);
@@ -123,7 +142,6 @@ if (!container) {
         }
     }
 
-    // ===== КЛИК МЫШКОЙ (компьютер) =====
     function onMouseClick(event) {
         const rect = renderer.domElement.getBoundingClientRect();
         mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
@@ -217,7 +235,7 @@ if (!container) {
         touchStartX = touch.clientX;
         touchStartY = touch.clientY;
         touchMoved = false;
-        onStart(e); // начинаем вращение
+        onStart(e);
     }, { passive: false });
 
     canvas.addEventListener('touchmove', function(e) {
@@ -225,16 +243,15 @@ if (!container) {
         const dx = Math.abs(touch.clientX - touchStartX);
         const dy = Math.abs(touch.clientY - touchStartY);
         if (dx > 10 || dy > 10) {
-            touchMoved = true; // был свайп
+            touchMoved = true;
         }
-        onMove(e); // вращаем
+        onMove(e);
         e.preventDefault();
     }, { passive: false });
 
     canvas.addEventListener('touchend', function(e) {
         onEnd();
         if (!touchMoved) {
-            // Это был тап без движения — вызываем клик
             onMouseClick(e.changedTouches[0]);
         }
     }, { passive: true });
