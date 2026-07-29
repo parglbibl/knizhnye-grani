@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 
 const container = document.getElementById('cube-container');
 if (!container) {
@@ -7,11 +8,12 @@ if (!container) {
     const scene = new THREE.Scene();
     scene.background = null;
 
-    const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 1000);
-    camera.position.set(3.2, 2.5, 4.2);
+    const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 1000);
+    camera.position.set(3.5, 2.5, 4.5);
     camera.lookAt(0, 0, 0);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(320, 320);
     renderer.setClearColor(0x000000, 0);
     container.appendChild(renderer.domElement);
@@ -33,32 +35,31 @@ if (!container) {
 
     const loadTexture = (url) => {
         const tex = textureLoader.load(url);
-        tex.wrapS = THREE.RepeatWrapping;
-        tex.wrapT = THREE.RepeatWrapping;
-        tex.repeat.set(1, 1);
+        tex.wrapS = THREE.ClampToEdgeWrapping;
+        tex.wrapT = THREE.ClampToEdgeWrapping;
         return tex;
     };
 
     const textureMaterials = {
-        red: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.red), roughness: 0.25, metalness: 0.05 }),
-        blue: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.blue), roughness: 0.25, metalness: 0.05 }),
-        yellow: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.yellow), roughness: 0.25, metalness: 0.05 }),
-        green: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.green), roughness: 0.25, metalness: 0.05 }),
-        white: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.white), roughness: 0.25, metalness: 0.05 }),
-        orange: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.orange), roughness: 0.25, metalness: 0.05 })
+        red: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.red), roughness: 0.3, metalness: 0.05 }),
+        blue: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.blue), roughness: 0.3, metalness: 0.05 }),
+        yellow: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.yellow), roughness: 0.3, metalness: 0.05 }),
+        green: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.green), roughness: 0.3, metalness: 0.05 }),
+        white: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.white), roughness: 0.3, metalness: 0.05 }),
+        orange: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.orange), roughness: 0.3, metalness: 0.05 })
     };
 
     // Запасные материалы (на случай если картинка не загрузится)
     const fallbackMaterials = {
-        red: new THREE.MeshStandardMaterial({ color: 0xc41e3a, roughness: 0.25, metalness: 0.05 }),
-        blue: new THREE.MeshStandardMaterial({ color: 0x0051ba, roughness: 0.25, metalness: 0.05 }),
-        yellow: new THREE.MeshStandardMaterial({ color: 0xffd700, roughness: 0.25, metalness: 0.05 }),
-        green: new THREE.MeshStandardMaterial({ color: 0x009e60, roughness: 0.25, metalness: 0.05 }),
-        white: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.25, metalness: 0.05 }),
-        orange: new THREE.MeshStandardMaterial({ color: 0xff8c00, roughness: 0.25, metalness: 0.05 })
+        red: new THREE.MeshStandardMaterial({ color: 0xc41e3a, roughness: 0.3 }),
+        blue: new THREE.MeshStandardMaterial({ color: 0x0051ba, roughness: 0.3 }),
+        yellow: new THREE.MeshStandardMaterial({ color: 0xffd700, roughness: 0.3 }),
+        green: new THREE.MeshStandardMaterial({ color: 0x009e60, roughness: 0.3 }),
+        white: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.3 }),
+        orange: new THREE.MeshStandardMaterial({ color: 0xff8c00, roughness: 0.3 })
     };
 
-    // Маппинг цветов для тем
+    // Карта цветов для определения тем
     const colorMap = {
         0xc41e3a: 'red',
         0x0051ba: 'blue',
@@ -68,17 +69,17 @@ if (!container) {
         0xff8c00: 'orange'
     };
 
-    // === МИНИМАЛЬНЫЙ ЗАЗОР ===
-    const offset = 0.69;   // Почти вплотную
-    const size = 0.68;     // Чуть меньше
+    // === КРАСИВЫЙ ДИЗАЙН + МИНИМАЛЬНЫЕ ЗАЗОРЫ ===
+    const offset = 0.69;   // Расстояние между центрами
+    const size = 0.68;     // Размер кубика
 
-    // Создаём 27 кубиков
+    // Создаём 27 кубиков со скруглёнными углами
     const cubies = [];
-    const cubiesMap = new Map();
 
     for (let x = -1; x <= 1; x++) {
         for (let y = -1; y <= 1; y++) {
             for (let z = -1; z <= 1; z++) {
+                // Материалы для каждой грани
                 const matArray = [
                     x === 1 ? textureMaterials.red || fallbackMaterials.red : (x === -1 ? textureMaterials.orange || fallbackMaterials.orange : textureMaterials.red || fallbackMaterials.red),
                     x === -1 ? textureMaterials.orange || fallbackMaterials.orange : (x === 1 ? textureMaterials.red || fallbackMaterials.red : textureMaterials.orange || fallbackMaterials.orange),
@@ -88,7 +89,8 @@ if (!container) {
                     z === -1 ? textureMaterials.blue || fallbackMaterials.blue : (z === 1 ? textureMaterials.green || fallbackMaterials.green : textureMaterials.blue || fallbackMaterials.blue)
                 ];
                 
-                const geometry = new THREE.BoxGeometry(size, size, size);
+                // Скруглённая геометрия
+                const geometry = new RoundedBoxGeometry(size, size, size, 4, 0.06);
                 const cubie = new THREE.Mesh(geometry, matArray);
                 cubie.userData = { 
                     originalPos: { x: x * offset, y: y * offset, z: z * offset },
@@ -97,28 +99,27 @@ if (!container) {
                 cubie.position.set(x * offset, y * offset, z * offset);
                 cubeGroup.add(cubie);
                 cubies.push(cubie);
-                cubiesMap.set(`${x},${y},${z}`, cubie);
             }
         }
     }
 
     // Освещение
-    const ambientLight = new THREE.AmbientLight(0x606080);
+    const ambientLight = new THREE.AmbientLight(0x606080, 0.6);
     scene.add(ambientLight);
     
-    const mainLight = new THREE.DirectionalLight(0xffffff, 0.9);
-    mainLight.position.set(2, 3, 2);
+    const mainLight = new THREE.DirectionalLight(0xffffff, 1.2);
+    mainLight.position.set(2, 4, 3);
     scene.add(mainLight);
     
-    const fillLight = new THREE.DirectionalLight(0xffffff, 0.5);
-    fillLight.position.set(-1.5, 1, 1.5);
+    const fillLight = new THREE.DirectionalLight(0xffffff, 0.6);
+    fillLight.position.set(-2, 1, 2);
     scene.add(fillLight);
     
-    const rimLight = new THREE.DirectionalLight(0xffffff, 0.3);
-    rimLight.position.set(0, 1, -3);
-    scene.add(rimLight);
+    const backLight = new THREE.DirectionalLight(0xffffff, 0.3);
+    backLight.position.set(0, 1, -3);
+    scene.add(backLight);
 
-    // ===== ЛОГИКА КЛИКА (твоя рабочая, проверенная) =====
+    // ===== ЛОГИКА КЛИКА (ТВОЯ РАБОЧАЯ) =====
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
 
@@ -179,7 +180,7 @@ if (!container) {
     const canvas = renderer.domElement;
     canvas.addEventListener('click', onMouseClick);
 
-    // ===== ВРАЩЕНИЕ МЫШКОЙ И ПАЛЬЦЕМ (твоя рабочая, проверенная) =====
+    // ===== ВРАЩЕНИЕ МЫШКОЙ И ПАЛЬЦЕМ (ТВОЯ РАБОЧАЯ) =====
     let isDragging = false;
     let lastX = 0, lastY = 0;
     let targetRotationX = 0;
@@ -225,7 +226,7 @@ if (!container) {
     window.addEventListener('mousemove', onMove);
     window.addEventListener('mouseup', onEnd);
 
-    // ===== ДЛЯ ТЕЛЕФОНА (твоя рабочая, проверенная) =====
+    // ===== ДЛЯ ТЕЛЕФОНА (ТВОЯ РАБОЧАЯ) =====
     let touchStartX = 0, touchStartY = 0;
     let touchMoved = false;
 
@@ -255,7 +256,44 @@ if (!container) {
         }
     }, { passive: true });
 
-    // ===== АНИМАЦИЯ ВРАЩЕНИЯ =====
+    // ===== ЗУМ (ИЗ ПОЗАПРОШЛОГО) =====
+    let currentZoom = 4.5;
+
+    container.addEventListener('wheel', function(e) {
+        e.preventDefault();
+        const delta = e.deltaY > 0 ? 0.5 : -0.5;
+        currentZoom = Math.min(7, Math.max(2.5, currentZoom + delta));
+        updateCamera();
+    }, { passive: false });
+
+    let lastTouchDist = 0;
+    canvas.addEventListener('touchstart', function(e) {
+        if (e.touches.length === 2) {
+            const dx = e.touches[0].clientX - e.touches[1].clientX;
+            const dy = e.touches[0].clientY - e.touches[1].clientY;
+            lastTouchDist = Math.sqrt(dx*dx + dy*dy);
+        }
+    }, { passive: true });
+
+    canvas.addEventListener('touchmove', function(e) {
+        if (e.touches.length === 2) {
+            e.preventDefault();
+            const dx = e.touches[0].clientX - e.touches[1].clientX;
+            const dy = e.touches[0].clientY - e.touches[1].clientY;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            const delta = (dist - lastTouchDist) * 0.02;
+            currentZoom = Math.min(7, Math.max(2.5, currentZoom - delta));
+            updateCamera();
+            lastTouchDist = dist;
+        }
+    }, { passive: false });
+
+    function updateCamera() {
+        camera.position.set(currentZoom * 0.7, currentZoom * 0.5, currentZoom * 0.9);
+        camera.lookAt(0, 0, 0);
+    }
+
+    // ===== АНИМАЦИЯ =====
     function render() {
         renderer.render(scene, camera);
         requestAnimationFrame(render);
