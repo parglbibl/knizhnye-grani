@@ -21,7 +21,7 @@ if (!container) {
     const cubeGroup = new THREE.Group();
     scene.add(cubeGroup);
 
-    // ===== ЗАГРУЗКА ТЕКСТУР (ТВОИ КАРТИНКИ) =====
+    // ===== ЗАГРУЗКА ТЕКСТУР =====
     const textureLoader = new THREE.TextureLoader();
     
     const textureFiles = {
@@ -37,13 +37,10 @@ if (!container) {
     const textureMaterials = {};
     const loadTexture = (color, url) => {
         const texture = textureLoader.load(url);
-        // Поворачиваем текстуры для правильного отображения
-        texture.rotation = Math.PI / 2;
         textureMaterials[color] = new THREE.MeshStandardMaterial({ 
             map: texture, 
             roughness: 0.4, 
-            metalness: 0.05,
-            side: THREE.DoubleSide
+            metalness: 0.05
         });
     };
 
@@ -54,7 +51,7 @@ if (!container) {
     loadTexture('white', textureFiles.white);
     loadTexture('orange', textureFiles.orange);
 
-    // Временные материалы на случай, если картинка не загрузится
+    // Запасные материалы на случай, если картинка не загрузится
     const fallbackMaterials = {
         red: new THREE.MeshStandardMaterial({ color: 0xc41e3a, roughness: 0.4 }),
         blue: new THREE.MeshStandardMaterial({ color: 0x0051ba, roughness: 0.4 }),
@@ -64,7 +61,7 @@ if (!container) {
         orange: new THREE.MeshStandardMaterial({ color: 0xff8c00, roughness: 0.4 })
     };
 
-    // Маппинг цветов для определения темы
+    // Маппинг для определения темы
     const colorMap = {
         0xc41e3a: 'red',
         0x0051ba: 'blue',
@@ -74,17 +71,17 @@ if (!container) {
         0xff8c00: 'orange'
     };
 
-    const offset = 0.7;
-    const size = 0.65;
+    const offset = 0.72;
+    const size = 0.68;
 
-    // Создаём 27 кубиков со скруглёнными углами
+    // Создаём 27 кубиков
     const cubies = [];
     const cubiesMap = new Map();
 
     for (let x = -1; x <= 1; x++) {
         for (let y = -1; y <= 1; y++) {
             for (let z = -1; z <= 1; z++) {
-                // Определяем материалы для каждой грани (с картинками)
+                // Материалы для каждой грани
                 const matArray = [
                     x === 1 ? textureMaterials.red || fallbackMaterials.red : (x === -1 ? textureMaterials.orange || fallbackMaterials.orange : textureMaterials.red || fallbackMaterials.red),
                     x === -1 ? textureMaterials.orange || fallbackMaterials.orange : (x === 1 ? textureMaterials.red || fallbackMaterials.red : textureMaterials.orange || fallbackMaterials.orange),
@@ -94,7 +91,7 @@ if (!container) {
                     z === -1 ? textureMaterials.blue || fallbackMaterials.blue : (z === 1 ? textureMaterials.green || fallbackMaterials.green : textureMaterials.blue || fallbackMaterials.blue)
                 ];
                 
-                // Используем скруглённую геометрию
+                // Скруглённая геометрия с правильными UV
                 const geometry = new RoundedBoxGeometry(size, size, size, 4, 0.08);
                 const cubie = new THREE.Mesh(geometry, matArray);
                 cubie.userData = { 
@@ -186,7 +183,7 @@ if (!container) {
     const canvas = renderer.domElement;
     canvas.addEventListener('click', onMouseClick);
 
-    // ===== ВРАЩЕНИЕ МЫШКОЙ (360 БЕЗ ОГРАНИЧЕНИЙ) =====
+    // ===== ВРАЩЕНИЕ МЫШКОЙ =====
     let isDragging = false;
     let lastX = 0, lastY = 0;
     let targetRotationX = 0;
@@ -262,10 +259,9 @@ if (!container) {
         }
     }, { passive: true });
 
-    // ===== ЗУМ (КОЛЕСИКО МЫШИ И ПАЛЬЦЫ НА ТЕЛЕФОНЕ) =====
+    // ===== ЗУМ (КОЛЕСИКО МЫШИ И ПАЛЬЦЫ) =====
     let currentZoom = 4.5;
 
-    // Колесико мыши (компьютер)
     container.addEventListener('wheel', function(e) {
         e.preventDefault();
         const delta = e.deltaY > 0 ? 0.5 : -0.5;
@@ -273,7 +269,6 @@ if (!container) {
         updateCamera();
     }, { passive: false });
 
-    // Pinch-to-zoom (пальцы на телефоне)
     let lastTouchDist = 0;
     canvas.addEventListener('touchstart', function(e) {
         if (e.touches.length === 2) {
@@ -301,7 +296,7 @@ if (!container) {
         camera.lookAt(0, 0, 0);
     }
 
-    // ===== АНИМАЦИЯ ВРАЩЕНИЯ =====
+    // ===== АНИМАЦИЯ =====
     function render() {
         renderer.render(scene, camera);
         requestAnimationFrame(render);
