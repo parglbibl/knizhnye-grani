@@ -60,27 +60,16 @@ if (!container) {
         orange: new THREE.MeshStandardMaterial({ color: 0xff8c00, roughness: 0.3 })
     };
 
-    // Карта цветов для определения тем
-    const colorMap = {
-        0xc41e3a: 'red',
-        0x0051ba: 'blue',
-        0xffd700: 'yellow',
-        0x009e60: 'green',
-        0xffffff: 'white',
-        0xff8c00: 'orange'
-    };
-
-    // === МИКРОСКОПИЧЕСКИЙ ЗАЗОР ===
+    // ===== СОЗДАЁМ КУБИКИ (ОЧЕНЬ МАЛЕНЬКИЙ ЗАЗОР) =====
     const offset = 0.69;   // Расстояние между центрами (почти вплотную)
-    const size = 0.68;     // Размер кубика (чуть меньше offset)
+    const size = 0.68;     // Размер кубика
 
-    // Создаём 27 кубиков со скруглёнными углами
     const cubies = [];
 
     for (let x = -1; x <= 1; x++) {
         for (let y = -1; y <= 1; y++) {
             for (let z = -1; z <= 1; z++) {
-                // Определяем материалы для каждой грани
+                // Материалы для каждой грани
                 const matArray = [
                     x === 1 ? textureMaterials.red || fallbackMaterials.red : (x === -1 ? textureMaterials.orange || fallbackMaterials.orange : textureMaterials.red || fallbackMaterials.red),
                     x === -1 ? textureMaterials.orange || fallbackMaterials.orange : (x === 1 ? textureMaterials.red || fallbackMaterials.red : textureMaterials.orange || fallbackMaterials.orange),
@@ -93,10 +82,6 @@ if (!container) {
                 // Скруглённая геометрия
                 const geometry = new RoundedBoxGeometry(size, size, size, 2, 0.04);
                 const cubie = new THREE.Mesh(geometry, matArray);
-                cubie.userData = { 
-                    originalPos: { x: x * offset, y: y * offset, z: z * offset },
-                    gridX: x, gridY: y, gridZ: z
-                };
                 cubie.position.set(x * offset, y * offset, z * offset);
                 cubeGroup.add(cubie);
                 cubies.push(cubie);
@@ -120,20 +105,12 @@ if (!container) {
     backLight.position.set(0, 1, -3);
     scene.add(backLight);
 
-    // ===== ЛОГИКА КЛИКА =====
+    // ===== ЛОГИКА КЛИКА (ПО ТЕКСТУРЕ — 100% ТОЧНО) =====
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
 
-    function getColorName(colorHex) {
-        return colorMap[colorHex] || 'unknown';
-    }
-
-    function getGridCoords(position) {
-        const x = Math.round(position.x / offset);
-        const y = Math.round(position.y / offset);
-        const z = Math.round(position.z / offset);
-        return { x, y, z };
-    }
+    // Карта для определения цвета по индексу материала
+    const colorIndexMap = ['red', 'orange', 'white', 'yellow', 'green', 'blue'];
 
     function openGran(colorName, gx, gy) {
         gx = Math.min(2, Math.max(0, gx));
@@ -152,29 +129,20 @@ if (!container) {
         const intersects = raycaster.intersectObjects(cubies);
 
         if (intersects.length > 0) {
-            const clickedCubie = intersects[0].object;
-            const pos = clickedCubie.position;
-            const coords = getGridCoords(pos);
-            
-            const faceIndex = intersects[0].faceIndex;
+            const hit = intersects[0];
+            const faceIndex = hit.faceIndex;
             const materialIndex = Math.floor(faceIndex / 2);
-            const colorHex = clickedCubie.material[materialIndex].color.getHex();
-            const colorName = getColorName(colorHex);
             
-            let gx = 0, gy = 0;
+            const colorName = colorIndexMap[materialIndex] || 'unknown';
             
-            if (materialIndex === 0 || materialIndex === 1) {
-                gx = coords.y + 1;
-                gy = coords.z + 1;
-            } else if (materialIndex === 2 || materialIndex === 3) {
-                gx = coords.x + 1;
-                gy = coords.z + 1;
-            } else {
-                gx = coords.x + 1;
-                gy = coords.y + 1;
+            // === САМОЕ ВАЖНОЕ: БЕРЁМ КООРДИНАТЫ ПРЯМО С ТЕКСТУРЫ ===
+            const uv = hit.uv;
+            if (uv) {
+                // Преобразуем координаты текстуры в сетку 3х3
+                const gx = Math.min(2, Math.floor(uv.x * 3));
+                const gy = Math.min(2, Math.floor((1 - uv.y) * 3));
+                openGran(colorName, gx, gy);
             }
-            
-            openGran(colorName, gx, gy);
         }
     }
 
@@ -253,7 +221,10 @@ if (!container) {
     canvas.addEventListener('touchend', function(e) {
         onEnd();
         if (!touchMoved) {
-            onMouseClick(e.changedTouches[0]);
+            // Эмулируем клик для тапа без движения
+            const touch = e.changedTouches[0];
+            const fakeEvent = { clientX: touch.clientX, clientY: touch.clientY };
+            onMouseClick(fakeEvent);
         }
     }, { passive: true });
 
