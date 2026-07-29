@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 
 const container = document.getElementById('cube-container');
 if (!container) {
@@ -7,11 +8,12 @@ if (!container) {
     const scene = new THREE.Scene();
     scene.background = null;
 
-    const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 1000);
-    camera.position.set(3.2, 2.5, 4.2);
+    const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 1000);
+    camera.position.set(3.5, 2.5, 4.5);
     camera.lookAt(0, 0, 0);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(320, 320);
     renderer.setClearColor(0x000000, 0);
     container.appendChild(renderer.domElement);
@@ -35,10 +37,13 @@ if (!container) {
     const textureMaterials = {};
     const loadTexture = (color, url) => {
         const texture = textureLoader.load(url);
+        // Поворачиваем текстуры для правильного отображения
+        texture.rotation = Math.PI / 2;
         textureMaterials[color] = new THREE.MeshStandardMaterial({ 
             map: texture, 
-            roughness: 0.3, 
-            metalness: 0.05 
+            roughness: 0.4, 
+            metalness: 0.05,
+            side: THREE.DoubleSide
         });
     };
 
@@ -51,12 +56,12 @@ if (!container) {
 
     // Временные материалы на случай, если картинка не загрузится
     const fallbackMaterials = {
-        red: new THREE.MeshStandardMaterial({ color: 0xc41e3a }),
-        blue: new THREE.MeshStandardMaterial({ color: 0x0051ba }),
-        yellow: new THREE.MeshStandardMaterial({ color: 0xffd700 }),
-        green: new THREE.MeshStandardMaterial({ color: 0x009e60 }),
-        white: new THREE.MeshStandardMaterial({ color: 0xffffff }),
-        orange: new THREE.MeshStandardMaterial({ color: 0xff8c00 })
+        red: new THREE.MeshStandardMaterial({ color: 0xc41e3a, roughness: 0.4 }),
+        blue: new THREE.MeshStandardMaterial({ color: 0x0051ba, roughness: 0.4 }),
+        yellow: new THREE.MeshStandardMaterial({ color: 0xffd700, roughness: 0.4 }),
+        green: new THREE.MeshStandardMaterial({ color: 0x009e60, roughness: 0.4 }),
+        white: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.4 }),
+        orange: new THREE.MeshStandardMaterial({ color: 0xff8c00, roughness: 0.4 })
     };
 
     // Маппинг цветов для определения темы
@@ -69,10 +74,10 @@ if (!container) {
         0xff8c00: 'orange'
     };
 
-    const offset = 0.72;
-    const size = 0.68;
+    const offset = 0.7;
+    const size = 0.65;
 
-    // Создаём 27 кубиков
+    // Создаём 27 кубиков со скруглёнными углами
     const cubies = [];
     const cubiesMap = new Map();
 
@@ -89,7 +94,8 @@ if (!container) {
                     z === -1 ? textureMaterials.blue || fallbackMaterials.blue : (z === 1 ? textureMaterials.green || fallbackMaterials.green : textureMaterials.blue || fallbackMaterials.blue)
                 ];
                 
-                const geometry = new THREE.BoxGeometry(size, size, size);
+                // Используем скруглённую геометрию
+                const geometry = new RoundedBoxGeometry(size, size, size, 4, 0.08);
                 const cubie = new THREE.Mesh(geometry, matArray);
                 cubie.userData = { 
                     originalPos: { x: x * offset, y: y * offset, z: z * offset },
@@ -104,20 +110,20 @@ if (!container) {
     }
 
     // Освещение
-    const ambientLight = new THREE.AmbientLight(0x606080);
+    const ambientLight = new THREE.AmbientLight(0x606080, 0.6);
     scene.add(ambientLight);
     
-    const mainLight = new THREE.DirectionalLight(0xffffff, 0.9);
-    mainLight.position.set(2, 3, 2);
+    const mainLight = new THREE.DirectionalLight(0xffffff, 1.2);
+    mainLight.position.set(2, 4, 3);
     scene.add(mainLight);
     
-    const fillLight = new THREE.DirectionalLight(0xffffff, 0.5);
-    fillLight.position.set(-1.5, 1, 1.5);
+    const fillLight = new THREE.DirectionalLight(0xffffff, 0.6);
+    fillLight.position.set(-2, 1, 2);
     scene.add(fillLight);
     
-    const rimLight = new THREE.DirectionalLight(0xffffff, 0.3);
-    rimLight.position.set(0, 1, -3);
-    scene.add(rimLight);
+    const backLight = new THREE.DirectionalLight(0xffffff, 0.3);
+    backLight.position.set(0, 1, -3);
+    scene.add(backLight);
 
     // ===== ЛОГИКА КЛИКА =====
     const raycaster = new THREE.Raycaster();
@@ -180,7 +186,7 @@ if (!container) {
     const canvas = renderer.domElement;
     canvas.addEventListener('click', onMouseClick);
 
-    // ===== ВРАЩЕНИЕ МЫШКОЙ =====
+    // ===== ВРАЩЕНИЕ МЫШКОЙ (360 БЕЗ ОГРАНИЧЕНИЙ) =====
     let isDragging = false;
     let lastX = 0, lastY = 0;
     let targetRotationX = 0;
@@ -255,6 +261,45 @@ if (!container) {
             onMouseClick(e.changedTouches[0]);
         }
     }, { passive: true });
+
+    // ===== ЗУМ (КОЛЕСИКО МЫШИ И ПАЛЬЦЫ НА ТЕЛЕФОНЕ) =====
+    let currentZoom = 4.5;
+
+    // Колесико мыши (компьютер)
+    container.addEventListener('wheel', function(e) {
+        e.preventDefault();
+        const delta = e.deltaY > 0 ? 0.5 : -0.5;
+        currentZoom = Math.min(7, Math.max(2.5, currentZoom + delta));
+        updateCamera();
+    }, { passive: false });
+
+    // Pinch-to-zoom (пальцы на телефоне)
+    let lastTouchDist = 0;
+    canvas.addEventListener('touchstart', function(e) {
+        if (e.touches.length === 2) {
+            const dx = e.touches[0].clientX - e.touches[1].clientX;
+            const dy = e.touches[0].clientY - e.touches[1].clientY;
+            lastTouchDist = Math.sqrt(dx*dx + dy*dy);
+        }
+    }, { passive: true });
+
+    canvas.addEventListener('touchmove', function(e) {
+        if (e.touches.length === 2) {
+            e.preventDefault();
+            const dx = e.touches[0].clientX - e.touches[1].clientX;
+            const dy = e.touches[0].clientY - e.touches[1].clientY;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            const delta = (dist - lastTouchDist) * 0.02;
+            currentZoom = Math.min(7, Math.max(2.5, currentZoom - delta));
+            updateCamera();
+            lastTouchDist = dist;
+        }
+    }, { passive: false });
+
+    function updateCamera() {
+        camera.position.set(currentZoom * 0.7, currentZoom * 0.5, currentZoom * 0.9);
+        camera.lookAt(0, 0, 0);
+    }
 
     // ===== АНИМАЦИЯ ВРАЩЕНИЯ =====
     function render() {
