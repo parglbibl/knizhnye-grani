@@ -78,15 +78,6 @@ if (!container) {
             orange: new THREE.MeshStandardMaterial({ color: 0xff8c00, roughness: 0.9, metalness: 0.0 })
         };
 
-        const colorMap = {
-            0xc41e3a: 'red',
-            0x0051ba: 'blue',
-            0xffd700: 'yellow',
-            0x009e60: 'green',
-            0xffffff: 'white',
-            0xff8c00: 'orange'
-        };
-
         const offset = 0.685;  
         const sizeCubie = 0.675;    
         const radius = 0.08;    
@@ -97,6 +88,16 @@ if (!container) {
         for (let x = -1; x <= 1; x++) {
             for (let y = -1; y <= 1; y++) {
                 for (let z = -1; z <= 1; z++) {
+                    // === ГЛАВНОЕ ИЗМЕНЕНИЕ: сохраняем названия цветов ===
+                    const faceNames = [
+                        x === 1 ? 'red' : 'orange',
+                        x === -1 ? 'orange' : 'red',
+                        y === 1 ? 'white' : 'yellow',
+                        y === -1 ? 'yellow' : 'white',
+                        z === 1 ? 'green' : 'blue',
+                        z === -1 ? 'blue' : 'green'
+                    ];
+
                     const matArray = [
                         x === 1 ? textureMaterials.red || fallbackMaterials.red : (x === -1 ? textureMaterials.orange || fallbackMaterials.orange : textureMaterials.red || fallbackMaterials.red),
                         x === -1 ? textureMaterials.orange || fallbackMaterials.orange : (x === 1 ? textureMaterials.red || fallbackMaterials.red : textureMaterials.orange || fallbackMaterials.orange),
@@ -111,7 +112,8 @@ if (!container) {
                     cubie.userData = { 
                         originalPos: { x: x * offset, y: y * offset, z: z * offset },
                         gridX: x, gridY: y, gridZ: z,
-                        materials: matArray
+                        materials: matArray,
+                        faceNames: faceNames // === СОХРАНЯЕМ ИМЕНА ЦВЕТОВ ===
                     };
                     cubie.position.set(x * offset, y * offset, z * offset);
                     cubeGroup.add(cubie);
@@ -135,13 +137,9 @@ if (!container) {
         backLight.position.set(0, 1, -3);
         scene.add(backLight);
 
-        // ===== ЛОГИКА КЛИКА =====
+        // ===== ЛОГИКА КЛИКА (БЕЗ colorMap, БЕЗ getHex) =====
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
-
-        function getColorName(colorHex) {
-            return colorMap[colorHex] || 'unknown';
-        }
 
         function getGridCoords(position) {
             const x = Math.round(position.x / offset);
@@ -186,11 +184,10 @@ if (!container) {
                 else if (nz === 1) materialIndex = 4;
                 else if (nz === -1) materialIndex = 5;
                 else materialIndex = 0;
-                
-                const mat = clickedCubie.userData.materials[materialIndex];
-                if (!mat) return;
-                
-                const colorName = getColorName(mat.color);
+
+                // === БЕРЁМ ИМЯ ЦВЕТА ИЗ userData (БЕЗ getHex) ===
+                const colorName = clickedCubie.userData.faceNames[materialIndex];
+                if (!colorName) return;
                 
                 let gx = 0, gy = 0;
                 
