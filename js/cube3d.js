@@ -135,7 +135,7 @@ if (!container) {
         backLight.position.set(0, 1, -3);
         scene.add(backLight);
 
-        // ===== ЛОГИКА КЛИКА (ПО НОРМАЛЯМ) =====
+        // ===== ЛОГИКА КЛИКА =====
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
 
@@ -209,94 +209,98 @@ if (!container) {
             }
         }
 
-        // ===== УПРАВЛЕНИЕ МЫШЬЮ (БЕЗ ЛОЖНЫХ КЛИКОВ) =====
-        let isDragging = false;
-        let lastX = 0, lastY = 0;
-        let targetRotationX = 0;
-        let targetRotationY = 0;
-        let mouseDownPos = { x: 0, y: 0 };
-        let hasMoved = false;
+        // ===== УПРАВЛЕНИЕ МЫШЬЮ (ПК) =====
+        let isDraggingMouse = false;
+        let mouseStartX = 0, mouseStartY = 0;
+        let mouseLastX = 0, mouseLastY = 0;
+        let mouseMoved = false;
 
-        function getXY(e) {
-            if (e.touches) {
-                return { x: e.touches[0].clientX, y: e.touches[0].clientY };
-            }
-            return { x: e.clientX, y: e.clientY };
-        }
-
-        function onStart(e) {
-            isDragging = true;
+        function onMouseDown(e) {
+            isDraggingMouse = true;
             const coords = getXY(e);
-            lastX = coords.x;
-            lastY = coords.y;
-            mouseDownPos = { x: coords.x, y: coords.y };
-            hasMoved = false;
+            mouseStartX = coords.x;
+            mouseStartY = coords.y;
+            mouseLastX = coords.x;
+            mouseLastY = coords.y;
+            mouseMoved = false;
             container.style.cursor = 'grabbing';
         }
 
-        function onMove(e) {
-            if (!isDragging) return;
+        function onMouseMove(e) {
+            if (!isDraggingMouse) return;
             const coords = getXY(e);
-            const deltaX = coords.x - lastX;
-            const deltaY = coords.y - lastY;
+            const deltaX = coords.x - mouseLastX;
+            const deltaY = coords.y - mouseLastY;
             
             if (deltaX !== 0 || deltaY !== 0) {
-                hasMoved = true;
-                targetRotationY += deltaX * 0.008;
-                targetRotationX += deltaY * 0.008;
-                cubeGroup.rotation.x = targetRotationX;
-                cubeGroup.rotation.y = targetRotationY;
-                lastX = coords.x;
-                lastY = coords.y;
+                mouseMoved = true;
+                cubeGroup.rotation.y += deltaX * 0.008;
+                cubeGroup.rotation.x += deltaY * 0.008;
+                mouseLastX = coords.x;
+                mouseLastY = coords.y;
             }
         }
 
-        function onEnd(e) {
-            isDragging = false;
+        function onMouseUp(e) {
+            isDraggingMouse = false;
             container.style.cursor = 'pointer';
             
-            // Если движения не было — вызываем клик
             const coords = getXY(e);
-            const dx = Math.abs(coords.x - mouseDownPos.x);
-            const dy = Math.abs(coords.y - mouseDownPos.y);
-            if (dx < 6 && dy < 6 && !hasMoved) {
+            const dx = Math.abs(coords.x - mouseStartX);
+            const dy = Math.abs(coords.y - mouseStartY);
+            
+            if (dx < 6 && dy < 6 && !mouseMoved) {
                 onMouseClick(e);
             }
         }
 
-        container.addEventListener('mousedown', onStart);
-        window.addEventListener('mousemove', onMove);
-        window.addEventListener('mouseup', onEnd);
+        container.addEventListener('mousedown', onMouseDown);
+        window.addEventListener('mousemove', onMouseMove);
+        window.addEventListener('mouseup', onMouseUp);
 
-        // ===== ДЛЯ ТЕЛЕФОНА =====
+        // ===== УПРАВЛЕНИЕ ТАЧЕМ (ТЕЛЕФОН) =====
         let touchStartX = 0, touchStartY = 0;
+        let touchLastX = 0, touchLastY = 0;
         let touchMoved = false;
 
-        canvas.addEventListener('touchstart', function(e) {
+        function onTouchStart(e) {
             const touch = e.touches[0];
             touchStartX = touch.clientX;
             touchStartY = touch.clientY;
+            touchLastX = touch.clientX;
+            touchLastY = touch.clientY;
             touchMoved = false;
-            onStart(e);
-        }, { passive: false });
+            container.style.cursor = 'grabbing';
+        }
 
-        canvas.addEventListener('touchmove', function(e) {
+        function onTouchMove(e) {
             const touch = e.touches[0];
+            const deltaX = touch.clientX - touchLastX;
+            const deltaY = touch.clientY - touchLastY;
+            
+            if (deltaX !== 0 || deltaY !== 0) {
+                touchMoved = true;
+                cubeGroup.rotation.y += deltaX * 0.008;
+                cubeGroup.rotation.x += deltaY * 0.008;
+                touchLastX = touch.clientX;
+                touchLastY = touch.clientY;
+            }
+        }
+
+        function onTouchEnd(e) {
+            const touch = e.changedTouches[0];
             const dx = Math.abs(touch.clientX - touchStartX);
             const dy = Math.abs(touch.clientY - touchStartY);
-            if (dx > 10 || dy > 10) {
-                touchMoved = true;
+            
+            if (dx < 10 && dy < 10 && !touchMoved) {
+                onMouseClick(e);
             }
-            onMove(e);
-            e.preventDefault();
-        }, { passive: false });
+            container.style.cursor = 'pointer';
+        }
 
-        canvas.addEventListener('touchend', function(e) {
-            onEnd();
-            if (!touchMoved) {
-                onMouseClick(e.changedTouches[0]);
-            }
-        }, { passive: true });
+        canvas.addEventListener('touchstart', onTouchStart, { passive: false });
+        canvas.addEventListener('touchmove', onTouchMove, { passive: false });
+        canvas.addEventListener('touchend', onTouchEnd, { passive: true });
 
         // ===== ЗУМ =====
         let currentZoom = 4.5;
