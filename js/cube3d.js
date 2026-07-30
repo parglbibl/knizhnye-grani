@@ -205,44 +205,49 @@ if (!container) {
         }
 
         // ===== ОБРАБОТЧИКИ МЫШИ (ПК) =====
-        let isMouseDown = false;
-        let mouseDownX = 0, mouseDownY = 0;
-        let mouseLastX = 0, mouseLastY = 0;
-        let mouseMovedThreshold = false;
+        let isDragging = false;
+        let startX = 0, startY = 0;
+        let lastX = 0, lastY = 0;
+
+        function getXY(e) {
+            if (e.touches) {
+                return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+            }
+            return { x: e.clientX, y: e.clientY };
+        }
 
         function onMouseDown(e) {
             const coords = getXY(e);
-            isMouseDown = true;
-            mouseDownX = coords.x;
-            mouseDownY = coords.y;
-            mouseLastX = coords.x;
-            mouseLastY = coords.y;
-            mouseMovedThreshold = false;
+            isDragging = true;
+            startX = coords.x;
+            startY = coords.y;
+            lastX = coords.x;
+            lastY = coords.y;
             container.style.cursor = 'grabbing';
         }
 
         function onMouseMove(e) {
-            if (!isMouseDown) return;
+            if (!isDragging) return;
             const coords = getXY(e);
-            const deltaX = coords.x - mouseLastX;
-            const deltaY = coords.y - mouseLastY;
-            
-            if (Math.abs(deltaX) > 0 || Math.abs(deltaY) > 0) {
-                if (Math.abs(coords.x - mouseDownX) > 6 || Math.abs(coords.y - mouseDownY) > 6) {
-                    mouseMovedThreshold = true;
-                }
+            const deltaX = coords.x - lastX;
+            const deltaY = coords.y - lastY;
+            if (deltaX !== 0 || deltaY !== 0) {
                 cubeGroup.rotation.y += deltaX * 0.008;
                 cubeGroup.rotation.x += deltaY * 0.008;
-                mouseLastX = coords.x;
-                mouseLastY = coords.y;
+                lastX = coords.x;
+                lastY = coords.y;
             }
         }
 
         function onMouseUp(e) {
-            isMouseDown = false;
+            isDragging = false;
             container.style.cursor = 'pointer';
             
-            if (!mouseMovedThreshold) {
+            const coords = getXY(e);
+            const dx = Math.abs(coords.x - startX);
+            const dy = Math.abs(coords.y - startY);
+            
+            if (dx < 6 && dy < 6) {
                 onMouseClick(e);
             }
         }
@@ -254,7 +259,7 @@ if (!container) {
         // ===== ОБРАБОТЧИКИ ТАЧА (ТЕЛЕФОН) =====
         let touchStartX = 0, touchStartY = 0;
         let touchLastX = 0, touchLastY = 0;
-        let touchMovedThreshold = false;
+        let touchMoved = false;
 
         function onTouchStart(e) {
             const touch = e.touches[0];
@@ -262,18 +267,15 @@ if (!container) {
             touchStartY = touch.clientY;
             touchLastX = touch.clientX;
             touchLastY = touch.clientY;
-            touchMovedThreshold = false;
+            touchMoved = false;
         }
 
         function onTouchMove(e) {
             const touch = e.touches[0];
             const deltaX = touch.clientX - touchLastX;
             const deltaY = touch.clientY - touchLastY;
-            
-            if (Math.abs(deltaX) > 0 || Math.abs(deltaY) > 0) {
-                if (Math.abs(touch.clientX - touchStartX) > 10 || Math.abs(touch.clientY - touchStartY) > 10) {
-                    touchMovedThreshold = true;
-                }
+            if (deltaX !== 0 || deltaY !== 0) {
+                touchMoved = true;
                 cubeGroup.rotation.y += deltaX * 0.008;
                 cubeGroup.rotation.x += deltaY * 0.008;
                 touchLastX = touch.clientX;
@@ -282,7 +284,11 @@ if (!container) {
         }
 
         function onTouchEnd(e) {
-            if (!touchMovedThreshold) {
+            const touch = e.changedTouches[0];
+            const dx = Math.abs(touch.clientX - touchStartX);
+            const dy = Math.abs(touch.clientY - touchStartY);
+            
+            if (dx < 10 && dy < 10 && !touchMoved) {
                 onMouseClick(e);
             }
         }
