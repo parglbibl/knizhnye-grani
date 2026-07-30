@@ -5,7 +5,6 @@ const container = document.getElementById('cube-container');
 if (!container) {
     console.error('Контейнер для кубика не найден');
 } else {
-    // Функция инициализации, которая ждёт, пока контейнер получит размер
     function initCube() {
         const rect = container.getBoundingClientRect();
         const size = Math.min(rect.width, rect.height);
@@ -312,6 +311,5 @@ if (!container) {
         });
     }
 
-    // Запускаем инициализацию
     initCube();
 }
