@@ -228,7 +228,6 @@ if (!container) {
             const deltaY = coords.y - mouseLastY;
             
             if (Math.abs(deltaX) > 0 || Math.abs(deltaY) > 0) {
-                // Проверяем порог смещения для вращения (6px)
                 if (Math.abs(coords.x - mouseDownX) > 6 || Math.abs(coords.y - mouseDownY) > 6) {
                     mouseMovedThreshold = true;
                 }
@@ -243,7 +242,6 @@ if (!container) {
             isMouseDown = false;
             container.style.cursor = 'pointer';
             
-            // Если мышь не сместилась за порог — это клик
             if (!mouseMovedThreshold) {
                 onMouseClick(e);
             }
