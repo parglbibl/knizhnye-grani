@@ -135,7 +135,7 @@ if (!container) {
         backLight.position.set(0, 1, -3);
         scene.add(backLight);
 
-        // ===== ЛОГИКА КЛИКА =====
+        // ===== ЛОГИКА КЛИКА (ПО НОРМАЛЯМ) =====
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
 
@@ -195,8 +195,8 @@ if (!container) {
                 let gx = 0, gy = 0;
                 
                 if (materialIndex === 0 || materialIndex === 1) {
-                    gx = coords.z + 1;
-                    gy = coords.y + 1;
+                    gx = coords.y + 1;
+                    gy = coords.z + 1;
                 } else if (materialIndex === 2 || materialIndex === 3) {
                     gx = coords.x + 1;
                     gy = coords.z + 1;
