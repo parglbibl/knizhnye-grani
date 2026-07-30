@@ -60,37 +60,45 @@
             <strong>Твой ответ увидят все, кто откроет этот же квадратик.</strong>
         </p>
 
+        <!-- КУБИК НА ВСЮ ШИРИНУ ЭКРАНА -->
         <div style="width: 100vw; margin-left: calc(-50vw + 50%); margin-right: calc(-50vw + 50%);">
             <div id="cube-container" style="width: 100%; aspect-ratio: 1 / 1; background: transparent; cursor: pointer; position: relative; margin: 0 auto;"></div>
         </div>
 
+        <!-- ЛЕГЕНДА: АККУРАТНЫЙ СТОЛБИК С ЛЕВЫМ ВЫРАВНИВАНИЕМ ТЕКСТА -->
         <div style="display: flex; flex-direction: column; align-items: center; margin-top: 2.5rem;">
             <div style="display: flex; flex-direction: column; gap: 0.6rem; padding: 1rem 1.8rem; background: rgba(255,255,255,0.65); backdrop-filter: blur(2px); border-radius: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.03); width: 100%; max-width: 260px;">
                 
                 <div style="display: flex; align-items: center; gap: 1rem;">
-                    <img src="/images/cube_textures/red.jpg" alt="Любовь" style="width: 28px; height: 28px; border-radius: 6px; object-fit: cover;">
+                    <img src="/images/cube_textures/red.jpg" alt="Любовь" style="width: 28px; height: 28px; border-radius: 6px; object-fit: cover; border: 1px solid rgba(0,0,0,0.06);">
                     <span style="font-weight: 500; font-size: 0.85rem; color: var(--text-secondary);">Любовь</span>
                 </div>
+
                 <div style="display: flex; align-items: center; gap: 1rem;">
-                    <img src="/images/cube_textures/blue.jpg" alt="Надежда" style="width: 28px; height: 28px; border-radius: 6px; object-fit: cover;">
+                    <img src="/images/cube_textures/blue.jpg" alt="Надежда" style="width: 28px; height: 28px; border-radius: 6px; object-fit: cover; border: 1px solid rgba(0,0,0,0.06);">
                     <span style="font-weight: 500; font-size: 0.85rem; color: var(--text-secondary);">Надежда</span>
                 </div>
+
                 <div style="display: flex; align-items: center; gap: 1rem;">
-                    <img src="/images/cube_textures/yellow.jpg" alt="Совесть" style="width: 28px; height: 28px; border-radius: 6px; object-fit: cover;">
+                    <img src="/images/cube_textures/yellow.jpg" alt="Совесть" style="width: 28px; height: 28px; border-radius: 6px; object-fit: cover; border: 1px solid rgba(0,0,0,0.06);">
                     <span style="font-weight: 500; font-size: 0.85rem; color: var(--text-secondary);">Совесть</span>
                 </div>
+
                 <div style="display: flex; align-items: center; gap: 1rem;">
-                    <img src="/images/cube_textures/green.jpg" alt="Добро" style="width: 28px; height: 28px; border-radius: 6px; object-fit: cover;">
+                    <img src="/images/cube_textures/green.jpg" alt="Добро" style="width: 28px; height: 28px; border-radius: 6px; object-fit: cover; border: 1px solid rgba(0,0,0,0.06);">
                     <span style="font-weight: 500; font-size: 0.85rem; color: var(--text-secondary);">Добро</span>
                 </div>
+
                 <div style="display: flex; align-items: center; gap: 1rem;">
-                    <img src="/images/cube_textures/white.jpg" alt="Память" style="width: 28px; height: 28px; border-radius: 6px; object-fit: cover;">
+                    <img src="/images/cube_textures/white.jpg" alt="Память" style="width: 28px; height: 28px; border-radius: 6px; object-fit: cover; border: 1px solid rgba(0,0,0,0.06);">
                     <span style="font-weight: 500; font-size: 0.85rem; color: var(--text-secondary);">Память</span>
                 </div>
+
                 <div style="display: flex; align-items: center; gap: 1rem;">
-                    <img src="/images/cube_textures/orange.jpg" alt="Семья" style="width: 28px; height: 28px; border-radius: 6px; object-fit: cover;">
+                    <img src="/images/cube_textures/orange.jpg" alt="Семья" style="width: 28px; height: 28px; border-radius: 6px; object-fit: cover; border: 1px solid rgba(0,0,0,0.06);">
                     <span style="font-weight: 500; font-size: 0.85rem; color: var(--text-secondary);">Семья</span>
                 </div>
+
             </div>
         </div>
     </div>
@@ -128,6 +136,8 @@
 </footer>
 
 <script src="/js/main.js"></script>
+
+<!-- ===== FIRBASE ИНИЦИАЛИЗАЦИЯ ===== -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
@@ -145,6 +155,7 @@
   firebase.initializeApp(firebaseConfig);
   const database = firebase.database();
   
+  // ===== БАЗА ВОПРОСОВ И ПОПАП =====
   const questionsDB = {
     'red_0_0_1': 'Какая книга подарила тебе ощущение дома, даже если ты был далеко?',
     'red_0_1_1': 'Какая книга заставила тебя почувствовать гордость за место, где ты живёшь?',
@@ -194,57 +205,40 @@
     'white_1_2_1': 'Назови книгу, которая научила тебя благодарить за прошлое.',
     'white_2_0_1': 'Какая книга вернула тебя в твоё детство, в твой самый родной уголок?',
     'white_2_1_1': 'Вспомни книгу, которая заставила тебя позвонить родителям и сказать спасибо.',
-    'white_2_2_1': 'Какая книга напомнила тебе: "Пока мы помним – мы живы"?',
+    'white_2_2_1': 'Какая книга напомнила тебе: "Пока мы помним — мы живы"?',
 
     'orange_0_0_1': 'Какая книга подарила тебе ощущение, что ты всегда можешь вернуться домой?',
     'orange_0_1_1': 'Назови книгу, которую ты хотел бы прочитать вслух всем своим близким.',
     'orange_0_2_1': 'Какая книга заставила тебя собрать всю семью за одним столом?',
     'orange_1_0_1': 'Вспомни книгу, которая научила тебя прощать родных, когда это трудно.',
-    'orange_1_1_1': 'Какая книга оставила тебе чувство, что твоя семья – это твоя крепость?',
-    'orange_1_2_1': 'Назови книгу, которая показала, что семья – это не кровь, а те, кто рядом.',
+    'orange_1_1_1': 'Какая книга оставила тебе чувство, что твоя семья — это твоя крепость?',
+    'orange_1_2_1': 'Назови книгу, которая показала, что семья — это не кровь, а те, кто рядом.',
     'orange_2_0_1': 'Какая книга помогла тебе понять своих родителей, когда они были далеко?',
     'orange_2_1_1': 'Вспомни книгу, где семейные традиции спасали героев.',
     'orange_2_2_1': 'Какая книга научила тебя беречь то, что у тебя есть дома?'
   };
 
   const colorNames = {
-    'red': 'Любовь',
-    'blue': 'Надежда',
-    'yellow': 'Совесть',
-    'green': 'Добро',
-    'white': 'Память',
-    'orange': 'Семья'
+    'red': '❤️ Любовь',
+    'blue': '💙 Надежда',
+    'yellow': '💛 Совесть',
+    'green': '💚 Добро',
+    'white': '🤍 Память',
+    'orange': '🧡 Семья'
   };
 
-  const texturePaths = {
-    'red': '/images/cube_textures/red.jpg',
-    'blue': '/images/cube_textures/blue.jpg',
-    'yellow': '/images/cube_textures/yellow.jpg',
-    'green': '/images/cube_textures/green.jpg',
-    'white': '/images/cube_textures/white.jpg',
-    'orange': '/images/cube_textures/orange.jpg'
-  };
-
+  // ===== ПОПАП =====
   function createPopup() {
       const popupHTML = `
           <div id="bookGranPopup" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); backdrop-filter:blur(6px); z-index:9999; align-items:center; justify-content:center;">
-              <div style="background:#fff; max-width:600px; width:90%; padding:2rem; border-radius:28px; position:relative; box-shadow:0 24px 70px rgba(0,0,0,0.25); max-height:90vh; overflow-y:auto;">
-                  <button id="popupClose" style="position:absolute; top:15px; right:20px; font-size:28px; background:none; border:none; cursor:pointer; color:#999; transition: color 0.2s;">&times;</button>
-                  
-                  <div style="display:flex; align-items:center; gap:0.8rem; margin-bottom:0.8rem;">
-                      <img id="popupThumb" src="" alt="Грань" style="width:32px; height:32px; border-radius:8px; object-fit:cover;">
-                      <h2 id="popupColorTitle" style="font-size:1.3rem; font-weight:600; margin:0; color:#1e2a3a;">Грань</h2>
-                  </div>
-                  
-                  <p id="popupQuestion" style="font-size:1.05rem; line-height:1.6; margin:0.8rem 0 1.8rem 0; color:#333; font-weight:400;"></p>
-                  
-                  <div id="popupAnswers" style="margin-bottom:1.8rem; max-height:150px; overflow-y:auto; border-top:1px solid #f0f0f0; padding-top:1.2rem;"></div>
-                  
-                  <textarea id="popupInput" placeholder="Напиши здесь название книги и свои чувства..." style="width:100%; padding:1rem 1.2rem; border:2px solid #eee; border-radius:18px; font-family:inherit; font-size:0.95rem; min-height:80px; resize:vertical; background:#fafbfc; outline:none;"></textarea>
-                  
-                  <button id="popupSubmit" style="width:100%; margin-top:1rem; padding:0.9rem; background:#ff2e5a; color:#fff; border:none; border-radius:18px; font-weight:600; font-size:1rem; cursor:pointer; transition: transform 0.15s, box-shadow 0.15s; box-shadow:0 4px 16px rgba(255,46,90,0.25);">Ответить и поделиться</button>
-                  
-                  <p style="font-size:0.7rem; color:#999; margin-top:1rem; text-align:center; line-height:1.4;">Твой ответ увидят все, кто откроет этот квадратик</p>
+              <div style="background:#fff; max-width:600px; width:90%; padding:2rem; border-radius:24px; position:relative; box-shadow:0 20px 60px rgba(0,0,0,0.3); max-height:90vh; overflow-y:auto;">
+                  <button id="popupClose" style="position:absolute; top:15px; right:20px; font-size:24px; background:none; border:none; cursor:pointer; color:#555;">&times;</button>
+                  <h2 id="popupColorTitle" style="font-size:1.3rem; margin-bottom:0.3rem; color:#1e2a3a;">Грань</h2>
+                  <p id="popupQuestion" style="font-size:1.1rem; line-height:1.5; margin:0.5rem 0 1.5rem 0; color:#333;"></p>
+                  <div id="popupAnswers" style="margin-bottom:1.5rem; max-height:150px; overflow-y:auto; border-top:1px solid #eee; padding-top:1rem;"></div>
+                  <textarea id="popupInput" placeholder="Напиши здесь название книги и свои чувства..." style="width:100%; padding:0.8rem; border:2px solid #eee; border-radius:12px; font-family:inherit; font-size:0.95rem; min-height:80px; resize:vertical;"></textarea>
+                  <button id="popupSubmit" style="width:100%; margin-top:1rem; padding:0.8rem; background:#ff2e5a; color:#fff; border:none; border-radius:12px; font-weight:600; font-size:1rem; cursor:pointer;">Ответить и поделиться</button>
+                  <p style="font-size:0.7rem; color:#888; margin-top:0.8rem; text-align:center;">Твой ответ увидят все, кто откроет этот квадратик</p>
               </div>
           </div>
       `;
@@ -255,7 +249,6 @@
   const popup = document.getElementById('bookGranPopup');
   const popupClose = document.getElementById('popupClose');
   const popupColorTitle = document.getElementById('popupColorTitle');
-  const popupThumb = document.getElementById('popupThumb');
   const popupQuestion = document.getElementById('popupQuestion');
   const popupAnswers = document.getElementById('popupAnswers');
   const popupInput = document.getElementById('popupInput');
@@ -268,11 +261,9 @@
       currentElementId = elementId;
 
       popupColorTitle.textContent = colorNames[color] || color;
-      popupThumb.src = texturePaths[color] || '';
-
       const question = questionsDB[elementId];
       popupQuestion.textContent = question || 'Для этого квадратика пока нет вопроса. Придумай свой!';
-      popupAnswers.innerHTML = '<p style="color:#aaa; font-size:0.9rem; text-align:center; margin:0;">Пока никто не ответил на этот вопрос.<br>Будь первым! ✨</p>';
+      popupAnswers.innerHTML = '<p style="color:#aaa; font-size:0.9rem;">Загрузка ответов...</p>';
       popupInput.value = '';
       popup.style.display = 'flex';
       document.body.style.overflow = 'hidden';
@@ -285,16 +276,16 @@
           const data = snapshot.val();
           popupAnswers.innerHTML = '';
           if (!data) {
-              popupAnswers.innerHTML = '<p style="color:#aaa; font-size:0.9rem; text-align:center; margin:0;">Пока никто не ответил на этот вопрос.<br>Будь первым! ✨</p>';
+              popupAnswers.innerHTML = '<p style="color:#aaa; font-size:0.9rem; text-align:center;">Пока никто не ответил на этот вопрос. Будь первым! ✨</p>';
               return;
           }
           const answersArray = Object.values(data).reverse();
           answersArray.forEach((item) => {
               const div = document.createElement('div');
-              div.style.cssText = 'background:#f5f0e8; border-radius:14px; padding:0.8rem 1.2rem; margin-bottom:0.8rem; box-shadow:0 2px 6px rgba(0,0,0,0.02);';
+              div.style.cssText = 'background:#f5f0e8; border-radius:12px; padding:0.6rem 1rem; margin-bottom:0.6rem;';
               div.innerHTML = `
-                  <div style="font-size:0.9rem; color:#333; line-height:1.5;">${item.text}</div>
-                  <div style="font-size:0.65rem; color:#888; margin-top:0.3rem;">${item.user || 'Аноним'} · ${item.timestamp || ''}</div>
+                  <div style="font-size:0.85rem; color:#333; line-height:1.4;">${item.text}</div>
+                  <div style="font-size:0.65rem; color:#888; margin-top:0.2rem;">${item.user || 'Аноним'} · ${item.timestamp || ''}</div>
               `;
               popupAnswers.appendChild(div);
           });
