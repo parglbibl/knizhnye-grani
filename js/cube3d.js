@@ -1,14 +1,10 @@
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 
-// Ждём появления контейнера
-function initCube() {
-    const container = document.getElementById('cube-container');
-    if (!container || container.getBoundingClientRect().width === 0) {
-        requestAnimationFrame(initCube);
-        return;
-    }
-
+const container = document.getElementById('cube-container');
+if (!container) {
+    console.error('Контейнер для кубика не найден');
+} else {
     const scene = new THREE.Scene();
     scene.background = null;
 
@@ -16,22 +12,15 @@ function initCube() {
     camera.position.set(3.5, 2.5, 4.5);
     camera.lookAt(0, 0, 0);
 
-    // === ДИНАМИЧЕСКИЙ РАЗМЕР РЕНДЕРА ===
-    const rect = container.getBoundingClientRect();
-    const size = Math.min(rect.width, rect.height);
-
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.setSize(size, size);
+    renderer.setSize(320, 320);
     renderer.setClearColor(0x000000, 0);
-    renderer.domElement.style.borderRadius = '28px';
-    renderer.domElement.style.boxShadow = '0 8px 30px rgba(0,0,0,0.08)';
     container.appendChild(renderer.domElement);
 
     const cubeGroup = new THREE.Group();
     scene.add(cubeGroup);
 
-    // ===== ЗАГРУЗКА ТЕКСТУР =====
     const textureLoader = new THREE.TextureLoader();
     
     const textureFiles = {
@@ -125,7 +114,6 @@ function initCube() {
     backLight.position.set(0, 1, -3);
     scene.add(backLight);
 
-    // ===== ЛОГИКА КЛИКА =====
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
 
@@ -162,6 +150,7 @@ function initCube() {
             const pos = clickedCubie.position;
             const coords = getGridCoords(pos);
             
+            // === ГЛАВНОЕ ИСПРАВЛЕНИЕ: нормаль вместо faceIndex ===
             const normal = intersects[0].face.normal.clone();
             normal.applyQuaternion(clickedCubie.quaternion);
             
@@ -178,10 +167,8 @@ function initCube() {
             else if (nz === -1) materialIndex = 5;
             else materialIndex = 0;
             
-            const mat = clickedCubie.userData.materials[materialIndex];
-            if (!mat) return;
-            
-            const colorName = getColorName(mat.color);
+            const colorHex = clickedCubie.material[materialIndex].color.getHex();
+            const colorName = getColorName(colorHex);
             
             let gx = 0, gy = 0;
             
@@ -203,7 +190,6 @@ function initCube() {
     const canvas = renderer.domElement;
     canvas.addEventListener('click', onMouseClick);
 
-    // ===== ВРАЩЕНИЕ (КВАТЕРНИОНЫ) =====
     let isDragging = false;
     let lastX = 0, lastY = 0;
 
@@ -249,7 +235,6 @@ function initCube() {
     window.addEventListener('mousemove', onMove);
     window.addEventListener('mouseup', onEnd);
 
-    // ===== ДЛЯ ТЕЛЕФОНА =====
     let touchStartX = 0, touchStartY = 0;
     let touchMoved = false;
 
@@ -279,7 +264,6 @@ function initCube() {
         }
     }, { passive: true });
 
-    // ===== ЗУМ =====
     let currentZoom = 4.5;
 
     container.addEventListener('wheel', function(e) {
@@ -322,15 +306,11 @@ function initCube() {
     }
     render();
 
-    // ===== ОБНОВЛЕНИЕ РАЗМЕРА ПРИ ПОВОРОТЕ ЭКРАНА =====
     window.addEventListener('resize', () => {
-        const rect = container.getBoundingClientRect();
-        const newSize = Math.min(rect.width, rect.height);
-        renderer.setSize(newSize, newSize);
-        camera.aspect = 1;
+        const width = container.clientWidth;
+        const height = container.clientHeight;
+        renderer.setSize(width, height);
+        camera.aspect = width / height;
         camera.updateProjectionMatrix();
     });
 }
-
-// Запускаем
-initCube();
