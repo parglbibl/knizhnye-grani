@@ -65,7 +65,7 @@
             <div id="cube-container" style="width: 100%; aspect-ratio: 1 / 1; background: transparent; cursor: pointer; position: relative; margin: 0 auto;"></div>
         </div>
 
-        <!-- ЛЕГЕНДА: АККУРАТНЫЙ СТОЛБИК БЕЗ РАМОК -->
+        <!-- ЛЕГЕНДА -->
         <div style="display: flex; flex-direction: column; align-items: center; margin-top: 2.5rem;">
             <div style="display: flex; flex-direction: column; gap: 0.6rem; padding: 1rem 1.8rem; background: rgba(255,255,255,0.65); backdrop-filter: blur(2px); border-radius: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.03); width: 100%; max-width: 260px;">
                 
@@ -155,7 +155,7 @@
   firebase.initializeApp(firebaseConfig);
   const database = firebase.database();
   
-  // ===== БАЗА ВОПРОСОВ И ПОПАП =====
+  // ===== БАЗА ВОПРОСОВ =====
   const questionsDB = {
     'red_0_0_1': 'Какая книга подарила тебе ощущение дома, даже если ты был далеко?',
     'red_0_1_1': 'Какая книга заставила тебя почувствовать гордость за место, где ты живёшь?',
@@ -219,23 +219,32 @@
   };
 
   const colorNames = {
-    'red': '❤️ Любовь',
-    'blue': '💙 Надежда',
-    'yellow': '💛 Совесть',
-    'green': '💚 Добро',
-    'white': '🤍 Память',
-    'orange': '🧡 Семья'
+    'red': 'Любовь',
+    'blue': 'Надежда',
+    'yellow': 'Совесть',
+    'green': 'Добро',
+    'white': 'Память',
+    'orange': 'Семья'
   };
 
-  // ===== НОВЫЙ, УЛУЧШЕННЫЙ ПОПАП =====
+  const texturePaths = {
+    'red': '/images/cube_textures/red.jpg',
+    'blue': '/images/cube_textures/blue.jpg',
+    'yellow': '/images/cube_textures/yellow.jpg',
+    'green': '/images/cube_textures/green.jpg',
+    'white': '/images/cube_textures/white.jpg',
+    'orange': '/images/cube_textures/orange.jpg'
+  };
+
+  // ===== НОВЫЙ ПОПАП (БЕЗ ДУБЛЕЙ, С МИНИАТЮРОЙ) =====
   function createPopup() {
       const popupHTML = `
           <div id="bookGranPopup" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); backdrop-filter:blur(6px); z-index:9999; align-items:center; justify-content:center;">
               <div style="background:#fff; max-width:600px; width:90%; padding:2rem; border-radius:28px; position:relative; box-shadow:0 24px 70px rgba(0,0,0,0.25); max-height:90vh; overflow-y:auto;">
                   <button id="popupClose" style="position:absolute; top:15px; right:20px; font-size:28px; background:none; border:none; cursor:pointer; color:#999; transition: color 0.2s;">&times;</button>
                   
-                  <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.2rem;">
-                      <span id="popupEmoji" style="font-size:1.4rem;">📖</span>
+                  <div style="display:flex; align-items:center; gap:0.8rem; margin-bottom:0.8rem;">
+                      <img id="popupThumb" src="" alt="Грань" style="width:32px; height:32px; border-radius:8px; object-fit:cover;">
                       <h2 id="popupColorTitle" style="font-size:1.3rem; font-weight:600; margin:0; color:#1e2a3a;">Грань</h2>
                   </div>
                   
@@ -243,7 +252,6 @@
                   
                   <div id="popupAnswers" style="margin-bottom:1.8rem; max-height:150px; overflow-y:auto; border-top:1px solid #f0f0f0; padding-top:1.2rem;"></div>
                   
-                  <textarea id="popupInput" placeholder="Напиши здесь название книги и свои чувства..." style="width:100%; padding:0.8rem 1.2rem; border:2px solid #f0f0f0; border-radius:16px; font-family:inherit; font-size:0.95rem; min-height:80px; resize:vertical; background:#fafafa; transition: border 0.2s; outline:none;"></textarea>
                   <textarea id="popupInput" placeholder="Напиши здесь название книги и свои чувства..." style="width:100%; padding:1rem 1.2rem; border:2px solid #eee; border-radius:18px; font-family:inherit; font-size:0.95rem; min-height:80px; resize:vertical; background:#fafbfc; outline:none;"></textarea>
                   
                   <button id="popupSubmit" style="width:100%; margin-top:1rem; padding:0.9rem; background:#ff2e5a; color:#fff; border:none; border-radius:18px; font-weight:600; font-size:1rem; cursor:pointer; transition: transform 0.15s, box-shadow 0.15s; box-shadow:0 4px 16px rgba(255,46,90,0.25);">Ответить и поделиться</button>
@@ -259,7 +267,7 @@
   const popup = document.getElementById('bookGranPopup');
   const popupClose = document.getElementById('popupClose');
   const popupColorTitle = document.getElementById('popupColorTitle');
-  const popupEmoji = document.getElementById('popupEmoji');
+  const popupThumb = document.getElementById('popupThumb');
   const popupQuestion = document.getElementById('popupQuestion');
   const popupAnswers = document.getElementById('popupAnswers');
   const popupInput = document.getElementById('popupInput');
@@ -271,19 +279,10 @@
       const elementId = `${color}_${x}_${y}_1`;
       currentElementId = elementId;
 
-      const colorDisplay = colorNames[color] || color;
-      popupColorTitle.textContent = colorDisplay;
+      popupColorTitle.textContent = colorNames[color] || color;
       
-      // Меняем эмодзи под цвет
-      const emojiMap = {
-          'red': '❤️',
-          'blue': '💙',
-          'yellow': '💛',
-          'green': '💚',
-          'white': '🤍',
-          'orange': '🧡'
-      };
-      popupEmoji.textContent = emojiMap[color] || '📖';
+      // Подставляем миниатюру грани
+      popupThumb.src = texturePaths[color] || '';
 
       const question = questionsDB[elementId];
       popupQuestion.textContent = question || 'Для этого квадратика пока нет вопроса. Придумай свой!';
