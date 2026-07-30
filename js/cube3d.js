@@ -232,8 +232,11 @@ if (!container) {
             const deltaX = coords.x - lastX;
             const deltaY = coords.y - lastY;
             if (deltaX !== 0 || deltaY !== 0) {
-                cubeGroup.rotation.y += deltaX * 0.008;
-                cubeGroup.rotation.x += deltaY * 0.008;
+                // === КВАТЕРНИОНЫ ===
+                const axis = new THREE.Vector3(deltaY, deltaX, 0).normalize();
+                const angle = Math.sqrt(deltaX * deltaX + deltaY * deltaY) * 0.008;
+                const quaternion = new THREE.Quaternion().setFromAxisAngle(axis, angle);
+                cubeGroup.quaternion.multiply(quaternion);
                 lastX = coords.x;
                 lastY = coords.y;
             }
@@ -276,8 +279,10 @@ if (!container) {
             const deltaY = touch.clientY - touchLastY;
             if (deltaX !== 0 || deltaY !== 0) {
                 touchMoved = true;
-                cubeGroup.rotation.y += deltaX * 0.008;
-                cubeGroup.rotation.x += deltaY * 0.008;
+                const axis = new THREE.Vector3(deltaY, deltaX, 0).normalize();
+                const angle = Math.sqrt(deltaX * deltaX + deltaY * deltaY) * 0.008;
+                const quaternion = new THREE.Quaternion().setFromAxisAngle(axis, angle);
+                cubeGroup.quaternion.multiply(quaternion);
                 touchLastX = touch.clientX;
                 touchLastY = touch.clientY;
             }
