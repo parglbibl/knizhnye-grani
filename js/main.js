@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const path = window.location.pathname;
     let prefix = '';
-    if (path.includes('/boardgames/') || path.includes('/speedcubing/') || path.includes('/events/')) {
+    if (path.includes('/boardgames/') || path.includes('/speedcubing/') || path.includes('/events/') || path.includes('/grani.html')) {
         prefix = '../';
     }
     
@@ -75,6 +75,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     { name: 'Организаторы', href: prefix + 'organizers.html', icon: 'fas fa-building' },
                     { name: 'Команда', href: prefix + 'team.html', icon: 'fas fa-users' }
                 ]
+            },
+            // ===== НОВЫЙ ПУНКТ МЕНЮ =====
+            {
+                type: 'simple',
+                title: 'Книжные грани',
+                icon: 'fas fa-cube',
+                href: prefix + 'grani.html'
             },
             {
                 type: 'dropdown', title: 'Мероприятия', icon: 'fas fa-calendar-alt',
@@ -167,6 +174,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const isInBoardgames = currentPath.includes('/boardgames/');
         const isInSpeedcubing = currentPath.includes('/speedcubing/');
         const isInEvents = currentPath.includes('/events/');
+        const isInGran = currentPath.includes('/grani.html');
         let breadcrumbs = [ { name: 'Главная', href: prefix + 'index.html' } ];
         if (isInBoardgames) {
             breadcrumbs.push({ name: 'Настольные игры', href: prefix + 'boardgames/index.html' });
@@ -185,6 +193,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 const eventName = eventNames[eventId] || 'Событие';
                 breadcrumbs.push({ name: eventName, href: null });
             }
+        } else if (isInGran) {
+            breadcrumbs.push({ name: 'Книжные грани', href: null });
         } else {
             if (fileName === 'about.html') breadcrumbs.push({ name: 'О проекте', href: null });
             else if (fileName === 'organizers.html') { breadcrumbs.push({ name: 'О проекте', href: prefix + 'about.html' }); breadcrumbs.push({ name: 'Организаторы', href: null }); }
