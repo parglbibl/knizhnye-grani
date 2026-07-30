@@ -5,7 +5,6 @@ const container = document.getElementById('cube-container');
 if (!container) {
     console.error('Контейнер для кубика не найден');
 } else {
-    // Сначала получаем размер контейнера
     function getContainerSize() {
         const rect = container.getBoundingClientRect();
         return Math.min(rect.width, rect.height);
@@ -13,7 +12,6 @@ if (!container) {
 
     const size = getContainerSize();
     if (size === 0) {
-        // Если контейнер ещё не отрисован, ждём
         requestAnimationFrame(function wait() {
             const newSize = getContainerSize();
             if (newSize === 0) {
@@ -112,7 +110,8 @@ if (!container) {
                     const cubie = new THREE.Mesh(geometry, matArray);
                     cubie.userData = { 
                         originalPos: { x: x * offset, y: y * offset, z: z * offset },
-                        gridX: x, gridY: y, gridZ: z
+                        gridX: x, gridY: y, gridZ: z,
+                        materials: matArray
                     };
                     cubie.position.set(x * offset, y * offset, z * offset);
                     cubeGroup.add(cubie);
@@ -136,7 +135,7 @@ if (!container) {
         backLight.position.set(0, 1, -3);
         scene.add(backLight);
 
-        // ===== ЛОГИКА КЛИКА =====
+        // ===== ЛОГИКА КЛИКА (СТРОГО ПО НОРМАЛЯМ) =====
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
 
@@ -172,10 +171,28 @@ if (!container) {
                 const pos = clickedCubie.position;
                 const coords = getGridCoords(pos);
                 
-                const faceIndex = intersects[0].faceIndex;
-                const materialIndex = Math.floor(faceIndex / 2);
-                const colorHex = clickedCubie.material[materialIndex].color.getHex();
-                const colorName = getColorName(colorHex);
+                // === ОПРЕДЕЛЯЕМ ГРАНЬ ПО НОРМАЛИ ===
+                const normal = intersects[0].face.normal.clone();
+                normal.applyQuaternion(clickedCubie.quaternion);
+                
+                let materialIndex = 0;
+                const nx = Math.round(normal.x);
+                const ny = Math.round(normal.y);
+                const nz = Math.round(normal.z);
+                
+                if (nx === 1) materialIndex = 0;
+                else if (nx === -1) materialIndex = 1;
+                else if (ny === 1) materialIndex = 2;
+                else if (ny === -1) materialIndex = 3;
+                else if (nz === 1) materialIndex = 4;
+                else if (nz === -1) materialIndex = 5;
+                else materialIndex = 0;
+                
+                // === БЕРЁМ ЦВЕТ ИЗ СОХРАНЁННЫХ МАТЕРИАЛОВ ===
+                const mat = clickedCubie.userData.materials[materialIndex];
+                if (!mat) return;
+                
+                const colorName = getColorName(mat.color);
                 
                 let gx = 0, gy = 0;
                 
@@ -194,7 +211,6 @@ if (!container) {
             }
         }
 
-        // ===== КЛИК (ВЕШАЕМ СРАЗУ) =====
         const canvas = renderer.domElement;
         canvas.addEventListener('click', onMouseClick);
 
