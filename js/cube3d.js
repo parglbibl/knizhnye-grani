@@ -88,7 +88,6 @@ if (!container) {
         for (let x = -1; x <= 1; x++) {
             for (let y = -1; y <= 1; y++) {
                 for (let z = -1; z <= 1; z++) {
-                    // === ГЛАВНОЕ ИЗМЕНЕНИЕ: сохраняем названия цветов ===
                     const faceNames = [
                         x === 1 ? 'red' : 'orange',
                         x === -1 ? 'orange' : 'red',
@@ -113,7 +112,7 @@ if (!container) {
                         originalPos: { x: x * offset, y: y * offset, z: z * offset },
                         gridX: x, gridY: y, gridZ: z,
                         materials: matArray,
-                        faceNames: faceNames // === СОХРАНЯЕМ ИМЕНА ЦВЕТОВ ===
+                        faceNames: faceNames
                     };
                     cubie.position.set(x * offset, y * offset, z * offset);
                     cubeGroup.add(cubie);
@@ -137,7 +136,7 @@ if (!container) {
         backLight.position.set(0, 1, -3);
         scene.add(backLight);
 
-        // ===== ЛОГИКА КЛИКА (БЕЗ colorMap, БЕЗ getHex) =====
+        // ===== ЛОГИКА КЛИКА =====
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
 
@@ -185,7 +184,6 @@ if (!container) {
                 else if (nz === -1) materialIndex = 5;
                 else materialIndex = 0;
 
-                // === БЕРЁМ ИМЯ ЦВЕТА ИЗ userData (БЕЗ getHex) ===
                 const colorName = clickedCubie.userData.faceNames[materialIndex];
                 if (!colorName) return;
                 
@@ -206,7 +204,13 @@ if (!container) {
             }
         }
 
-        // ===== ВСПОМОГАТЕЛЬНАЯ ФУНКЦИЯ ПОЛУЧЕНИЯ КООРДИНАТ =====
+        const canvas = renderer.domElement;
+        canvas.addEventListener('click', onMouseClick);
+
+        // ===== ВРАЩЕНИЕ (КВАТЕРНИОНЫ — СВОБОДНОЕ 360°) =====
+        let isDragging = false;
+        let lastX = 0, lastY = 0;
+
         function getXY(e) {
             if (e.touches) {
                 return { x: e.touches[0].clientX, y: e.touches[0].clientY };
@@ -214,97 +218,70 @@ if (!container) {
             return { x: e.clientX, y: e.clientY };
         }
 
-        // ===== УПРАВЛЕНИЕ МЫШЬЮ (ПК) =====
-        let isDraggingMouse = false;
-        let mouseStartX = 0, mouseStartY = 0;
-        let mouseLastX = 0, mouseLastY = 0;
-        let mouseMoved = false;
-
-        function onMouseDown(e) {
-            isDraggingMouse = true;
+        function onStart(e) {
+            isDragging = true;
             const coords = getXY(e);
-            mouseStartX = coords.x;
-            mouseStartY = coords.y;
-            mouseLastX = coords.x;
-            mouseLastY = coords.y;
-            mouseMoved = false;
+            lastX = coords.x;
+            lastY = coords.y;
             container.style.cursor = 'grabbing';
         }
 
-        function onMouseMove(e) {
-            if (!isDraggingMouse) return;
+        function onMove(e) {
+            if (!isDragging) return;
             const coords = getXY(e);
-            const deltaX = coords.x - mouseLastX;
-            const deltaY = coords.y - mouseLastY;
+            const deltaX = coords.x - lastX;
+            const deltaY = coords.y - lastY;
             
             if (deltaX !== 0 || deltaY !== 0) {
-                mouseMoved = true;
-                cubeGroup.rotation.y += deltaX * 0.008;
-                cubeGroup.rotation.x += deltaY * 0.008;
-                mouseLastX = coords.x;
-                mouseLastY = coords.y;
+                const axis = new THREE.Vector3(deltaY, deltaX, 0).normalize();
+                const angle = Math.sqrt(deltaX * deltaX + deltaY * deltaY) * 0.008;
+                
+                const quaternion = new THREE.Quaternion().setFromAxisAngle(axis, angle);
+                cubeGroup.quaternion.multiply(quaternion);
+                
+                lastX = coords.x;
+                lastY = coords.y;
             }
         }
 
-        function onMouseUp(e) {
-            isDraggingMouse = false;
+        function onEnd() {
+            isDragging = false;
             container.style.cursor = 'pointer';
-            
-            const coords = getXY(e);
-            const dx = Math.abs(coords.x - mouseStartX);
-            const dy = Math.abs(coords.y - mouseStartY);
-            
-            if (dx < 6 && dy < 6 && !mouseMoved) {
-                onMouseClick(e);
-            }
         }
 
-        container.addEventListener('mousedown', onMouseDown);
-        window.addEventListener('mousemove', onMouseMove);
-        window.addEventListener('mouseup', onMouseUp);
+        container.addEventListener('mousedown', onStart);
+        window.addEventListener('mousemove', onMove);
+        window.addEventListener('mouseup', onEnd);
 
-        // ===== УПРАВЛЕНИЕ ТАЧЕМ (ТЕЛЕФОН) =====
+        // ===== ДЛЯ ТЕЛЕФОНА =====
         let touchStartX = 0, touchStartY = 0;
-        let touchLastX = 0, touchLastY = 0;
         let touchMoved = false;
 
-        function onTouchStart(e) {
+        canvas.addEventListener('touchstart', function(e) {
             const touch = e.touches[0];
             touchStartX = touch.clientX;
             touchStartY = touch.clientY;
-            touchLastX = touch.clientX;
-            touchLastY = touch.clientY;
             touchMoved = false;
-        }
+            onStart(e);
+        }, { passive: false });
 
-        function onTouchMove(e) {
+        canvas.addEventListener('touchmove', function(e) {
             const touch = e.touches[0];
-            const deltaX = touch.clientX - touchLastX;
-            const deltaY = touch.clientY - touchLastY;
-            
-            if (deltaX !== 0 || deltaY !== 0) {
-                touchMoved = true;
-                cubeGroup.rotation.y += deltaX * 0.008;
-                cubeGroup.rotation.x += deltaY * 0.008;
-                touchLastX = touch.clientX;
-                touchLastY = touch.clientY;
-            }
-        }
-
-        function onTouchEnd(e) {
-            const touch = e.changedTouches[0];
             const dx = Math.abs(touch.clientX - touchStartX);
             const dy = Math.abs(touch.clientY - touchStartY);
-            
-            if (dx < 10 && dy < 10 && !touchMoved) {
-                onMouseClick(e);
+            if (dx > 10 || dy > 10) {
+                touchMoved = true;
             }
-        }
+            onMove(e);
+            e.preventDefault();
+        }, { passive: false });
 
-        const el = renderer.domElement;
-        el.addEventListener('touchstart', onTouchStart, { passive: false });
-        el.addEventListener('touchmove', onTouchMove, { passive: false });
-        el.addEventListener('touchend', onTouchEnd, { passive: true });
+        canvas.addEventListener('touchend', function(e) {
+            onEnd();
+            if (!touchMoved) {
+                onMouseClick(e.changedTouches[0]);
+            }
+        }, { passive: true });
 
         // ===== ЗУМ =====
         let currentZoom = 4.5;
@@ -317,7 +294,7 @@ if (!container) {
         }, { passive: false });
 
         let lastTouchDist = 0;
-        el.addEventListener('touchstart', function(e) {
+        canvas.addEventListener('touchstart', function(e) {
             if (e.touches.length === 2) {
                 const dx = e.touches[0].clientX - e.touches[1].clientX;
                 const dy = e.touches[0].clientY - e.touches[1].clientY;
@@ -325,7 +302,7 @@ if (!container) {
             }
         }, { passive: true });
 
-        el.addEventListener('touchmove', function(e) {
+        canvas.addEventListener('touchmove', function(e) {
             if (e.touches.length === 2) {
                 e.preventDefault();
                 const dx = e.touches[0].clientX - e.touches[1].clientX;
