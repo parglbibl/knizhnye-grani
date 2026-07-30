@@ -36,6 +36,8 @@ if (!container) {
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         renderer.setSize(size, size);
         renderer.setClearColor(0x000000, 0);
+        
+        // Добавляем в контейнер
         container.appendChild(renderer.domElement);
 
         const cubeGroup = new THREE.Group();
@@ -270,7 +272,6 @@ if (!container) {
             touchLastX = touch.clientX;
             touchLastY = touch.clientY;
             touchMoved = false;
-            container.style.cursor = 'grabbing';
         }
 
         function onTouchMove(e) {
@@ -295,12 +296,13 @@ if (!container) {
             if (dx < 10 && dy < 10 && !touchMoved) {
                 onMouseClick(e);
             }
-            container.style.cursor = 'pointer';
         }
 
-        canvas.addEventListener('touchstart', onTouchStart, { passive: false });
-        canvas.addEventListener('touchmove', onTouchMove, { passive: false });
-        canvas.addEventListener('touchend', onTouchEnd, { passive: true });
+        // Привязываем события к renderer.domElement (не canvas!)
+        const el = renderer.domElement;
+        el.addEventListener('touchstart', onTouchStart, { passive: false });
+        el.addEventListener('touchmove', onTouchMove, { passive: false });
+        el.addEventListener('touchend', onTouchEnd, { passive: true });
 
         // ===== ЗУМ =====
         let currentZoom = 4.5;
@@ -313,7 +315,7 @@ if (!container) {
         }, { passive: false });
 
         let lastTouchDist = 0;
-        canvas.addEventListener('touchstart', function(e) {
+        el.addEventListener('touchstart', function(e) {
             if (e.touches.length === 2) {
                 const dx = e.touches[0].clientX - e.touches[1].clientX;
                 const dy = e.touches[0].clientY - e.touches[1].clientY;
@@ -321,7 +323,7 @@ if (!container) {
             }
         }, { passive: true });
 
-        canvas.addEventListener('touchmove', function(e) {
+        el.addEventListener('touchmove', function(e) {
             if (e.touches.length === 2) {
                 e.preventDefault();
                 const dx = e.touches[0].clientX - e.touches[1].clientX;
