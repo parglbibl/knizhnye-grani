@@ -1,11 +1,6 @@
-// main.js — Книжные грани
-
 document.addEventListener('DOMContentLoaded', function() {
-
-    // ===== ФАВИКОНКИ =====
     function addFavicon() {
         if (document.querySelector('link[rel="icon"][type="image/x-icon"]')) return;
-        
         const links = [
             { rel: 'icon', type: 'image/x-icon', href: '/favicon/favicon.ico' },
             { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicon/favicon-16x16.png' },
@@ -13,7 +8,6 @@ document.addEventListener('DOMContentLoaded', function() {
             { rel: 'apple-touch-icon', sizes: '180x180', href: '/favicon/apple-touch-icon.png' },
             { rel: 'manifest', href: '/favicon/site.webmanifest' }
         ];
-        
         links.forEach(linkData => {
             const link = document.createElement('link');
             Object.keys(linkData).forEach(key => {
@@ -21,12 +15,10 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             document.head.appendChild(link);
         });
-        
         const metaTags = [
             { name: 'msapplication-TileColor', content: '#ff2e5a' },
             { name: 'theme-color', content: '#fef9f0' }
         ];
-        
         metaTags.forEach(metaData => {
             const meta = document.createElement('meta');
             Object.keys(metaData).forEach(key => {
@@ -36,17 +28,14 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // ===== БУРГЕР-МЕНЮ =====
     const menuToggle = document.getElementById('menuToggle');
     const navMenu = document.getElementById('nav');
-    
     if (menuToggle && navMenu) {
         menuToggle.addEventListener('click', function() {
             navMenu.classList.toggle('active');
         });
     }
-    
-    // ===== АВТОМАТИЧЕСКОЕ ЗАКРЫТИЕ МЕНЮ =====
+
     const navLinks = document.querySelectorAll('#nav a');
     navLinks.forEach(link => {
         link.addEventListener('click', function() {
@@ -59,18 +48,15 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     });
-    
-    // ===== ЗАКРЫТИЕ МЕНЮ ПРИ КЛИКЕ ВНЕ =====
+
     document.addEventListener('click', function(event) {
         const isClickInsideMenu = navMenu && navMenu.contains(event.target);
         const isClickOnToggle = menuToggle && menuToggle.contains(event.target);
-        
         if (navMenu && navMenu.classList.contains('active') && !isClickInsideMenu && !isClickOnToggle) {
             navMenu.classList.remove('active');
         }
     });
-    
-    // ===== ДИНАМИЧЕСКАЯ СБОРКА МЕНЮ =====
+
     const path = window.location.pathname;
     let prefix = '';
     if (path.includes('/boardgames/') || path.includes('/speedcubing/') || path.includes('/events/')) {
@@ -80,18 +66,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const navContainer = document.getElementById('nav');
     if (navContainer) {
         const currentFile = path.split('/').pop() || 'index.html';
-        
         const menuItems = [
+            { type: 'simple', title: 'Главная', icon: 'fas fa-home', href: prefix + 'index.html' },
             {
-                type: 'simple',
-                title: 'Главная',
-                icon: 'fas fa-home',
-                href: prefix + 'index.html'
-            },
-            {
-                type: 'dropdown',
-                title: 'О проекте',
-                icon: 'fas fa-info-circle',
+                type: 'dropdown', title: 'О проекте', icon: 'fas fa-info-circle',
                 items: [
                     { name: 'О проекте', href: prefix + 'about.html', icon: 'fas fa-info-circle' },
                     { name: 'Организаторы', href: prefix + 'organizers.html', icon: 'fas fa-building' },
@@ -99,9 +77,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 ]
             },
             {
-                type: 'dropdown',
-                title: 'Мероприятия',
-                icon: 'fas fa-calendar-alt',
+                type: 'dropdown', title: 'Мероприятия', icon: 'fas fa-calendar-alt',
                 items: [
                     { name: 'Афиша', href: prefix + 'events.html', icon: 'fas fa-calendar-alt' },
                     { name: 'Настольные игры', href: prefix + 'boardgames/index.html', icon: 'fas fa-dice-d6' },
@@ -109,25 +85,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 ]
             },
             {
-                type: 'dropdown',
-                title: 'Новости',
-                icon: 'fas fa-newspaper',
+                type: 'dropdown', title: 'Новости', icon: 'fas fa-newspaper',
                 items: [
                     { name: 'Новости', href: prefix + 'news.html', icon: 'fas fa-newspaper' }
                 ]
             },
             {
-                type: 'dropdown',
-                title: 'Фотоотчёты',
-                icon: 'fas fa-images',
+                type: 'dropdown', title: 'Фотоотчёты', icon: 'fas fa-images',
                 items: [
                     { name: 'Все фото', href: prefix + 'gallery.html', icon: 'fas fa-images' }
                 ]
             },
             {
-                type: 'dropdown',
-                title: 'Участие',
-                icon: 'fas fa-handshake',
+                type: 'dropdown', title: 'Участие', icon: 'fas fa-handshake',
                 items: [
                     { name: 'Партнёры', href: prefix + 'partners.html', icon: 'fas fa-handshake' },
                     { name: 'Контакты', href: prefix + 'contacts.html', icon: 'fas fa-phone-alt' },
@@ -136,9 +106,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 ]
             }
         ];
-        
         let html = '<ul class="desktop-menu">';
-        
         menuItems.forEach(item => {
             if (item.type === 'simple') {
                 const isActive = (item.href === currentFile);
@@ -163,11 +131,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 html += `</ul></li>`;
             }
         });
-        
         html += '</ul>';
         navContainer.innerHTML = html;
     }
-    
+
     function bindDropdownEvents() {
         const dropdowns = document.querySelectorAll('.dropdown');
         dropdowns.forEach(function(dropdown) {
@@ -177,7 +144,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 title.addEventListener('click', function(e) {
                     e.preventDefault();
                     e.stopPropagation();
-                    
                     if (dropdown.classList.contains('active')) {
                         dropdown.classList.remove('active');
                     } else {
@@ -190,82 +156,47 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-    
     bindDropdownEvents();
-    
-    // ===== ХЛЕБНЫЕ КРОШКИ =====
+
     function generateBreadcrumbs() {
         const currentPath = window.location.pathname;
         const fileName = currentPath.split('/').pop() || 'index.html';
-        
         if (fileName === 'index.html' || fileName === '' || currentPath.endsWith('/')) {
             return;
         }
-        
         const isInBoardgames = currentPath.includes('/boardgames/');
         const isInSpeedcubing = currentPath.includes('/speedcubing/');
         const isInEvents = currentPath.includes('/events/');
-        
-        let breadcrumbs = [
-            { name: 'Главная', href: prefix + 'index.html' }
-        ];
-        
+        let breadcrumbs = [ { name: 'Главная', href: prefix + 'index.html' } ];
         if (isInBoardgames) {
             breadcrumbs.push({ name: 'Настольные игры', href: prefix + 'boardgames/index.html' });
-            if (fileName === 'catalog.html') {
-                breadcrumbs.push({ name: 'Каталог игр', href: null });
-            } else if (fileName === 'rules.html') {
-                breadcrumbs.push({ name: 'Правила посещения', href: null });
-            }
-        } 
-        else if (isInSpeedcubing) {
+            if (fileName === 'catalog.html') breadcrumbs.push({ name: 'Каталог игр', href: null });
+            else if (fileName === 'rules.html') breadcrumbs.push({ name: 'Правила посещения', href: null });
+        } else if (isInSpeedcubing) {
             breadcrumbs.push({ name: 'Спидкубинг', href: prefix + 'speedcubing/index.html' });
-            if (fileName === 'about-sport.html') {
-                breadcrumbs.push({ name: 'Что такое спидкубинг', href: null });
-            } else if (fileName === 'levels.html') {
-                breadcrumbs.push({ name: 'Уровни обучения', href: null });
-            } else if (fileName === 'gallery.html') {
-                breadcrumbs.push({ name: 'Фотогалерея', href: null });
-            }
-        }
-        else if (isInEvents) {
+            if (fileName === 'about-sport.html') breadcrumbs.push({ name: 'Что такое спидкубинг', href: null });
+            else if (fileName === 'levels.html') breadcrumbs.push({ name: 'Уровни обучения', href: null });
+        } else if (isInEvents) {
             breadcrumbs.push({ name: 'Мероприятия', href: prefix + 'events.html' });
             const urlParams = new URLSearchParams(window.location.search);
             const eventId = urlParams.get('id');
             if (eventId) {
-                const eventNames = {
-                    'summer-party': 'Игротека «Книжные грани»'
-                };
+                const eventNames = { 'summer-party': 'Игротека «Книжные грани»' };
                 const eventName = eventNames[eventId] || 'Событие';
                 breadcrumbs.push({ name: eventName, href: null });
             }
+        } else {
+            if (fileName === 'about.html') breadcrumbs.push({ name: 'О проекте', href: null });
+            else if (fileName === 'organizers.html') { breadcrumbs.push({ name: 'О проекте', href: prefix + 'about.html' }); breadcrumbs.push({ name: 'Организаторы', href: null }); }
+            else if (fileName === 'team.html') { breadcrumbs.push({ name: 'О проекте', href: prefix + 'about.html' }); breadcrumbs.push({ name: 'Команда', href: null }); }
+            else if (fileName === 'events.html') breadcrumbs.push({ name: 'Мероприятия', href: null });
+            else if (fileName === 'partners.html') breadcrumbs.push({ name: 'Партнёры', href: null });
+            else if (fileName === 'contacts.html') breadcrumbs.push({ name: 'Контакты', href: null });
+            else if (fileName === 'faq.html') breadcrumbs.push({ name: 'FAQ', href: null });
+            else if (fileName === 'feedback.html') breadcrumbs.push({ name: 'Обратная связь', href: null });
+            else if (fileName === 'gallery.html') breadcrumbs.push({ name: 'Фотоотчёты', href: null });
+            else if (fileName === 'news.html') breadcrumbs.push({ name: 'Новости', href: null });
         }
-        else {
-            if (fileName === 'about.html') {
-                breadcrumbs.push({ name: 'О проекте', href: null });
-            } else if (fileName === 'organizers.html') {
-                breadcrumbs.push({ name: 'О проекте', href: prefix + 'about.html' });
-                breadcrumbs.push({ name: 'Организаторы', href: null });
-            } else if (fileName === 'team.html') {
-                breadcrumbs.push({ name: 'О проекте', href: prefix + 'about.html' });
-                breadcrumbs.push({ name: 'Команда', href: null });
-            } else if (fileName === 'events.html') {
-                breadcrumbs.push({ name: 'Мероприятия', href: null });
-            } else if (fileName === 'partners.html') {
-                breadcrumbs.push({ name: 'Партнёры', href: null });
-            } else if (fileName === 'contacts.html') {
-                breadcrumbs.push({ name: 'Контакты', href: null });
-            } else if (fileName === 'faq.html') {
-                breadcrumbs.push({ name: 'FAQ', href: null });
-            } else if (fileName === 'feedback.html') {
-                breadcrumbs.push({ name: 'Обратная связь', href: null });
-            } else if (fileName === 'gallery.html') {
-                breadcrumbs.push({ name: 'Фотоотчёты', href: null });
-            } else if (fileName === 'news.html') {
-                breadcrumbs.push({ name: 'Новости', href: null });
-            }
-        }
-        
         let breadcrumbsHtml = '<div class="breadcrumbs"><ul class="breadcrumbs-list">';
         breadcrumbs.forEach((item, index) => {
             if (item.href) {
@@ -275,7 +206,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         breadcrumbsHtml += '</ul></div>';
-        
         const section = document.querySelector('.section');
         if (section && !section.querySelector('.breadcrumbs')) {
             const container = section.querySelector('.container');
@@ -284,16 +214,13 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     }
-    
     generateBreadcrumbs();
-    
-    // ЛОГОТИП — ССЫЛКА НА ГЛАВНУЮ
+
     const logo = document.querySelector('.logo a');
     if (logo) {
         logo.href = prefix + 'index.html';
     }
-    
-    // АНИМАЦИЯ КАРТОЧЕК
+
     const fadeElements = document.querySelectorAll('.event-card, .direction-card, .team-card, .partner-item');
     const observer = new IntersectionObserver((entries) => {
         entries.forEach((entry, index) => {
@@ -305,19 +232,15 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
-    
     fadeElements.forEach(el => observer.observe(el));
-    
-    // FAQ АККОРДЕОН
+
     const faqItems = document.querySelectorAll('.faq-item');
     faqItems.forEach(item => {
         const question = item.querySelector('.faq-question');
         const answer = item.querySelector('.faq-answer');
-        
         if (question && answer) {
             question.addEventListener('click', () => {
                 const isActive = question.classList.contains('active');
-                
                 faqItems.forEach(otherItem => {
                     const otherQuestion = otherItem.querySelector('.faq-question');
                     const otherAnswer = otherItem.querySelector('.faq-answer');
@@ -326,7 +249,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         otherAnswer.classList.remove('show');
                     }
                 });
-                
                 if (!isActive) {
                     question.classList.add('active');
                     answer.classList.add('show');
@@ -337,14 +259,12 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     });
-    
-    // КНОПКА НАВЕРХ
+
     const backBtn = document.createElement('a');
     backBtn.href = '#';
     backBtn.className = 'back-to-top';
     backBtn.innerHTML = '<i class="fas fa-chevron-up"></i>';
     document.body.appendChild(backBtn);
-    
     window.addEventListener('scroll', function() {
         if (window.pageYOffset > 300) {
             backBtn.classList.add('show');
@@ -352,17 +272,14 @@ document.addEventListener('DOMContentLoaded', function() {
             backBtn.classList.remove('show');
         }
     });
-    
     backBtn.addEventListener('click', function(e) {
         e.preventDefault();
         window.scrollTo({ top: 0, behavior: 'smooth' });
     });
-    
-    // ГОД В ПОДВАЛЕ
+
     const yearSpan = document.getElementById('current-year');
     if (yearSpan) yearSpan.textContent = new Date().getFullYear();
-    
-    // АНИМАЦИЯ ЗАГОЛОВКА
+
     const heroTitle = document.querySelector('.hero h1');
     if (heroTitle && !heroTitle.hasAttribute('data-animated')) {
         heroTitle.setAttribute('data-animated', 'true');
@@ -374,8 +291,7 @@ document.addEventListener('DOMContentLoaded', function() {
             heroTitle.style.transform = 'translateY(0)';
         }, 200);
     }
-    
-    // ===== СЛАЙДЕР И ПОПАП «КАК ЭТО БЫЛО» =====
+
     const slider = document.getElementById('archiveSlider');
     const prevBtn = document.querySelector('.archive-arrow.prev');
     const nextBtn = document.querySelector('.archive-arrow.next');
@@ -407,58 +323,29 @@ document.addEventListener('DOMContentLoaded', function() {
     if (slider && prevBtn && nextBtn && !slider._initialized) {
         slider._initialized = true;
         const cardWidth = 200 + 16;
-        
         const cards = slider.querySelectorAll('.archive-card');
         if (countEl) {
             const count = cards.length;
             const word = count === 1 ? 'мероприятие' : (count < 5 ? 'мероприятия' : 'мероприятий');
             countEl.textContent = count + ' ' + word;
         }
-        
         nextBtn.addEventListener('click', function() {
             slider.scrollBy({ left: cardWidth * 2, behavior: 'smooth' });
         });
-        
         prevBtn.addEventListener('click', function() {
             slider.scrollBy({ left: -cardWidth * 2, behavior: 'smooth' });
         });
-        
         const archiveData = {
-            '17 июня': {
-                title: 'Игротека «Книжные грани»',
-                date: '17 июня 2026',
-                image: 'images/afisha/afisha1706.jpg',
-                description: 'Первая летняя игротека в Библиотеке-мастерской. Мастер-класс по сборке кубика Рубика и большая игротека от Hobby World.',
-                link: '/events/detail.html?id=summer-party',
-                gallery: '/gallery.html'
-            },
-            '1 июля': {
-                title: 'Игротека «Книжные грани»',
-                date: '1 июля 2026',
-                image: 'images/afisha/afisha0107.PNG',
-                description: 'Большая игротека от Hobby World. Десятки настольных игр на любой вкус. Приходите один или с друзьями — найдём компанию!',
-                link: '/events/detail.html?id=july-party',
-                gallery: '/gallery.html'
-            },
-            '22 июля': {
-                title: 'Игротека «Книжные грани»',
-                date: '22 июля 2026',
-                image: 'images/afisha/afisha2207.PNG',
-                description: 'В библиотеке «Мастерская» продолжает работу пространство с головоломками и настолками для детей и подростков. Вас ждут две площадки: мастер-класс по сборке кубика Рубика (6+) от тренера, который покажет секреты и алгоритмы сборки на скорость, и тестирование головоломок от CCCstore. Приходите, чтобы первыми оценить новинку и повлиять на финальный результат тестирования!',
-                link: '/events/detail.html?id=july-22',
-                gallery: '/gallery.html'
-            }
+            '17 июня': { title: 'Игротека «Книжные грани»', date: '17 июня 2026', image: 'images/afisha/afisha1706.jpg', description: 'Первая летняя игротека в Библиотеке-мастерской. Мастер-класс по сборке кубика Рубика и большая игротека от Hobby World.', link: '/events/detail.html?id=summer-party', gallery: '/gallery.html' },
+            '1 июля': { title: 'Игротека «Книжные грани»', date: '1 июля 2026', image: 'images/afisha/afisha0107.PNG', description: 'Большая игротека от Hobby World. Десятки настольных игр на любой вкус. Приходите один или с друзьями — найдём компанию!', link: '/events/detail.html?id=july-party', gallery: '/gallery.html' },
+            '22 июля': { title: 'Игротека «Книжные грани»', date: '22 июля 2026', image: 'images/afisha/afisha2207.PNG', description: 'В библиотеке «Мастерская» продолжает работу пространство с головоломками и настолками для детей и подростков. Вас ждут две площадки: мастер-класс по сборке кубика Рубика (6+) от тренера, который покажет секреты и алгоритмы сборки на скорость, и тестирование головоломок от CCCstore. Приходите, чтобы первыми оценить новинку и повлиять на финальный результат тестирования!', link: '/events/detail.html?id=july-22', gallery: '/gallery.html' }
         };
-        
         window.openArchiveModal = function(eventKey) {
             const data = archiveData[eventKey];
             if (!data) return;
-            
             if (modalBody) {
                 modalBody.innerHTML = `
-                    <div class="archive-modal-image">
-                        <img src="${data.image}" alt="${data.title}">
-                    </div>
+                    <div class="archive-modal-image"><img src="${data.image}" alt="${data.title}"></div>
                     <div class="archive-modal-date">📅 ${data.date}</div>
                     <h2 class="archive-modal-title">${data.title}</h2>
                     <p class="archive-modal-desc">${data.description}</p>
@@ -468,13 +355,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 `;
             }
-            
             if (modal) {
                 modal.classList.add('active');
                 document.body.style.overflow = 'hidden';
             }
         };
-        
         if (closeBtn) {
             closeBtn.addEventListener('click', function() {
                 if (modal) {
@@ -483,7 +368,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
         }
-        
         if (modal) {
             modal.addEventListener('click', function(e) {
                 if (e.target === modal) {
@@ -492,7 +376,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
         }
-        
         document.querySelectorAll('.archive-card').forEach(card => {
             card.addEventListener('click', function() {
                 const eventName = this.dataset.event;
@@ -502,7 +385,5 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
-    
-    // ===== ДОБАВЛЯЕМ ФАВИКОНКИ =====
     addFavicon();
 });
