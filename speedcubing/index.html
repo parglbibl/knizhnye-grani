@@ -60,33 +60,45 @@
             <strong>Твой ответ увидят все, кто откроет этот же квадратик.</strong>
         </p>
 
-        <div id="cube-container" style="width: 100%; max-width: 600px; aspect-ratio: 1 / 1; margin: 0 auto 2rem auto; background: transparent; cursor: pointer; position: relative;"></div>
+        <!-- ДВУХКОЛОНОЧНЫЙ МАКЕТ ДЛЯ КОМПА -->
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 2rem; max-width: 900px; margin: 0 auto;">
+            
+            <!-- На компе: кубик слева, легенда справа. На телефоне: друг под другом -->
+            <div style="display: flex; flex-direction: row; justify-content: center; align-items: center; gap: 3rem; width: 100%; flex-wrap: wrap;">
+                
+                <!-- ЛЕВАЯ ЧАСТЬ: КУБИК -->
+                <div style="flex: 1; min-width: 300px; max-width: 600px; display: flex; justify-content: center;">
+                    <div id="cube-container" style="width: 100%; aspect-ratio: 1 / 1; max-width: 600px; background: transparent; cursor: pointer; position: relative;"></div>
+                </div>
 
-        <div style="display: flex; flex-direction: column; align-items: center; margin-top: 2.5rem;">
-            <div style="display: flex; flex-direction: column; gap: 0.6rem; padding: 1rem 1.8rem; background: rgba(255,255,255,0.65); backdrop-filter: blur(2px); border-radius: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.03); width: 100%; max-width: 260px;">
-                <div style="display: flex; align-items: center; gap: 1rem;">
-                    <img src="/images/cube_textures/red.jpg" alt="Любовь" style="width: 28px; height: 28px; border-radius: 6px; object-fit: cover;">
-                    <span style="font-weight: 500; font-size: 0.85rem; color: var(--text-secondary);">Любовь</span>
-                </div>
-                <div style="display: flex; align-items: center; gap: 1rem;">
-                    <img src="/images/cube_textures/blue.jpg" alt="Надежда" style="width: 28px; height: 28px; border-radius: 6px; object-fit: cover;">
-                    <span style="font-weight: 500; font-size: 0.85rem; color: var(--text-secondary);">Надежда</span>
-                </div>
-                <div style="display: flex; align-items: center; gap: 1rem;">
-                    <img src="/images/cube_textures/yellow.jpg" alt="Совесть" style="width: 28px; height: 28px; border-radius: 6px; object-fit: cover;">
-                    <span style="font-weight: 500; font-size: 0.85rem; color: var(--text-secondary);">Совесть</span>
-                </div>
-                <div style="display: flex; align-items: center; gap: 1rem;">
-                    <img src="/images/cube_textures/green.jpg" alt="Добро" style="width: 28px; height: 28px; border-radius: 6px; object-fit: cover;">
-                    <span style="font-weight: 500; font-size: 0.85rem; color: var(--text-secondary);">Добро</span>
-                </div>
-                <div style="display: flex; align-items: center; gap: 1rem;">
-                    <img src="/images/cube_textures/white.jpg" alt="Память" style="width: 28px; height: 28px; border-radius: 6px; object-fit: cover;">
-                    <span style="font-weight: 500; font-size: 0.85rem; color: var(--text-secondary);">Память</span>
-                </div>
-                <div style="display: flex; align-items: center; gap: 1rem;">
-                    <img src="/images/cube_textures/orange.jpg" alt="Семья" style="width: 28px; height: 28px; border-radius: 6px; object-fit: cover;">
-                    <span style="font-weight: 500; font-size: 0.85rem; color: var(--text-secondary);">Семья</span>
+                <!-- ПРАВАЯ ЧАСТЬ: ЛЕГЕНДА -->
+                <div style="flex: 0 0 260px; display: flex; justify-content: center; align-items: center;">
+                    <div style="display: flex; flex-direction: column; gap: 0.6rem; padding: 1.5rem 1.8rem; background: rgba(255,255,255,0.65); backdrop-filter: blur(2px); border-radius: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.03); width: 100%;">
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <img src="/images/cube_textures/red.jpg" alt="Любовь" style="width: 28px; height: 28px; border-radius: 6px; object-fit: cover;">
+                            <span style="font-weight: 500; font-size: 0.85rem; color: var(--text-secondary);">Любовь</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <img src="/images/cube_textures/blue.jpg" alt="Надежда" style="width: 28px; height: 28px; border-radius: 6px; object-fit: cover;">
+                            <span style="font-weight: 500; font-size: 0.85rem; color: var(--text-secondary);">Надежда</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <img src="/images/cube_textures/yellow.jpg" alt="Совесть" style="width: 28px; height: 28px; border-radius: 6px; object-fit: cover;">
+                            <span style="font-weight: 500; font-size: 0.85rem; color: var(--text-secondary);">Совесть</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <img src="/images/cube_textures/green.jpg" alt="Добро" style="width: 28px; height: 28px; border-radius: 6px; object-fit: cover;">
+                            <span style="font-weight: 500; font-size: 0.85rem; color: var(--text-secondary);">Добро</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <img src="/images/cube_textures/white.jpg" alt="Память" style="width: 28px; height: 28px; border-radius: 6px; object-fit: cover;">
+                            <span style="font-weight: 500; font-size: 0.85rem; color: var(--text-secondary);">Память</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <img src="/images/cube_textures/orange.jpg" alt="Семья" style="width: 28px; height: 28px; border-radius: 6px; object-fit: cover;">
+                            <span style="font-weight: 500; font-size: 0.85rem; color: var(--text-secondary);">Семья</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
