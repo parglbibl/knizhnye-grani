@@ -263,7 +263,9 @@
   let currentElementId = null;
 
   window.openBookGran = function(color, x, y) {
-      const elementId = color + '_' + x + '_' + y + '_1';
+      // === ГЛАВНОЕ ИСПРАВЛЕНИЕ ===
+      // Принудительно превращаем x и y в строки, чтобы ID всегда был правильным
+      const elementId = color + '_' + String(x) + '_' + String(y) + '_1';
       currentElementId = elementId;
 
       popupColorTitle.textContent = colorNames[color] || color;
