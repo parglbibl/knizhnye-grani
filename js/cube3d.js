@@ -135,7 +135,7 @@ if (!container) {
         backLight.position.set(0, 1, -3);
         scene.add(backLight);
 
-        // ===== ЛОГИКА КЛИКА =====
+        // ===== ЛОГИКА КЛИКА (ПО НОРМАЛЯМ) =====
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
 
@@ -209,16 +209,13 @@ if (!container) {
             }
         }
 
-        // ===== КЛИК =====
-        const canvas = renderer.domElement;
-        canvas.addEventListener('click', onMouseClick);
-
-        // ===== ВРАЩЕНИЕ (С ЗАЩИТОЙ ОТ ЛОЖНОГО КЛИКА) =====
+        // ===== УПРАВЛЕНИЕ МЫШЬЮ (БЕЗ ЛОЖНЫХ КЛИКОВ) =====
         let isDragging = false;
         let lastX = 0, lastY = 0;
         let targetRotationX = 0;
         let targetRotationY = 0;
         let mouseDownPos = { x: 0, y: 0 };
+        let hasMoved = false;
 
         function getXY(e) {
             if (e.touches) {
@@ -232,7 +229,8 @@ if (!container) {
             const coords = getXY(e);
             lastX = coords.x;
             lastY = coords.y;
-            mouseDownPos = { x: coords.x, y: coords.y }; // запоминаем точку нажатия
+            mouseDownPos = { x: coords.x, y: coords.y };
+            hasMoved = false;
             container.style.cursor = 'grabbing';
         }
 
@@ -243,6 +241,7 @@ if (!container) {
             const deltaY = coords.y - lastY;
             
             if (deltaX !== 0 || deltaY !== 0) {
+                hasMoved = true;
                 targetRotationY += deltaX * 0.008;
                 targetRotationX += deltaY * 0.008;
                 cubeGroup.rotation.x = targetRotationX;
@@ -255,6 +254,14 @@ if (!container) {
         function onEnd(e) {
             isDragging = false;
             container.style.cursor = 'pointer';
+            
+            // Если движения не было — вызываем клик
+            const coords = getXY(e);
+            const dx = Math.abs(coords.x - mouseDownPos.x);
+            const dy = Math.abs(coords.y - mouseDownPos.y);
+            if (dx < 6 && dy < 6 && !hasMoved) {
+                onMouseClick(e);
+            }
         }
 
         container.addEventListener('mousedown', onStart);
