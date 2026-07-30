@@ -135,7 +135,7 @@ if (!container) {
         backLight.position.set(0, 1, -3);
         scene.add(backLight);
 
-        // ===== ЛОГИКА КЛИКА (СТРОГО ПО НОРМАЛЯМ) =====
+        // ===== ЛОГИКА КЛИКА =====
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
 
@@ -171,7 +171,6 @@ if (!container) {
                 const pos = clickedCubie.position;
                 const coords = getGridCoords(pos);
                 
-                // === ОПРЕДЕЛЯЕМ ГРАНЬ ПО НОРМАЛИ ===
                 const normal = intersects[0].face.normal.clone();
                 normal.applyQuaternion(clickedCubie.quaternion);
                 
@@ -188,7 +187,6 @@ if (!container) {
                 else if (nz === -1) materialIndex = 5;
                 else materialIndex = 0;
                 
-                // === БЕРЁМ ЦВЕТ ИЗ СОХРАНЁННЫХ МАТЕРИАЛОВ ===
                 const mat = clickedCubie.userData.materials[materialIndex];
                 if (!mat) return;
                 
@@ -211,14 +209,16 @@ if (!container) {
             }
         }
 
+        // ===== КЛИК =====
         const canvas = renderer.domElement;
         canvas.addEventListener('click', onMouseClick);
 
-        // ===== ВРАЩЕНИЕ =====
+        // ===== ВРАЩЕНИЕ (С ЗАЩИТОЙ ОТ ЛОЖНОГО КЛИКА) =====
         let isDragging = false;
         let lastX = 0, lastY = 0;
         let targetRotationX = 0;
         let targetRotationY = 0;
+        let mouseDownPos = { x: 0, y: 0 };
 
         function getXY(e) {
             if (e.touches) {
@@ -232,6 +232,7 @@ if (!container) {
             const coords = getXY(e);
             lastX = coords.x;
             lastY = coords.y;
+            mouseDownPos = { x: coords.x, y: coords.y }; // запоминаем точку нажатия
             container.style.cursor = 'grabbing';
         }
 
@@ -251,7 +252,7 @@ if (!container) {
             }
         }
 
-        function onEnd() {
+        function onEnd(e) {
             isDragging = false;
             container.style.cursor = 'pointer';
         }
