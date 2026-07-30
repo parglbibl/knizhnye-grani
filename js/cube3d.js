@@ -5,14 +5,28 @@ const container = document.getElementById('cube-container');
 if (!container) {
     console.error('Контейнер для кубика не найден');
 } else {
-    function initCube() {
+    // Сначала получаем размер контейнера
+    function getContainerSize() {
         const rect = container.getBoundingClientRect();
-        const size = Math.min(rect.width, rect.height);
-        if (size === 0) {
-            requestAnimationFrame(initCube);
-            return;
-        }
+        return Math.min(rect.width, rect.height);
+    }
 
+    const size = getContainerSize();
+    if (size === 0) {
+        // Если контейнер ещё не отрисован, ждём
+        requestAnimationFrame(function wait() {
+            const newSize = getContainerSize();
+            if (newSize === 0) {
+                requestAnimationFrame(wait);
+            } else {
+                initCube(newSize);
+            }
+        });
+    } else {
+        initCube(size);
+    }
+
+    function initCube(size) {
         const scene = new THREE.Scene();
         scene.background = null;
 
@@ -122,7 +136,7 @@ if (!container) {
         backLight.position.set(0, 1, -3);
         scene.add(backLight);
 
-        // ===== ЛОГИКА КЛИКА (ПО ИНДЕКСУ ТРЕУГОЛЬНИКА) =====
+        // ===== ЛОГИКА КЛИКА =====
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
 
@@ -180,6 +194,7 @@ if (!container) {
             }
         }
 
+        // ===== КЛИК (ВЕШАЕМ СРАЗУ) =====
         const canvas = renderer.domElement;
         canvas.addEventListener('click', onMouseClick);
 
@@ -310,6 +325,4 @@ if (!container) {
             camera.updateProjectionMatrix();
         });
     }
-
-    initCube();
 }
