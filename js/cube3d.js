@@ -252,7 +252,7 @@ if (!container) {
         }
     }, { passive: true });
 
-    // ===== ЗУМ =====
+    // ===== ЗУМ (КОЛЕСИКО И ДВА ПАЛЬЦА) =====
     let currentZoom = 4.5;
 
     container.addEventListener('wheel', function(e) {
