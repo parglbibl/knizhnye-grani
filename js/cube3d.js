@@ -195,8 +195,8 @@ if (!container) {
                 let gx = 0, gy = 0;
                 
                 if (materialIndex === 0 || materialIndex === 1) {
-                    gx = coords.y + 1;
-                    gy = coords.z + 1;
+                    gx = coords.z + 1;
+                    gy = coords.y + 1;
                 } else if (materialIndex === 2 || materialIndex === 3) {
                     gx = coords.x + 1;
                     gy = coords.z + 1;
@@ -209,7 +209,7 @@ if (!container) {
             }
         }
 
-        // ===== ВСПОМОГАТЕЛЬНАЯ ФУНКЦИЯ ПОЛУЧЕНИЯ КООРДИНАТ (ВОССТАНОВЛЕНА) =====
+        // ===== ВСПОМОГАТЕЛЬНАЯ ФУНКЦИЯ ПОЛУЧЕНИЯ КООРДИНАТ =====
         function getXY(e) {
             if (e.touches) {
                 return { x: e.touches[0].clientX, y: e.touches[0].clientY };
