@@ -36,8 +36,6 @@ if (!container) {
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         renderer.setSize(size, size);
         renderer.setClearColor(0x000000, 0);
-        
-        // Добавляем в контейнер
         container.appendChild(renderer.domElement);
 
         const cubeGroup = new THREE.Group();
@@ -211,6 +209,14 @@ if (!container) {
             }
         }
 
+        // ===== ВСПОМОГАТЕЛЬНАЯ ФУНКЦИЯ ПОЛУЧЕНИЯ КООРДИНАТ (ВОССТАНОВЛЕНА) =====
+        function getXY(e) {
+            if (e.touches) {
+                return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+            }
+            return { x: e.clientX, y: e.clientY };
+        }
+
         // ===== УПРАВЛЕНИЕ МЫШЬЮ (ПК) =====
         let isDraggingMouse = false;
         let mouseStartX = 0, mouseStartY = 0;
@@ -298,7 +304,6 @@ if (!container) {
             }
         }
 
-        // Привязываем события к renderer.domElement (не canvas!)
         const el = renderer.domElement;
         el.addEventListener('touchstart', onTouchStart, { passive: false });
         el.addEventListener('touchmove', onTouchMove, { passive: false });
