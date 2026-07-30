@@ -256,4 +256,289 @@
             { word: "АРКТИКА", hint: "Северный полярный пояс" },
             { word: "ГЕОГРАФИЯ", hint: "Наука о Земле" },
             { word: "КОНТИНЕНТ", hint: "Большой массив суши" },
-            { word: "О
+            { word: "ОКЕАН", hint: "Великий водоём" },
+            { word: "МОРЕ", hint: "Часть океана" },
+            { word: "ГОРА", hint: "Высокое возвышение" },
+            { word: "ВУЛКАН", hint: "Гора с кратером" },
+            { word: "ДЖУНГЛИ", hint: "Густые тропические леса" },
+            { word: "САВАННА", hint: "Африканская степь" },
+            { word: "РЕКА", hint: "Водный поток" },
+            { word: "ОЗЕРО", hint: "Замкнутый водоём" },
+            { word: "КАЛЕНДАРЬ", hint: "Система счисления дней" },
+            { word: "ЭПОХА", hint: "Большой исторический период" },
+            { word: "ВЕК", hint: "Сто лет" },
+            { word: "СЕКУНДА", hint: "Мгновение времени" },
+            { word: "МИНУТА", hint: "Шестьдесят секунд" },
+            { word: "ЧАС", hint: "Шестьдесят минут" },
+            { word: "ИСТОРИЯ", hint: "Наука о прошлом" },
+            { word: "ЛЕТОПИСЬ", hint: "Запись событий по годам" },
+            { word: "ОТКРЫТИЕ", hint: "Новое знание" },
+            { word: "ИЗОБРЕТЕНИЕ", hint: "Создание нового устройства" },
+            { word: "ПРОГРЕСС", hint: "Поступательное развитие" },
+            { word: "НАУКА", hint: "Система знаний" },
+            { word: "СТУДЕНТ", hint: "Учащийся вуза" },
+            { word: "УЧИТЕЛЬ", hint: "Наставник" },
+            { word: "УЧЕНИК", hint: "Тот, кто учится" },
+            { word: "ЗНАНИЕ", hint: "Совокупность сведений" },
+            { word: "МУДРОСТЬ", hint: "Глубокий жизненный опыт" },
+            { word: "ПОИСК", hint: "Процесс нахождения" },
+            { word: "ИССЛЕДОВАНИЕ", hint: "Научное изучение" }
+        ];
+
+        let currentWord = "";
+        let currentLetters = [];
+        let nextIndex = 0;
+        let difficulty = 'easy';
+        let wordsCollected = 0;
+        let timeLeft = 60;
+        let timerInterval = null;
+        let isGameActive = false;
+        let isGameFinished = false;
+        let usedWords = [];
+        let winMessages = {
+            easy: '🎉 Блестящее начало! Готов проверить силы на следующем уровне?',
+            medium: '🎉 Ты настоящий знаток! Остался последний и самый сложный уровень. Дерзай!',
+            hard: '🎉 Ты — Мастер слова! Ты прошёл все испытания. Гордись собой!'
+        };
+
+        function setDifficultyButtonsState(enabled) {
+            difficultyBtns.forEach(btn => {
+                if (enabled) {
+                    btn.style.pointerEvents = 'auto';
+                    btn.style.opacity = '1';
+                } else {
+                    btn.style.pointerEvents = 'none';
+                    btn.style.opacity = '0.5';
+                }
+            });
+        }
+
+        function getTimeForLevel() {
+            if (difficulty === 'easy') return 60;
+            if (difficulty === 'medium') return 90;
+            return 180;
+        }
+
+        function getNewWord() {
+            const availableWords = words.filter(w => !usedWords.includes(w.word));
+            if (availableWords.length === 0) {
+                usedWords = [];
+                return words[Math.floor(Math.random() * words.length)].word;
+            }
+            const wordObj = availableWords[Math.floor(Math.random() * availableWords.length)];
+            usedWords.push(wordObj.word);
+            return wordObj.word;
+        }
+
+        function startGame() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            
+            setDifficultyButtonsState(false);
+            isGameFinished = false;
+            
+            startBtn.style.display = 'none';
+            gameStats.style.display = 'flex';
+            grid.style.display = 'grid';
+
+            wordsCollected = 0;
+            usedWords = [];
+            timeLeft = getTimeForLevel();
+            isGameActive = true;
+            
+            timerDisplay.textContent = timeLeft;
+            wordCountDisplay.textContent = '0 / 3';
+            message.textContent = '';
+            message.style.color = 'var(--neon-coral)';
+
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                timerDisplay.textContent = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                    isGameActive = false;
+                    isGameFinished = true;
+                    message.textContent = '⏰ Время вышло! Выберите другой уровень и попробуйте снова.';
+                    message.style.color = '#e74c3c';
+                    startBtn.style.display = 'inline-block';
+                    setDifficultyButtonsState(true);
+                }
+            }, 1000);
+
+            loadNewWord();
+        }
+
+        function loadNewWord() {
+            if (!isGameActive) return;
+            
+            currentWord = getNewWord();
+            
+            let letters = currentWord.split('');
+            const extraLetters = ['А', 'О', 'Е', 'И', 'Н', 'Т', 'С', 'Р', 'Л', 'К', 'М'];
+            while (letters.length < 16) {
+                const randomExtra = extraLetters[Math.floor(Math.random() * extraLetters.length)];
+                if (!letters.includes(randomExtra) || Math.random() > 0.5) {
+                    letters.push(randomExtra);
+                }
+            }
+            shuffleArray(letters);
+            currentLetters = letters;
+            nextIndex = 0;
+
+            if (difficulty === 'hard') {
+                nextLetterDisplay.textContent = '?';
+            } else {
+                nextLetterDisplay.textContent = currentWord[0];
+            }
+            renderGrid();
+        }
+
+        function shuffleArray(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+        }
+
+        function renderGrid() {
+            grid.innerHTML = '';
+            currentLetters.forEach((letter, index) => {
+                const div = document.createElement('div');
+                div.dataset.index = index;
+                div.textContent = letter;
+                div.style.borderRadius = '8px';
+                div.style.aspectRatio = '1/1';
+                div.style.display = 'flex';
+                div.style.alignItems = 'center';
+                div.style.justifyContent = 'center';
+                div.style.fontSize = '1.8rem';
+                div.style.fontWeight = 'bold';
+                div.style.color = '#fff';
+                div.style.cursor = 'pointer';
+                div.style.background = '#2a3a5a';
+                div.style.border = '2px solid rgba(255,255,255,0.1)';
+                div.style.transition = 'all 0.2s';
+
+                if (index < nextIndex) {
+                    div.style.background = 'rgba(255,46,90,0.2)';
+                    div.style.borderColor = 'var(--neon-coral)';
+                }
+
+                // ПОДСВЕТКА РАБОТАЕТ СТРОГО ПО БУКВЕ, А НЕ ПО ИНДЕКСУ
+                if (difficulty === 'hard' && letter === currentWord[0]) {
+                    div.style.borderColor = 'var(--neon-coral)';
+                    div.style.boxShadow = '0 0 10px rgba(255,46,90,0.3)';
+                }
+
+                div.addEventListener('click', function() {
+                    handleLetterClick(parseInt(this.dataset.index));
+                });
+                div.addEventListener('touchstart', function(e) {
+                    e.preventDefault();
+                    handleLetterClick(parseInt(this.dataset.index));
+                }, { passive: false });
+
+                grid.appendChild(div);
+            });
+        }
+
+        function handleLetterClick(index) {
+            if (!isGameActive) return;
+            const letter = currentLetters[index];
+            const expectedLetter = currentWord[nextIndex];
+
+            if (letter === expectedLetter) {
+                [currentLetters[index], currentLetters[nextIndex]] = [currentLetters[nextIndex], currentLetters[index]];
+                nextIndex++;
+                
+                if (difficulty === 'hard') {
+                    nextLetterDisplay.textContent = '?';
+                } else {
+                    nextLetterDisplay.textContent = currentWord[nextIndex] || '✓';
+                }
+                renderGrid();
+
+                if (nextIndex === currentWord.length) {
+                    wordsCollected++;
+                    wordCountDisplay.textContent = `${wordsCollected} / 3`;
+                    
+                    if (wordsCollected < 3) {
+                        message.textContent = `✅ Слово собрано! Осталось ${3 - wordsCollected}`;
+                        message.style.color = '#2ecc71';
+                        setTimeout(() => {
+                            message.textContent = '';
+                            if (isGameActive) loadNewWord();
+                        }, 1000);
+                    } else {
+                        clearInterval(timerInterval);
+                        timerInterval = null;
+                        isGameActive = false;
+                        isGameFinished = true;
+                        message.textContent = winMessages[difficulty];
+                        message.style.color = '#2ecc71';
+                        startBtn.style.display = 'inline-block';
+                        setDifficultyButtonsState(true);
+                    }
+                }
+            } else {
+                if (index < nextIndex) return;
+                nextIndex = 0;
+                if (difficulty === 'hard') {
+                    nextLetterDisplay.textContent = '?';
+                } else {
+                    nextLetterDisplay.textContent = currentWord[0];
+                }
+                message.textContent = '❌ Ошибка! Начинаем слово заново.';
+                message.style.color = '#e74c3c';
+                renderGrid();
+                setTimeout(() => {
+                    message.textContent = '';
+                }, 2000);
+            }
+        }
+
+        difficultyBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                if (isGameActive) return;
+
+                difficultyBtns.forEach(b => {
+                    b.style.borderColor = 'rgba(255,255,255,0.3)';
+                    b.style.color = 'rgba(255,255,255,0.7)';
+                    b.style.background = 'transparent';
+                });
+                this.style.borderColor = 'var(--neon-coral)';
+                this.style.color = '#fff';
+                this.style.background = 'rgba(255,46,90,0.1)';
+                difficulty = this.dataset.difficulty;
+                
+                if (timerInterval) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                }
+                isGameActive = false;
+                isGameFinished = false;
+                startBtn.style.display = 'inline-block';
+                gameStats.style.display = 'none';
+                grid.style.display = 'none';
+                message.textContent = '';
+                setDifficultyButtonsState(true);
+                
+                const time = this.dataset.time;
+                timerDisplay.textContent = time;
+                wordCountDisplay.textContent = '0 / 3';
+                nextLetterDisplay.textContent = '?';
+            });
+        });
+
+        startBtn.addEventListener('click', function() {
+            startGame();
+        });
+
+        document.querySelector('.difficulty-btn[data-difficulty="easy"]').click();
+    });
+</script>
+</body>
+</html>
