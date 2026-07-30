@@ -52,22 +52,20 @@
     </div>
 </header>
 
-<!-- ВОЗВРАЩАЕМ padding ТОЛЬКО ДЛЯ ТЕКСТА -->
 <section class="section">
-    <div class="container">
-        <!-- ТЕКСТ С ОТСТУПАМИ -->
+    <div class="container" style="text-align: center;">
         <h1 class="section-title" style="margin-bottom: 1rem;">Собери свою Книжную Грань</h1>
         <p style="max-width: 600px; margin: 0 auto 2rem auto; color: var(--text-secondary);">
             Кликай по любому квадратику кубика, отвечай на душевные вопросы и делись книгами, которые тронули твоё сердце. <br>
             <strong>Твой ответ увидят все, кто откроет этот же квадратик.</strong>
         </p>
 
-        <!-- КУБИК НА ВСЮ ШИРИНУ (убираем padding только здесь) -->
+        <!-- КУБИК НА ВСЮ ШИРИНУ ЭКРАНА -->
         <div style="width: 100vw; margin-left: calc(-50vw + 50%); margin-right: calc(-50vw + 50%);">
             <div id="cube-container" style="width: 100%; aspect-ratio: 1 / 1; background: transparent; cursor: pointer; position: relative; margin: 0 auto;"></div>
         </div>
 
-        <!-- ЛЕГЕНДА С ОТСТУПАМИ -->
+        <!-- ЛЕГЕНДА ПО ЦЕНТРУ -->
         <div style="text-align: center; margin-top: 2rem; color: var(--text-secondary); font-size: 0.9rem;">
             <span style="display: inline-block; width: 12px; height: 12px; background: #c41e3a; border-radius: 2px; margin: 0 4px;"></span> Любовь &nbsp;
             <span style="display: inline-block; width: 12px; height: 12px; background: #0051ba; border-radius: 2px; margin: 0 4px;"></span> Надежда &nbsp;
