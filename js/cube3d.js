@@ -140,4 +140,177 @@ if (!container) {
     function onMouseClick(event) {
         const rect = renderer.domElement.getBoundingClientRect();
         mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-        mouse.y
+        mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+        raycaster.setFromCamera(mouse, camera);
+        const intersects = raycaster.intersectObjects(cubies);
+
+        if (intersects.length > 0) {
+            const clickedCubie = intersects[0].object;
+            const pos = clickedCubie.position;
+            const coords = getGridCoords(pos);
+            
+            // === ГЛАВНОЕ ИСПРАВЛЕНИЕ: нормаль вместо faceIndex ===
+            const normal = intersects[0].face.normal.clone();
+            normal.applyQuaternion(clickedCubie.quaternion);
+            
+            let materialIndex = 0;
+            const nx = Math.round(normal.x);
+            const ny = Math.round(normal.y);
+            const nz = Math.round(normal.z);
+            
+            if (nx === 1) materialIndex = 0;
+            else if (nx === -1) materialIndex = 1;
+            else if (ny === 1) materialIndex = 2;
+            else if (ny === -1) materialIndex = 3;
+            else if (nz === 1) materialIndex = 4;
+            else if (nz === -1) materialIndex = 5;
+            else materialIndex = 0;
+            
+            const colorHex = clickedCubie.material[materialIndex].color.getHex();
+            const colorName = getColorName(colorHex);
+            
+            let gx = 0, gy = 0;
+            
+            if (materialIndex === 0 || materialIndex === 1) {
+                gx = coords.y + 1;
+                gy = coords.z + 1;
+            } else if (materialIndex === 2 || materialIndex === 3) {
+                gx = coords.x + 1;
+                gy = coords.z + 1;
+            } else {
+                gx = coords.x + 1;
+                gy = coords.y + 1;
+            }
+            
+            openGran(colorName, gx, gy);
+        }
+    }
+
+    const canvas = renderer.domElement;
+    canvas.addEventListener('click', onMouseClick);
+
+    let isDragging = false;
+    let lastX = 0, lastY = 0;
+
+    function getXY(e) {
+        if (e.touches) {
+            return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+        }
+        return { x: e.clientX, y: e.clientY };
+    }
+
+    function onStart(e) {
+        isDragging = true;
+        const coords = getXY(e);
+        lastX = coords.x;
+        lastY = coords.y;
+        container.style.cursor = 'grabbing';
+    }
+
+    function onMove(e) {
+        if (!isDragging) return;
+        const coords = getXY(e);
+        const deltaX = coords.x - lastX;
+        const deltaY = coords.y - lastY;
+        
+        if (deltaX !== 0 || deltaY !== 0) {
+            const axis = new THREE.Vector3(deltaY, deltaX, 0).normalize();
+            const angle = Math.sqrt(deltaX * deltaX + deltaY * deltaY) * 0.008;
+            
+            const quaternion = new THREE.Quaternion().setFromAxisAngle(axis, angle);
+            cubeGroup.quaternion.multiply(quaternion);
+            
+            lastX = coords.x;
+            lastY = coords.y;
+        }
+    }
+
+    function onEnd() {
+        isDragging = false;
+        container.style.cursor = 'pointer';
+    }
+
+    container.addEventListener('mousedown', onStart);
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onEnd);
+
+    let touchStartX = 0, touchStartY = 0;
+    let touchMoved = false;
+
+    canvas.addEventListener('touchstart', function(e) {
+        const touch = e.touches[0];
+        touchStartX = touch.clientX;
+        touchStartY = touch.clientY;
+        touchMoved = false;
+        onStart(e);
+    }, { passive: false });
+
+    canvas.addEventListener('touchmove', function(e) {
+        const touch = e.touches[0];
+        const dx = Math.abs(touch.clientX - touchStartX);
+        const dy = Math.abs(touch.clientY - touchStartY);
+        if (dx > 10 || dy > 10) {
+            touchMoved = true;
+        }
+        onMove(e);
+        e.preventDefault();
+    }, { passive: false });
+
+    canvas.addEventListener('touchend', function(e) {
+        onEnd();
+        if (!touchMoved) {
+            onMouseClick(e.changedTouches[0]);
+        }
+    }, { passive: true });
+
+    let currentZoom = 4.5;
+
+    container.addEventListener('wheel', function(e) {
+        e.preventDefault();
+        const delta = e.deltaY > 0 ? 0.5 : -0.5;
+        currentZoom = Math.min(7, Math.max(2.5, currentZoom + delta));
+        updateCamera();
+    }, { passive: false });
+
+    let lastTouchDist = 0;
+    canvas.addEventListener('touchstart', function(e) {
+        if (e.touches.length === 2) {
+            const dx = e.touches[0].clientX - e.touches[1].clientX;
+            const dy = e.touches[0].clientY - e.touches[1].clientY;
+            lastTouchDist = Math.sqrt(dx*dx + dy*dy);
+        }
+    }, { passive: true });
+
+    canvas.addEventListener('touchmove', function(e) {
+        if (e.touches.length === 2) {
+            e.preventDefault();
+            const dx = e.touches[0].clientX - e.touches[1].clientX;
+            const dy = e.touches[0].clientY - e.touches[1].clientY;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            const delta = (dist - lastTouchDist) * 0.02;
+            currentZoom = Math.min(7, Math.max(2.5, currentZoom - delta));
+            updateCamera();
+            lastTouchDist = dist;
+        }
+    }, { passive: false });
+
+    function updateCamera() {
+        camera.position.set(currentZoom * 0.7, currentZoom * 0.5, currentZoom * 0.9);
+        camera.lookAt(0, 0, 0);
+    }
+
+    function render() {
+        renderer.render(scene, camera);
+        requestAnimationFrame(render);
+    }
+    render();
+
+    window.addEventListener('resize', () => {
+        const width = container.clientWidth;
+        const height = container.clientHeight;
+        renderer.setSize(width, height);
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+    });
+}
