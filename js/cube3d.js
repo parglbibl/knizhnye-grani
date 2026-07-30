@@ -1,14 +1,10 @@
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 
-// Ждём появления контейнера
-function initCube() {
-    const container = document.getElementById('cube-container');
-    if (!container || container.getBoundingClientRect().width === 0) {
-        requestAnimationFrame(initCube);
-        return;
-    }
-
+const container = document.getElementById('cube-container');
+if (!container) {
+    console.error('Контейнер для кубика не найден');
+} else {
     const scene = new THREE.Scene();
     scene.background = null;
 
@@ -16,7 +12,7 @@ function initCube() {
     camera.position.set(3.5, 2.5, 4.5);
     camera.lookAt(0, 0, 0);
 
-    // === ДИНАМИЧЕСКИЙ РАЗМЕР РЕНДЕРА ===
+    // ===== ДИНАМИЧЕСКИЙ РАЗМЕР РЕНДЕРА =====
     const rect = container.getBoundingClientRect();
     const size = Math.min(rect.width, rect.height);
 
@@ -331,6 +327,3 @@ function initCube() {
         camera.updateProjectionMatrix();
     });
 }
-
-// Запускаем
-initCube();
