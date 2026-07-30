@@ -52,16 +52,17 @@
     </div>
 </header>
 
+<!-- ВОЗВРАЩАЕМ container, НО ДЕЛАЕМ padding: 0 -->
 <section class="section">
-    <div class="container">
-        <h1 class="section-title">Собери свою Книжную Грань</h1>
-        <p style="text-align: center; margin-bottom: 2rem; color: var(--text-secondary);">
+    <div class="container" style="padding-left: 0; padding-right: 0;">
+        <h1 class="section-title" style="margin-bottom: 1rem;">Собери свою Книжную Грань</h1>
+        <p style="max-width: 600px; margin: 0 auto 2rem auto; color: var(--text-secondary);">
             Кликай по любому квадратику кубика, отвечай на душевные вопросы и делись книгами, которые тронули твоё сердце. <br>
             <strong>Твой ответ увидят все, кто откроет этот же квадратик.</strong>
         </p>
 
-        <!-- КОНТЕЙНЕР ТЕПЕРЬ ЗАНИМАЕТ 95% ШИРИНЫ ЭКРАНА -->
-        <div id="cube-container" style="width: 95%; max-width: 650px; aspect-ratio: 1 / 1; margin: 0 auto 2rem auto; background: transparent; cursor: pointer; position: relative;"></div>
+        <!-- КОНТЕЙНЕР ТЕПЕРЬ БЕЗ БОКОВЫХ ОТСТУПОВ -->
+        <div id="cube-container" style="width: 100%; max-width: 100%; aspect-ratio: 1 / 1; background: transparent; cursor: pointer; position: relative; margin: 0 auto;"></div>
 
         <div style="text-align: center; margin-top: 2rem; color: var(--text-secondary); font-size: 0.9rem;">
             <span style="display: inline-block; width: 12px; height: 12px; background: #c41e3a; border-radius: 2px; margin: 0 4px;"></span> Любовь &nbsp;
