@@ -41,21 +41,21 @@ if (!container) {
     };
 
     const textureMaterials = {
-        red: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.red), roughness: 0.9, metalness: 0.0 }),
-        blue: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.blue), roughness: 0.9, metalness: 0.0 }),
-        yellow: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.yellow), roughness: 0.9, metalness: 0.0 }),
-        green: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.green), roughness: 0.9, metalness: 0.0 }),
-        white: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.white), roughness: 0.9, metalness: 0.0 }),
-        orange: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.orange), roughness: 0.9, metalness: 0.0 })
+        red: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.red), roughness: 0.3, metalness: 0.05 }),
+        blue: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.blue), roughness: 0.3, metalness: 0.05 }),
+        yellow: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.yellow), roughness: 0.3, metalness: 0.05 }),
+        green: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.green), roughness: 0.3, metalness: 0.05 }),
+        white: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.white), roughness: 0.3, metalness: 0.05 }),
+        orange: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.orange), roughness: 0.3, metalness: 0.05 })
     };
 
     const fallbackMaterials = {
-        red: new THREE.MeshStandardMaterial({ color: 0xc41e3a, roughness: 0.9, metalness: 0.0 }),
-        blue: new THREE.MeshStandardMaterial({ color: 0x0051ba, roughness: 0.9, metalness: 0.0 }),
-        yellow: new THREE.MeshStandardMaterial({ color: 0xffd700, roughness: 0.9, metalness: 0.0 }),
-        green: new THREE.MeshStandardMaterial({ color: 0x009e60, roughness: 0.9, metalness: 0.0 }),
-        white: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9, metalness: 0.0 }),
-        orange: new THREE.MeshStandardMaterial({ color: 0xff8c00, roughness: 0.9, metalness: 0.0 })
+        red: new THREE.MeshStandardMaterial({ color: 0xc41e3a, roughness: 0.3 }),
+        blue: new THREE.MeshStandardMaterial({ color: 0x0051ba, roughness: 0.3 }),
+        yellow: new THREE.MeshStandardMaterial({ color: 0xffd700, roughness: 0.3 }),
+        green: new THREE.MeshStandardMaterial({ color: 0x009e60, roughness: 0.3 }),
+        white: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.3 }),
+        orange: new THREE.MeshStandardMaterial({ color: 0xff8c00, roughness: 0.3 })
     };
 
     const colorMap = {
@@ -67,8 +67,9 @@ if (!container) {
         0xff8c00: 'orange'
     };
 
+    // === СКРУГЛЕНИЯ (но теперь с правильным определением материала) ===
     const offset = 0.685;  
-    const sizeCubie = 0.675;    
+    const size = 0.675;    
     const radius = 0.08;    
     const segments = 4;     
 
@@ -77,6 +78,7 @@ if (!container) {
     for (let x = -1; x <= 1; x++) {
         for (let y = -1; y <= 1; y++) {
             for (let z = -1; z <= 1; z++) {
+                // Материалы для каждой грани
                 const matArray = [
                     x === 1 ? textureMaterials.red || fallbackMaterials.red : (x === -1 ? textureMaterials.orange || fallbackMaterials.orange : textureMaterials.red || fallbackMaterials.red),
                     x === -1 ? textureMaterials.orange || fallbackMaterials.orange : (x === 1 ? textureMaterials.red || fallbackMaterials.red : textureMaterials.orange || fallbackMaterials.orange),
@@ -86,11 +88,12 @@ if (!container) {
                     z === -1 ? textureMaterials.blue || fallbackMaterials.blue : (z === 1 ? textureMaterials.green || fallbackMaterials.green : textureMaterials.blue || fallbackMaterials.blue)
                 ];
                 
-                const geometry = new RoundedBoxGeometry(sizeCubie, sizeCubie, sizeCubie, segments, radius);
+                const geometry = new RoundedBoxGeometry(size, size, size, segments, radius);
                 const cubie = new THREE.Mesh(geometry, matArray);
                 cubie.userData = { 
                     originalPos: { x: x * offset, y: y * offset, z: z * offset },
-                    gridX: x, gridY: y, gridZ: z
+                    gridX: x, gridY: y, gridZ: z,
+                    materials: matArray // Сохраняем ссылку на материалы
                 };
                 cubie.position.set(x * offset, y * offset, z * offset);
                 cubeGroup.add(cubie);
@@ -102,23 +105,25 @@ if (!container) {
     const ambientLight = new THREE.AmbientLight(0x606080, 0.6);
     scene.add(ambientLight);
     
-    const mainLight = new THREE.DirectionalLight(0xffffff, 0.9);
+    const mainLight = new THREE.DirectionalLight(0xffffff, 1.2);
     mainLight.position.set(2, 4, 3);
     scene.add(mainLight);
     
-    const fillLight = new THREE.DirectionalLight(0xffffff, 0.5);
+    const fillLight = new THREE.DirectionalLight(0xffffff, 0.6);
     fillLight.position.set(-2, 1, 2);
     scene.add(fillLight);
     
-    const backLight = new THREE.DirectionalLight(0xffffff, 0.2);
+    const backLight = new THREE.DirectionalLight(0xffffff, 0.3);
     backLight.position.set(0, 1, -3);
     scene.add(backLight);
 
-    // ===== ЛОГИКА КЛИКА (ПО ИНДЕКСУ ТРЕУГОЛЬНИКА) =====
+    // ===== ЛОГИКА КЛИКА (ИСПРАВЛЕННАЯ ДЛЯ СКРУГЛЕНИЙ) =====
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
 
-    function getColorName(colorHex) {
+    function getColorName(materialColor) {
+        // Преобразуем цвет материала в строку
+        const colorHex = materialColor.getHex();
         return colorMap[colorHex] || 'unknown';
     }
 
@@ -150,13 +155,38 @@ if (!container) {
             const pos = clickedCubie.position;
             const coords = getGridCoords(pos);
             
-            const faceIndex = intersects[0].faceIndex;
-            const materialIndex = Math.floor(faceIndex / 2);
-            const colorHex = clickedCubie.material[materialIndex].color.getHex();
-            const colorName = getColorName(colorHex);
+            // === ГЛАВНОЕ ИСПРАВЛЕНИЕ ===
+            // Не используем faceIndex. Берём цвет материала напрямую из массива материалов кубика.
+            // Для скруглённой геометрии это единственный надёжный способ.
+            
+            // Определяем, какая грань была задетта, по нормали
+            const normal = intersects[0].face.normal.clone();
+            // Преобразуем нормаль в мировые координаты
+            normal.applyQuaternion(clickedCubie.quaternion);
+            
+            // Определяем индекс материала на основе направления нормали
+            let materialIndex = 0;
+            const nx = Math.round(normal.x);
+            const ny = Math.round(normal.y);
+            const nz = Math.round(normal.z);
+            
+            if (nx === 1) materialIndex = 0;        // Правая (+X)
+            else if (nx === -1) materialIndex = 1;  // Левая (-X)
+            else if (ny === 1) materialIndex = 2;   // Верхняя (+Y)
+            else if (ny === -1) materialIndex = 3;  // Нижняя (-Y)
+            else if (nz === 1) materialIndex = 4;   // Передняя (+Z)
+            else if (nz === -1) materialIndex = 5;  // Задняя (-Z)
+            else materialIndex = 0; // Дефолт
+            
+            // Берём материал из сохранённых материалов
+            const mat = clickedCubie.userData.materials[materialIndex];
+            if (!mat) return;
+            
+            const colorName = getColorName(mat.color);
             
             let gx = 0, gy = 0;
             
+            // Определяем координаты сетки на основе нормали
             if (materialIndex === 0 || materialIndex === 1) {
                 gx = coords.y + 1;
                 gy = coords.z + 1;
