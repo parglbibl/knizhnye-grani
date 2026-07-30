@@ -1,352 +1,304 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Спидкубинг — обучение сборке кубика Рубика в библиотеке</title>
-    <link rel="stylesheet" href="/css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+import * as THREE from 'three';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+
+const container = document.getElementById('cube-container');
+if (!container) {
+    console.error('Контейнер для кубика не найден');
+} else {
+    const scene = new THREE.Scene();
+    scene.background = null;
+
+    const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 1000);
+    camera.position.set(3.5, 2.5, 4.5);
+    camera.lookAt(0, 0, 0);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(320, 320);
+    renderer.setClearColor(0x000000, 0);
+    container.appendChild(renderer.domElement);
+
+    const cubeGroup = new THREE.Group();
+    scene.add(cubeGroup);
+
+    // ===== ЗАГРУЗКА ТЕКСТУР =====
+    const textureLoader = new THREE.TextureLoader();
     
-    <!-- Yandex.Metrika counter -->
-    <script type="text/javascript">
-        (function(m,e,t,r,i,k,a){
-            m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-            m[i].l=1*new Date();
-            for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
-            k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
-        })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=109783209', 'ym');
+    const textureFiles = {
+        red: '/images/cube_textures/red.jpg',
+        blue: '/images/cube_textures/blue.jpg',
+        yellow: '/images/cube_textures/yellow.jpg',
+        green: '/images/cube_textures/green.jpg',
+        white: '/images/cube_textures/white.jpg',
+        orange: '/images/cube_textures/orange.jpg'
+    };
 
-        ym(109783209, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
-    </script>
-    <noscript><div><img src="https://mc.yandex.ru/watch/109783209" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
-    <!-- /Yandex.Metrika counter -->
+    const loadTexture = (url) => {
+        const tex = textureLoader.load(url);
+        tex.wrapS = THREE.ClampToEdgeWrapping;
+        tex.wrapT = THREE.ClampToEdgeWrapping;
+        return tex;
+    };
 
-    <link rel="icon" type="image/x-icon" href="/favicon/favicon.ico">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
-    <link rel="manifest" href="/favicon/site.webmanifest">
-    <meta name="msapplication-TileColor" content="#ff2e5a">
-    <meta name="theme-color" content="#fef9f0">
-</head>
-<body>
+    const textureMaterials = {
+        red: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.red), roughness: 0.9, metalness: 0.0 }),
+        blue: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.blue), roughness: 0.9, metalness: 0.0 }),
+        yellow: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.yellow), roughness: 0.9, metalness: 0.0 }),
+        green: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.green), roughness: 0.9, metalness: 0.0 }),
+        white: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.white), roughness: 0.9, metalness: 0.0 }),
+        orange: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.orange), roughness: 0.9, metalness: 0.0 })
+    };
 
-<header>
-    <div class="container header-inner">
-        <div class="logo">
-            <div class="logo-cbs">
-                <img src="/images/logo-cbs.png" alt="ЦБС Выборгского района">
-            </div>
-            <div class="logo-rost">
-                <img src="/images/logo-rost.png" alt="Проектный офис РОСТ">
-            </div>
-            <a href="/index.html">
-                <img src="/images/logo-grani.png" alt="Книжные грани" style="height: 40px; width: auto;">
-            </a>
-        </div>
-        <div class="menu-toggle" id="menuToggle">
-            <i class="fas fa-bars"></i>
-        </div>
-        <nav class="nav" id="nav"></nav>
-    </div>
-</header>
+    const fallbackMaterials = {
+        red: new THREE.MeshStandardMaterial({ color: 0xc41e3a, roughness: 0.9, metalness: 0.0 }),
+        blue: new THREE.MeshStandardMaterial({ color: 0x0051ba, roughness: 0.9, metalness: 0.0 }),
+        yellow: new THREE.MeshStandardMaterial({ color: 0xffd700, roughness: 0.9, metalness: 0.0 }),
+        green: new THREE.MeshStandardMaterial({ color: 0x009e60, roughness: 0.9, metalness: 0.0 }),
+        white: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9, metalness: 0.0 }),
+        orange: new THREE.MeshStandardMaterial({ color: 0xff8c00, roughness: 0.9, metalness: 0.0 })
+    };
 
-<section class="section">
-    <div class="container" style="text-align: center;">
-        <h1 class="section-title" style="margin-bottom: 1rem;">Собери свою Книжную Грань</h1>
-        <p style="max-width: 600px; margin: 0 auto 2rem auto; color: var(--text-secondary);">
-            Кликай по любому квадратику кубика, отвечай на душевные вопросы и делись книгами, которые тронули твоё сердце. <br>
-            <strong>Твой ответ увидят все, кто откроет этот же квадратик.</strong>
-        </p>
+    const colorMap = {
+        0xc41e3a: 'red',
+        0x0051ba: 'blue',
+        0xffd700: 'yellow',
+        0x009e60: 'green',
+        0xffffff: 'white',
+        0xff8c00: 'orange'
+    };
 
-        <div style="width: 100vw; margin-left: calc(-50vw + 50%); margin-right: calc(-50vw + 50%);">
-            <div id="cube-container" style="width: 100%; aspect-ratio: 1 / 1; background: transparent; cursor: pointer; position: relative; margin: 0 auto;"></div>
-        </div>
+    const offset = 0.685;  
+    const sizeCubie = 0.675;    
+    const radius = 0.08;    
+    const segments = 4;     
 
-        <div style="display: flex; flex-direction: column; align-items: center; margin-top: 2.5rem;">
-            <div style="display: flex; flex-direction: column; gap: 0.6rem; padding: 1rem 1.8rem; background: rgba(255,255,255,0.65); backdrop-filter: blur(2px); border-radius: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.03); width: 100%; max-width: 260px;">
+    const cubies = [];
+
+    for (let x = -1; x <= 1; x++) {
+        for (let y = -1; y <= 1; y++) {
+            for (let z = -1; z <= 1; z++) {
+                const matArray = [
+                    x === 1 ? textureMaterials.red || fallbackMaterials.red : (x === -1 ? textureMaterials.orange || fallbackMaterials.orange : textureMaterials.red || fallbackMaterials.red),
+                    x === -1 ? textureMaterials.orange || fallbackMaterials.orange : (x === 1 ? textureMaterials.red || fallbackMaterials.red : textureMaterials.orange || fallbackMaterials.orange),
+                    y === 1 ? textureMaterials.white || fallbackMaterials.white : (y === -1 ? textureMaterials.yellow || fallbackMaterials.yellow : textureMaterials.white || fallbackMaterials.white),
+                    y === -1 ? textureMaterials.yellow || fallbackMaterials.yellow : (y === 1 ? textureMaterials.white || fallbackMaterials.white : textureMaterials.yellow || fallbackMaterials.yellow),
+                    z === 1 ? textureMaterials.green || fallbackMaterials.green : (z === -1 ? textureMaterials.blue || fallbackMaterials.blue : textureMaterials.green || fallbackMaterials.green),
+                    z === -1 ? textureMaterials.blue || fallbackMaterials.blue : (z === 1 ? textureMaterials.green || fallbackMaterials.green : textureMaterials.blue || fallbackMaterials.blue)
+                ];
                 
-                <div style="display: flex; align-items: center; gap: 1rem;">
-                    <img src="/images/cube_textures/red.jpg" alt="Любовь" style="width: 28px; height: 28px; border-radius: 6px; object-fit: cover;">
-                    <span style="font-weight: 500; font-size: 0.85rem; color: var(--text-secondary);">Любовь</span>
-                </div>
-                <div style="display: flex; align-items: center; gap: 1rem;">
-                    <img src="/images/cube_textures/blue.jpg" alt="Надежда" style="width: 28px; height: 28px; border-radius: 6px; object-fit: cover;">
-                    <span style="font-weight: 500; font-size: 0.85rem; color: var(--text-secondary);">Надежда</span>
-                </div>
-                <div style="display: flex; align-items: center; gap: 1rem;">
-                    <img src="/images/cube_textures/yellow.jpg" alt="Совесть" style="width: 28px; height: 28px; border-radius: 6px; object-fit: cover;">
-                    <span style="font-weight: 500; font-size: 0.85rem; color: var(--text-secondary);">Совесть</span>
-                </div>
-                <div style="display: flex; align-items: center; gap: 1rem;">
-                    <img src="/images/cube_textures/green.jpg" alt="Добро" style="width: 28px; height: 28px; border-radius: 6px; object-fit: cover;">
-                    <span style="font-weight: 500; font-size: 0.85rem; color: var(--text-secondary);">Добро</span>
-                </div>
-                <div style="display: flex; align-items: center; gap: 1rem;">
-                    <img src="/images/cube_textures/white.jpg" alt="Память" style="width: 28px; height: 28px; border-radius: 6px; object-fit: cover;">
-                    <span style="font-weight: 500; font-size: 0.85rem; color: var(--text-secondary);">Память</span>
-                </div>
-                <div style="display: flex; align-items: center; gap: 1rem;">
-                    <img src="/images/cube_textures/orange.jpg" alt="Семья" style="width: 28px; height: 28px; border-radius: 6px; object-fit: cover;">
-                    <span style="font-weight: 500; font-size: 0.85rem; color: var(--text-secondary);">Семья</span>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<footer>
-    <div class="container">
-        <div class="footer-grid">
-            <div class="footer-col">
-                <h3>Книжные грани</h3>
-                <p>Проект ЦБС Выборгского района</p>
-                <p>Работает на базе <strong>Библиотеки-мастерской</strong></p>
-                <p>пр. Просвещения, 43, ТРК «Парк-Молл», 2 этаж</p>
-                <p><strong>+7 (812) 246-93-15</strong></p>
-            </div>
-            <div class="footer-col">
-                <h3>Разделы</h3>
-                <p><a href="/index.html">Главная</a></p>
-                <p><a href="/about.html">О проекте</a></p>
-                <p><a href="/events.html">Мероприятия</a></p>
-                <p><a href="/contacts.html">Контакты</a></p>
-            </div>
-            <div class="footer-col">
-                <h3>Мы в соцсетях</h3>
-                <div class="footer-social">
-                    <a href="https://vk.com/officecbsbvib" target="_blank"><i class="fab fa-vk"></i></a>
-                </div>
-                <p style="margin-top:1.5rem;">Следите за анонсами в нашей группе ВКонтакте</p>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <p>© <span id="current-year"></span> Книжные грани | ЦБС Выборгского района</p>
-        </div>
-    </div>
-</footer>
-
-<script src="/js/main.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyBH0b4U-EkIIX0fiE3SdYtG0AZ-9bjlEiw",
-    authDomain: "knizhnye-grani.firebaseapp.com",
-    databaseURL: "https://knizhnye-grani-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "knizhnye-grani",
-    storageBucket: "knizhnye-grani.firebasestorage.app",
-    messagingSenderId: "633401933627",
-    appId: "1:633401933627:web:978ea1152ad840062a411e"
-  };
-
-  firebase.initializeApp(firebaseConfig);
-  const database = firebase.database();
-
-  const questionsDB = {
-    'red_0_0_1': 'Какая книга подарила тебе ощущение дома, даже если ты был далеко?',
-    'red_0_1_1': 'Какая книга заставила тебя почувствовать гордость за место, где ты живёшь?',
-    'red_0_2_1': 'Какую книгу ты бы отправил своему прошлому "я" со словами "ты справишься"?',
-    'red_1_0_1': 'От какой книги у тебя загорелись глаза и захотелось что-то делать?',
-    'red_1_1_1': 'Какую книгу ты бы взял с собой в отпуск с самыми близкими друзьями?',
-    'red_1_2_1': 'Какая книга заставила тебя выйти на улицу и увидеть красоту вокруг?',
-    'red_2_0_1': 'Какая книга навсегда изменила твоё представление о красоте?',
-    'red_2_1_1': 'Какая книга напоминает тебе о твоей юности и первых чувствах?',
-    'red_2_2_1': 'Есть ли книга, которая научила тебя принимать людей такими, какие они есть?',
-    
-    'blue_0_0_1': 'Какая книга помогла тебе проснуться утром, даже когда не хотелось вставать?',
-    'blue_0_1_1': 'От какой книги у тебя появилась вера, что завтра будет лучше?',
-    'blue_0_2_1': 'Какая книга стала для тебя светом в самом длинном тоннеле?',
-    'blue_1_0_1': 'Какая книга подарила тебе силу бороться, когда казалось, что всё рухнуло?',
-    'blue_1_1_1': 'Вспомни книгу, которая заставила тебя поверить в чудо.',
-    'blue_1_2_1': 'От какой книги у тебя появилось желание жить и дышать полной грудью?',
-    'blue_2_0_1': 'Какая книга вернула тебе улыбку, когда мир казался серым?',
-    'blue_2_1_1': 'Назови книгу, которая доказала тебе: "Всё обязательно наладится".',
-    'blue_2_2_1': 'Какая книга оставила после себя ощущение, что ты не сдашься?',
-
-    'yellow_0_0_1': 'Какая книга помогла тебе услышать свой тихий внутренний голос?',
-    'yellow_0_1_1': 'Назови книгу, где герой сделал трудный, но правильный выбор.',
-    'yellow_0_2_1': 'Какая книга научила тебя не идти за толпой, а идти за собой?',
-    'yellow_1_0_1': 'Вспомни книгу, после которой ты перестал оправдывать то, что неправильно.',
-    'yellow_1_1_1': 'Какая книга заставила тебя спросить себя: "А я бы поступил так же?"',
-    'yellow_1_2_1': 'От какой книги у тебя проснулась совесть и захотелось что-то исправить?',
-    'yellow_2_0_1': 'Назови книгу, где герой выбирает честность, даже если это больно.',
-    'yellow_2_1_1': 'Какая книга помогла тебе разобраться в себе, когда было много сомнений?',
-    'yellow_2_2_1': 'Какая книга оставила тебе чувство, что ты не имеешь права молчать?',
-
-    'green_0_0_1': 'Назови книгу, которая вдохновила тебя сделать кому-то приятное просто так.',
-    'green_0_1_1': 'Какая книга научила тебя замечать тех, кому нужна помощь?',
-    'green_0_2_1': 'Вспомни книгу, где доброта оказалась сильнее любой ссоры.',
-    'green_1_0_1': 'От какой книги у тебя появилось желание улыбнуться незнакомцу?',
-    'green_1_1_1': 'Какая книга заставила тебя поверить, что мир держится на добрых людях?',
-    'green_1_2_1': 'Назови книгу, которая показала, что "просто так" — это самое важное.',
-    'green_2_0_1': 'Какая книга напомнила тебе, что маленький поступок меняет многое?',
-    'green_2_1_1': 'Вспомни книгу, которую ты бы подарил тому, кто сегодня грустит.',
-    'green_2_2_1': 'Какая книга подарила тебе ощущение, что ты можешь быть чьим-то лучом света?',
-
-    'white_0_0_1': 'Какая книга заставила тебя вспомнить голос бабушки или дедушки?',
-    'white_0_1_1': 'Назови книгу, которая помогла тебе почувствовать связь с твоими корнями.',
-    'white_0_2_1': 'Какая книга напомнила тебе о великой истории, которую нельзя забывать?',
-    'white_1_0_1': 'Вспомни книгу, которая стала для тебя семейной реликвией.',
-    'white_1_1_1': 'Какая книга помогла тебе сохранить память о том, кто ушёл?',
-    'white_1_2_1': 'Назови книгу, которая научила тебя благодарить за прошлое.',
-    'white_2_0_1': 'Какая книга вернула тебя в твоё детство, в твой самый родной уголок?',
-    'white_2_1_1': 'Вспомни книгу, которая заставила тебя позвонить родителям и сказать спасибо.',
-    'white_2_2_1': 'Какая книга напомнила тебе: "Пока мы помним – мы живы"?',
-
-    'orange_0_0_1': 'Какая книга подарила тебе ощущение, что ты всегда можешь вернуться домой?',
-    'orange_0_1_1': 'Назови книгу, которую ты хотел бы прочитать вслух всем своим близким.',
-    'orange_0_2_1': 'Какая книга заставила тебя собрать всю семью за одним столом?',
-    'orange_1_0_1': 'Вспомни книгу, которая научила тебя прощать родных, когда это трудно.',
-    'orange_1_1_1': 'Какая книга оставила тебе чувство, что твоя семья – это твоя крепость?',
-    'orange_1_2_1': 'Назови книгу, которая показала, что семья – это не кровь, а те, кто рядом.',
-    'orange_2_0_1': 'Какая книга помогла тебе понять своих родителей, когда они были далеко?',
-    'orange_2_1_1': 'Вспомни книгу, где семейные традиции спасали героев.',
-    'orange_2_2_1': 'Какая книга научила тебя беречь то, что у тебя есть дома?'
-  };
-
-  const colorNames = {
-    'red': 'Любовь',
-    'blue': 'Надежда',
-    'yellow': 'Совесть',
-    'green': 'Добро',
-    'white': 'Память',
-    'orange': 'Семья'
-  };
-
-  const texturePaths = {
-    'red': '/images/cube_textures/red.jpg',
-    'blue': '/images/cube_textures/blue.jpg',
-    'yellow': '/images/cube_textures/yellow.jpg',
-    'green': '/images/cube_textures/green.jpg',
-    'white': '/images/cube_textures/white.jpg',
-    'orange': '/images/cube_textures/orange.jpg'
-  };
-
-  function createPopup() {
-      const popupHTML = `
-          <div id="bookGranPopup" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); backdrop-filter:blur(6px); z-index:9999; align-items:center; justify-content:center;">
-              <div style="background:#fff; max-width:600px; width:90%; padding:2rem; border-radius:28px; position:relative; box-shadow:0 24px 70px rgba(0,0,0,0.25); max-height:90vh; overflow-y:auto;">
-                  <button id="popupClose" style="position:absolute; top:15px; right:20px; font-size:28px; background:none; border:none; cursor:pointer; color:#999; transition: color 0.2s;">&times;</button>
-                  
-                  <div style="display:flex; align-items:center; gap:0.8rem; margin-bottom:0.8rem;">
-                      <img id="popupThumb" src="" alt="Грань" style="width:32px; height:32px; border-radius:8px; object-fit:cover;">
-                      <h2 id="popupColorTitle" style="font-size:1.3rem; font-weight:600; margin:0; color:#1e2a3a;">Грань</h2>
-                  </div>
-                  
-                  <p id="popupQuestion" style="font-size:1.05rem; line-height:1.6; margin:0.8rem 0 1.8rem 0; color:#333; font-weight:400;"></p>
-                  
-                  <div id="popupAnswers" style="margin-bottom:1.8rem; max-height:150px; overflow-y:auto; border-top:1px solid #f0f0f0; padding-top:1.2rem;"></div>
-                  
-                  <textarea id="popupInput" placeholder="Напиши здесь название книги и свои чувства..." style="width:100%; padding:1rem 1.2rem; border:2px solid #eee; border-radius:18px; font-family:inherit; font-size:0.95rem; min-height:80px; resize:vertical; background:#fafbfc; outline:none;"></textarea>
-                  
-                  <button id="popupSubmit" style="width:100%; margin-top:1rem; padding:0.9rem; background:#ff2e5a; color:#fff; border:none; border-radius:18px; font-weight:600; font-size:1rem; cursor:pointer; transition: transform 0.15s, box-shadow 0.15s; box-shadow:0 4px 16px rgba(255,46,90,0.25);">Ответить и поделиться</button>
-                  
-                  <p style="font-size:0.7rem; color:#999; margin-top:1rem; text-align:center; line-height:1.4;">Твой ответ увидят все, кто откроет этот квадратик</p>
-              </div>
-          </div>
-      `;
-      document.body.insertAdjacentHTML('beforeend', popupHTML);
-  }
-  createPopup();
-
-  const popup = document.getElementById('bookGranPopup');
-  const popupClose = document.getElementById('popupClose');
-  const popupColorTitle = document.getElementById('popupColorTitle');
-  const popupThumb = document.getElementById('popupThumb');
-  const popupQuestion = document.getElementById('popupQuestion');
-  const popupAnswers = document.getElementById('popupAnswers');
-  const popupInput = document.getElementById('popupInput');
-  const popupSubmit = document.getElementById('popupSubmit');
-
-  let currentElementId = null;
-
-  window.openBookGran = function(color, x, y) {
-      // Без шаблонных строк — только склейка
-      const elementId = color + '_' + x + '_' + y + '_1';
-      currentElementId = elementId;
-
-      popupColorTitle.textContent = colorNames[color] || color;
-      popupThumb.src = texturePaths[color] || '';
-
-      const question = questionsDB[elementId];
-      popupQuestion.textContent = question || 'Для этого квадратика пока нет вопроса. Придумай свой!';
-      popupAnswers.innerHTML = '<p style="color:#aaa; font-size:0.9rem; text-align:center; margin:0;">Пока никто не ответил на этот вопрос.<br>Будь первым! ✨</p>';
-      popupInput.value = '';
-      popup.style.display = 'flex';
-      document.body.style.overflow = 'hidden';
-      loadAnswers(elementId);
-  };
-
-  function loadAnswers(elementId) {
-      const answersRef = database.ref('answers/' + elementId);
-      answersRef.on('value', (snapshot) => {
-          const data = snapshot.val();
-          popupAnswers.innerHTML = '';
-          if (!data) {
-              popupAnswers.innerHTML = '<p style="color:#aaa; font-size:0.9rem; text-align:center; margin:0;">Пока никто не ответил на этот вопрос.<br>Будь первым! ✨</p>';
-              return;
-          }
-          const answersArray = Object.values(data).reverse();
-          answersArray.forEach((item) => {
-              const div = document.createElement('div');
-              div.style.cssText = 'background:#f5f0e8; border-radius:14px; padding:0.8rem 1.2rem; margin-bottom:0.8rem; box-shadow:0 2px 6px rgba(0,0,0,0.02);';
-              div.innerHTML = `
-                  <div style="font-size:0.9rem; color:#333; line-height:1.5;">${item.text}</div>
-                  <div style="font-size:0.65rem; color:#888; margin-top:0.3rem;">${item.user || 'Аноним'} · ${item.timestamp || ''}</div>
-              `;
-              popupAnswers.appendChild(div);
-          });
-      });
-  }
-
-  popupSubmit.addEventListener('click', function() {
-      const text = popupInput.value.trim();
-      if (!text) {
-          alert('Пожалуйста, напиши свой ответ перед отправкой.');
-          return;
-      }
-      if (!currentElementId) return;
-
-      const newAnswer = {
-          text: text,
-          user: 'Аноним',
-          timestamp: new Date().toLocaleString('ru-RU')
-      };
-
-      const answersRef = database.ref('answers/' + currentElementId);
-      answersRef.push(newAnswer).then(() => {
-          popupInput.value = '';
-          alert('Спасибо! Твой ответ сохранён и теперь виден всем.');
-      }).catch((error) => {
-          console.error('Ошибка сохранения:', error);
-          alert('Произошла ошибка. Попробуй ещё раз.');
-      });
-  });
-
-  popupClose.addEventListener('click', function() {
-      popup.style.display = 'none';
-      document.body.style.overflow = '';
-  });
-
-  popup.addEventListener('click', function(e) {
-      if (e.target === popup) {
-          popup.style.display = 'none';
-          document.body.style.overflow = '';
-      }
-  });
-</script>
-
-<script type="importmap">
-    {
-        "imports": {
-            "three": "https://unpkg.com/three@0.128.0/build/three.module.js",
-            "three/addons/": "https://unpkg.com/three@0.128.0/examples/jsm/"
+                const geometry = new RoundedBoxGeometry(sizeCubie, sizeCubie, sizeCubie, segments, radius);
+                const cubie = new THREE.Mesh(geometry, matArray);
+                cubie.userData = { 
+                    originalPos: { x: x * offset, y: y * offset, z: z * offset },
+                    gridX: x, gridY: y, gridZ: z
+                };
+                cubie.position.set(x * offset, y * offset, z * offset);
+                cubeGroup.add(cubie);
+                cubies.push(cubie);
+            }
         }
     }
-</script>
-<script type="module" src="/js/cube3d.js"></script>
-</body>
-</html>
+
+    const ambientLight = new THREE.AmbientLight(0x606080, 0.6);
+    scene.add(ambientLight);
+    
+    const mainLight = new THREE.DirectionalLight(0xffffff, 0.9);
+    mainLight.position.set(2, 4, 3);
+    scene.add(mainLight);
+    
+    const fillLight = new THREE.DirectionalLight(0xffffff, 0.5);
+    fillLight.position.set(-2, 1, 2);
+    scene.add(fillLight);
+    
+    const backLight = new THREE.DirectionalLight(0xffffff, 0.2);
+    backLight.position.set(0, 1, -3);
+    scene.add(backLight);
+
+    // ===== ЛОГИКА КЛИКА (ПО ИНДЕКСУ ТРЕУГОЛЬНИКА) =====
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+
+    function getColorName(colorHex) {
+        return colorMap[colorHex] || 'unknown';
+    }
+
+    function getGridCoords(position) {
+        const x = Math.round(position.x / offset);
+        const y = Math.round(position.y / offset);
+        const z = Math.round(position.z / offset);
+        return { x, y, z };
+    }
+
+    function openGran(colorName, gx, gy) {
+        gx = Math.min(2, Math.max(0, gx));
+        gy = Math.min(2, Math.max(0, gy));
+        if (window.openBookGran) {
+            window.openBookGran(colorName, gx, gy);
+        }
+    }
+
+    function onMouseClick(event) {
+        const rect = renderer.domElement.getBoundingClientRect();
+        mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+        mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+        raycaster.setFromCamera(mouse, camera);
+        const intersects = raycaster.intersectObjects(cubies);
+
+        if (intersects.length > 0) {
+            const clickedCubie = intersects[0].object;
+            const pos = clickedCubie.position;
+            const coords = getGridCoords(pos);
+            
+            const faceIndex = intersects[0].faceIndex;
+            const materialIndex = Math.floor(faceIndex / 2);
+            const colorHex = clickedCubie.material[materialIndex].color.getHex();
+            const colorName = getColorName(colorHex);
+            
+            let gx = 0, gy = 0;
+            
+            if (materialIndex === 0 || materialIndex === 1) {
+                gx = coords.y + 1;
+                gy = coords.z + 1;
+            } else if (materialIndex === 2 || materialIndex === 3) {
+                gx = coords.x + 1;
+                gy = coords.z + 1;
+            } else {
+                gx = coords.x + 1;
+                gy = coords.y + 1;
+            }
+            
+            openGran(colorName, gx, gy);
+        }
+    }
+
+    const canvas = renderer.domElement;
+    canvas.addEventListener('click', onMouseClick);
+
+    // ===== ВРАЩЕНИЕ =====
+    let isDragging = false;
+    let lastX = 0, lastY = 0;
+    let targetRotationX = 0;
+    let targetRotationY = 0;
+
+    function getXY(e) {
+        if (e.touches) {
+            return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+        }
+        return { x: e.clientX, y: e.clientY };
+    }
+
+    function onStart(e) {
+        isDragging = true;
+        const coords = getXY(e);
+        lastX = coords.x;
+        lastY = coords.y;
+        container.style.cursor = 'grabbing';
+    }
+
+    function onMove(e) {
+        if (!isDragging) return;
+        const coords = getXY(e);
+        const deltaX = coords.x - lastX;
+        const deltaY = coords.y - lastY;
+        
+        if (deltaX !== 0 || deltaY !== 0) {
+            targetRotationY += deltaX * 0.008;
+            targetRotationX += deltaY * 0.008;
+            cubeGroup.rotation.x = targetRotationX;
+            cubeGroup.rotation.y = targetRotationY;
+            lastX = coords.x;
+            lastY = coords.y;
+        }
+    }
+
+    function onEnd() {
+        isDragging = false;
+        container.style.cursor = 'pointer';
+    }
+
+    container.addEventListener('mousedown', onStart);
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onEnd);
+
+    // ===== ДЛЯ ТЕЛЕФОНА =====
+    let touchStartX = 0, touchStartY = 0;
+    let touchMoved = false;
+
+    canvas.addEventListener('touchstart', function(e) {
+        const touch = e.touches[0];
+        touchStartX = touch.clientX;
+        touchStartY = touch.clientY;
+        touchMoved = false;
+        onStart(e);
+    }, { passive: false });
+
+    canvas.addEventListener('touchmove', function(e) {
+        const touch = e.touches[0];
+        const dx = Math.abs(touch.clientX - touchStartX);
+        const dy = Math.abs(touch.clientY - touchStartY);
+        if (dx > 10 || dy > 10) {
+            touchMoved = true;
+        }
+        onMove(e);
+        e.preventDefault();
+    }, { passive: false });
+
+    canvas.addEventListener('touchend', function(e) {
+        onEnd();
+        if (!touchMoved) {
+            onMouseClick(e.changedTouches[0]);
+        }
+    }, { passive: true });
+
+    // ===== ЗУМ =====
+    let currentZoom = 4.5;
+
+    container.addEventListener('wheel', function(e) {
+        e.preventDefault();
+        const delta = e.deltaY > 0 ? 0.5 : -0.5;
+        currentZoom = Math.min(7, Math.max(2.5, currentZoom + delta));
+        updateCamera();
+    }, { passive: false });
+
+    let lastTouchDist = 0;
+    canvas.addEventListener('touchstart', function(e) {
+        if (e.touches.length === 2) {
+            const dx = e.touches[0].clientX - e.touches[1].clientX;
+            const dy = e.touches[0].clientY - e.touches[1].clientY;
+            lastTouchDist = Math.sqrt(dx*dx + dy*dy);
+        }
+    }, { passive: true });
+
+    canvas.addEventListener('touchmove', function(e) {
+        if (e.touches.length === 2) {
+            e.preventDefault();
+            const dx = e.touches[0].clientX - e.touches[1].clientX;
+            const dy = e.touches[0].clientY - e.touches[1].clientY;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            const delta = (dist - lastTouchDist) * 0.02;
+            currentZoom = Math.min(7, Math.max(2.5, currentZoom - delta));
+            updateCamera();
+            lastTouchDist = dist;
+        }
+    }, { passive: false });
+
+    function updateCamera() {
+        camera.position.set(currentZoom * 0.7, currentZoom * 0.5, currentZoom * 0.9);
+        camera.lookAt(0, 0, 0);
+    }
+
+    function render() {
+        renderer.render(scene, camera);
+        requestAnimationFrame(render);
+    }
+    render();
+
+    window.addEventListener('resize', () => {
+        const width = container.clientWidth;
+        const height = container.clientHeight;
+        renderer.setSize(width, height);
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+    });
+}
