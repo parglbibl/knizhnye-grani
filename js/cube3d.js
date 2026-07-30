@@ -12,16 +12,15 @@ if (!container) {
     camera.position.set(3.5, 2.5, 4.5);
     camera.lookAt(0, 0, 0);
 
-    // ===== ДИНАМИЧЕСКИЙ РАЗМЕР РЕНДЕРА =====
-    const rect = container.getBoundingClientRect();
-    const size = Math.min(rect.width, rect.height);
-
+    // Увеличиваем размер рендера, но оставляем в центре без сдвигов
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.setSize(size, size);
+    renderer.setSize(360, 360); // чуть больше контейнера
     renderer.setClearColor(0x000000, 0);
     renderer.domElement.style.borderRadius = '28px';
     renderer.domElement.style.boxShadow = '0 8px 30px rgba(0,0,0,0.08)';
+    
+    // ВАЖНО: убираем абсолютное позиционирование — возвращаем как было
     container.appendChild(renderer.domElement);
 
     const cubeGroup = new THREE.Group();
@@ -74,7 +73,7 @@ if (!container) {
     };
 
     const offset = 0.685;  
-    const sizeCubie = 0.675;    
+    const size = 0.675;    
     const radius = 0.08;    
     const segments = 4;     
 
@@ -92,7 +91,7 @@ if (!container) {
                     z === -1 ? textureMaterials.blue || fallbackMaterials.blue : (z === 1 ? textureMaterials.green || fallbackMaterials.green : textureMaterials.blue || fallbackMaterials.blue)
                 ];
                 
-                const geometry = new RoundedBoxGeometry(sizeCubie, sizeCubie, sizeCubie, segments, radius);
+                const geometry = new RoundedBoxGeometry(size, size, size, segments, radius);
                 const cubie = new THREE.Mesh(geometry, matArray);
                 cubie.userData = { 
                     originalPos: { x: x * offset, y: y * offset, z: z * offset },
@@ -318,12 +317,7 @@ if (!container) {
     }
     render();
 
-    // ===== ОБНОВЛЕНИЕ РАЗМЕРА ПРИ ПОВОРОТЕ ЭКРАНА =====
     window.addEventListener('resize', () => {
-        const rect = container.getBoundingClientRect();
-        const newSize = Math.min(rect.width, rect.height);
-        renderer.setSize(newSize, newSize);
-        camera.aspect = 1;
-        camera.updateProjectionMatrix();
+        // Размер рендера остаётся фиксированным
     });
 }
