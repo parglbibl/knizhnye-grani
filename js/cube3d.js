@@ -21,6 +21,7 @@ if (!container) {
     const cubeGroup = new THREE.Group();
     scene.add(cubeGroup);
 
+    // ===== ЗАГРУЗКА ТЕКСТУР =====
     const textureLoader = new THREE.TextureLoader();
     
     const textureFiles = {
@@ -66,6 +67,7 @@ if (!container) {
         0xff8c00: 'orange'
     };
 
+    // === МИНИМАЛЬНЫЕ ЗАЗОРЫ ===
     const offset = 0.685;  
     const sizeCubie = 0.675;    
     const radius = 0.08;    
@@ -89,8 +91,7 @@ if (!container) {
                 const cubie = new THREE.Mesh(geometry, matArray);
                 cubie.userData = { 
                     originalPos: { x: x * offset, y: y * offset, z: z * offset },
-                    gridX: x, gridY: y, gridZ: z,
-                    materials: matArray
+                    gridX: x, gridY: y, gridZ: z
                 };
                 cubie.position.set(x * offset, y * offset, z * offset);
                 cubeGroup.add(cubie);
@@ -114,11 +115,11 @@ if (!container) {
     backLight.position.set(0, 1, -3);
     scene.add(backLight);
 
+    // ===== ЛОГИКА КЛИКА (ПО ИНДЕКСУ ТРЕУГОЛЬНИКА — РАБОЧАЯ) =====
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
 
-    function getColorName(materialColor) {
-        const colorHex = materialColor.getHex();
+    function getColorName(colorHex) {
         return colorMap[colorHex] || 'unknown';
     }
 
@@ -150,23 +151,8 @@ if (!container) {
             const pos = clickedCubie.position;
             const coords = getGridCoords(pos);
             
-            // === ГЛАВНОЕ ИСПРАВЛЕНИЕ: нормаль вместо faceIndex ===
-            const normal = intersects[0].face.normal.clone();
-            normal.applyQuaternion(clickedCubie.quaternion);
-            
-            let materialIndex = 0;
-            const nx = Math.round(normal.x);
-            const ny = Math.round(normal.y);
-            const nz = Math.round(normal.z);
-            
-            if (nx === 1) materialIndex = 0;
-            else if (nx === -1) materialIndex = 1;
-            else if (ny === 1) materialIndex = 2;
-            else if (ny === -1) materialIndex = 3;
-            else if (nz === 1) materialIndex = 4;
-            else if (nz === -1) materialIndex = 5;
-            else materialIndex = 0;
-            
+            const faceIndex = intersects[0].faceIndex;
+            const materialIndex = Math.floor(faceIndex / 2);
             const colorHex = clickedCubie.material[materialIndex].color.getHex();
             const colorName = getColorName(colorHex);
             
@@ -190,8 +176,11 @@ if (!container) {
     const canvas = renderer.domElement;
     canvas.addEventListener('click', onMouseClick);
 
+    // ===== ВРАЩЕНИЕ =====
     let isDragging = false;
     let lastX = 0, lastY = 0;
+    let targetRotationX = 0;
+    let targetRotationY = 0;
 
     function getXY(e) {
         if (e.touches) {
@@ -215,12 +204,10 @@ if (!container) {
         const deltaY = coords.y - lastY;
         
         if (deltaX !== 0 || deltaY !== 0) {
-            const axis = new THREE.Vector3(deltaY, deltaX, 0).normalize();
-            const angle = Math.sqrt(deltaX * deltaX + deltaY * deltaY) * 0.008;
-            
-            const quaternion = new THREE.Quaternion().setFromAxisAngle(axis, angle);
-            cubeGroup.quaternion.multiply(quaternion);
-            
+            targetRotationY += deltaX * 0.008;
+            targetRotationX += deltaY * 0.008;
+            cubeGroup.rotation.x = targetRotationX;
+            cubeGroup.rotation.y = targetRotationY;
             lastX = coords.x;
             lastY = coords.y;
         }
@@ -235,6 +222,7 @@ if (!container) {
     window.addEventListener('mousemove', onMove);
     window.addEventListener('mouseup', onEnd);
 
+    // ===== ДЛЯ ТЕЛЕФОНА =====
     let touchStartX = 0, touchStartY = 0;
     let touchMoved = false;
 
@@ -264,6 +252,7 @@ if (!container) {
         }
     }, { passive: true });
 
+    // ===== ЗУМ =====
     let currentZoom = 4.5;
 
     container.addEventListener('wheel', function(e) {
