@@ -276,6 +276,18 @@
                   
                   <div id="popupAnswers" style="margin-bottom:1.8rem; max-height:150px; overflow-y:auto; border-top:1px solid #f0f0f0; padding-top:1.2rem;"></div>
                   
+                  <!-- ===== ДОБАВЛЯЕМ ПОЛЕ С ВОЗРАСТОМ ===== -->
+                  <div style="margin-bottom: 1rem;">
+                      <label for="popupAge" style="display: block; font-size: 0.85rem; font-weight: 500; color: #1e2a3a; margin-bottom: 0.3rem;">Ваш возраст</label>
+                      <select id="popupAge" style="width: 100%; padding: 0.6rem 1rem; border: 2px solid #eee; border-radius: 18px; font-family: inherit; font-size: 0.95rem; background: #fafbfc; outline: none; cursor: pointer;">
+                          <option value="">Не указан</option>
+                          <option value="до 14">до 14 лет</option>
+                          <option value="15-17">15–17 лет</option>
+                          <option value="18-35">18–35 лет</option>
+                          <option value="старше 35">старше 35 лет</option>
+                      </select>
+                  </div>
+                  
                   <textarea id="popupInput" placeholder="Напиши здесь название книги и свои чувства..." style="width:100%; padding:1rem 1.2rem; border:2px solid #eee; border-radius:18px; font-family:inherit; font-size:0.95rem; min-height:80px; resize:vertical; background:#fafbfc; outline:none;"></textarea>
                   
                   <button id="popupSubmit" style="width:100%; margin-top:1rem; padding:0.9rem; background:#ff2e5a; color:#fff; border:none; border-radius:18px; font-weight:600; font-size:1rem; cursor:pointer; transition: transform 0.15s, box-shadow 0.15s; box-shadow:0 4px 16px rgba(255,46,90,0.25);">Ответить и поделиться</button>
@@ -330,7 +342,9 @@
               div.style.cssText = 'background:#f5f0e8; border-radius:14px; padding:0.8rem 1.2rem; margin-bottom:0.8rem; box-shadow:0 2px 6px rgba(0,0,0,0.02);';
               div.innerHTML = `
                   <div style="font-size:0.9rem; color:#333; line-height:1.5;">${item.text}</div>
-                  <div style="font-size:0.65rem; color:#888; margin-top:0.3rem;">${item.user || 'Аноним'} · ${item.timestamp || ''}</div>
+                  <div style="font-size:0.65rem; color:#888; margin-top:0.3rem;">
+                      ${item.user || 'Аноним'} · ${item.age || 'Не указан'} · ${item.timestamp || ''}
+                  </div>
               `;
               popupAnswers.appendChild(div);
           });
@@ -339,6 +353,8 @@
 
   popupSubmit.addEventListener('click', function() {
       const text = popupInput.value.trim();
+      const age = document.getElementById('popupAge').value;
+
       if (!text) {
           alert('Пожалуйста, напиши свой ответ перед отправкой.');
           return;
@@ -347,6 +363,7 @@
 
       const newAnswer = {
           text: text,
+          age: age,
           user: 'Аноним',
           timestamp: new Date().toLocaleString('ru-RU')
       };
@@ -354,14 +371,13 @@
       const answersRef = database.ref('answers/' + currentElementId);
       answersRef.push(newAnswer).then(() => {
           popupInput.value = '';
+          document.getElementById('popupAge').value = '';
           
-          // ===== СОХРАНЯЕМ ОТМЕТКУ В БРАУЗЕР (localStorage) =====
           let myProgress = JSON.parse(localStorage.getItem('myGranProgress') || '[]');
           if (!myProgress.includes(currentElementId)) {
               myProgress.push(currentElementId);
               localStorage.setItem('myGranProgress', JSON.stringify(myProgress));
           }
-          // ========================================================
 
           alert('Спасибо! Твой ответ сохранён и теперь виден всем.');
       }).catch((error) => {
