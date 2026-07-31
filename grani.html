@@ -87,7 +87,7 @@
                 </p>
                 
                 <p style="margin-top: 1.5rem; text-align: center; font-weight: 500; color: #1e2a3a;">
-                    Нажми на любой квадратик кубика и вспомни книгу, которая откликается твоей душе. <br>
+                    📖 Нажми на любой квадратик кубика и вспомни книгу, которая откликается твоей душе. <br>
                     Собери свою Книжную Грань.
                 </p>
             </div>
@@ -354,6 +354,15 @@
       const answersRef = database.ref('answers/' + currentElementId);
       answersRef.push(newAnswer).then(() => {
           popupInput.value = '';
+          
+          // ===== СОХРАНЯЕМ ОТМЕТКУ В БРАУЗЕР (localStorage) =====
+          let myProgress = JSON.parse(localStorage.getItem('myGranProgress') || '[]');
+          if (!myProgress.includes(currentElementId)) {
+              myProgress.push(currentElementId);
+              localStorage.setItem('myGranProgress', JSON.stringify(myProgress));
+          }
+          // ========================================================
+
           alert('Спасибо! Твой ответ сохранён и теперь виден всем.');
       }).catch((error) => {
           console.error('Ошибка сохранения:', error);
