@@ -69,6 +69,16 @@ if (!container) {
             orange: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.orange), roughness: 0.9, metalness: 0.0 })
         };
 
+        // ===== МАТЕРИАЛЫ ДЛЯ ПОДСВЕТКИ (ПРОЙДЕННЫЕ ГРАНИ) =====
+        const glowMaterials = {
+            red: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.red), roughness: 0.3, metalness: 0.2, emissive: 0xc41e3a, emissiveIntensity: 0.25 }),
+            blue: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.blue), roughness: 0.3, metalness: 0.2, emissive: 0x0051ba, emissiveIntensity: 0.25 }),
+            yellow: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.yellow), roughness: 0.3, metalness: 0.2, emissive: 0xffd700, emissiveIntensity: 0.25 }),
+            green: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.green), roughness: 0.3, metalness: 0.2, emissive: 0x009e60, emissiveIntensity: 0.25 }),
+            white: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.white), roughness: 0.3, metalness: 0.2, emissive: 0xffffff, emissiveIntensity: 0.15 }),
+            orange: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.orange), roughness: 0.3, metalness: 0.2, emissive: 0xff8c00, emissiveIntensity: 0.25 })
+        };
+
         const fallbackMaterials = {
             red: new THREE.MeshStandardMaterial({ color: 0xc41e3a, roughness: 0.9, metalness: 0.0 }),
             blue: new THREE.MeshStandardMaterial({ color: 0x0051ba, roughness: 0.9, metalness: 0.0 }),
@@ -120,6 +130,37 @@ if (!container) {
                 }
             }
         }
+
+        // ===== ПОДСВЕТКА ПРОЙДЕННЫХ ГРАНЕЙ (ЗАГРУЗКА ИЗ localStorage) =====
+        setTimeout(() => {
+            try {
+                const myProgress = JSON.parse(localStorage.getItem('myGranProgress') || '[]');
+                if (myProgress.length > 0) {
+                    cubies.forEach(cubie => {
+                        const faces = cubie.userData.faceNames;
+                        const matArray = cubie.material;
+                        // Проверяем каждую грань кубика
+                        for (let i = 0; i < faces.length; i++) {
+                            const color = faces[i];
+                            // Формируем ID квадратика: цвет_координаты_1
+                            const gx = (i === 0 || i === 1) ? (cubie.userData.gridY + 1) : (i === 2 || i === 3) ? (cubie.userData.gridX + 1) : (cubie.userData.gridX + 1);
+                            const gy = (i === 0 || i === 1) ? (cubie.userData.gridZ + 1) : (i === 2 || i === 3) ? (cubie.userData.gridZ + 1) : (cubie.userData.gridY + 1);
+                            const elementId = color + '_' + String(gx) + '_' + String(gy) + '_1';
+                            
+                            if (myProgress.includes(elementId)) {
+                                // Заменяем материал на светящийся
+                                if (glowMaterials[color]) {
+                                    matArray[i] = glowMaterials[color];
+                                }
+                            }
+                        }
+                    });
+                }
+            } catch (e) {
+                // Игнорируем ошибки localStorage
+            }
+        }, 100);
+        // =============================================================
 
         const ambientLight = new THREE.AmbientLight(0x606080, 0.6);
         scene.add(ambientLight);
