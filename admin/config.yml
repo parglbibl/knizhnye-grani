@@ -1,0 +1,100 @@
+backend:
+  name: github
+  repo: parglbibl/knizhnye-grani
+  branch: main
+  site_domain: knig-grani.ru
+
+media_folder: "images/uploads"
+public_folder: "/images/uploads"
+
+collections:
+  - name: "pages"
+    label: "Страницы"
+    files:
+      # ===== ГЛАВНАЯ =====
+      - file: "index.html"
+        label: "Главная"
+        name: "home"
+        fields:
+          - { label: "Заголовок (H1)", name: "hero_title", widget: "string", default: "КНИЖНЫЕ ГРАНИ" }
+          - { label: "Подзаголовок", name: "hero_lead", widget: "string", default: "Интеллектуальный досуг. Бесплатно. Для всех." }
+          - { label: "Описание", name: "hero_desc", widget: "text", default: "Место, где встречаются любители настольных игр и спидкубинга." }
+          - { label: "Текст 'О проекте'", name: "about_text", widget: "text", default: "«Книжные грани» — это пространство, где встречаются любители настольных игр и спидкубинга. Всё бесплатно." }
+
+      # ===== О ПРОЕКТЕ =====
+      - file: "about.html"
+        label: "О проекте"
+        name: "about"
+        fields:
+          - { label: "Текст на странице", name: "body", widget: "markdown" }
+
+      # ===== МЕРОПРИЯТИЯ =====
+      - file: "events.html"
+        label: "Мероприятия (Афиша)"
+        name: "events"
+        fields:
+          - { label: "Текст анонса (над списком)", name: "intro_text", widget: "text", default: "Бесплатные игротеки, турниры по спидкубингу и мастер-классы в библиотеке-мастерской." }
+
+      # ===== КОНТАКТЫ =====
+      - file: "contacts.html"
+        label: "Контакты"
+        name: "contacts"
+        fields:
+          - { label: "Название площадки", name: "title", widget: "string", default: "Проектный офис «РОСТ»" }
+          - { label: "Адрес", name: "address", widget: "string", default: "пр. Просвещения, 43, ТРК «Парк-Молл», 2 этаж" }
+          - { label: "Телефон", name: "phone", widget: "string", default: "+7 (812) 246-93-15" }
+          - { label: "Ссылка VK", name: "vk_link", widget: "string", default: "vk.com/officecbsbvib" }
+
+      # ===== FAQ =====
+      - file: "faq.html"
+        label: "Вопросы и ответы"
+        name: "faq"
+        fields:
+          - { label: "Текст на странице", name: "body", widget: "markdown" }
+
+      # ===== ПАРТНЁРЫ =====
+      - file: "partners.html"
+        label: "Партнёры"
+        name: "partners"
+        fields:
+          - { label: "Заголовок", name: "title", widget: "string", default: "Партнёры" }
+          - { label: "Текст", name: "body", widget: "markdown" }
+
+      # ===== КОМАНДА =====
+      - file: "team.html"
+        label: "Команда"
+        name: "team"
+        fields:
+          - { label: "Заголовок", name: "title", widget: "string", default: "Команда проекта" }
+
+      # ===== ГАЛЕРЕЯ =====
+      - file: "gallery.html"
+        label: "Фотоотчёты"
+        name: "gallery"
+        fields:
+          - { label: "Заголовок", name: "title", widget: "string", default: "📸 Фотоотчёты" }
+          - { label: "Подзаголовок", name: "subtitle", widget: "string", default: "Снимки с наших мероприятий." }
+
+      # ===== ОБРАТНАЯ СВЯЗЬ =====
+      - file: "feedback.html"
+        label: "Обратная связь"
+        name: "feedback"
+        fields:
+          - { label: "Заголовок", name: "title", widget: "string", default: "Обратная связь" }
+          - { label: "Подзаголовок", name: "subtitle", widget: "string", default: "Оставьте отзыв о проекте!" }
+
+      # ===== НАСТОЛЬНЫЕ ИГРЫ =====
+      - file: "boardgames/index.html"
+        label: "Настольные игры (главная раздела)"
+        name: "boardgames"
+        fields:
+          - { label: "Заголовок", name: "title", widget: "string", default: "Настольные игры" }
+          - { label: "Текст", name: "body", widget: "markdown" }
+
+      # ===== СПИДКУБИНГ =====
+      - file: "speedcubing/index.html"
+        label: "Спидкубинг (главная раздела)"
+        name: "speedcubing"
+        fields:
+          - { label: "Заголовок", name: "title", widget: "string", default: "Спидкубинг" }
+          - { label: "Текст", name: "body", widget: "markdown" }
