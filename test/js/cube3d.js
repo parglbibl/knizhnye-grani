@@ -27,13 +27,13 @@ if (!container) {
 
     function initCube(size) {
         // ============================
-        // 1. Базовые настройки сцены
+        // 1. Базовые настройки сцены (КАК В ОРИГИНАЛЕ)
         // ============================
         const scene = new THREE.Scene();
         scene.background = null;
 
         const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 1000);
-        camera.position.set(3.5, 2.5, 4.5); // Вернул оригинальную позицию камеры
+        camera.position.set(3.5, 2.5, 4.5);
         camera.lookAt(0, 0, 0);
 
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -42,8 +42,11 @@ if (!container) {
         renderer.setClearColor(0x000000, 0);
         container.appendChild(renderer.domElement);
 
+        const cubeGroup = new THREE.Group();
+        scene.add(cubeGroup);
+
         // ============================
-        // 1.1. ДОБАВЛЯЕМ ВРАЩЕНИЕ МЫШКОЙ (OrbitControls)
+        // 2. ДОБАВЛЯЕМ OrbitControls (вращение мышкой без ограничений)
         // ============================
         const controls = new OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
@@ -51,25 +54,22 @@ if (!container) {
         controls.enableZoom = false;
         controls.rotateSpeed = 1.0;
         controls.target.set(0, 0, 0);
-        // ===== ВАЖНО: Убираем ограничения вращения =====
         controls.minPolarAngle = -Math.PI; // Разрешаем крутить кубик "вверх ногами"
         controls.maxPolarAngle = Math.PI;
 
-        const cubeGroup = new THREE.Group();
-        scene.add(cubeGroup);
-
         // ============================
-        // 2. Текстуры и материалы
+        // 3. Текстуры (КАК В ОРИГИНАЛЕ)
         // ============================
         const textureLoader = new THREE.TextureLoader();
-        const texturePaths = {
-            red: '../images/cube_textures/red.jpg',
-            blue: '../images/cube_textures/blue.jpg',
-            yellow: '../images/cube_textures/yellow.jpg',
-            green: '../images/cube_textures/green.jpg',
-            white: '../images/cube_textures/white.jpg',
-            orange: '../images/cube_textures/orange.jpg'
+        const textureFiles = {
+            red: '/images/cube_textures/red.jpg',
+            blue: '/images/cube_textures/blue.jpg',
+            yellow: '/images/cube_textures/yellow.jpg',
+            green: '/images/cube_textures/green.jpg',
+            white: '/images/cube_textures/white.jpg',
+            orange: '/images/cube_textures/orange.jpg'
         };
+
         const loadTexture = (url) => {
             const tex = textureLoader.load(url);
             tex.wrapS = THREE.ClampToEdgeWrapping;
@@ -77,288 +77,144 @@ if (!container) {
             return tex;
         };
 
-        const matConfig = { roughness: 0.9, metalness: 0.0 };
-        const textures = {
-            red: loadTexture(texturePaths.red),
-            blue: loadTexture(texturePaths.blue),
-            yellow: loadTexture(texturePaths.yellow),
-            green: loadTexture(texturePaths.green),
-            white: loadTexture(texturePaths.white),
-            orange: loadTexture(texturePaths.orange)
-        };
-        const createMat = (color) => new THREE.MeshStandardMaterial({ map: textures[color], ...matConfig });
-
-        // ============================
-        // 3. Создание кубиков (РАЗМЕР И ЗАЗОРЫ КАК В ОРИГИНАЛЕ)
-        // ============================
-        const offset = 0.98;    // Меньше зазор между кубиками (было 1.05, стало 0.98)
-        const sizeCubie = 0.88; // Чуть крупнее сами кубики (было 0.75, стало 0.88)
-        const radius = 0.08;
-        const segments = 4;
-
-        const matLib = {
-            red: createMat('red'), blue: createMat('blue'), yellow: createMat('yellow'),
-            green: createMat('green'), white: createMat('white'), orange: createMat('orange')
+        const textureMaterials = {
+            red: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.red), roughness: 0.9, metalness: 0.0 }),
+            blue: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.blue), roughness: 0.9, metalness: 0.0 }),
+            yellow: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.yellow), roughness: 0.9, metalness: 0.0 }),
+            green: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.green), roughness: 0.9, metalness: 0.0 }),
+            white: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.white), roughness: 0.9, metalness: 0.0 }),
+            orange: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.orange), roughness: 0.9, metalness: 0.0 })
         };
 
-        const allCubies = [];
+        const glowMaterials = {
+            red: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.red), roughness: 0.3, metalness: 0.2, emissive: 0xc41e3a, emissiveIntensity: 0.25 }),
+            blue: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.blue), roughness: 0.3, metalness: 0.2, emissive: 0x0051ba, emissiveIntensity: 0.25 }),
+            yellow: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.yellow), roughness: 0.3, metalness: 0.2, emissive: 0xffd700, emissiveIntensity: 0.25 }),
+            green: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.green), roughness: 0.3, metalness: 0.2, emissive: 0x009e60, emissiveIntensity: 0.25 }),
+            white: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.white), roughness: 0.3, metalness: 0.2, emissive: 0xffffff, emissiveIntensity: 0.15 }),
+            orange: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.orange), roughness: 0.3, metalness: 0.2, emissive: 0xff8c00, emissiveIntensity: 0.25 })
+        };
+
+        const fallbackMaterials = {
+            red: new THREE.MeshStandardMaterial({ color: 0xc41e3a, roughness: 0.9, metalness: 0.0 }),
+            blue: new THREE.MeshStandardMaterial({ color: 0x0051ba, roughness: 0.9, metalness: 0.0 }),
+            yellow: new THREE.MeshStandardMaterial({ color: 0xffd700, roughness: 0.9, metalness: 0.0 }),
+            green: new THREE.MeshStandardMaterial({ color: 0x009e60, roughness: 0.9, metalness: 0.0 }),
+            white: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9, metalness: 0.0 }),
+            orange: new THREE.MeshStandardMaterial({ color: 0xff8c00, roughness: 0.9, metalness: 0.0 })
+        };
+
+        // ============================
+        // 4. Создание кубиков (КАК В ОРИГИНАЛЕ)
+        // ============================
+        const offset = 0.685;  
+        const sizeCubie = 0.675;    
+        const radius = 0.08;    
+        const segments = 4;     
+
+        const cubies = [];
 
         for (let x = -1; x <= 1; x++) {
             for (let y = -1; y <= 1; y++) {
                 for (let z = -1; z <= 1; z++) {
-                    if (x === 0 && y === 0 && z === 0) continue;
-
-                    const faces = [
-                        x === 1 ? 'red' : (x === -1 ? 'orange' : null),
-                        x === -1 ? 'orange' : (x === 1 ? 'red' : null),
-                        y === 1 ? 'white' : (y === -1 ? 'yellow' : null),
-                        y === -1 ? 'yellow' : (y === 1 ? 'white' : null),
-                        z === 1 ? 'green' : (z === -1 ? 'blue' : null),
-                        z === -1 ? 'blue' : (z === 1 ? 'green' : null)
+                    const faceNames = [
+                        x === 1 ? 'red' : 'orange',
+                        x === -1 ? 'orange' : 'red',
+                        y === 1 ? 'white' : 'yellow',
+                        y === -1 ? 'yellow' : 'white',
+                        z === 1 ? 'green' : 'blue',
+                        z === -1 ? 'blue' : 'green'
                     ];
-                    const mats = faces.map(f => f ? matLib[f] : matLib['red']);
 
+                    const matArray = [
+                        x === 1 ? textureMaterials.red || fallbackMaterials.red : (x === -1 ? textureMaterials.orange || fallbackMaterials.orange : textureMaterials.red || fallbackMaterials.red),
+                        x === -1 ? textureMaterials.orange || fallbackMaterials.orange : (x === 1 ? textureMaterials.red || fallbackMaterials.red : textureMaterials.orange || fallbackMaterials.orange),
+                        y === 1 ? textureMaterials.white || fallbackMaterials.white : (y === -1 ? textureMaterials.yellow || fallbackMaterials.yellow : textureMaterials.white || fallbackMaterials.white),
+                        y === -1 ? textureMaterials.yellow || fallbackMaterials.yellow : (y === 1 ? textureMaterials.white || fallbackMaterials.white : textureMaterials.yellow || fallbackMaterials.yellow),
+                        z === 1 ? textureMaterials.green || fallbackMaterials.green : (z === -1 ? textureMaterials.blue || fallbackMaterials.blue : textureMaterials.green || fallbackMaterials.green),
+                        z === -1 ? textureMaterials.blue || fallbackMaterials.blue : (z === 1 ? textureMaterials.green || fallbackMaterials.green : textureMaterials.blue || fallbackMaterials.blue)
+                    ];
+                    
                     const geometry = new RoundedBoxGeometry(sizeCubie, sizeCubie, sizeCubie, segments, radius);
-                    const cubie = new THREE.Mesh(geometry, mats);
+                    const cubie = new THREE.Mesh(geometry, matArray);
+                    cubie.userData = { 
+                        originalPos: { x: x * offset, y: y * offset, z: z * offset },
+                        gridX: x, gridY: y, gridZ: z,
+                        materials: matArray,
+                        faceNames: faceNames
+                    };
                     cubie.position.set(x * offset, y * offset, z * offset);
                     cubeGroup.add(cubie);
-
-                    cubie.userData = {
-                        gridX: x, gridY: y, gridZ: z,
-                        faces: faces,
-                        mats: mats,
-                        originalPos: new THREE.Vector3(x * offset, y * offset, z * offset)
-                    };
-                    allCubies.push(cubie);
+                    cubies.push(cubie);
                 }
             }
         }
 
         // ============================
-        // 4. Свет (КАК В ОРИГИНАЛЕ)
+        // 5. Подсветка (КАК В ОРИГИНАЛЕ)
         // ============================
-        // AmbientLight ярче, чтобы кубик не был тёмным
-        const ambientLight = new THREE.AmbientLight(0x606080, 0.8);
+        setTimeout(() => {
+            try {
+                const myProgress = JSON.parse(localStorage.getItem('myGranProgress') || '[]');
+                if (myProgress.length > 0) {
+                    cubies.forEach(cubie => {
+                        const faces = cubie.userData.faceNames;
+                        const matArray = cubie.material;
+                        for (let i = 0; i < faces.length; i++) {
+                            const color = faces[i];
+                            const gx = (i === 0 || i === 1) ? (cubie.userData.gridY + 1) : (i === 2 || i === 3) ? (cubie.userData.gridX + 1) : (cubie.userData.gridX + 1);
+                            const gy = (i === 0 || i === 1) ? (cubie.userData.gridZ + 1) : (i === 2 || i === 3) ? (cubie.userData.gridZ + 1) : (cubie.userData.gridY + 1);
+                            const elementId = color + '_' + String(gx) + '_' + String(gy) + '_1';
+                            
+                            if (myProgress.includes(elementId)) {
+                                if (glowMaterials[color]) {
+                                    matArray[i] = glowMaterials[color];
+                                }
+                            }
+                        }
+                    });
+                }
+            } catch (e) {}
+        }, 100);
+
+        // ============================
+        // 6. Свет (КАК В ОРИГИНАЛЕ)
+        // ============================
+        const ambientLight = new THREE.AmbientLight(0x606080, 0.6);
         scene.add(ambientLight);
         
-        // Основной свет спереди-сбоку
         const mainLight = new THREE.DirectionalLight(0xffffff, 0.9);
         mainLight.position.set(2, 4, 3);
         scene.add(mainLight);
         
-        // Заполняющий свет снизу-сзади для мягкости
-        const fillLight = new THREE.DirectionalLight(0xffffff, 0.4);
-        fillLight.position.set(-2, -1, -2);
+        const fillLight = new THREE.DirectionalLight(0xffffff, 0.5);
+        fillLight.position.set(-2, 1, 2);
         scene.add(fillLight);
         
-        // Контровый свет, чтобы подчеркнуть рёбра
-        const backLight = new THREE.DirectionalLight(0xffffff, 0.3);
-        backLight.position.set(0, 1, -4);
+        const backLight = new THREE.DirectionalLight(0xffffff, 0.2);
+        backLight.position.set(0, 1, -3);
         scene.add(backLight);
 
         // ============================
-        // 5. Вращение слоёв (ВАША ЛОГИКА - БЕЗ ИЗМЕНЕНИЙ)
-        // ============================
-        let isAnimating = false;
-
-        function getCubiesInLayer(axis, index) {
-            const result = [];
-            allCubies.forEach(cubie => {
-                const pos = cubie.position.clone();
-                const gx = Math.round(pos.x / offset);
-                const gy = Math.round(pos.y / offset);
-                const gz = Math.round(pos.z / offset);
-                
-                let match = false;
-                if (axis === 'x' && gx === index) match = true;
-                else if (axis === 'y' && gy === index) match = true;
-                else if (axis === 'z' && gz === index) match = true;
-
-                if (match) result.push(cubie);
-            });
-            return result;
-        }
-
-        function rotateLayer(axis, index, angle, duration, callback) {
-            const cubies = getCubiesInLayer(axis, index);
-            if (cubies.length === 0) { if (callback) callback(); return; }
-
-            const tempGroup = new THREE.Group();
-            scene.add(tempGroup);
-
-            cubies.forEach(cubie => {
-                const worldPos = new THREE.Vector3();
-                const worldQuat = new THREE.Quaternion();
-                cubie.getWorldPosition(worldPos);
-                cubie.getWorldQuaternion(worldQuat);
-                scene.remove(cubie);
-                tempGroup.add(cubie);
-                cubie.position.copy(worldPos);
-                cubie.quaternion.copy(worldQuat);
-            });
-
-            const rotAxis = new THREE.Vector3(axis === 'x' ? 1 : 0, axis === 'y' ? 1 : 0, axis === 'z' ? 1 : 0);
-            
-            const startTime = Date.now();
-            const startQuat = tempGroup.quaternion.clone();
-            const endQuat = new THREE.Quaternion().setFromAxisAngle(rotAxis, angle);
-            endQuat.multiply(startQuat);
-
-            function animateRotation() {
-                const elapsed = Date.now() - startTime;
-                const t = Math.min(elapsed / duration, 1);
-                const ease = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
-                tempGroup.quaternion.slerpQuaternions(startQuat, endQuat, ease);
-
-                if (t < 1) {
-                    requestAnimationFrame(animateRotation);
-                } else {
-                    tempGroup.quaternion.copy(endQuat);
-                    tempGroup.updateMatrixWorld(true);
-
-                    const children = tempGroup.children.slice();
-                    children.forEach(cubie => {
-                        const worldPos = new THREE.Vector3();
-                        const worldQuat = new THREE.Quaternion();
-                        cubie.getWorldPosition(worldPos);
-                        cubie.getWorldQuaternion(worldQuat);
-                        tempGroup.remove(cubie);
-                        scene.add(cubie);
-                        cubie.position.copy(worldPos);
-                        cubie.quaternion.copy(worldQuat);
-                    });
-                    scene.remove(tempGroup);
-
-                    if (callback) callback();
-                }
-            }
-            animateRotation();
-        }
-
-        // ============================
-        // 6. Скрамблер и Сборщик (ВАША ЛОГИКА)
-        // ============================
-        let scrambleMoves = [];
-        let isScrambling = false;
-
-        function generateScramble(length = 23) {
-            const moves = ['U', 'D', 'L', 'R', 'F', 'B'];
-            const modifiers = ['', "'", "2"];
-            let result = [];
-            let lastAxis = '';
-            for (let i = 0; i < length; i++) {
-                let move;
-                let axis;
-                do {
-                    move = moves[Math.floor(Math.random() * moves.length)];
-                    axis = move.charAt(0);
-                } while (axis === lastAxis);
-                lastAxis = axis;
-                const mod = modifiers[Math.floor(Math.random() * modifiers.length)];
-                result.push(move + mod);
-            }
-            return result;
-        }
-
-        function parseMove(moveStr) {
-            const axisMap = { 'U': 'y', 'D': 'y', 'L': 'x', 'R': 'x', 'F': 'z', 'B': 'z' };
-            const indexMap = { 'U': 1, 'D': -1, 'L': -1, 'R': 1, 'F': 1, 'B': -1 };
-            const angleMap = { 'U': -1, 'D': 1, 'L': 1, 'R': -1, 'F': -1, 'B': 1 };
-
-            const base = moveStr.charAt(0);
-            const mod = moveStr.slice(1);
-            let angle = angleMap[base] * Math.PI / 2;
-            let count = 1;
-            if (mod === "'") angle *= -1;
-            else if (mod === "2") count = 2;
-
-            return { axis: axisMap[base], index: indexMap[base], angle, count };
-        }
-
-        function executeMove(moveStr, duration, callback) {
-            const parsed = parseMove(moveStr);
-            let remaining = parsed.count;
-            let currentAngle = parsed.angle;
-
-            function doSingleRotation() {
-                if (remaining === 0) {
-                    if (callback) callback();
-                    return;
-                }
-                rotateLayer(parsed.axis, parsed.index, currentAngle, duration, () => {
-                    remaining--;
-                    if (remaining > 0) {
-                        doSingleRotation();
-                    } else {
-                        if (callback) callback();
-                    }
-                });
-            }
-            doSingleRotation();
-        }
-
-        function executeMoveSequence(moves, durationPerMove, onComplete) {
-            if (moves.length === 0) {
-                if (onComplete) onComplete();
-                return;
-            }
-            let index = 0;
-            function next() {
-                if (index >= moves.length) {
-                    if (onComplete) onComplete();
-                    return;
-                }
-                executeMove(moves[index], durationPerMove, () => {
-                    index++;
-                    setTimeout(next, 20);
-                });
-            }
-            next();
-        }
-
-        // Кнопки (ВАШИ)
-        const btnScramble = document.getElementById('btnScramble');
-        const btnSolve = document.getElementById('btnSolve');
-
-        btnScramble.addEventListener('click', function() {
-            if (isScrambling) return;
-            isScrambling = true;
-            btnScramble.style.display = 'none';
-            btnSolve.style.display = 'inline-block';
-
-            const moves = generateScramble(23);
-            scrambleMoves = moves;
-            const durationPerMove = 5000 / moves.length;
-
-            executeMoveSequence(moves, durationPerMove, () => {
-                isScrambling = false;
-            });
-        });
-
-        btnSolve.addEventListener('click', function() {
-            if (isScrambling || scrambleMoves.length === 0) return;
-            isScrambling = true;
-            btnSolve.style.display = 'none';
-            btnScramble.style.display = 'inline-block';
-
-            const reverseMoves = scrambleMoves.slice().reverse().map(m => {
-                if (m.endsWith("'")) return m.slice(0, -1);
-                if (m.endsWith("2")) return m;
-                return m + "'";
-            });
-            const durationPerMove = 5000 / reverseMoves.length;
-
-            executeMoveSequence(reverseMoves, durationPerMove, () => {
-                isScrambling = false;
-                scrambleMoves = [];
-            });
-        });
-
-        // ============================
-        // 7. ДОБАВЛЯЕМ КЛИКАБЕЛЬНОСТЬ
+        // 7. Логика клика (КАК В ОРИГИНАЛЕ)
         // ============================
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
+
+        function getGridCoords(position) {
+            const x = Math.round(position.x / offset);
+            const y = Math.round(position.y / offset);
+            const z = Math.round(position.z / offset);
+            return { x, y, z };
+        }
+
+        function openGran(colorName, gx, gy) {
+            gx = Math.min(2, Math.max(0, gx));
+            gy = Math.min(2, Math.max(0, gy));
+            if (window.openBookGran) {
+                window.openBookGran(colorName, gx, gy);
+            }
+        }
 
         function onMouseClick(event) {
             const rect = renderer.domElement.getBoundingClientRect();
@@ -366,10 +222,13 @@ if (!container) {
             mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
 
             raycaster.setFromCamera(mouse, camera);
-            const intersects = raycaster.intersectObjects(allCubies);
+            const intersects = raycaster.intersectObjects(cubies);
 
             if (intersects.length > 0) {
                 const clickedCubie = intersects[0].object;
+                const pos = clickedCubie.position;
+                const coords = getGridCoords(pos);
+                
                 const normal = intersects[0].face.normal.clone();
                 normal.applyQuaternion(clickedCubie.quaternion);
                 
@@ -384,38 +243,33 @@ if (!container) {
                 else if (ny === -1) materialIndex = 3;
                 else if (nz === 1) materialIndex = 4;
                 else if (nz === -1) materialIndex = 5;
-                
-                const colorName = clickedCubie.userData.faces[materialIndex];
+                else materialIndex = 0;
+
+                const colorName = clickedCubie.userData.faceNames[materialIndex];
                 if (!colorName) return;
-
-                // Вычисляем координаты грани (0, 1, 2)
-                const pos = clickedCubie.position;
-                const gx = Math.round(pos.x / offset);
-                const gy = Math.round(pos.y / offset);
-                const gz = Math.round(pos.z / offset);
                 
-                let xCoord = 0, yCoord = 0;
-                if (materialIndex === 0 || materialIndex === 1) { // +X / -X
-                    xCoord = gy + 1;
-                    yCoord = gz + 1;
-                } else if (materialIndex === 2 || materialIndex === 3) { // +Y / -Y
-                    xCoord = gx + 1;
-                    yCoord = gz + 1;
-                } else { // +Z / -Z
-                    xCoord = gx + 1;
-                    yCoord = gy + 1;
+                let gx = 0, gy = 0;
+                
+                if (materialIndex === 0 || materialIndex === 1) {
+                    gx = coords.y + 1;
+                    gy = coords.z + 1;
+                } else if (materialIndex === 2 || materialIndex === 3) {
+                    gx = coords.x + 1;
+                    gy = coords.z + 1;
+                } else {
+                    gx = coords.x + 1;
+                    gy = coords.y + 1;
                 }
-
-                const id = colorName + '_' + xCoord + '_' + yCoord + '_1';
-                const question = questionsDB[id] || 'Для этого квадратика пока нет вопроса. Придумай свой!';
-
-                if (window.openBookGran) {
-                    window.openBookGran(id, colorName, question);
-                }
+                
+                openGran(colorName, gx, gy);
             }
         }
 
-        // Вешаем обработчик клика (с защитой от перетаскивания)
+        // ============================
+        // 8. Обработчики (Заменяем самописное вращение на OrbitControls)
+        // ============================
+        
+        // Защита от ложных кликов (чтобы клик срабатывал, только если не двигали мышку)
         let pointerDownPos = { x: 0, y: 0 };
         let isClick = false;
 
@@ -435,12 +289,11 @@ if (!container) {
         });
 
         // ============================
-        // 8. Рендер
+        // 9. Рендер (КАК В ОРИГИНАЛЕ)
         // ============================
         function render() {
-            requestAnimationFrame(render);
-            controls.update(); // Обновляем controls
             renderer.render(scene, camera);
+            requestAnimationFrame(render);
         }
         render();
 
