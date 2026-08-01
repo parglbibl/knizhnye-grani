@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 
 const container = document.getElementById('cube-container');
@@ -32,7 +33,7 @@ if (!container) {
         scene.background = null;
 
         const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 1000);
-        camera.position.set(3.5, 2.5, 4.5);
+        camera.position.set(4.5, 3.0, 4.5); // Позиция камеры по умолчанию
         camera.lookAt(0, 0, 0);
 
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -40,6 +41,14 @@ if (!container) {
         renderer.setSize(size, size);
         renderer.setClearColor(0x000000, 0);
         container.appendChild(renderer.domElement);
+
+        // ВРАЩЕНИЕ КАМЕРЫ ВОКРУГ КУБИКА
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.1;
+        controls.enableZoom = false;
+        controls.rotateSpeed = 1.0;
+        controls.target.set(0, 0, 0);
 
         const cubeGroup = new THREE.Group();
         scene.add(cubeGroup);
@@ -409,7 +418,7 @@ if (!container) {
         });
 
         // ============================
-        // 10. ДОБАВЛЯЕМ ВРАЩЕНИЕ МЫШКОЙ И КЛИКИ
+        // 10. КЛИКАБЕЛЬНОСТЬ
         // ============================
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
@@ -472,121 +481,32 @@ if (!container) {
             }
         }
 
-        // === ВРАЩЕНИЕ МЫШКОЙ (ОРИГИНАЛЬНОЕ) ===
-        let isDragging = false;
-        let startX = 0, startY = 0;
-        let lastX = 0, lastY = 0;
+        // Обработчик клика
+        let pointerDownPos = { x: 0, y: 0 };
+        let isClick = false;
 
-        let savedQuaternion = new THREE.Quaternion();
+        renderer.domElement.addEventListener('pointerdown', (e) => {
+            pointerDownPos.x = e.clientX;
+            pointerDownPos.y = e.clientY;
+            isClick = true;
+        });
 
-        function getXY(e) {
-            if (e.touches) {
-                return { x: e.touches[0].clientX, y: e.touches[0].clientY };
-            }
-            return { x: e.clientX, y: e.clientY };
-        }
-
-        function onPointerDown(e) {
-            const coords = getXY(e);
-            isDragging = true;
-            startX = coords.x;
-            startY = coords.y;
-            lastX = coords.x;
-            lastY = coords.y;
-            container.style.cursor = 'grabbing';
-        }
-
-        function onPointerMove(e) {
-            if (!isDragging) return;
-            const coords = getXY(e);
-            const deltaX = coords.x - lastX;
-            const deltaY = coords.y - lastY;
-            if (deltaX !== 0 || deltaY !== 0) {
-                const axis = new THREE.Vector3(deltaY, deltaX, 0).normalize();
-                const angle = Math.sqrt(deltaX * deltaX + deltaY * deltaY) * 0.008;
-                const quaternion = new THREE.Quaternion().setFromAxisAngle(axis, angle);
-                cubeGroup.quaternion.multiply(quaternion);
-                lastX = coords.x;
-                lastY = coords.y;
-            }
-        }
-
-        function onPointerUp(e) {
-            isDragging = false;
-            container.style.cursor = 'pointer';
-            
-            const coords = getXY(e);
-            const dx = Math.abs(coords.x - startX);
-            const dy = Math.abs(coords.y - startY);
-            
-            if (dx < 6 && dy < 6 && !isScrambling && !isAnimating) {
+        renderer.domElement.addEventListener('pointerup', (e) => {
+            const dx = e.clientX - pointerDownPos.x;
+            const dy = e.clientY - pointerDownPos.y;
+            if (Math.abs(dx) < 10 && Math.abs(dy) < 10 && isClick && !isScrambling && !isAnimating) {
                 onMouseClick(e);
             }
-        }
-
-        container.addEventListener('mousedown', onPointerDown);
-        window.addEventListener('mousemove', onPointerMove);
-        window.addEventListener('mouseup', onPointerUp);
-
-        // === ТАЧ (ТЕЛЕФОН) ===
-        let touchStartX = 0, touchStartY = 0;
-        let touchLastX = 0, touchLastY = 0;
-        let touchMoved = false;
-
-        function onTouchStart(e) {
-            const touch = e.touches[0];
-            touchStartX = touch.clientX;
-            touchStartY = touch.clientY;
-            touchLastX = touch.clientX;
-            touchLastY = touch.clientY;
-            touchMoved = false;
-            onPointerDown({ touches: [touch] });
-        }
-
-        function onTouchMove(e) {
-            const touch = e.touches[0];
-            const deltaX = touch.clientX - touchLastX;
-            const deltaY = touch.clientY - touchLastY;
-            if (deltaX !== 0 || deltaY !== 0) {
-                touchMoved = true;
-                const axis = new THREE.Vector3(deltaY, deltaX, 0).normalize();
-                const angle = Math.sqrt(deltaX * deltaX + deltaY * deltaY) * 0.008;
-                const quaternion = new THREE.Quaternion().setFromAxisAngle(axis, angle);
-                cubeGroup.quaternion.multiply(quaternion);
-                touchLastX = touch.clientX;
-                touchLastY = touch.clientY;
-            }
-        }
-
-        function onTouchEnd(e) {
-            isDragging = false;
-            const touch = e.changedTouches[0];
-            const dx = Math.abs(touch.clientX - touchStartX);
-            const dy = Math.abs(touch.clientY - touchStartY);
-            
-            if (dx < 10 && dy < 10 && !touchMoved && !isScrambling && !isAnimating) {
-                onMouseClick(e);
-            }
-        }
-
-        const el = renderer.domElement;
-        el.addEventListener('touchstart', onTouchStart, { passive: false });
-        el.addEventListener('touchmove', onTouchMove, { passive: false });
-        el.addEventListener('touchend', onTouchEnd, { passive: true });
+            isClick = false;
+        });
 
         // ============================
-        // 11. Рендер
+        // 11. Рендер + обновление камеры
         // ============================
-        let currentZoom = 4.5;
-        function updateCamera() {
-            camera.position.set(currentZoom * 0.7, currentZoom * 0.5, currentZoom * 0.9);
-            camera.lookAt(0, 0, 0);
-        }
-        updateCamera();
-
         function render() {
-            renderer.render(scene, camera);
             requestAnimationFrame(render);
+            controls.update();
+            renderer.render(scene, camera);
         }
         render();
 
