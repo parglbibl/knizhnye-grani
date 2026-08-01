@@ -33,7 +33,7 @@ if (!container) {
         scene.background = null;
 
         const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 1000);
-        camera.position.set(4.5, 3.0, 4.5); // Позиция камеры по умолчанию
+        camera.position.set(3.5, 2.5, 4.5); // Вернул позицию камеры в оригинал
         camera.lookAt(0, 0, 0);
 
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -42,7 +42,7 @@ if (!container) {
         renderer.setClearColor(0x000000, 0);
         container.appendChild(renderer.domElement);
 
-        // ВРАЩЕНИЕ КАМЕРЫ ВОКРУГ КУБИКА
+        // ВРАЩЕНИЕ КАМЕРЫ ВОКРУГ КУБИКА (БЕЗ ЛОМКИ СКРАМБЛЕРА)
         const controls = new OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.dampingFactor = 0.1;
@@ -143,16 +143,19 @@ if (!container) {
         }
 
         // ============================
-        // 4. Свет
+        // 4. Свет (ТОЧНО КАК В ОРИГИНАЛЕ)
         // ============================
         const ambientLight = new THREE.AmbientLight(0x606080, 0.6);
         scene.add(ambientLight);
+        
         const mainLight = new THREE.DirectionalLight(0xffffff, 0.9);
         mainLight.position.set(2, 4, 3);
         scene.add(mainLight);
+        
         const fillLight = new THREE.DirectionalLight(0xffffff, 0.5);
         fillLight.position.set(-2, 1, 2);
         scene.add(fillLight);
+        
         const backLight = new THREE.DirectionalLight(0xffffff, 0.2);
         backLight.position.set(0, 1, -3);
         scene.add(backLight);
