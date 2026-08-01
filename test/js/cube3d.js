@@ -26,6 +26,9 @@ if (!container) {
     }
 
     function initCube(size) {
+        // ============================
+        // 1. Базовые настройки сцены
+        // ============================
         const scene = new THREE.Scene();
         scene.background = null;
 
@@ -49,6 +52,9 @@ if (!container) {
         const cubeGroup = new THREE.Group();
         scene.add(cubeGroup);
 
+        // ============================
+        // 2. Текстуры и материалы
+        // ============================
         const textureLoader = new THREE.TextureLoader();
         const texturePaths = {
             red: '../images/cube_textures/red.jpg',
@@ -79,6 +85,9 @@ if (!container) {
             map: textures[color], roughness: 0.3, metalness: 0.2, emissive: emissiveHex, emissiveIntensity: 0.25 
         });
 
+        // ============================
+        // 3. Создание кубиков (с постоянными ID для каждой грани)
+        // ============================
         const offset = 0.685;  
         const sizeCubie = 0.675;    
         const radius = 0.08;    
@@ -118,20 +127,20 @@ if (!container) {
                     cubie.position.set(x * offset, y * offset, z * offset);
                     cubeGroup.add(cubie);
 
-                    // Генерируем физический ID для КАЖДОЙ грани (наклейки)
+                    // ГЕНЕРИРУЕМ УНИКАЛЬНЫЕ ПОСТОЯННЫЕ ID ДЛЯ КАЖДОЙ ГРАНИ (наклейки)
                     const faceIds = faces.map((color, idx) => {
                         if (!color) return null;
-                        // Для каждой грани свой уникальный ID
+                        // Формат: face_цвет_x_y_z_индексГрани
                         return `face_${color}_${x}_${y}_${z}_${idx}`;
                     });
 
                     cubie.userData = {
                         isCenter: isCenter,
                         gridX: x, gridY: y, gridZ: z,
-                        faces: faces,
-                        mats: mats,
+                        faces: faces,        // массив цветов граней
+                        mats: mats,          // массив материалов
                         originalPos: new THREE.Vector3(x * offset, y * offset, z * offset),
-                        faceIds: faceIds // <--- ВОТ ЗДЕСЬ ХРАНЯТСЯ ID ВСЕХ ГРАНЕЙ
+                        faceIds: faceIds     // <--- ГЛАВНОЕ: постоянные ID для каждой грани
                     };
 
                     allCubies.push(cubie);
@@ -139,11 +148,17 @@ if (!container) {
             }
         }
 
+        // ============================
+        // 4. Свет (РАВНОМЕРНЫЙ)
+        // ============================
         const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1.0);
         scene.add(hemiLight);
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
         scene.add(ambientLight);
 
+        // ============================
+        // 5. Вращение слоёв (ВАШ ИДЕАЛЬНЫЙ СКРАМБЛЕР)
+        // ============================
         let isAnimating = false;
 
         function getCubiesInLayer(axis, index) {
@@ -301,7 +316,7 @@ if (!container) {
         }
 
         // ============================
-        // ПОДСВЕТКА ПО ФИЗИЧЕСКОМУ ID ГРАНИ
+        // 6. Подсветка (ПО ID НАКЛЕЙКИ)
         // ============================
         let activeGlowIds = [];
 
@@ -320,7 +335,7 @@ if (!container) {
         };
 
         function applyGlow() {
-            // Сбрасываем всё
+            // Сбрасываем все материалы на обычные
             allCubies.forEach(cubie => {
                 const faces = cubie.userData.faces;
                 const mats = cubie.material;
@@ -331,7 +346,7 @@ if (!container) {
                 }
             });
 
-            // Зажигаем по сохранённым ID
+            // Зажигаем по физическому ID грани
             activeGlowIds.forEach(glowId => {
                 allCubies.forEach(cubie => {
                     const faceIds = cubie.userData.faceIds;
@@ -352,6 +367,9 @@ if (!container) {
         loadGlowFromLocalStorage();
         applyGlow();
 
+        // ============================
+        // 7. Обработчики кнопок
+        // ============================
         const btnScramble = document.getElementById('btnScramble');
         const btnSolve = document.getElementById('btnSolve');
 
@@ -392,7 +410,7 @@ if (!container) {
         });
 
         // ============================
-        // КЛИК ПО ФИЗИЧЕСКОМУ ID ГРАНИ
+        // 8. КЛИКАБЕЛЬНОСТЬ (БЕЗ ВЫЧИСЛЕНИЯ КООРДИНАТ!)
         // ============================
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
@@ -408,6 +426,7 @@ if (!container) {
             if (intersects.length > 0) {
                 const clickedCubie = intersects[0].object;
                 
+                // Определяем, какую грань нажали
                 const normal = intersects[0].face.normal.clone();
                 normal.applyQuaternion(clickedCubie.quaternion);
                 
@@ -424,11 +443,11 @@ if (!container) {
                 else if (nz === -1) materialIndex = 5;
                 else materialIndex = 0;
 
-                const colorName = clickedCubie.userData.faces[materialIndex];
-                if (!colorName) return;
-                
-                // БЕРЁМ ID ЭТОЙ КОНКРЕТНОЙ ГРАНИ
+                // БЕРЁМ ID ИЗ USERDATA (постоянный, не зависит от координат)
                 const faceId = clickedCubie.userData.faceIds[materialIndex];
+                const colorName = clickedCubie.userData.faces[materialIndex];
+
+                if (!faceId || !colorName) return;
 
                 if (window.openBookGran) {
                     window.openBookGran(faceId, colorName);
@@ -436,6 +455,7 @@ if (!container) {
             }
         }
 
+        // Обработчик клика (с защитой от перетаскивания)
         let pointerDownPos = { x: 0, y: 0 };
         let isClick = false;
 
@@ -454,6 +474,9 @@ if (!container) {
             isClick = false;
         });
 
+        // ============================
+        // 9. Рендер + обновление камеры
+        // ============================
         function render() {
             requestAnimationFrame(render);
             controls.update();
