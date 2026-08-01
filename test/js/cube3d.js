@@ -351,7 +351,6 @@ if (!container) {
             });
 
             activeGlowIds.forEach(id => {
-                // ВАША ЛОГИКА ID ОСТАЁТСЯ НЕТРОНУТОЙ
                 allCubies.forEach(cubie => {
                     const faces = cubie.userData.faces;
                     const mats = cubie.material;
@@ -420,7 +419,7 @@ if (!container) {
         });
 
         // ============================
-        // 10. ДОБАВЛЯЕМ ВРАЩЕНИЕ МЫШКОЙ И КЛИКИ
+        // 10. ВРАЩЕНИЕ МЫШКОЙ И КЛИКИ (ДОБАВЛЕНО)
         // ============================
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
@@ -478,12 +477,13 @@ if (!container) {
                 }
                 
                 if (window.openBookGran) {
-                    window.openBookGran(colorName + '_' + gx + '_' + gy + '_1', colorName, null);
+                    // ВАЖНО: Передаём ID в формате color_gx_gy_1
+                    window.openBookGran(colorName + '_' + gx + '_' + gy + '_1', colorName);
                 }
             }
         }
 
-        // === ВРАЩЕНИЕ МЫШКОЙ ===
+        // === ВРАЩЕНИЕ ===
         let isDragging = false;
         let startX = 0, startY = 0;
         let lastX = 0, lastY = 0;
@@ -496,6 +496,7 @@ if (!container) {
         }
 
         function onPointerDown(e) {
+            if (isScrambling || isAnimating) return; // Блокируем вращение во время анимации
             const coords = getXY(e);
             isDragging = true;
             startX = coords.x;
@@ -506,7 +507,7 @@ if (!container) {
         }
 
         function onPointerMove(e) {
-            if (!isDragging) return;
+            if (!isDragging || isScrambling || isAnimating) return;
             const coords = getXY(e);
             const deltaX = coords.x - lastX;
             const deltaY = coords.y - lastY;
@@ -528,7 +529,7 @@ if (!container) {
             const dx = Math.abs(coords.x - startX);
             const dy = Math.abs(coords.y - startY);
             
-            if (dx < 6 && dy < 6) {
+            if (dx < 6 && dy < 6 && !isScrambling && !isAnimating) {
                 onMouseClick(e);
             }
         }
@@ -543,6 +544,7 @@ if (!container) {
         let touchMoved = false;
 
         function onTouchStart(e) {
+            if (isScrambling || isAnimating) return;
             const touch = e.touches[0];
             touchStartX = touch.clientX;
             touchStartY = touch.clientY;
@@ -553,6 +555,7 @@ if (!container) {
         }
 
         function onTouchMove(e) {
+            if (!isDragging || isScrambling || isAnimating) return;
             const touch = e.touches[0];
             const deltaX = touch.clientX - touchLastX;
             const deltaY = touch.clientY - touchLastY;
@@ -568,11 +571,12 @@ if (!container) {
         }
 
         function onTouchEnd(e) {
+            isDragging = false;
             const touch = e.changedTouches[0];
             const dx = Math.abs(touch.clientX - touchStartX);
             const dy = Math.abs(touch.clientY - touchStartY);
             
-            if (dx < 10 && dy < 10 && !touchMoved) {
+            if (dx < 10 && dy < 10 && !touchMoved && !isScrambling && !isAnimating) {
                 onMouseClick(e);
             }
         }
