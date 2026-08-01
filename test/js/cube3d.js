@@ -118,20 +118,12 @@ if (!container) {
                     cubie.position.set(x * offset, y * offset, z * offset);
                     cubeGroup.add(cubie);
 
-                    // Генерируем 100% уникальный физический ID
-                    const isCorner = (x !== 0 && y !== 0 && z !== 0);
-                    const isEdge = (x === 0 || y === 0 || z === 0) && !isCenter;
-                    
-                    let fixedId;
-                    if (isCenter) {
-                        fixedId = `center_${x}_${y}_${z}`;
-                    } else if (isCorner) {
-                        const colorStr = faces.filter(f => f !== null).join('_');
-                        fixedId = `corner_${colorStr}`;
-                    } else if (isEdge) {
-                        const colorStr = faces.filter(f => f !== null).join('_');
-                        fixedId = `edge_${colorStr}`;
-                    }
+                    // Генерируем физический ID для КАЖДОЙ грани (наклейки)
+                    const faceIds = faces.map((color, idx) => {
+                        if (!color) return null;
+                        // Для каждой грани свой уникальный ID
+                        return `face_${color}_${x}_${y}_${z}_${idx}`;
+                    });
 
                     cubie.userData = {
                         isCenter: isCenter,
@@ -139,8 +131,7 @@ if (!container) {
                         faces: faces,
                         mats: mats,
                         originalPos: new THREE.Vector3(x * offset, y * offset, z * offset),
-                        fixedId: fixedId, // <--- ЭТОТ ID НИКОГДА НЕ МЕНЯЕТСЯ
-                        cubieColor: faces
+                        faceIds: faceIds // <--- ВОТ ЗДЕСЬ ХРАНЯТСЯ ID ВСЕХ ГРАНЕЙ
                     };
 
                     allCubies.push(cubie);
@@ -310,7 +301,7 @@ if (!container) {
         }
 
         // ============================
-        // ПОДСВЕТКА ПО ФИЗИЧЕСКОМУ ID
+        // ПОДСВЕТКА ПО ФИЗИЧЕСКОМУ ID ГРАНИ
         // ============================
         let activeGlowIds = [];
 
@@ -329,6 +320,7 @@ if (!container) {
         };
 
         function applyGlow() {
+            // Сбрасываем всё
             allCubies.forEach(cubie => {
                 const faces = cubie.userData.faces;
                 const mats = cubie.material;
@@ -339,12 +331,15 @@ if (!container) {
                 }
             });
 
-            activeGlowIds.forEach(id => {
+            // Зажигаем по сохранённым ID
+            activeGlowIds.forEach(glowId => {
                 allCubies.forEach(cubie => {
-                    if (cubie.userData.fixedId === id) {
-                        const faces = cubie.userData.faces;
-                        const mats = cubie.material;
-                        for (let i = 0; i < 6; i++) {
+                    const faceIds = cubie.userData.faceIds;
+                    const faces = cubie.userData.faces;
+                    const mats = cubie.material;
+                    
+                    for (let i = 0; i < 6; i++) {
+                        if (faceIds[i] === glowId) {
                             if (faces[i] && glowLib[faces[i]]) {
                                 mats[i] = glowLib[faces[i]];
                             }
@@ -397,7 +392,7 @@ if (!container) {
         });
 
         // ============================
-        // КЛИК ПО ФИЗИЧЕСКОМУ ID
+        // КЛИК ПО ФИЗИЧЕСКОМУ ID ГРАНИ
         // ============================
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
@@ -432,10 +427,11 @@ if (!container) {
                 const colorName = clickedCubie.userData.faces[materialIndex];
                 if (!colorName) return;
                 
-                const fixedId = clickedCubie.userData.fixedId;
+                // БЕРЁМ ID ЭТОЙ КОНКРЕТНОЙ ГРАНИ
+                const faceId = clickedCubie.userData.faceIds[materialIndex];
 
                 if (window.openBookGran) {
-                    window.openBookGran(fixedId, colorName);
+                    window.openBookGran(faceId, colorName);
                 }
             }
         }
