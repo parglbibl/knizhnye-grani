@@ -78,7 +78,7 @@ if (!container) {
         });
 
         // ============================
-        // 3. Создание кубиков (ТОЧНЫЕ РАЗМЕРЫ ИЗ ОРИГИНАЛА)
+        // 3. Создание кубиков (РАЗМЕРЫ ИЗ ОРИГИНАЛА)
         // ============================
         const offset = 0.685;  
         const sizeCubie = 0.675;    
@@ -149,7 +149,7 @@ if (!container) {
         scene.add(backLight);
 
         // ============================
-        // 5. Вращение слоёв
+        // 5. Вращение слоёв (ВАШ ИДЕАЛЬНЫЙ СКРАМБЛЕР)
         // ============================
         let isAnimating = false;
 
@@ -409,7 +409,7 @@ if (!container) {
         });
 
         // ============================
-        // 10. ДОБАВЛЯЕМ ВРАЩЕНИЕ МЫШКОЙ И КЛИКИ
+        // 10. ДОБАВЛЯЕМ ВРАЩЕНИЕ МЫШКОЙ И КЛИКИ (БЕЗ БЛОКИРОВКИ СКРАМБЛЕРА)
         // ============================
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
@@ -466,14 +466,13 @@ if (!container) {
                     gy = coords.y + 1;
                 }
                 
-                // Передаём ID и цвет (вопрос подтянется из HTML)
                 if (window.openBookGran) {
                     window.openBookGran(colorName + '_' + gx + '_' + gy + '_1', colorName);
                 }
             }
         }
 
-        // === ВРАЩЕНИЕ МЫШКОЙ ===
+        // === ВРАЩЕНИЕ МЫШКОЙ (ОРИГИНАЛЬНОЕ) ===
         let isDragging = false;
         let startX = 0, startY = 0;
         let lastX = 0, lastY = 0;
@@ -486,9 +485,6 @@ if (!container) {
         }
 
         function onPointerDown(e) {
-            // Блокируем вращение во время анимации
-            if (isScrambling || isAnimating) return; 
-
             const coords = getXY(e);
             isDragging = true;
             startX = coords.x;
@@ -499,7 +495,7 @@ if (!container) {
         }
 
         function onPointerMove(e) {
-            if (!isDragging || isScrambling || isAnimating) return;
+            if (!isDragging) return;
             const coords = getXY(e);
             const deltaX = coords.x - lastX;
             const deltaY = coords.y - lastY;
@@ -521,6 +517,8 @@ if (!container) {
             const dx = Math.abs(coords.x - startX);
             const dy = Math.abs(coords.y - startY);
             
+            // Если клик был коротким и без движения - открываем вопрос
+            // Проверяем, не идёт ли анимация, чтобы случайно не кликнуть во время скрамбла
             if (dx < 6 && dy < 6 && !isScrambling && !isAnimating) {
                 onMouseClick(e);
             }
@@ -536,7 +534,6 @@ if (!container) {
         let touchMoved = false;
 
         function onTouchStart(e) {
-            if (isScrambling || isAnimating) return;
             const touch = e.touches[0];
             touchStartX = touch.clientX;
             touchStartY = touch.clientY;
@@ -547,7 +544,6 @@ if (!container) {
         }
 
         function onTouchMove(e) {
-            if (!isDragging || isScrambling || isAnimating) return;
             const touch = e.touches[0];
             const deltaX = touch.clientX - touchLastX;
             const deltaY = touch.clientY - touchLastY;
