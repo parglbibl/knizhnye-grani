@@ -55,14 +55,15 @@
 <section class="section" style="padding-top: 2rem; padding-bottom: 2rem;">
     <div class="container" style="max-width: 900px; text-align: center;">
         
-        <!-- ===== ЗАГОЛОВОК ===== -->
+        <!-- ===== ЗАГОЛОВОК И МАНИФЕСТ ===== -->
         <div class="grani-header" style="margin-bottom: 2.5rem; text-align: left; max-width: 750px; margin-left: auto; margin-right: auto;">
             <h1 style="font-family: 'KB Tranceform', 'Montserrat', sans-serif; font-weight: 400; text-align: center; letter-spacing: 0.02em; color: #3a4a6e; margin-bottom: 1rem; font-size: 3.8rem;">
                 Тест: Скрамблер
             </h1>
+            
             <div style="font-size: 0.9rem; line-height: 1.8; color: var(--text-secondary); text-align: justify;">
                 <p style="margin-bottom: 1.5rem; text-align: center; font-weight: 500; color: #1e2a3a;">
-                    Полноценный движок с вращением слоёв.
+                    Здесь тестируется новый движок кубика с настоящим вращением слоёв.
                 </p>
             </div>
         </div>
@@ -100,7 +101,7 @@
             </div>
 
             <div style="flex: 1; min-width: 320px; max-width: 580px; display: flex; justify-content: center;">
-                <div id="cube-container" style="width: 100%; aspect-ratio: 1 / 1; max-width: 580px; background: transparent; position: relative; touch-action: none;"></div>
+                <div id="cube-container" style="width: 100%; aspect-ratio: 1 / 1; max-width: 580px; background: transparent; cursor: pointer; position: relative; touch-action: none;"></div>
             </div>
         </div>
 
@@ -108,6 +109,7 @@
         <div style="display: flex; justify-content: center; gap: 1.5rem; margin-top: 2.5rem; flex-wrap: wrap;">
             <button id="btnScramble" class="btn btn-primary" style="background: var(--neon-coral); color: #fff; border-color: var(--neon-coral);">Перемешать</button>
             <button id="btnSolve" class="btn btn-primary" style="background: #2ecc71; color: #fff; border-color: #2ecc71; display: none;">Собрать</button>
+            <button id="btnResetLocalStorage" class="btn btn-sm" style="background: rgba(0,0,0,0.05); color: var(--text-secondary); border-color: transparent;">Сбросить мои ответы</button>
         </div>
 
     </div>
@@ -162,7 +164,6 @@
   firebase.initializeApp(firebaseConfig);
   const database = firebase.database();
 
-  // Полная база вопросов
   const questionsDB = {
     'red_0_0_1': 'Какая книга подарила тебе ощущение дома, даже если ты был далеко?',
     'red_0_1_1': 'Какая книга заставила тебя почувствовать гордость за место, где ты живёшь?',
@@ -292,6 +293,7 @@
 
   let currentElementId = null;
 
+  // Новая функция вызывается из 3D-движка
   window.openBookGran = function(id, colorName, questionText) {
       currentElementId = id;
 
@@ -358,6 +360,11 @@
               localStorage.setItem('myGranProgress', JSON.stringify(myProgress));
           }
 
+          // Оповещаем движок, что подсветку нужно обновить
+          if (window.updateCubeGlow) {
+              window.updateCubeGlow();
+          }
+
           alert('Спасибо! Твой ответ сохранён и теперь виден всем.');
       }).catch((error) => {
           console.error('Ошибка сохранения:', error);
@@ -376,6 +383,18 @@
           document.body.style.overflow = '';
       }
   });
+
+  // Кнопка сброса localStorage для тестов
+  document.getElementById('btnResetLocalStorage').addEventListener('click', function() {
+      if (confirm('Удалить все ваши сохранённые ответы (подсветку)? Это не удалит ответы из Firebase, только локальные метки.')) {
+          localStorage.removeItem('myGranProgress');
+          if (window.updateCubeGlow) {
+              window.updateCubeGlow();
+          }
+          alert('Локальные метки сброшены.');
+      }
+  });
+
 </script>
 
 <script type="importmap">
