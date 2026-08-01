@@ -26,9 +26,6 @@ if (!container) {
     }
 
     function initCube(size) {
-        // ============================
-        // 1. Базовые настройки сцены
-        // ============================
         const scene = new THREE.Scene();
         scene.background = null;
 
@@ -52,9 +49,6 @@ if (!container) {
         const cubeGroup = new THREE.Group();
         scene.add(cubeGroup);
 
-        // ============================
-        // 2. Текстуры и материалы
-        // ============================
         const textureLoader = new THREE.TextureLoader();
         const texturePaths = {
             red: '../images/cube_textures/red.jpg',
@@ -85,9 +79,6 @@ if (!container) {
             map: textures[color], roughness: 0.3, metalness: 0.2, emissive: emissiveHex, emissiveIntensity: 0.25 
         });
 
-        // ============================
-        // 3. Создание кубиков и КАРТЫ ID (faceMap)
-        // ============================
         const offset = 0.685;  
         const sizeCubie = 0.675;    
         const radius = 0.08;    
@@ -104,8 +95,10 @@ if (!container) {
         };
 
         let allCubies = [];
-        let faceMap = {};
 
+        // ============================
+        // Шаг 1. Создание кубиков (без faceMap)
+        // ============================
         function buildCubies() {
             while(cubeGroup.children.length > 0) {
                 const child = cubeGroup.children[0];
@@ -113,7 +106,6 @@ if (!container) {
                 cubeGroup.remove(child);
             }
             allCubies = [];
-            faceMap = {};
 
             for (let x = -1; x <= 1; x++) {
                 for (let y = -1; y <= 1; y++) {
@@ -137,6 +129,7 @@ if (!container) {
                         cubie.position.set(x * offset, y * offset, z * offset);
                         cubeGroup.add(cubie);
 
+                        // Генерируем ID для каждой грани
                         const faceIds = faces.map((color, idx) => {
                             if (!color) return null;
                             return `face_${color}_${x}_${y}_${z}_${idx}`;
@@ -151,14 +144,6 @@ if (!container) {
                         };
 
                         allCubies.push(cubie);
-
-                        // ЗАПОЛНЯЕМ КАРТУ
-                        for (let i = 0; i < 6; i++) {
-                            if (faceIds[i]) {
-                                const key = `${x}_${y}_${z}_${i}`;
-                                faceMap[key] = faceIds[i];
-                            }
-                        }
                     }
                 }
             }
@@ -166,16 +151,51 @@ if (!container) {
 
         buildCubies();
 
-        // ============================
-        // 4. Свет
-        // ============================
         const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1.0);
         scene.add(hemiLight);
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
         scene.add(ambientLight);
 
         // ============================
-        // 5. Вращение слоёв (с обновлением КАРТЫ)
+        // Шаг 4. Функция перестановки наклеек (с учётом направления)
+        // ============================
+        function rotateStickerData(cubie, axis, angle) {
+            const oldIds = [...cubie.userData.faceIds];
+            const oldFaces = [...cubie.userData.faces];
+            const oldMats = [...cubie.material];
+
+            const direction = Math.round(angle / (Math.PI / 2));
+            let map;
+
+            if (axis === 'x') {
+                if (direction === 1) {
+                    map = [0, 1, 5, 4, 2, 3];
+                } else {
+                    map = [0, 1, 4, 5, 3, 2];
+                }
+            } else if (axis === 'y') {
+                if (direction === 1) {
+                    map = [5, 4, 2, 3, 0, 1];
+                } else {
+                    map = [4, 5, 2, 3, 1, 0];
+                }
+            } else if (axis === 'z') {
+                if (direction === 1) {
+                    map = [3, 2, 0, 1, 4, 5];
+                } else {
+                    map = [2, 3, 1, 0, 4, 5];
+                }
+            }
+
+            if (!map) return;
+
+            cubie.userData.faceIds = map.map(i => oldIds[i]);
+            cubie.userData.faces = map.map(i => oldFaces[i]);
+            cubie.material = map.map(i => oldMats[i]);
+        }
+
+        // ============================
+        // Шаг 6. Вращение слоёв (с isAnimating)
         // ============================
         let isAnimating = false;
 
@@ -198,10 +218,15 @@ if (!container) {
         }
 
         function rotateLayer(axis, index, angle, duration, callback) {
-            const cubies = getCubiesInLayer(axis, index);
-            if (cubies.length === 0) { if (callback) callback(); return; }
+            isAnimating = true; // Шаг 6: ставим true в начале
 
-            // Вычисляем новые координаты
+            const cubies = getCubiesInLayer(axis, index);
+            if (cubies.length === 0) { 
+                isAnimating = false;
+                if (callback) callback(); 
+                return; 
+            }
+
             const newPositions = cubies.map(cubie => {
                 const pos = cubie.position.clone();
                 const gx = Math.round(pos.x / offset);
@@ -210,7 +235,6 @@ if (!container) {
                 
                 let newX = gx, newY = gy, newZ = gz;
                 
-                // Поворот координат на 90 градусов
                 const cos = Math.round(Math.cos(angle));
                 const sin = Math.round(Math.sin(angle));
                 
@@ -230,9 +254,7 @@ if (!container) {
                     startPos: pos.clone(),
                     endPos: new THREE.Vector3(newX * offset, newY * offset, newZ * offset),
                     startRot: cubie.quaternion.clone(),
-                    endRot: new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(axis === 'x' ? 1 : 0, axis === 'y' ? 1 : 0, axis === 'z' ? 1 : 0), angle).multiply(cubie.quaternion.clone()),
-                    oldGrid: { x: gx, y: gy, z: gz },
-                    newGrid: { x: newX, y: newY, z: newZ }
+                    endRot: new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(axis === 'x' ? 1 : 0, axis === 'y' ? 1 : 0, axis === 'z' ? 1 : 0), angle).multiply(cubie.quaternion.clone())
                 };
             });
 
@@ -255,26 +277,12 @@ if (!container) {
                         item.cubie.position.copy(item.endPos);
                         item.cubie.quaternion.copy(item.endRot);
                         
-                        // ОБНОВЛЯЕМ КАРТУ ДЛЯ ЭТОГО КУБИКА
-                        const oldX = item.oldGrid.x;
-                        const oldY = item.oldGrid.y;
-                        const oldZ = item.oldGrid.z;
-                        const newX = item.newGrid.x;
-                        const newY = item.newGrid.y;
-                        const newZ = item.newGrid.z;
-
-                        // Перемещаем все 6 граней этого кубика в карте
-                        for (let i = 0; i < 6; i++) {
-                            const oldKey = `${oldX}_${oldY}_${oldZ}_${i}`;
-                            const newKey = `${newX}_${newY}_${newZ}_${i}`;
-                            if (faceMap[oldKey]) {
-                                faceMap[newKey] = faceMap[oldKey];
-                                delete faceMap[oldKey];
-                            }
-                        }
+                        // Шаг 4: переставляем наклейки прямо здесь
+                        rotateStickerData(item.cubie, axis, angle);
                     });
                     
                     updateCubeGlow();
+                    isAnimating = false; // Шаг 6: сбрасываем в конце
                     if (callback) callback();
                 }
             }
@@ -282,7 +290,7 @@ if (!container) {
         }
 
         // ============================
-        // 6. Скрамблер и Сборщик
+        // Скрамблер и Сборщик
         // ============================
         let scrambleMoves = [];
         let isScrambling = false;
@@ -363,13 +371,14 @@ if (!container) {
         }
 
         // ============================
-        // 7. Обработчики кнопок
+        // Кнопки (с защитой isAnimating)
         // ============================
         const btnScramble = document.getElementById('btnScramble');
         const btnSolve = document.getElementById('btnSolve');
 
         btnScramble.addEventListener('click', function() {
-            if (isScrambling) return;
+            // Шаг 8: защита
+            if (isScrambling || isAnimating) return;
             isScrambling = true;
             btnScramble.style.display = 'none';
             btnSolve.style.display = 'inline-block';
@@ -385,7 +394,8 @@ if (!container) {
         });
 
         btnSolve.addEventListener('click', function() {
-            if (isScrambling || scrambleMoves.length === 0) return;
+            // Шаг 7: защита
+            if (isScrambling || isAnimating || scrambleMoves.length === 0) return;
             isScrambling = true;
             btnSolve.style.display = 'none';
             btnScramble.style.display = 'inline-block';
@@ -405,7 +415,7 @@ if (!container) {
         });
 
         // ============================
-        // 8. Кликабельность (через КАРТУ)
+        // Шаг 3. Обработчик клика (по faceIds, без faceMap)
         // ============================
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
@@ -437,15 +447,8 @@ if (!container) {
                 else if (nz === -1) materialIndex = 5;
                 else materialIndex = 0;
 
-                // Получаем текущие координаты грани
-                const pos = clickedCubie.position.clone();
-                const gx = Math.round(pos.x / offset);
-                const gy = Math.round(pos.y / offset);
-                const gz = Math.round(pos.z / offset);
-                
-                // Ищем ID в КАРТЕ
-                const key = `${gx}_${gy}_${gz}_${materialIndex}`;
-                const faceId = faceMap[key];
+                // Берём ID напрямую из наклейки (Шаг 3)
+                const faceId = clickedCubie.userData.faceIds[materialIndex];
                 const colorName = clickedCubie.userData.faces[materialIndex];
 
                 if (!faceId || !colorName) return;
@@ -475,7 +478,7 @@ if (!container) {
         });
 
         // ============================
-        // 9. Подсветка
+        // Шаг 5. Подсветка (исправленная)
         // ============================
         let activeGlowIds = [];
 
@@ -525,7 +528,7 @@ if (!container) {
         applyGlow();
 
         // ============================
-        // 10. Рендер
+        // Рендер
         // ============================
         function render() {
             requestAnimationFrame(render);
