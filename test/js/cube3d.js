@@ -26,7 +26,7 @@ if (!container) {
 
     function initCube(size) {
         // ============================
-        // 1. Базовые настройки сцены (ИЗ ВАШЕГО ФАЙЛА)
+        // 1. Базовые настройки сцены
         // ============================
         const scene = new THREE.Scene();
         scene.background = null;
@@ -45,7 +45,7 @@ if (!container) {
         scene.add(cubeGroup);
 
         // ============================
-        // 2. Текстуры и материалы (ИЗ ВАШЕГО ФАЙЛА)
+        // 2. Текстуры и материалы
         // ============================
         const textureLoader = new THREE.TextureLoader();
         const texturePaths = {
@@ -78,11 +78,11 @@ if (!container) {
         });
 
         // ============================
-        // 3. Создание кубиков (ИЗ ВАШЕГО ФАЙЛА)
+        // 3. Создание кубиков (ТОЧНЫЕ РАЗМЕРЫ ИЗ ОРИГИНАЛА)
         // ============================
-        const offset = 1.05;
-        const sizeCubie = 0.95;
-        const radius = 0.08;
+        const offset = 0.685;  
+        const sizeCubie = 0.675;    
+        const radius = 0.08;    
         const segments = 4;
 
         const matLib = {
@@ -96,7 +96,6 @@ if (!container) {
         };
 
         const allCubies = [];
-        const centerColors = {};
 
         for (let x = -1; x <= 1; x++) {
             for (let y = -1; y <= 1; y++) {
@@ -129,22 +128,13 @@ if (!container) {
                         id: `cube_${x}_${y}_${z}`
                     };
 
-                    if (isCenter) {
-                        if (x === 1) centerColors['x1'] = 'red';
-                        else if (x === -1) centerColors['x-1'] = 'orange';
-                        else if (y === 1) centerColors['y1'] = 'white';
-                        else if (y === -1) centerColors['y-1'] = 'yellow';
-                        else if (z === 1) centerColors['z1'] = 'green';
-                        else if (z === -1) centerColors['z-1'] = 'blue';
-                    }
-
                     allCubies.push(cubie);
                 }
             }
         }
 
         // ============================
-        // 4. Свет (ИЗ ВАШЕГО ФАЙЛА)
+        // 4. Свет
         // ============================
         const ambientLight = new THREE.AmbientLight(0x606080, 0.6);
         scene.add(ambientLight);
@@ -159,7 +149,7 @@ if (!container) {
         scene.add(backLight);
 
         // ============================
-        // 5. Вращение слоёв (ИЗ ВАШЕГО ФАЙЛА)
+        // 5. Вращение слоёв
         // ============================
         let isAnimating = false;
 
@@ -240,7 +230,7 @@ if (!container) {
         }
 
         // ============================
-        // 6. Скрамблер и Сборщик (ИЗ ВАШЕГО ФАЙЛА)
+        // 6. Скрамблер и Сборщик
         // ============================
         let scrambleMoves = [];
         let isScrambling = false;
@@ -321,7 +311,7 @@ if (!container) {
         }
 
         // ============================
-        // 7. Подсветка (ИЗ ВАШЕГО ФАЙЛА)
+        // 7. Подсветка
         // ============================
         let activeGlowIds = [];
 
@@ -371,13 +361,13 @@ if (!container) {
         }
 
         // ============================
-        // 8. Инициализация (ИЗ ВАШЕГО ФАЙЛА)
+        // 8. Инициализация
         // ============================
         loadGlowFromLocalStorage();
         applyGlow();
 
         // ============================
-        // 9. Обработчики кнопок (ИЗ ВАШЕГО ФАЙЛА)
+        // 9. Обработчики кнопок
         // ============================
         const btnScramble = document.getElementById('btnScramble');
         const btnSolve = document.getElementById('btnSolve');
@@ -419,7 +409,7 @@ if (!container) {
         });
 
         // ============================
-        // 10. ДОБАВЛЯЕМ ВРАЩЕНИЕ МЫШКОЙ И КЛИКИ (ТОЛЬКО 2 ПРАВКИ)
+        // 10. ДОБАВЛЯЕМ ВРАЩЕНИЕ МЫШКОЙ И КЛИКИ
         // ============================
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
@@ -476,7 +466,7 @@ if (!container) {
                     gy = coords.y + 1;
                 }
                 
-                // ===== ПРАВКА 1: Передаём ID и ЦВЕТ (вопрос подтянется из HTML) =====
+                // Передаём ID и цвет (вопрос подтянется из HTML)
                 if (window.openBookGran) {
                     window.openBookGran(colorName + '_' + gx + '_' + gy + '_1', colorName);
                 }
@@ -496,7 +486,7 @@ if (!container) {
         }
 
         function onPointerDown(e) {
-            // ===== ПРАВКА 2: Не даём вращать, если идёт анимация =====
+            // Блокируем вращение во время анимации
             if (isScrambling || isAnimating) return; 
 
             const coords = getXY(e);
@@ -589,7 +579,7 @@ if (!container) {
         el.addEventListener('touchend', onTouchEnd, { passive: true });
 
         // ============================
-        // 11. Рендер (ИЗ ВАШЕГО ФАЙЛА)
+        // 11. Рендер
         // ============================
         let currentZoom = 4.5;
         function updateCamera() {
