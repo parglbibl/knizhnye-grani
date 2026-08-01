@@ -26,7 +26,7 @@ if (!container) {
 
     function initCube(size) {
         // ============================
-        // 1. Базовые настройки сцены (из Кода #1)
+        // 1. Базовые настройки сцены (ИЗ ВАШЕГО ФАЙЛА #1)
         // ============================
         const scene = new THREE.Scene();
         scene.background = null;
@@ -45,7 +45,7 @@ if (!container) {
         scene.add(cubeGroup);
 
         // ============================
-        // 2. Текстуры и материалы (из Кода #1)
+        // 2. Текстуры и материалы (ИЗ ВАШЕГО ФАЙЛА #1)
         // ============================
         const textureLoader = new THREE.TextureLoader();
         const texturePaths = {
@@ -78,11 +78,11 @@ if (!container) {
         });
 
         // ============================
-        // 3. Создание кубиков (РАЗМЕРЫ ИЗ КОДА #2)
+        // 3. Создание кубиков (ИЗ ВАШЕГО ФАЙЛА #1)
         // ============================
-        const offset = 0.685;  
-        const sizeCubie = 0.675;    
-        const radius = 0.08;    
+        const offset = 1.05;
+        const sizeCubie = 0.95;
+        const radius = 0.08;
         const segments = 4;
 
         const matLib = {
@@ -95,15 +95,16 @@ if (!container) {
             white: createGlowMat('white', 0xffffff), orange: createGlowMat('orange', 0xff8c00)
         };
 
-        const allCubies = []; // Все 26 кубиков
+        const allCubies = [];
+        const centerColors = {};
 
         for (let x = -1; x <= 1; x++) {
             for (let y = -1; y <= 1; y++) {
                 for (let z = -1; z <= 1; z++) {
-                    // Пропускаем центр
                     if (x === 0 && y === 0 && z === 0) continue;
 
-                    // Материалы для 6 граней кубика: [+x, -x, +y, -y, +z, -z]
+                    const isCenter = (x === 0 && y === 0) || (x === 0 && z === 0) || (y === 0 && z === 0);
+                    
                     const faces = [
                         x === 1 ? 'red' : (x === -1 ? 'orange' : null),
                         x === -1 ? 'orange' : (x === 1 ? 'red' : null),
@@ -119,14 +120,23 @@ if (!container) {
                     cubie.position.set(x * offset, y * offset, z * offset);
                     cubeGroup.add(cubie);
 
-                    // Сохраняем информацию о кубике (включая id для подсветки)
                     cubie.userData = {
+                        isCenter: isCenter,
                         gridX: x, gridY: y, gridZ: z,
-                        faces: faces, // массив из 6 цветов (или null)
+                        faces: faces,
                         mats: mats,
                         originalPos: new THREE.Vector3(x * offset, y * offset, z * offset),
                         id: `cube_${x}_${y}_${z}`
                     };
+
+                    if (isCenter) {
+                        if (x === 1) centerColors['x1'] = 'red';
+                        else if (x === -1) centerColors['x-1'] = 'orange';
+                        else if (y === 1) centerColors['y1'] = 'white';
+                        else if (y === -1) centerColors['y-1'] = 'yellow';
+                        else if (z === 1) centerColors['z1'] = 'green';
+                        else if (z === -1) centerColors['z-1'] = 'blue';
+                    }
 
                     allCubies.push(cubie);
                 }
@@ -134,7 +144,7 @@ if (!container) {
         }
 
         // ============================
-        // 4. Свет (ИЗ КОДА #1)
+        // 4. Свет (ИЗ ВАШЕГО ФАЙЛА #1)
         // ============================
         const ambientLight = new THREE.AmbientLight(0x606080, 0.6);
         scene.add(ambientLight);
@@ -149,7 +159,7 @@ if (!container) {
         scene.add(backLight);
 
         // ============================
-        // 5. Вращение слоёв (Сердце движка - ИЗ КОДА #1)
+        // 5. Вращение слоёв (ИЗ ВАШЕГО ФАЙЛА #1)
         // ============================
         let isAnimating = false;
 
@@ -221,7 +231,6 @@ if (!container) {
                     });
                     scene.remove(tempGroup);
 
-                    // Обновляем подсветку после каждого хода
                     updateCubeGlow();
 
                     if (callback) callback();
@@ -231,9 +240,9 @@ if (!container) {
         }
 
         // ============================
-        // 6. Скрамблер и Сборщик (ИЗ КОДА #1)
+        // 6. Скрамблер и Сборщик (ИЗ ВАШЕГО ФАЙЛА #1)
         // ============================
-        let scrambleMoves = []; // Массив ходов для отката
+        let scrambleMoves = [];
         let isScrambling = false;
 
         function generateScramble(length = 23) {
@@ -262,18 +271,12 @@ if (!container) {
 
             const base = moveStr.charAt(0);
             const mod = moveStr.slice(1);
-            
             let angle = angleMap[base] * Math.PI / 2;
             let count = 1;
             if (mod === "'") angle *= -1;
             else if (mod === "2") count = 2;
 
-            return {
-                axis: axisMap[base],
-                index: indexMap[base],
-                angle: angle,
-                count: count
-            };
+            return { axis: axisMap[base], index: indexMap[base], angle, count };
         }
 
         function executeMove(moveStr, duration, callback) {
@@ -318,7 +321,7 @@ if (!container) {
         }
 
         // ============================
-        // 7. Подсветка (Glow - ИЗ КОДА #2 / #1)
+        // 7. Подсветка (ИЗ ВАШЕГО ФАЙЛА #1)
         // ============================
         let activeGlowIds = [];
 
@@ -348,8 +351,8 @@ if (!container) {
             });
 
             activeGlowIds.forEach(id => {
+                // ВАША ЛОГИКА ID ОСТАЁТСЯ НЕТРОНУТОЙ
                 allCubies.forEach(cubie => {
-                    // Упрощённая логика поиска для теста
                     const faces = cubie.userData.faces;
                     const mats = cubie.material;
                     for (let i = 0; i < 6; i++) {
@@ -369,13 +372,13 @@ if (!container) {
         }
 
         // ============================
-        // 8. Инициализация подсветки (ИЗ КОДА #1)
+        // 8. Инициализация (ИЗ ВАШЕГО ФАЙЛА #1)
         // ============================
         loadGlowFromLocalStorage();
         applyGlow();
 
         // ============================
-        // 9. Обработчики кнопок (ИЗ КОДА #1)
+        // 9. Обработчики кнопок (ИЗ ВАШЕГО ФАЙЛА #1)
         // ============================
         const btnScramble = document.getElementById('btnScramble');
         const btnSolve = document.getElementById('btnSolve');
@@ -417,7 +420,7 @@ if (!container) {
         });
 
         // ============================
-        // 10. Обработчики мыши (ВРАЩЕНИЕ И КЛИК - ИЗ КОДА #2)
+        // 10. ДОБАВЛЯЕМ ВРАЩЕНИЕ МЫШКОЙ И КЛИКИ
         // ============================
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
@@ -427,14 +430,6 @@ if (!container) {
             const y = Math.round(position.y / offset);
             const z = Math.round(position.z / offset);
             return { x, y, z };
-        }
-
-        function openGran(colorName, gx, gy) {
-            gx = Math.min(2, Math.max(0, gx));
-            gy = Math.min(2, Math.max(0, gy));
-            if (window.openBookGran) {
-                window.openBookGran(colorName, gx, gy);
-            }
         }
 
         function onMouseClick(event) {
@@ -482,10 +477,13 @@ if (!container) {
                     gy = coords.y + 1;
                 }
                 
-                openGran(colorName, gx, gy);
+                if (window.openBookGran) {
+                    window.openBookGran(colorName + '_' + gx + '_' + gy + '_1', colorName, null);
+                }
             }
         }
 
+        // === ВРАЩЕНИЕ МЫШКОЙ ===
         let isDragging = false;
         let startX = 0, startY = 0;
         let lastX = 0, lastY = 0;
@@ -497,7 +495,7 @@ if (!container) {
             return { x: e.clientX, y: e.clientY };
         }
 
-        function onMouseDown(e) {
+        function onPointerDown(e) {
             const coords = getXY(e);
             isDragging = true;
             startX = coords.x;
@@ -507,7 +505,7 @@ if (!container) {
             container.style.cursor = 'grabbing';
         }
 
-        function onMouseMove(e) {
+        function onPointerMove(e) {
             if (!isDragging) return;
             const coords = getXY(e);
             const deltaX = coords.x - lastX;
@@ -522,7 +520,7 @@ if (!container) {
             }
         }
 
-        function onMouseUp(e) {
+        function onPointerUp(e) {
             isDragging = false;
             container.style.cursor = 'pointer';
             
@@ -535,11 +533,11 @@ if (!container) {
             }
         }
 
-        container.addEventListener('mousedown', onMouseDown);
-        window.addEventListener('mousemove', onMouseMove);
-        window.addEventListener('mouseup', onMouseUp);
+        container.addEventListener('mousedown', onPointerDown);
+        window.addEventListener('mousemove', onPointerMove);
+        window.addEventListener('mouseup', onPointerUp);
 
-        // ===== ОБРАБОТЧИКИ ТАЧА (ТЕЛЕФОН) =====
+        // === ТАЧ (ТЕЛЕФОН) ===
         let touchStartX = 0, touchStartY = 0;
         let touchLastX = 0, touchLastY = 0;
         let touchMoved = false;
@@ -551,6 +549,7 @@ if (!container) {
             touchLastX = touch.clientX;
             touchLastY = touch.clientY;
             touchMoved = false;
+            onPointerDown({ touches: [touch] });
         }
 
         function onTouchMove(e) {
@@ -583,46 +582,16 @@ if (!container) {
         el.addEventListener('touchmove', onTouchMove, { passive: false });
         el.addEventListener('touchend', onTouchEnd, { passive: true });
 
-        // ===== ЗУМ =====
+        // ============================
+        // 11. Рендер (ИЗ ВАШЕГО ФАЙЛА #1)
+        // ============================
         let currentZoom = 4.5;
-
-        container.addEventListener('wheel', function(e) {
-            e.preventDefault();
-            const delta = e.deltaY > 0 ? 0.5 : -0.5;
-            currentZoom = Math.min(7, Math.max(2.5, currentZoom + delta));
-            updateCamera();
-        }, { passive: false });
-
-        let lastTouchDist = 0;
-        el.addEventListener('touchstart', function(e) {
-            if (e.touches.length === 2) {
-                const dx = e.touches[0].clientX - e.touches[1].clientX;
-                const dy = e.touches[0].clientY - e.touches[1].clientY;
-                lastTouchDist = Math.sqrt(dx*dx + dy*dy);
-            }
-        }, { passive: true });
-
-        el.addEventListener('touchmove', function(e) {
-            if (e.touches.length === 2) {
-                e.preventDefault();
-                const dx = e.touches[0].clientX - e.touches[1].clientX;
-                const dy = e.touches[0].clientY - e.touches[1].clientY;
-                const dist = Math.sqrt(dx*dx + dy*dy);
-                const delta = (dist - lastTouchDist) * 0.02;
-                currentZoom = Math.min(7, Math.max(2.5, currentZoom - delta));
-                updateCamera();
-                lastTouchDist = dist;
-            }
-        }, { passive: false });
-
         function updateCamera() {
             camera.position.set(currentZoom * 0.7, currentZoom * 0.5, currentZoom * 0.9);
             camera.lookAt(0, 0, 0);
         }
+        updateCamera();
 
-        // ============================
-        // 11. Рендер (ИЗ КОДА #1)
-        // ============================
         function render() {
             renderer.render(scene, camera);
             requestAnimationFrame(render);
