@@ -477,6 +477,8 @@ if (!container) {
         let startX = 0, startY = 0;
         let lastX = 0, lastY = 0;
 
+        let savedQuaternion = new THREE.Quaternion();
+
         function getXY(e) {
             if (e.touches) {
                 return { x: e.touches[0].clientX, y: e.touches[0].clientY };
