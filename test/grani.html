@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Книжные грани — тест скрамблера</title>
+    <title>Книжные грани — тест скрамблера (стабильная версия)</title>
     <link rel="stylesheet" href="../css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -55,15 +55,14 @@
 <section class="section" style="padding-top: 2rem; padding-bottom: 2rem;">
     <div class="container" style="max-width: 900px; text-align: center;">
         
-        <!-- ===== ЗАГОЛОВОК И МАНИФЕСТ ===== -->
+        <!-- ===== ЗАГОЛОВОК ===== -->
         <div class="grani-header" style="margin-bottom: 2.5rem; text-align: left; max-width: 750px; margin-left: auto; margin-right: auto;">
             <h1 style="font-family: 'KB Tranceform', 'Montserrat', sans-serif; font-weight: 400; text-align: center; letter-spacing: 0.02em; color: #3a4a6e; margin-bottom: 1rem; font-size: 3.8rem;">
                 Тест: Скрамблер
             </h1>
-            
             <div style="font-size: 0.9rem; line-height: 1.8; color: var(--text-secondary); text-align: justify;">
                 <p style="margin-bottom: 1.5rem; text-align: center; font-weight: 500; color: #1e2a3a;">
-                    Здесь тестируется новый движок кубика с настоящим вращением слоёв.
+                    Стабильная версия с вращением слоёв.
                 </p>
             </div>
         </div>
@@ -100,8 +99,8 @@
                 </div>
             </div>
 
-            <div style="flex: 1; min-width: 320px; max-width: 460px; display: flex; justify-content: center;">
-                <div id="cube-container" style="width: 100%; aspect-ratio: 1 / 1; max-width: 460px; background: transparent; cursor: pointer; position: relative; touch-action: none;"></div>
+            <div style="flex: 1; min-width: 320px; max-width: 580px; display: flex; justify-content: center;">
+                <div id="cube-container" style="width: 100%; aspect-ratio: 1 / 1; max-width: 580px; background: transparent; position: relative; touch-action: none;"></div>
             </div>
         </div>
 
@@ -147,215 +146,14 @@
 </footer>
 
 <script src="../js/main.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyBH0b4U-EkIIX0fiE3SdYtG0AZ-9bjlEiw",
-    authDomain: "knizhnye-grani.firebaseapp.com",
-    databaseURL: "https://knizhnye-grani-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "knizhnye-grani",
-    storageBucket: "knizhnye-grani.firebasestorage.app",
-    messagingSenderId: "633401933627",
-    appId: "1:633401933627:web:978ea1152ad840062a411e"
-  };
-
-  firebase.initializeApp(firebaseConfig);
-  const database = firebase.database();
-
-  // Простой маппинг вопросов для теста (здесь можно использовать вашу полную базу вопросов)
-  const questionsDB = {
-    'red_0_0_1': 'Какая книга подарила тебе ощущение дома, даже если ты был далеко?',
-    'red_1_0_1': 'От какой книги у тебя загорелись глаза и захотелось что-то делать?',
-    'blue_0_0_1': 'Какая книга помогла тебе проснуться утром, даже когда не хотелось вставать?',
-    'blue_1_0_1': 'Какая книга подарила тебе силу бороться, когда казалось, что всё рухнуло?',
-    'yellow_0_0_1': 'Какая книга помогла тебе услышать свой тихий внутренний голос?',
-    'yellow_1_0_1': 'Вспомни книгу, после которой ты перестал оправдывать то, что неправильно.',
-    'green_0_0_1': 'Назови книгу, которая вдохновила тебя сделать кому-то приятное просто так.',
-    'green_1_0_1': 'От какой книги у тебя появилось желание улыбнуться незнакомцу?',
-    'white_0_0_1': 'Какая книга заставила тебя вспомнить голос бабушки или дедушки?',
-    'white_1_0_1': 'Вспомни книгу, которая стала для тебя семейной реликвией.',
-    'orange_0_0_1': 'Какая книга подарила тебе ощущение, что ты всегда можешь вернуться домой?',
-    'orange_1_0_1': 'Вспомни книгу, которая научила тебя прощать родных, когда это трудно.'
-  };
-
-  const colorNames = {
-    'red': 'Любовь',
-    'blue': 'Надежда',
-    'yellow': 'Совесть',
-    'green': 'Добро',
-    'white': 'Память',
-    'orange': 'Семья'
-  };
-
-  const texturePaths = {
-    'red': '../images/cube_textures/red.jpg',
-    'blue': '../images/cube_textures/blue.jpg',
-    'yellow': '../images/cube_textures/yellow.jpg',
-    'green': '../images/cube_textures/green.jpg',
-    'white': '../images/cube_textures/white.jpg',
-    'orange': '../images/cube_textures/orange.jpg'
-  };
-
-  function createPopup() {
-      const popupHTML = `
-          <div id="bookGranPopup" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); backdrop-filter:blur(6px); z-index:9999; align-items:center; justify-content:center;">
-              <div style="background:#fff; max-width:600px; width:90%; padding:2rem; border-radius:28px; position:relative; box-shadow:0 24px 70px rgba(0,0,0,0.25); max-height:90vh; overflow-y:auto;">
-                  <button id="popupClose" style="position:absolute; top:15px; right:20px; font-size:28px; background:none; border:none; cursor:pointer; color:#999; transition: color 0.2s;">&times;</button>
-                  
-                  <div style="display:flex; align-items:center; gap:0.8rem; margin-bottom:0.8rem;">
-                      <img id="popupThumb" src="" alt="Грань" style="width:32px; height:32px; border-radius:8px; object-fit:cover;">
-                      <h2 id="popupColorTitle" style="font-size:1.3rem; font-weight:600; margin:0; color:#1e2a3a;">Грань</h2>
-                  </div>
-                  
-                  <p id="popupQuestion" style="font-size:1.05rem; line-height:1.6; margin:0.8rem 0 1.8rem 0; color:#333; font-weight:400;"></p>
-                  
-                  <div id="popupAnswers" style="margin-bottom:1.8rem; max-height:150px; overflow-y:auto; border-top:1px solid #f0f0f0; padding-top:1.2rem;"></div>
-                  
-                  <div style="margin-bottom: 1rem;">
-                      <label for="popupAge" style="display: block; font-size: 0.85rem; font-weight: 500; color: #1e2a3a; margin-bottom: 0.3rem;">Ваш возраст</label>
-                      <select id="popupAge" style="width: 100%; padding: 0.6rem 1rem; border: 2px solid #eee; border-radius: 18px; font-family: inherit; font-size: 0.95rem; background: #fafbfc; outline: none; cursor: pointer;">
-                          <option value="">Не указан</option>
-                          <option value="до 14">до 14 лет</option>
-                          <option value="15-17">15–17 лет</option>
-                          <option value="18-35">18–35 лет</option>
-                          <option value="старше 35">старше 35 лет</option>
-                      </select>
-                  </div>
-                  
-                  <textarea id="popupInput" placeholder="Напиши здесь название книги и свои чувства..." style="width:100%; padding:1rem 1.2rem; border:2px solid #eee; border-radius:18px; font-family:inherit; font-size:0.95rem; min-height:80px; resize:vertical; background:#fafbfc; outline:none;"></textarea>
-                  
-                  <button id="popupSubmit" style="width:100%; margin-top:1rem; padding:0.9rem; background:#ff2e5a; color:#fff; border:none; border-radius:18px; font-weight:600; font-size:1rem; cursor:pointer; transition: transform 0.15s, box-shadow 0.15s; box-shadow:0 4px 16px rgba(255,46,90,0.25);">Ответить и поделиться</button>
-                  
-                  <p style="font-size:0.7rem; color:#999; margin-top:1rem; text-align:center; line-height:1.4;">Твой ответ увидят все, кто откроет этот квадратик</p>
-              </div>
-          </div>
-      `;
-      document.body.insertAdjacentHTML('beforeend', popupHTML);
-  }
-  createPopup();
-
-  const popup = document.getElementById('bookGranPopup');
-  const popupClose = document.getElementById('popupClose');
-  const popupColorTitle = document.getElementById('popupColorTitle');
-  const popupThumb = document.getElementById('popupThumb');
-  const popupQuestion = document.getElementById('popupQuestion');
-  const popupAnswers = document.getElementById('popupAnswers');
-  const popupInput = document.getElementById('popupInput');
-  const popupSubmit = document.getElementById('popupSubmit');
-
-  let currentElementId = null;
-
-  // Новая функция вызывается из 3D-движка
-  window.openBookGran = function(id, colorName, questionText) {
-      currentElementId = id;
-
-      popupColorTitle.textContent = colorNames[colorName] || colorName;
-      popupThumb.src = texturePaths[colorName] || '';
-
-      popupQuestion.textContent = questionText || 'Для этого квадратика пока нет вопроса. Придумай свой!';
-      popupAnswers.innerHTML = '<p style="color:#aaa; font-size:0.9rem; text-align:center; margin:0;">Пока никто не ответил на этот вопрос.<br>Будь первым! ✨</p>';
-      popupInput.value = '';
-      popup.style.display = 'flex';
-      document.body.style.overflow = 'hidden';
-      loadAnswers(id);
-  };
-
-  function loadAnswers(elementId) {
-      const answersRef = database.ref('answers/' + elementId);
-      answersRef.on('value', (snapshot) => {
-          const data = snapshot.val();
-          popupAnswers.innerHTML = '';
-          if (!data) {
-              popupAnswers.innerHTML = '<p style="color:#aaa; font-size:0.9rem; text-align:center; margin:0;">Пока никто не ответил на этот вопрос.<br>Будь первым! ✨</p>';
-              return;
-          }
-          const answersArray = Object.values(data).reverse();
-          answersArray.forEach((item) => {
-              const div = document.createElement('div');
-              div.style.cssText = 'background:#f5f0e8; border-radius:14px; padding:0.8rem 1.2rem; margin-bottom:0.8rem; box-shadow:0 2px 6px rgba(0,0,0,0.02);';
-              div.innerHTML = `
-                  <div style="font-size:0.9rem; color:#333; line-height:1.5;">${item.text}</div>
-                  <div style="font-size:0.65rem; color:#888; margin-top:0.3rem;">
-                      ${item.user || 'Аноним'} · ${item.age || 'Не указан'} · ${item.timestamp || ''}
-                  </div>
-              `;
-              popupAnswers.appendChild(div);
-          });
-      });
-  }
-
-  popupSubmit.addEventListener('click', function() {
-      const text = popupInput.value.trim();
-      const age = document.getElementById('popupAge').value;
-
-      if (!text) {
-          alert('Пожалуйста, напиши свой ответ перед отправкой.');
-          return;
-      }
-      if (!currentElementId) return;
-
-      const newAnswer = {
-          text: text,
-          age: age,
-          user: 'Аноним',
-          timestamp: new Date().toLocaleString('ru-RU')
-      };
-
-      const answersRef = database.ref('answers/' + currentElementId);
-      answersRef.push(newAnswer).then(() => {
-          popupInput.value = '';
-          document.getElementById('popupAge').value = '';
-          
-          let myProgress = JSON.parse(localStorage.getItem('myGranProgress') || '[]');
-          if (!myProgress.includes(currentElementId)) {
-              myProgress.push(currentElementId);
-              localStorage.setItem('myGranProgress', JSON.stringify(myProgress));
-          }
-
-          // Оповещаем движок, что подсветку нужно обновить
-          if (window.updateCubeGlow) {
-              window.updateCubeGlow();
-          }
-
-          alert('Спасибо! Твой ответ сохранён и теперь виден всем.');
-      }).catch((error) => {
-          console.error('Ошибка сохранения:', error);
-          alert('Произошла ошибка. Попробуй ещё раз.');
-      });
-  });
-
-  popupClose.addEventListener('click', function() {
-      popup.style.display = 'none';
-      document.body.style.overflow = '';
-  });
-
-  popup.addEventListener('click', function(e) {
-      if (e.target === popup) {
-          popup.style.display = 'none';
-          document.body.style.overflow = '';
-      }
-  });
-
-  // Кнопка сброса localStorage для тестов
-  document.getElementById('btnResetLocalStorage').addEventListener('click', function() {
-      if (confirm('Удалить все ваши сохранённые ответы (подсветку)? Это не удалит ответы из Firebase, только локальные метки.')) {
-          localStorage.removeItem('myGranProgress');
-          if (window.updateCubeGlow) {
-              window.updateCubeGlow();
-          }
-          alert('Локальные метки сброшены.');
-      }
-  });
-
-</script>
-
+<!-- Подключение библиотек и скриптов -->
 <script type="importmap">
     {
         "imports": {
             "three": "https://unpkg.com/three@0.128.0/build/three.module.js",
-            "three/addons/": "https://unpkg.com/three@0.128.0/examples/jsm/"
+            "three/addons/": "https://unpkg.com/three@0.128.0/examples/jsm/",
+            "three-cube": "https://unpkg.com/three-cube@0.1.29/index.js"
         }
     }
 </script>
