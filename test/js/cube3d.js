@@ -37,16 +37,12 @@ if (!container) {
         perspective: 500,
         onFaceClick: (face) => {
             // Библиотека возвращает face с уникальным ID!
-            // face.index — это индекс грани на кубике.
-            // Мы генерируем постоянный ID по формуле: face_цвет_x_y_z_индекс
+            // Формат ID: "cube_face_цвет_индекс"
+            // Индекс 0..5 соответствует порядку: +X, -X, +Y, -Y, +Z, -Z
             const color = face.color;
             const idx = face.index; // 0..5
-            // Определяем координаты кубика (x, y, z) от -1 до 1
-            // Библиотека three-cube предоставляет face.position, но для простоты
-            // мы используем индекс и цвет для генерации ID.
-            // ВАЖНО: Библиотека гарантирует, что face.index всегда соответствует правильной грани.
             
-            // Генерируем стабильный ID на основе цвета и индекса
+            // Генерируем стабильный ID
             const id = `face_${color}_${idx}`;
             
             const question = questionsDB[id] || 'Для этого квадратика пока нет вопроса. Придумай свой!';
@@ -63,7 +59,6 @@ if (!container) {
         document.getElementById('btnScramble').style.display = 'none';
         document.getElementById('btnSolve').style.display = 'inline-block';
         
-        // 23 хода по 220мс (примерно 5 секунд)
         cube.scramble(23, 220, () => {});
     });
 
