@@ -33,7 +33,7 @@ if (!container) {
         scene.background = null;
 
         const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 1000);
-        camera.position.set(3.5, 2.5, 4.5); // Вернул позицию камеры в оригинал
+        camera.position.set(3.5, 2.5, 4.5);
         camera.lookAt(0, 0, 0);
 
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -42,7 +42,6 @@ if (!container) {
         renderer.setClearColor(0x000000, 0);
         container.appendChild(renderer.domElement);
 
-        // ВРАЩЕНИЕ КАМЕРЫ ВОКРУГ КУБИКА (БЕЗ ЛОМКИ СКРАМБЛЕРА)
         const controls = new OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.dampingFactor = 0.1;
@@ -133,8 +132,7 @@ if (!container) {
                         gridX: x, gridY: y, gridZ: z,
                         faces: faces,
                         mats: mats,
-                        originalPos: new THREE.Vector3(x * offset, y * offset, z * offset),
-                        id: `cube_${x}_${y}_${z}`
+                        originalPos: new THREE.Vector3(x * offset, y * offset, z * offset)
                     };
 
                     allCubies.push(cubie);
@@ -323,7 +321,7 @@ if (!container) {
         }
 
         // ============================
-        // 7. Подсветка
+        // 7. Подсветка (ВОЗВРАЩЕНА В РАБОЧЕЕ СОСТОЯНИЕ)
         // ============================
         let activeGlowIds = [];
 
@@ -342,6 +340,7 @@ if (!container) {
         };
 
         function applyGlow() {
+            // 1. Сначала сбрасываем всё на обычные текстуры
             allCubies.forEach(cubie => {
                 const faces = cubie.userData.faces;
                 const mats = cubie.material;
@@ -352,15 +351,37 @@ if (!container) {
                 }
             });
 
+            // 2. Проверяем каждую грань кубика
             activeGlowIds.forEach(id => {
                 allCubies.forEach(cubie => {
                     const faces = cubie.userData.faces;
                     const mats = cubie.material;
+                    const pos = cubie.position;
+                    
+                    // Восстанавливаем логику поиска по координатам (как в оригинале)
+                    const gx = Math.round(pos.x / offset);
+                    const gy = Math.round(pos.y / offset);
+                    const gz = Math.round(pos.z / offset);
+
+                    // Проверяем все 6 граней
                     for (let i = 0; i < 6; i++) {
                         if (faces[i]) {
-                            const gx = (i === 0 || i === 1) ? (cubie.userData.gridY + 1) : (i === 2 || i === 3) ? (cubie.userData.gridX + 1) : (cubie.userData.gridX + 1);
-                            const gy = (i === 0 || i === 1) ? (cubie.userData.gridZ + 1) : (i === 2 || i === 3) ? (cubie.userData.gridZ + 1) : (cubie.userData.gridY + 1);
-                            const elementId = faces[i] + '_' + String(gx) + '_' + String(gy) + '_1';
+                            // Формируем ID квадратика
+                            let elementX = 0, elementY = 0;
+                            
+                            if (i === 0 || i === 1) { // +X / -X
+                                elementX = gy + 1;
+                                elementY = gz + 1;
+                            } else if (i === 2 || i === 3) { // +Y / -Y
+                                elementX = gx + 1;
+                                elementY = gz + 1;
+                            } else { // +Z / -Z
+                                elementX = gx + 1;
+                                elementY = gy + 1;
+                            }
+
+                            const elementId = faces[i] + '_' + String(elementX) + '_' + String(elementY) + '_1';
+                            
                             if (activeGlowIds.includes(elementId)) {
                                 if (glowLib[faces[i]]) {
                                     mats[i] = glowLib[faces[i]];
