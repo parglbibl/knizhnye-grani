@@ -86,7 +86,7 @@ if (!container) {
         });
 
         // ============================
-        // 3. Создание кубиков (с постоянными ID для каждой грани)
+        // 3. Создание кубиков
         // ============================
         const offset = 0.685;  
         const sizeCubie = 0.675;    
@@ -127,20 +127,18 @@ if (!container) {
                     cubie.position.set(x * offset, y * offset, z * offset);
                     cubeGroup.add(cubie);
 
-                    // ГЕНЕРИРУЕМ УНИКАЛЬНЫЕ ПОСТОЯННЫЕ ID ДЛЯ КАЖДОЙ ГРАНИ (наклейки)
                     const faceIds = faces.map((color, idx) => {
                         if (!color) return null;
-                        // Формат: face_цвет_x_y_z_индексГрани
                         return `face_${color}_${x}_${y}_${z}_${idx}`;
                     });
 
                     cubie.userData = {
                         isCenter: isCenter,
                         gridX: x, gridY: y, gridZ: z,
-                        faces: faces,        // массив цветов граней
-                        mats: mats,          // массив материалов
+                        faces: faces,
+                        mats: mats,
                         originalPos: new THREE.Vector3(x * offset, y * offset, z * offset),
-                        faceIds: faceIds     // <--- ГЛАВНОЕ: постоянные ID для каждой грани
+                        faceIds: faceIds
                     };
 
                     allCubies.push(cubie);
@@ -149,7 +147,7 @@ if (!container) {
         }
 
         // ============================
-        // 4. Свет (РАВНОМЕРНЫЙ)
+        // 4. Свет
         // ============================
         const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1.0);
         scene.add(hemiLight);
@@ -157,7 +155,7 @@ if (!container) {
         scene.add(ambientLight);
 
         // ============================
-        // 5. Вращение слоёв (ВАШ ИДЕАЛЬНЫЙ СКРАМБЛЕР)
+        // 5. Вращение слоёв (С ПЕРЕСТАНОВКОЙ НАКЛЕЕК)
         // ============================
         let isAnimating = false;
 
@@ -177,6 +175,99 @@ if (!container) {
                 if (match) result.push(cubie);
             });
             return result;
+        }
+
+        // Вспомогательная функция: перестановка массивов наклеек
+        function rotateStickers(cubie, axis, angle) {
+            const faces = cubie.userData.faces;
+            const faceIds = cubie.userData.faceIds;
+            const mats = cubie.material;
+
+            // Если угол отрицательный, меняем направление перестановки
+            const direction = angle > 0 ? 1 : -1;
+            
+            // Логика перестановки для каждой оси
+            // face order: [0=+X, 1=-X, 2=+Y, 3=-Y, 4=+Z, 5=-Z]
+            
+            if (axis === 'x') {
+                // При вращении вокруг X: Y и Z меняются местами
+                // +Y -> +Z, +Z -> -Y, -Y -> -Z, -Z -> +Y
+                const newFaces = [...faces];
+                const newIds = [...faceIds];
+                const newMats = [...mats];
+                
+                if (direction === 1) { // +90 deg
+                    newFaces[2] = faces[4]; newFaces[3] = faces[5];
+                    newFaces[4] = faces[3]; newFaces[5] = faces[2];
+                    newIds[2] = faceIds[4]; newIds[3] = faceIds[5];
+                    newIds[4] = faceIds[3]; newIds[5] = faceIds[2];
+                    newMats[2] = mats[4]; newMats[3] = mats[5];
+                    newMats[4] = mats[3]; newMats[5] = mats[2];
+                } else { // -90 deg
+                    newFaces[2] = faces[5]; newFaces[3] = faces[4];
+                    newFaces[4] = faces[2]; newFaces[5] = faces[3];
+                    newIds[2] = faceIds[5]; newIds[3] = faceIds[4];
+                    newIds[4] = faceIds[2]; newIds[5] = faceIds[3];
+                    newMats[2] = mats[5]; newMats[3] = mats[4];
+                    newMats[4] = mats[2]; newMats[5] = mats[3];
+                }
+                
+                cubie.userData.faces = newFaces;
+                cubie.userData.faceIds = newIds;
+                cubie.material = newMats;
+            } 
+            else if (axis === 'y') {
+                // При вращении вокруг Y: X и Z меняются местами
+                const newFaces = [...faces];
+                const newIds = [...faceIds];
+                const newMats = [...mats];
+                
+                if (direction === 1) { // +90 deg
+                    newFaces[0] = faces[5]; newFaces[1] = faces[4];
+                    newFaces[4] = faces[0]; newFaces[5] = faces[1];
+                    newIds[0] = faceIds[5]; newIds[1] = faceIds[4];
+                    newIds[4] = faceIds[0]; newIds[5] = faceIds[1];
+                    newMats[0] = mats[5]; newMats[1] = mats[4];
+                    newMats[4] = mats[0]; newMats[5] = mats[1];
+                } else { // -90 deg
+                    newFaces[0] = faces[4]; newFaces[1] = faces[5];
+                    newFaces[4] = faces[1]; newFaces[5] = faces[0];
+                    newIds[0] = faceIds[4]; newIds[1] = faceIds[5];
+                    newIds[4] = faceIds[1]; newIds[5] = faceIds[0];
+                    newMats[0] = mats[4]; newMats[1] = mats[5];
+                    newMats[4] = mats[1]; newMats[5] = mats[0];
+                }
+                
+                cubie.userData.faces = newFaces;
+                cubie.userData.faceIds = newIds;
+                cubie.material = newMats;
+            }
+            else if (axis === 'z') {
+                // При вращении вокруг Z: X и Y меняются местами
+                const newFaces = [...faces];
+                const newIds = [...faceIds];
+                const newMats = [...mats];
+                
+                if (direction === 1) { // +90 deg
+                    newFaces[0] = faces[3]; newFaces[1] = faces[2];
+                    newFaces[2] = faces[0]; newFaces[3] = faces[1];
+                    newIds[0] = faceIds[3]; newIds[1] = faceIds[2];
+                    newIds[2] = faceIds[0]; newIds[3] = faceIds[1];
+                    newMats[0] = mats[3]; newMats[1] = mats[2];
+                    newMats[2] = mats[0]; newMats[3] = mats[1];
+                } else { // -90 deg
+                    newFaces[0] = faces[2]; newFaces[1] = faces[3];
+                    newFaces[2] = faces[1]; newFaces[3] = faces[0];
+                    newIds[0] = faceIds[2]; newIds[1] = faceIds[3];
+                    newIds[2] = faceIds[1]; newIds[3] = faceIds[0];
+                    newMats[0] = mats[2]; newMats[1] = mats[3];
+                    newMats[2] = mats[1]; newMats[3] = mats[0];
+                }
+                
+                cubie.userData.faces = newFaces;
+                cubie.userData.faceIds = newIds;
+                cubie.material = newMats;
+            }
         }
 
         function rotateLayer(axis, index, angle, duration, callback) {
@@ -229,6 +320,11 @@ if (!container) {
                     });
                     scene.remove(tempGroup);
 
+                    // ПЕРЕСТАВЛЯЕМ НАКЛЕЙКИ ПОСЛЕ ПОВОРОТА
+                    cubies.forEach(cubie => {
+                        rotateStickers(cubie, axis, angle);
+                    });
+
                     updateCubeGlow();
 
                     if (callback) callback();
@@ -237,6 +333,9 @@ if (!container) {
             animateRotation();
         }
 
+        // ============================
+        // 6. Скрамблер и Сборщик
+        // ============================
         let scrambleMoves = [];
         let isScrambling = false;
 
@@ -316,7 +415,7 @@ if (!container) {
         }
 
         // ============================
-        // 6. Подсветка (ПО ID НАКЛЕЙКИ)
+        // 7. Подсветка
         // ============================
         let activeGlowIds = [];
 
@@ -335,7 +434,6 @@ if (!container) {
         };
 
         function applyGlow() {
-            // Сбрасываем все материалы на обычные
             allCubies.forEach(cubie => {
                 const faces = cubie.userData.faces;
                 const mats = cubie.material;
@@ -346,7 +444,6 @@ if (!container) {
                 }
             });
 
-            // Зажигаем по физическому ID грани
             activeGlowIds.forEach(glowId => {
                 allCubies.forEach(cubie => {
                     const faceIds = cubie.userData.faceIds;
@@ -368,7 +465,7 @@ if (!container) {
         applyGlow();
 
         // ============================
-        // 7. Обработчики кнопок
+        // 8. Обработчики кнопок
         // ============================
         const btnScramble = document.getElementById('btnScramble');
         const btnSolve = document.getElementById('btnSolve');
@@ -410,7 +507,7 @@ if (!container) {
         });
 
         // ============================
-        // 8. КЛИКАБЕЛЬНОСТЬ (БЕЗ ВЫЧИСЛЕНИЯ КООРДИНАТ!)
+        // 9. КЛИКАБЕЛЬНОСТЬ
         // ============================
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
@@ -426,7 +523,6 @@ if (!container) {
             if (intersects.length > 0) {
                 const clickedCubie = intersects[0].object;
                 
-                // Определяем, какую грань нажали
                 const normal = intersects[0].face.normal.clone();
                 normal.applyQuaternion(clickedCubie.quaternion);
                 
@@ -443,7 +539,6 @@ if (!container) {
                 else if (nz === -1) materialIndex = 5;
                 else materialIndex = 0;
 
-                // БЕРЁМ ID ИЗ USERDATA (постоянный, не зависит от координат)
                 const faceId = clickedCubie.userData.faceIds[materialIndex];
                 const colorName = clickedCubie.userData.faces[materialIndex];
 
@@ -455,7 +550,6 @@ if (!container) {
             }
         }
 
-        // Обработчик клика (с защитой от перетаскивания)
         let pointerDownPos = { x: 0, y: 0 };
         let isClick = false;
 
@@ -475,7 +569,7 @@ if (!container) {
         });
 
         // ============================
-        // 9. Рендер + обновление камеры
+        // 10. Рендер
         // ============================
         function render() {
             requestAnimationFrame(render);
