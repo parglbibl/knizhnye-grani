@@ -192,4 +192,296 @@ if (!container) {
             endQuat.multiply(startQuat);
 
             function animateRotation() {
-                const
+                const elapsed = Date.now() - startTime;
+                const t = Math.min(elapsed / duration, 1);
+                const ease = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+                tempGroup.quaternion.slerpQuaternions(startQuat, endQuat, ease);
+
+                if (t < 1) {
+                    requestAnimationFrame(animateRotation);
+                } else {
+                    tempGroup.quaternion.copy(endQuat);
+                    tempGroup.updateMatrixWorld(true);
+
+                    const children = tempGroup.children.slice();
+                    children.forEach(cubie => {
+                        const worldPos = new THREE.Vector3();
+                        const worldQuat = new THREE.Quaternion();
+                        cubie.getWorldPosition(worldPos);
+                        cubie.getWorldQuaternion(worldQuat);
+                        tempGroup.remove(cubie);
+                        scene.add(cubie);
+                        cubie.position.copy(worldPos);
+                        cubie.quaternion.copy(worldQuat);
+                    });
+                    scene.remove(tempGroup);
+
+                    if (callback) callback();
+                }
+            }
+            animateRotation();
+        }
+
+        // ============================
+        // 6. Скрамблер и Сборщик
+        // ============================
+        let scrambleMoves = [];
+        let isScrambling = false;
+
+        function generateScramble(length = 20) {
+            const moves = ['U', 'D', 'L', 'R', 'F', 'B'];
+            const modifiers = ['', "'", "2"];
+            let result = [];
+            let lastAxis = '';
+            let lastMove = '';
+            
+            for (let i = 0; i < length; i++) {
+                let move;
+                let axis;
+                let newMove;
+                do {
+                    move = moves[Math.floor(Math.random() * moves.length)];
+                    axis = move.charAt(0);
+                } while (axis === lastAxis);
+                
+                // Случайный модификатор, но избегаем 2 подряд
+                let mod = modifiers[Math.floor(Math.random() * modifiers.length)];
+                newMove = move + mod;
+                
+                lastAxis = axis;
+                result.push(newMove);
+            }
+            return result;
+        }
+
+        function parseMove(moveStr) {
+            const axisMap = { 'U': 'y', 'D': 'y', 'L': 'x', 'R': 'x', 'F': 'z', 'B': 'z' };
+            const indexMap = { 'U': 1, 'D': -1, 'L': -1, 'R': 1, 'F': 1, 'B': -1 };
+            const angleMap = { 'U': -1, 'D': 1, 'L': 1, 'R': -1, 'F': -1, 'B': 1 };
+
+            const base = moveStr.charAt(0);
+            const mod = moveStr.slice(1);
+            
+            let angle = angleMap[base] * Math.PI / 2;
+            let count = 1;
+            if (mod === "'") angle *= -1;
+            else if (mod === "2") count = 2;
+
+            return { axis: axisMap[base], index: indexMap[base], angle: angle, count: count };
+        }
+
+        function executeMove(moveStr, duration, callback) {
+            const parsed = parseMove(moveStr);
+            let remaining = parsed.count;
+            let currentAngle = parsed.angle;
+
+            function doSingleRotation() {
+                if (remaining === 0) {
+                    if (callback) callback();
+                    return;
+                }
+                rotateLayer(parsed.axis, parsed.index, currentAngle, duration, () => {
+                    remaining--;
+                    if (remaining > 0) {
+                        doSingleRotation();
+                    } else {
+                        if (callback) callback();
+                    }
+                });
+            }
+            doSingleRotation();
+        }
+
+        function executeMoveSequence(moves, durationPerMove, onComplete) {
+            if (moves.length === 0) {
+                if (onComplete) onComplete();
+                return;
+            }
+            let index = 0;
+            function next() {
+                if (index >= moves.length) {
+                    if (onComplete) onComplete();
+                    return;
+                }
+                executeMove(moves[index], durationPerMove, () => {
+                    index++;
+                    setTimeout(next, 20);
+                });
+            }
+            next();
+        }
+
+        // ============================
+        // 7. Обработчики кнопок
+        // ============================
+        const btnScramble = document.getElementById('btnScramble');
+        const btnSolve = document.getElementById('btnSolve');
+
+        btnScramble.addEventListener('click', function() {
+            if (isScrambling) return;
+            isScrambling = true;
+            btnScramble.style.display = 'none';
+            btnSolve.style.display = 'inline-block';
+
+            const moves = generateScramble(20);
+            scrambleMoves = moves;
+            const durationPerMove = 5000 / moves.length;
+
+            executeMoveSequence(moves, durationPerMove, () => {
+                isScrambling = false;
+            });
+        });
+
+        btnSolve.addEventListener('click', function() {
+            if (isScrambling || scrambleMoves.length === 0) return;
+            isScrambling = true;
+            btnSolve.style.display = 'none';
+            btnScramble.style.display = 'inline-block';
+
+            const reverseMoves = scrambleMoves.slice().reverse().map(m => {
+                if (m.endsWith("'")) return m.slice(0, -1);
+                if (m.endsWith("2")) return m;
+                return m + "'";
+            });
+            const durationPerMove = 5000 / reverseMoves.length;
+
+            executeMoveSequence(reverseMoves, durationPerMove, () => {
+                isScrambling = false;
+                scrambleMoves = [];
+            });
+        });
+
+        // ============================
+        // 8. Вращение кубика МЫШКОЙ (как в оригинале)
+        // ============================
+        let isDragging = false;
+        let startX = 0, startY = 0;
+        let lastX = 0, lastY = 0;
+        let isClick = false;
+
+        function getXY(e) {
+            if (e.touches) {
+                return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+            }
+            return { x: e.clientX, y: e.clientY };
+        }
+
+        function onPointerDown(e) {
+            const coords = getXY(e);
+            isDragging = true;
+            isClick = true;
+            startX = coords.x;
+            startY = coords.y;
+            lastX = coords.x;
+            lastY = coords.y;
+            container.style.cursor = 'grabbing';
+        }
+
+        function onPointerMove(e) {
+            if (!isDragging) return;
+            const coords = getXY(e);
+            const deltaX = coords.x - lastX;
+            const deltaY = coords.y - lastY;
+            if (Math.abs(deltaX) > 3 || Math.abs(deltaY) > 3) {
+                isClick = false;
+            }
+            if (deltaX !== 0 || deltaY !== 0) {
+                const axis = new THREE.Vector3(deltaY, deltaX, 0).normalize();
+                const angle = Math.sqrt(deltaX * deltaX + deltaY * deltaY) * 0.008;
+                const quaternion = new THREE.Quaternion().setFromAxisAngle(axis, angle);
+                cubeGroup.quaternion.multiply(quaternion);
+                lastX = coords.x;
+                lastY = coords.y;
+            }
+        }
+
+        function onPointerUp(e) {
+            isDragging = false;
+            container.style.cursor = 'pointer';
+            
+            if (isClick) {
+                const coords = getXY(e);
+                const rect = renderer.domElement.getBoundingClientRect();
+                const mouse = new THREE.Vector2(
+                    ((coords.x - rect.left) / rect.width) * 2 - 1,
+                    -((coords.y - rect.top) / rect.height) * 2 + 1
+                );
+                
+                const raycaster = new THREE.Raycaster();
+                raycaster.setFromCamera(mouse, camera);
+                const intersects = raycaster.intersectObjects(allCubies);
+
+                if (intersects.length > 0) {
+                    const clickedCubie = intersects[0].object;
+                    const normal = intersects[0].face.normal.clone();
+                    normal.applyQuaternion(clickedCubie.quaternion);
+                    
+                    let materialIndex = 0;
+                    const nx = Math.round(normal.x);
+                    const ny = Math.round(normal.y);
+                    const nz = Math.round(normal.z);
+                    
+                    if (nx === 1) materialIndex = 0;
+                    else if (nx === -1) materialIndex = 1;
+                    else if (ny === 1) materialIndex = 2;
+                    else if (ny === -1) materialIndex = 3;
+                    else if (nz === 1) materialIndex = 4;
+                    else if (nz === -1) materialIndex = 5;
+                    
+                    const colorName = clickedCubie.userData.faces[materialIndex];
+                    if (!colorName) return;
+
+                    // Формируем ID квадратика
+                    // В реальной версии здесь будет сложная привязка к кубику и грани
+                    const id = colorName + '_0_0_1'; // Заглушка для теста
+                    
+                    // Получаем вопрос
+                    const question = questionsDB[id] || 'Какой вопрос ты хочешь задать этой грани?';
+
+                    if (window.openBookGran) {
+                        window.openBookGran(id, colorName, question);
+                    }
+                }
+            }
+        }
+
+        container.addEventListener('mousedown', onPointerDown);
+        window.addEventListener('mousemove', onPointerMove);
+        window.addEventListener('mouseup', onPointerUp);
+
+        container.addEventListener('touchstart', function(e) {
+            const touch = e.touches[0];
+            const fakeEvent = { touches: [touch] };
+            onPointerDown(fakeEvent);
+        }, { passive: true });
+
+        window.addEventListener('touchmove', function(e) {
+            const touch = e.touches[0];
+            const fakeEvent = { touches: [touch] };
+            onPointerMove(fakeEvent);
+        }, { passive: true });
+
+        window.addEventListener('touchend', function(e) {
+            const touch = e.changedTouches[0];
+            const fakeEvent = { clientX: touch.clientX, clientY: touch.clientY };
+            onPointerUp(fakeEvent);
+        }, { passive: true });
+
+        // ============================
+        // 9. Управление камерой и рендер
+        // ============================
+        function render() {
+            renderer.render(scene, camera);
+            requestAnimationFrame(render);
+        }
+        render();
+
+        window.addEventListener('resize', () => {
+            const rect = container.getBoundingClientRect();
+            const newSize = Math.min(rect.width, rect.height);
+            renderer.setSize(newSize, newSize);
+            camera.aspect = 1;
+            camera.updateProjectionMatrix();
+        });
+    }
+}
