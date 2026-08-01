@@ -26,7 +26,7 @@ if (!container) {
 
     function initCube(size) {
         // ============================
-        // 1. Базовые настройки сцены (ИЗ ВАШЕГО ФАЙЛА #1)
+        // 1. Базовые настройки сцены (ИЗ ВАШЕГО ФАЙЛА)
         // ============================
         const scene = new THREE.Scene();
         scene.background = null;
@@ -45,7 +45,7 @@ if (!container) {
         scene.add(cubeGroup);
 
         // ============================
-        // 2. Текстуры и материалы (ИЗ ВАШЕГО ФАЙЛА #1)
+        // 2. Текстуры и материалы (ИЗ ВАШЕГО ФАЙЛА)
         // ============================
         const textureLoader = new THREE.TextureLoader();
         const texturePaths = {
@@ -78,7 +78,7 @@ if (!container) {
         });
 
         // ============================
-        // 3. Создание кубиков (ИЗ ВАШЕГО ФАЙЛА #1)
+        // 3. Создание кубиков (ИЗ ВАШЕГО ФАЙЛА)
         // ============================
         const offset = 1.05;
         const sizeCubie = 0.95;
@@ -144,7 +144,7 @@ if (!container) {
         }
 
         // ============================
-        // 4. Свет (ИЗ ВАШЕГО ФАЙЛА #1)
+        // 4. Свет (ИЗ ВАШЕГО ФАЙЛА)
         // ============================
         const ambientLight = new THREE.AmbientLight(0x606080, 0.6);
         scene.add(ambientLight);
@@ -159,7 +159,7 @@ if (!container) {
         scene.add(backLight);
 
         // ============================
-        // 5. Вращение слоёв (ИЗ ВАШЕГО ФАЙЛА #1)
+        // 5. Вращение слоёв (ИЗ ВАШЕГО ФАЙЛА)
         // ============================
         let isAnimating = false;
 
@@ -240,7 +240,7 @@ if (!container) {
         }
 
         // ============================
-        // 6. Скрамблер и Сборщик (ИЗ ВАШЕГО ФАЙЛА #1)
+        // 6. Скрамблер и Сборщик (ИЗ ВАШЕГО ФАЙЛА)
         // ============================
         let scrambleMoves = [];
         let isScrambling = false;
@@ -321,7 +321,7 @@ if (!container) {
         }
 
         // ============================
-        // 7. Подсветка (ИЗ ВАШЕГО ФАЙЛА #1)
+        // 7. Подсветка (ИЗ ВАШЕГО ФАЙЛА)
         // ============================
         let activeGlowIds = [];
 
@@ -371,13 +371,13 @@ if (!container) {
         }
 
         // ============================
-        // 8. Инициализация (ИЗ ВАШЕГО ФАЙЛА #1)
+        // 8. Инициализация (ИЗ ВАШЕГО ФАЙЛА)
         // ============================
         loadGlowFromLocalStorage();
         applyGlow();
 
         // ============================
-        // 9. Обработчики кнопок (ИЗ ВАШЕГО ФАЙЛА #1)
+        // 9. Обработчики кнопок (ИЗ ВАШЕГО ФАЙЛА)
         // ============================
         const btnScramble = document.getElementById('btnScramble');
         const btnSolve = document.getElementById('btnSolve');
@@ -419,7 +419,7 @@ if (!container) {
         });
 
         // ============================
-        // 10. ВРАЩЕНИЕ МЫШКОЙ И КЛИКИ (ДОБАВЛЕНО)
+        // 10. ДОБАВЛЯЕМ ВРАЩЕНИЕ МЫШКОЙ И КЛИКИ (ТОЛЬКО 2 ПРАВКИ)
         // ============================
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
@@ -476,14 +476,14 @@ if (!container) {
                     gy = coords.y + 1;
                 }
                 
+                // ===== ПРАВКА 1: Передаём ID и ЦВЕТ (вопрос подтянется из HTML) =====
                 if (window.openBookGran) {
-                    // ВАЖНО: Передаём ID в формате color_gx_gy_1
                     window.openBookGran(colorName + '_' + gx + '_' + gy + '_1', colorName);
                 }
             }
         }
 
-        // === ВРАЩЕНИЕ ===
+        // === ВРАЩЕНИЕ МЫШКОЙ ===
         let isDragging = false;
         let startX = 0, startY = 0;
         let lastX = 0, lastY = 0;
@@ -496,7 +496,9 @@ if (!container) {
         }
 
         function onPointerDown(e) {
-            if (isScrambling || isAnimating) return; // Блокируем вращение во время анимации
+            // ===== ПРАВКА 2: Не даём вращать, если идёт анимация =====
+            if (isScrambling || isAnimating) return; 
+
             const coords = getXY(e);
             isDragging = true;
             startX = coords.x;
@@ -587,7 +589,7 @@ if (!container) {
         el.addEventListener('touchend', onTouchEnd, { passive: true });
 
         // ============================
-        // 11. Рендер (ИЗ ВАШЕГО ФАЙЛА #1)
+        // 11. Рендер (ИЗ ВАШЕГО ФАЙЛА)
         // ============================
         let currentZoom = 4.5;
         function updateCamera() {
