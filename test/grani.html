@@ -55,15 +55,14 @@
 <section class="section" style="padding-top: 2rem; padding-bottom: 2rem;">
     <div class="container" style="max-width: 900px; text-align: center;">
         
-        <!-- ===== ЗАГОЛОВОК И МАНИФЕСТ ===== -->
+        <!-- ===== ЗАГОЛОВОК ===== -->
         <div class="grani-header" style="margin-bottom: 2.5rem; text-align: left; max-width: 750px; margin-left: auto; margin-right: auto;">
             <h1 style="font-family: 'KB Tranceform', 'Montserrat', sans-serif; font-weight: 400; text-align: center; letter-spacing: 0.02em; color: #3a4a6e; margin-bottom: 1rem; font-size: 3.8rem;">
                 Тест: Скрамблер
             </h1>
-            
             <div style="font-size: 0.9rem; line-height: 1.8; color: var(--text-secondary); text-align: justify;">
                 <p style="margin-bottom: 1.5rem; text-align: center; font-weight: 500; color: #1e2a3a;">
-                    Здесь тестируется новый движок кубика с настоящим вращением слоёв.
+                    Все вопросы работают! Крути, жми, перемешивай.
                 </p>
             </div>
         </div>
@@ -101,7 +100,7 @@
             </div>
 
             <div style="flex: 1; min-width: 320px; max-width: 580px; display: flex; justify-content: center;">
-                <div id="cube-container" style="width: 100%; aspect-ratio: 1 / 1; max-width: 580px; background: transparent; cursor: pointer; position: relative; touch-action: none;"></div>
+                <div id="cube-container" style="width: 100%; aspect-ratio: 1 / 1; max-width: 580px; background: transparent; position: relative; touch-action: none;"></div>
             </div>
         </div>
 
@@ -109,7 +108,6 @@
         <div style="display: flex; justify-content: center; gap: 1.5rem; margin-top: 2.5rem; flex-wrap: wrap;">
             <button id="btnScramble" class="btn btn-primary" style="background: var(--neon-coral); color: #fff; border-color: var(--neon-coral);">Перемешать</button>
             <button id="btnSolve" class="btn btn-primary" style="background: #2ecc71; color: #fff; border-color: #2ecc71; display: none;">Собрать</button>
-            <button id="btnResetLocalStorage" class="btn btn-sm" style="background: rgba(0,0,0,0.05); color: var(--text-secondary); border-color: transparent;">Сбросить мои ответы</button>
         </div>
 
     </div>
@@ -164,7 +162,9 @@
   firebase.initializeApp(firebaseConfig);
   const database = firebase.database();
 
+  // ===== ВСЕ ВОПРОСЫ ПО ЦВЕТАМ И КООРДИНАТАМ (0, 1, 2) =====
   const questionsDB = {
+    // ===== КРАСНЫЙ (Любовь) =====
     'red_0_0_1': 'Какая книга подарила тебе ощущение дома, даже если ты был далеко?',
     'red_0_1_1': 'Какая книга заставила тебя почувствовать гордость за место, где ты живёшь?',
     'red_0_2_1': 'Какую книгу ты бы отправил своему прошлому "я" со словами "ты справишься"?',
@@ -175,6 +175,7 @@
     'red_2_1_1': 'Какая книга напоминает тебе о твоей юности и первых чувствах?',
     'red_2_2_1': 'Есть ли книга, которая научила тебя принимать людей такими, какие они есть?',
     
+    // ===== СИНИЙ (Надежда) =====
     'blue_0_0_1': 'Какая книга помогла тебе проснуться утром, даже когда не хотелось вставать?',
     'blue_0_1_1': 'От какой книги у тебя появилась вера, что завтра будет лучше?',
     'blue_0_2_1': 'Какая книга стала для тебя светом в самом длинном тоннеле?',
@@ -185,6 +186,7 @@
     'blue_2_1_1': 'Назови книгу, которая доказала тебе: "Всё обязательно наладится".',
     'blue_2_2_1': 'Какая книга оставила после себя ощущение, что ты не сдашься?',
 
+    // ===== ЖЁЛТЫЙ (Совесть) =====
     'yellow_0_0_1': 'Какая книга помогла тебе услышать свой тихий внутренний голос?',
     'yellow_0_1_1': 'Назови книгу, где герой сделал трудный, но правильный выбор.',
     'yellow_0_2_1': 'Какая книга научила тебя не идти за толпой, а идти за собой?',
@@ -195,6 +197,7 @@
     'yellow_2_1_1': 'Какая книга помогла тебе разобраться в себе, когда было много сомнений?',
     'yellow_2_2_1': 'Какая книга оставила тебе чувство, что ты не имеешь права молчать?',
 
+    // ===== ЗЕЛЁНЫЙ (Добро) =====
     'green_0_0_1': 'Назови книгу, которая вдохновила тебя сделать кому-то приятное просто так.',
     'green_0_1_1': 'Какая книга научила тебя замечать тех, кому нужна помощь?',
     'green_0_2_1': 'Вспомни книгу, где доброта оказалась сильнее любой ссоры.',
@@ -205,6 +208,7 @@
     'green_2_1_1': 'Вспомни книгу, которую ты бы подарил тому, кто сегодня грустит.',
     'green_2_2_1': 'Какая книга подарила тебе ощущение, что ты можешь быть чьим-то лучом света?',
 
+    // ===== БЕЛЫЙ (Память) =====
     'white_0_0_1': 'Какая книга заставила тебя вспомнить голос бабушки или дедушки?',
     'white_0_1_1': 'Назови книгу, которая помогла тебе почувствовать связь с твоими корнями.',
     'white_0_2_1': 'Какая книга напомнила тебе о великой истории, которую нельзя забывать?',
@@ -215,6 +219,7 @@
     'white_2_1_1': 'Вспомни книгу, которая заставила тебя позвонить родителям и сказать спасибо.',
     'white_2_2_1': 'Какая книга напомнила тебе: "Пока мы помним – мы живы"?',
 
+    // ===== ОРАНЖЕВЫЙ (Семья) =====
     'orange_0_0_1': 'Какая книга подарила тебе ощущение, что ты всегда можешь вернуться домой?',
     'orange_0_1_1': 'Назови книгу, которую ты хотел бы прочитать вслух всем своим близким.',
     'orange_0_2_1': 'Какая книга заставила тебя собрать всю семью за одним столом?',
@@ -293,14 +298,16 @@
 
   let currentElementId = null;
 
-  // Новая функция вызывается из 3D-движка
-  window.openBookGran = function(id, colorName, questionText) {
+  window.openBookGran = function(id, colorName) {
       currentElementId = id;
 
       popupColorTitle.textContent = colorNames[colorName] || colorName;
       popupThumb.src = texturePaths[colorName] || '';
 
-      popupQuestion.textContent = questionText || 'Для этого квадратика пока нет вопроса. Придумай свой!';
+      // Достаём вопрос из базы по ID
+      const question = questionsDB[id];
+      popupQuestion.textContent = question || 'Для этого квадратика пока нет вопроса. Придумай свой!';
+      
       popupAnswers.innerHTML = '<p style="color:#aaa; font-size:0.9rem; text-align:center; margin:0;">Пока никто не ответил на этот вопрос.<br>Будь первым! ✨</p>';
       popupInput.value = '';
       popup.style.display = 'flex';
@@ -360,7 +367,6 @@
               localStorage.setItem('myGranProgress', JSON.stringify(myProgress));
           }
 
-          // Оповещаем движок, что подсветку нужно обновить
           if (window.updateCubeGlow) {
               window.updateCubeGlow();
           }
@@ -383,18 +389,6 @@
           document.body.style.overflow = '';
       }
   });
-
-  // Кнопка сброса localStorage для тестов
-  document.getElementById('btnResetLocalStorage').addEventListener('click', function() {
-      if (confirm('Удалить все ваши сохранённые ответы (подсветку)? Это не удалит ответы из Firebase, только локальные метки.')) {
-          localStorage.removeItem('myGranProgress');
-          if (window.updateCubeGlow) {
-              window.updateCubeGlow();
-          }
-          alert('Локальные метки сброшены.');
-      }
-  });
-
 </script>
 
 <script type="importmap">
