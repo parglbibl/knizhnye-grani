@@ -132,7 +132,8 @@ if (!container) {
                         gridX: x, gridY: y, gridZ: z,
                         faces: faces,
                         mats: mats,
-                        originalPos: new THREE.Vector3(x * offset, y * offset, z * offset)
+                        originalPos: new THREE.Vector3(x * offset, y * offset, z * offset),
+                        cubieColor: faces // Сохраняем массив цветов для быстрого доступа
                     };
 
                     allCubies.push(cubie);
@@ -321,7 +322,7 @@ if (!container) {
         }
 
         // ============================
-        // 7. Подсветка (ВОЗВРАЩЕНА В РАБОЧЕЕ СОСТОЯНИЕ)
+        // 7. Подсветка (НОВАЯ, ГАРАНТИРОВАННАЯ ЛОГИКА)
         // ============================
         let activeGlowIds = [];
 
@@ -340,7 +341,7 @@ if (!container) {
         };
 
         function applyGlow() {
-            // 1. Сначала сбрасываем всё на обычные текстуры
+            // 1. Сбрасываем всё на обычные текстуры
             allCubies.forEach(cubie => {
                 const faces = cubie.userData.faces;
                 const mats = cubie.material;
@@ -351,41 +352,22 @@ if (!container) {
                 }
             });
 
-            // 2. Проверяем каждую грань кубика
+            // 2. Проходим по каждой сохранённой грани
             activeGlowIds.forEach(id => {
+                // Разбиваем ID на части: "red_0_0_1" -> ["red", "0", "0", "1"]
+                const parts = id.split('_');
+                const targetColor = parts[0]; // это цвет
+                
+                // Ищем любой кубик, у которого есть грань этого цвета
                 allCubies.forEach(cubie => {
                     const faces = cubie.userData.faces;
                     const mats = cubie.material;
-                    const pos = cubie.position;
-                    
-                    // Восстанавливаем логику поиска по координатам (как в оригинале)
-                    const gx = Math.round(pos.x / offset);
-                    const gy = Math.round(pos.y / offset);
-                    const gz = Math.round(pos.z / offset);
 
-                    // Проверяем все 6 граней
                     for (let i = 0; i < 6; i++) {
-                        if (faces[i]) {
-                            // Формируем ID квадратика
-                            let elementX = 0, elementY = 0;
-                            
-                            if (i === 0 || i === 1) { // +X / -X
-                                elementX = gy + 1;
-                                elementY = gz + 1;
-                            } else if (i === 2 || i === 3) { // +Y / -Y
-                                elementX = gx + 1;
-                                elementY = gz + 1;
-                            } else { // +Z / -Z
-                                elementX = gx + 1;
-                                elementY = gy + 1;
-                            }
-
-                            const elementId = faces[i] + '_' + String(elementX) + '_' + String(elementY) + '_1';
-                            
-                            if (activeGlowIds.includes(elementId)) {
-                                if (glowLib[faces[i]]) {
-                                    mats[i] = glowLib[faces[i]];
-                                }
+                        if (faces[i] === targetColor) {
+                            // Если этот цвет совпадает, зажигаем свечение
+                            if (glowLib[targetColor]) {
+                                mats[i] = glowLib[targetColor];
                             }
                         }
                     }
