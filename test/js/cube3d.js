@@ -86,7 +86,7 @@ if (!container) {
         });
 
         // ============================
-        // 3. Создание кубиков (РАЗМЕРЫ ИЗ ОРИГИНАЛА)
+        // 3. Создание кубиков (С ФИЗИЧЕСКИМИ ID)
         // ============================
         const offset = 0.685;  
         const sizeCubie = 0.675;    
@@ -127,12 +127,31 @@ if (!container) {
                     cubie.position.set(x * offset, y * offset, z * offset);
                     cubeGroup.add(cubie);
 
+                    // Генерируем уникальный физический ID для этого кубика
+                    const isCorner = (x !== 0 && y !== 0 && z !== 0);
+                    const isEdge = (x === 0 || y === 0 || z === 0) && !isCenter;
+                    
+                    let fixedId;
+                    if (isCenter) {
+                        // Центры (не двигаются)
+                        fixedId = `center_${x}_${y}_${z}`;
+                    } else if (isCorner) {
+                        // Углы (8 штук)
+                        const colorStr = faces.filter(f => f !== null).join('_');
+                        fixedId = `corner_${colorStr}`;
+                    } else if (isEdge) {
+                        // Рёбра (12 штук)
+                        const colorStr = faces.filter(f => f !== null).join('_');
+                        fixedId = `edge_${colorStr}`;
+                    }
+
                     cubie.userData = {
                         isCenter: isCenter,
                         gridX: x, gridY: y, gridZ: z,
                         faces: faces,
                         mats: mats,
                         originalPos: new THREE.Vector3(x * offset, y * offset, z * offset),
+                        fixedId: fixedId, // <--- ВОТ ЭТОТ ID НИКОГДА НЕ МЕНЯЕТСЯ
                         cubieColor: faces
                     };
 
@@ -144,11 +163,8 @@ if (!container) {
         // ============================
         // 4. Свет (РАВНОМЕРНЫЙ, БЕЗ ТЕНЕЙ)
         // ============================
-        // Мягкий рассеянный свет сверху и снизу
         const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1.0);
         scene.add(hemiLight);
-
-        // Дополнительный свет со всех сторон, чтобы убрать тени
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
         scene.add(ambientLight);
 
@@ -315,7 +331,7 @@ if (!container) {
         }
 
         // ============================
-        // 7. Подсветка (ПО ЦВЕТУ, БЕЗ КООРДИНАТ)
+        // 7. Подсветка (ПО ФИЗИЧЕСКОМУ ID)
         // ============================
         let activeGlowIds = [];
 
@@ -345,17 +361,14 @@ if (!container) {
             });
 
             activeGlowIds.forEach(id => {
-                const parts = id.split('_');
-                const targetColor = parts[0];
-                
+                // Ищем кубик по его физическому ID
                 allCubies.forEach(cubie => {
-                    const faces = cubie.userData.faces;
-                    const mats = cubie.material;
-
-                    for (let i = 0; i < 6; i++) {
-                        if (faces[i] === targetColor) {
-                            if (glowLib[targetColor]) {
-                                mats[i] = glowLib[targetColor];
+                    if (cubie.userData.fixedId === id) {
+                        const faces = cubie.userData.faces;
+                        const mats = cubie.material;
+                        for (let i = 0; i < 6; i++) {
+                            if (faces[i] && glowLib[faces[i]]) {
+                                mats[i] = glowLib[faces[i]];
                             }
                         }
                     }
@@ -412,17 +425,10 @@ if (!container) {
         });
 
         // ============================
-        // 10. КЛИКАБЕЛЬНОСТЬ
+        // 10. КЛИКАБЕЛЬНОСТЬ (ПО ФИЗИЧЕСКОМУ ID)
         // ============================
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
-
-        function getGridCoords(position) {
-            const x = Math.round(position.x / offset);
-            const y = Math.round(position.y / offset);
-            const z = Math.round(position.z / offset);
-            return { x, y, z };
-        }
 
         function onMouseClick(event) {
             const rect = renderer.domElement.getBoundingClientRect();
@@ -434,9 +440,8 @@ if (!container) {
 
             if (intersects.length > 0) {
                 const clickedCubie = intersects[0].object;
-                const pos = clickedCubie.position;
-                const coords = getGridCoords(pos);
                 
+                // Определяем, какую грань нажали
                 const normal = intersects[0].face.normal.clone();
                 normal.applyQuaternion(clickedCubie.quaternion);
                 
@@ -453,24 +458,15 @@ if (!container) {
                 else if (nz === -1) materialIndex = 5;
                 else materialIndex = 0;
 
+                // Цвет грани
                 const colorName = clickedCubie.userData.faces[materialIndex];
                 if (!colorName) return;
                 
-                let gx = 0, gy = 0;
-                
-                if (materialIndex === 0 || materialIndex === 1) {
-                    gx = coords.y + 1;
-                    gy = coords.z + 1;
-                } else if (materialIndex === 2 || materialIndex === 3) {
-                    gx = coords.x + 1;
-                    gy = coords.z + 1;
-                } else {
-                    gx = coords.x + 1;
-                    gy = coords.y + 1;
-                }
-                
+                // БЕРЁМ ФИЗИЧЕСКИЙ ID КУБИКА
+                const fixedId = clickedCubie.userData.fixedId;
+
                 if (window.openBookGran) {
-                    window.openBookGran(colorName + '_' + gx + '_' + gy + '_1', colorName);
+                    window.openBookGran(fixedId, colorName);
                 }
             }
         }
