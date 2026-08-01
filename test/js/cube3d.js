@@ -33,7 +33,7 @@ if (!container) {
         scene.background = null;
 
         const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 1000);
-        camera.position.set(4.0, 3.0, 5.0); // Немного отодвинули камеру
+        camera.position.set(3.5, 2.5, 4.5); // Вернул оригинальную позицию камеры
         camera.lookAt(0, 0, 0);
 
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -49,7 +49,11 @@ if (!container) {
         controls.enableDamping = true;
         controls.dampingFactor = 0.1;
         controls.enableZoom = false;
+        controls.rotateSpeed = 1.0;
         controls.target.set(0, 0, 0);
+        // ===== ВАЖНО: Убираем ограничения вращения =====
+        controls.minPolarAngle = -Math.PI; // Разрешаем крутить кубик "вверх ногами"
+        controls.maxPolarAngle = Math.PI;
 
         const cubeGroup = new THREE.Group();
         scene.add(cubeGroup);
@@ -83,26 +87,18 @@ if (!container) {
             orange: loadTexture(texturePaths.orange)
         };
         const createMat = (color) => new THREE.MeshStandardMaterial({ map: textures[color], ...matConfig });
-        const createGlowMat = (color, emissiveHex) => new THREE.MeshStandardMaterial({ 
-            map: textures[color], roughness: 0.3, metalness: 0.2, emissive: emissiveHex, emissiveIntensity: 0.25 
-        });
 
         // ============================
-        // 3. Создание кубиков (РАЗМЕР УМЕНЬШЕН)
+        // 3. Создание кубиков (РАЗМЕР И ЗАЗОРЫ КАК В ОРИГИНАЛЕ)
         // ============================
-        const offset = 0.86; // Меньше, чтобы влез в контейнер
-        const sizeCubie = 0.75; // Меньше, чтобы выглядел как оригинал
+        const offset = 0.98;    // Меньше зазор между кубиками (было 1.05, стало 0.98)
+        const sizeCubie = 0.88; // Чуть крупнее сами кубики (было 0.75, стало 0.88)
         const radius = 0.08;
         const segments = 4;
 
         const matLib = {
             red: createMat('red'), blue: createMat('blue'), yellow: createMat('yellow'),
             green: createMat('green'), white: createMat('white'), orange: createMat('orange')
-        };
-        const glowLib = {
-            red: createGlowMat('red', 0xc41e3a), blue: createGlowMat('blue', 0x0051ba),
-            yellow: createGlowMat('yellow', 0xffd700), green: createGlowMat('green', 0x009e60),
-            white: createGlowMat('white', 0xffffff), orange: createGlowMat('orange', 0xff8c00)
         };
 
         const allCubies = [];
@@ -139,18 +135,25 @@ if (!container) {
         }
 
         // ============================
-        // 4. Свет
+        // 4. Свет (КАК В ОРИГИНАЛЕ)
         // ============================
-        const ambientLight = new THREE.AmbientLight(0x606080, 0.6);
+        // AmbientLight ярче, чтобы кубик не был тёмным
+        const ambientLight = new THREE.AmbientLight(0x606080, 0.8);
         scene.add(ambientLight);
+        
+        // Основной свет спереди-сбоку
         const mainLight = new THREE.DirectionalLight(0xffffff, 0.9);
         mainLight.position.set(2, 4, 3);
         scene.add(mainLight);
-        const fillLight = new THREE.DirectionalLight(0xffffff, 0.5);
-        fillLight.position.set(-2, 1, 2);
+        
+        // Заполняющий свет снизу-сзади для мягкости
+        const fillLight = new THREE.DirectionalLight(0xffffff, 0.4);
+        fillLight.position.set(-2, -1, -2);
         scene.add(fillLight);
-        const backLight = new THREE.DirectionalLight(0xffffff, 0.2);
-        backLight.position.set(0, 1, -3);
+        
+        // Контровый свет, чтобы подчеркнуть рёбра
+        const backLight = new THREE.DirectionalLight(0xffffff, 0.3);
+        backLight.position.set(0, 1, -4);
         scene.add(backLight);
 
         // ============================
