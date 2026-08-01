@@ -196,7 +196,201 @@ if (!container) {
         scene.add(backLight);
 
         // ============================
-        // 7. Логика клика (КАК В ОРИГИНАЛЕ)
+        // 7. ВАШ СКРАМБЛЕР И СБОРЩИК (ВСТАВЛЕН СЮДА)
+        // ============================
+        let isAnimating = false;
+        let scrambleMoves = [];
+
+        function getCubiesInLayer(axis, index) {
+            const result = [];
+            cubies.forEach(cubie => {
+                const pos = cubie.position.clone();
+                const gx = Math.round(pos.x / offset);
+                const gy = Math.round(pos.y / offset);
+                const gz = Math.round(pos.z / offset);
+                
+                let match = false;
+                if (axis === 'x' && gx === index) match = true;
+                else if (axis === 'y' && gy === index) match = true;
+                else if (axis === 'z' && gz === index) match = true;
+
+                if (match) result.push(cubie);
+            });
+            return result;
+        }
+
+        function rotateLayer(axis, index, angle, duration, callback) {
+            const cubies = getCubiesInLayer(axis, index);
+            if (cubies.length === 0) { if (callback) callback(); return; }
+
+            const tempGroup = new THREE.Group();
+            scene.add(tempGroup);
+
+            cubies.forEach(cubie => {
+                const worldPos = new THREE.Vector3();
+                const worldQuat = new THREE.Quaternion();
+                cubie.getWorldPosition(worldPos);
+                cubie.getWorldQuaternion(worldQuat);
+                scene.remove(cubie);
+                tempGroup.add(cubie);
+                cubie.position.copy(worldPos);
+                cubie.quaternion.copy(worldQuat);
+            });
+
+            const rotAxis = new THREE.Vector3(axis === 'x' ? 1 : 0, axis === 'y' ? 1 : 0, axis === 'z' ? 1 : 0);
+            
+            const startTime = Date.now();
+            const startQuat = tempGroup.quaternion.clone();
+            const endQuat = new THREE.Quaternion().setFromAxisAngle(rotAxis, angle);
+            endQuat.multiply(startQuat);
+
+            function animateRotation() {
+                const elapsed = Date.now() - startTime;
+                const t = Math.min(elapsed / duration, 1);
+                const ease = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+                tempGroup.quaternion.slerpQuaternions(startQuat, endQuat, ease);
+
+                if (t < 1) {
+                    requestAnimationFrame(animateRotation);
+                } else {
+                    tempGroup.quaternion.copy(endQuat);
+                    tempGroup.updateMatrixWorld(true);
+
+                    const children = tempGroup.children.slice();
+                    children.forEach(cubie => {
+                        const worldPos = new THREE.Vector3();
+                        const worldQuat = new THREE.Quaternion();
+                        cubie.getWorldPosition(worldPos);
+                        cubie.getWorldQuaternion(worldQuat);
+                        tempGroup.remove(cubie);
+                        scene.add(cubie);
+                        cubie.position.copy(worldPos);
+                        cubie.quaternion.copy(worldQuat);
+                    });
+                    scene.remove(tempGroup);
+
+                    if (callback) callback();
+                }
+            }
+            animateRotation();
+        }
+
+        function executeMove(moveStr, duration, callback) {
+            const parsed = parseMove(moveStr);
+            let remaining = parsed.count;
+            let currentAngle = parsed.angle;
+
+            function doSingleRotation() {
+                if (remaining === 0) {
+                    if (callback) callback();
+                    return;
+                }
+                rotateLayer(parsed.axis, parsed.index, currentAngle, duration, () => {
+                    remaining--;
+                    if (remaining > 0) {
+                        doSingleRotation();
+                    } else {
+                        if (callback) callback();
+                    }
+                });
+            }
+            doSingleRotation();
+        }
+
+        function executeMoveSequence(moves, durationPerMove, onComplete) {
+            if (moves.length === 0) {
+                if (onComplete) onComplete();
+                return;
+            }
+            let index = 0;
+            function next() {
+                if (index >= moves.length) {
+                    if (onComplete) onComplete();
+                    return;
+                }
+                executeMove(moves[index], durationPerMove, () => {
+                    index++;
+                    setTimeout(next, 20);
+                });
+            }
+            next();
+        }
+
+        function generateScramble(length = 23) {
+            const moves = ['U', 'D', 'L', 'R', 'F', 'B'];
+            const modifiers = ['', "'", "2"];
+            let result = [];
+            let lastAxis = '';
+            for (let i = 0; i < length; i++) {
+                let move;
+                let axis;
+                do {
+                    move = moves[Math.floor(Math.random() * moves.length)];
+                    axis = move.charAt(0);
+                } while (axis === lastAxis);
+                lastAxis = axis;
+                const mod = modifiers[Math.floor(Math.random() * modifiers.length)];
+                result.push(move + mod);
+            }
+            return result;
+        }
+
+        function parseMove(moveStr) {
+            const axisMap = { 'U': 'y', 'D': 'y', 'L': 'x', 'R': 'x', 'F': 'z', 'B': 'z' };
+            const indexMap = { 'U': 1, 'D': -1, 'L': -1, 'R': 1, 'F': 1, 'B': -1 };
+            const angleMap = { 'U': -1, 'D': 1, 'L': 1, 'R': -1, 'F': -1, 'B': 1 };
+
+            const base = moveStr.charAt(0);
+            const mod = moveStr.slice(1);
+            
+            let angle = angleMap[base] * Math.PI / 2;
+            let count = 1;
+            if (mod === "'") angle *= -1;
+            else if (mod === "2") count = 2;
+
+            return { axis: axisMap[base], index: indexMap[base], angle, count };
+        }
+
+        // Кнопки
+        const btnScramble = document.getElementById('btnScramble');
+        const btnSolve = document.getElementById('btnSolve');
+
+        btnScramble.addEventListener('click', function() {
+            if (isAnimating) return;
+            isAnimating = true;
+            btnScramble.style.display = 'none';
+            btnSolve.style.display = 'inline-block';
+
+            const moves = generateScramble(23);
+            scrambleMoves = moves;
+            const durationPerMove = 5000 / moves.length;
+
+            executeMoveSequence(moves, durationPerMove, () => {
+                isAnimating = false;
+            });
+        });
+
+        btnSolve.addEventListener('click', function() {
+            if (isAnimating || scrambleMoves.length === 0) return;
+            isAnimating = true;
+            btnSolve.style.display = 'none';
+            btnScramble.style.display = 'inline-block';
+
+            const reverseMoves = scrambleMoves.slice().reverse().map(m => {
+                if (m.endsWith("'")) return m.slice(0, -1);
+                if (m.endsWith("2")) return m;
+                return m + "'";
+            });
+            const durationPerMove = 5000 / reverseMoves.length;
+
+            executeMoveSequence(reverseMoves, durationPerMove, () => {
+                isAnimating = false;
+                scrambleMoves = [];
+            });
+        });
+
+        // ============================
+        // 8. Логика клика (КАК В ОРИГИНАЛЕ)
         // ============================
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
@@ -266,10 +460,8 @@ if (!container) {
         }
 
         // ============================
-        // 8. Обработчики (Заменяем самописное вращение на OrbitControls)
+        // 9. Обработчики (Защита от ложных кликов)
         // ============================
-        
-        // Защита от ложных кликов (чтобы клик срабатывал, только если не двигали мышку)
         let pointerDownPos = { x: 0, y: 0 };
         let isClick = false;
 
@@ -289,7 +481,7 @@ if (!container) {
         });
 
         // ============================
-        // 9. Рендер (КАК В ОРИГИНАЛЕ)
+        // 10. Рендер (КАК В ОРИГИНАЛЕ)
         // ============================
         function render() {
             renderer.render(scene, camera);
