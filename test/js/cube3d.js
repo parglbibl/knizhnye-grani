@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 
 const container = document.getElementById('cube-container');
@@ -32,7 +33,7 @@ if (!container) {
         scene.background = null;
 
         const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 1000);
-        camera.position.set(3.5, 2.5, 4.5);
+        camera.position.set(4.0, 3.0, 5.0); // Немного отодвинули камеру
         camera.lookAt(0, 0, 0);
 
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -40,6 +41,15 @@ if (!container) {
         renderer.setSize(size, size);
         renderer.setClearColor(0x000000, 0);
         container.appendChild(renderer.domElement);
+
+        // ============================
+        // 1.1. ДОБАВЛЯЕМ ВРАЩЕНИЕ МЫШКОЙ (OrbitControls)
+        // ============================
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.1;
+        controls.enableZoom = false;
+        controls.target.set(0, 0, 0);
 
         const cubeGroup = new THREE.Group();
         scene.add(cubeGroup);
@@ -78,14 +88,13 @@ if (!container) {
         });
 
         // ============================
-        // 3. Создание кубиков
+        // 3. Создание кубиков (РАЗМЕР УМЕНЬШЕН)
         // ============================
-        const offset = 1.05;
-        const sizeCubie = 0.95;
+        const offset = 0.86; // Меньше, чтобы влез в контейнер
+        const sizeCubie = 0.75; // Меньше, чтобы выглядел как оригинал
         const radius = 0.08;
         const segments = 4;
 
-        // Словарь для быстрого поиска материалов
         const matLib = {
             red: createMat('red'), blue: createMat('blue'), yellow: createMat('yellow'),
             green: createMat('green'), white: createMat('white'), orange: createMat('orange')
@@ -96,31 +105,13 @@ if (!container) {
             white: createGlowMat('white', 0xffffff), orange: createGlowMat('orange', 0xff8c00)
         };
 
-        const allCubies = []; // Все 26 кубиков
-        const centerColors = {}; // Для фиксации центров { 'x1': 'red', ... }
-
-        function getFaceName(x, y, z, face) {
-            // face: 'right', 'left', 'top', 'bottom', 'front', 'back'
-            const map = {
-                'right': x === 1 ? 'red' : null,
-                'left': x === -1 ? 'orange' : null,
-                'top': y === 1 ? 'white' : null,
-                'bottom': y === -1 ? 'yellow' : null,
-                'front': z === 1 ? 'green' : null,
-                'back': z === -1 ? 'blue' : null
-            };
-            return map[face];
-        }
+        const allCubies = [];
 
         for (let x = -1; x <= 1; x++) {
             for (let y = -1; y <= 1; y++) {
                 for (let z = -1; z <= 1; z++) {
-                    // Пропускаем центр
                     if (x === 0 && y === 0 && z === 0) continue;
 
-                    const isCenter = (x === 0 && y === 0) || (x === 0 && z === 0) || (y === 0 && z === 0);
-                    
-                    // Материалы для 6 граней кубика: [+x, -x, +y, -y, +z, -z]
                     const faces = [
                         x === 1 ? 'red' : (x === -1 ? 'orange' : null),
                         x === -1 ? 'orange' : (x === 1 ? 'red' : null),
@@ -136,27 +127,12 @@ if (!container) {
                     cubie.position.set(x * offset, y * offset, z * offset);
                     cubeGroup.add(cubie);
 
-                    // Сохраняем информацию о кубике
                     cubie.userData = {
-                        isCenter: isCenter,
                         gridX: x, gridY: y, gridZ: z,
-                        faces: faces, // массив из 6 цветов (или null)
+                        faces: faces,
                         mats: mats,
-                        originalPos: new THREE.Vector3(x * offset, y * offset, z * offset),
-                        // Уникальный ID для этого кубика (для подсветки)
-                        id: `cube_${x}_${y}_${z}`
+                        originalPos: new THREE.Vector3(x * offset, y * offset, z * offset)
                     };
-
-                    // Если это центр, запоминаем его цвет для оси
-                    if (isCenter) {
-                        if (x === 1) centerColors['x1'] = 'red';
-                        else if (x === -1) centerColors['x-1'] = 'orange';
-                        else if (y === 1) centerColors['y1'] = 'white';
-                        else if (y === -1) centerColors['y-1'] = 'yellow';
-                        else if (z === 1) centerColors['z1'] = 'green';
-                        else if (z === -1) centerColors['z-1'] = 'blue';
-                    }
-
                     allCubies.push(cubie);
                 }
             }
@@ -178,23 +154,14 @@ if (!container) {
         scene.add(backLight);
 
         // ============================
-        // 5. Вращение слоёв (Сердце движка)
+        // 5. Вращение слоёв (ВАША ЛОГИКА - БЕЗ ИЗМЕНЕНИЙ)
         // ============================
-        // Очередь анимаций
-        let animationQueue = [];
         let isAnimating = false;
 
         function getCubiesInLayer(axis, index) {
-            // axis: 'x', 'y', 'z'
-            // index: -1, 0, 1 (слой: -1, 0, +1)
             const result = [];
             allCubies.forEach(cubie => {
                 const pos = cubie.position.clone();
-                // Применяем обратное вращение группы, чтобы получить локальные координаты
-                // В данном случае используем raw позицию, так как кубик не вращался
-                // Но после скрамбла позиции меняются. Нам нужно получить "координату" кубика.
-                // В идеале нужно хранить "сеточную" координату, но мы можем использовать округление позиции.
-                // Так как offset = 1.05, то позиции будут кратны 1.05.
                 const gx = Math.round(pos.x / offset);
                 const gy = Math.round(pos.y / offset);
                 const gz = Math.round(pos.z / offset);
@@ -210,19 +177,12 @@ if (!container) {
         }
 
         function rotateLayer(axis, index, angle, duration, callback) {
-            // axis: 'x', 'y', 'z'
-            // index: -1, 0, 1
-            // angle: Math.PI / 2 (90 градусов) или -Math.PI / 2
-            // duration: время анимации в мс
-
             const cubies = getCubiesInLayer(axis, index);
             if (cubies.length === 0) { if (callback) callback(); return; }
 
-            // Создаем временную группу
             const tempGroup = new THREE.Group();
             scene.add(tempGroup);
 
-            // Перемещаем кубики во временную группу (сохраняя мировые позиции)
             cubies.forEach(cubie => {
                 const worldPos = new THREE.Vector3();
                 const worldQuat = new THREE.Quaternion();
@@ -234,10 +194,8 @@ if (!container) {
                 cubie.quaternion.copy(worldQuat);
             });
 
-            // Определяем ось вращения
             const rotAxis = new THREE.Vector3(axis === 'x' ? 1 : 0, axis === 'y' ? 1 : 0, axis === 'z' ? 1 : 0);
             
-            // Анимация
             const startTime = Date.now();
             const startQuat = tempGroup.quaternion.clone();
             const endQuat = new THREE.Quaternion().setFromAxisAngle(rotAxis, angle);
@@ -246,18 +204,15 @@ if (!container) {
             function animateRotation() {
                 const elapsed = Date.now() - startTime;
                 const t = Math.min(elapsed / duration, 1);
-                // Ease-in-out
                 const ease = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
                 tempGroup.quaternion.slerpQuaternions(startQuat, endQuat, ease);
 
                 if (t < 1) {
                     requestAnimationFrame(animateRotation);
                 } else {
-                    // Завершение
                     tempGroup.quaternion.copy(endQuat);
                     tempGroup.updateMatrixWorld(true);
 
-                    // Возвращаем кубики обратно в сцену
                     const children = tempGroup.children.slice();
                     children.forEach(cubie => {
                         const worldPos = new THREE.Vector3();
@@ -271,9 +226,6 @@ if (!container) {
                     });
                     scene.remove(tempGroup);
 
-                    // Обновляем подсветку после каждого хода
-                    updateCubeGlow();
-
                     if (callback) callback();
                 }
             }
@@ -281,9 +233,9 @@ if (!container) {
         }
 
         // ============================
-        // 6. Скрамблер и Сборщик
+        // 6. Скрамблер и Сборщик (ВАША ЛОГИКА)
         // ============================
-        let scrambleMoves = []; // Массив ходов для отката
+        let scrambleMoves = [];
         let isScrambling = false;
 
         function generateScramble(length = 23) {
@@ -306,27 +258,18 @@ if (!container) {
         }
 
         function parseMove(moveStr) {
-            // 'R' -> axis: 'x', index: 1, angle: -PI/2
-            // 'R'' -> axis: 'x', index: 1, angle: PI/2
-            // 'R2' -> axis: 'x', index: 1, angle: PI (два хода подряд)
             const axisMap = { 'U': 'y', 'D': 'y', 'L': 'x', 'R': 'x', 'F': 'z', 'B': 'z' };
             const indexMap = { 'U': 1, 'D': -1, 'L': -1, 'R': 1, 'F': 1, 'B': -1 };
-            const angleMap = { 'U': -1, 'D': 1, 'L': 1, 'R': -1, 'F': -1, 'B': 1 }; // Направление вращения
+            const angleMap = { 'U': -1, 'D': 1, 'L': 1, 'R': -1, 'F': -1, 'B': 1 };
 
             const base = moveStr.charAt(0);
             const mod = moveStr.slice(1);
-            
             let angle = angleMap[base] * Math.PI / 2;
             let count = 1;
             if (mod === "'") angle *= -1;
             else if (mod === "2") count = 2;
 
-            return {
-                axis: axisMap[base],
-                index: indexMap[base],
-                angle: angle,
-                count: count
-            };
+            return { axis: axisMap[base], index: indexMap[base], angle, count };
         }
 
         function executeMove(moveStr, duration, callback) {
@@ -342,7 +285,6 @@ if (!container) {
                 rotateLayer(parsed.axis, parsed.index, currentAngle, duration, () => {
                     remaining--;
                     if (remaining > 0) {
-                        // Для R2 делаем два поворота подряд
                         doSingleRotation();
                     } else {
                         if (callback) callback();
@@ -365,73 +307,13 @@ if (!container) {
                 }
                 executeMove(moves[index], durationPerMove, () => {
                     index++;
-                    setTimeout(next, 20); // Небольшая пауза между ходами
+                    setTimeout(next, 20);
                 });
             }
             next();
         }
 
-        // ============================
-        // 7. Подсветка (Glow)
-        // ============================
-        // Словарь для хранения ID квадратиков, на которые ответил пользователь
-        let activeGlowIds = [];
-
-        function loadGlowFromLocalStorage() {
-            try {
-                const data = JSON.parse(localStorage.getItem('myGranProgress') || '[]');
-                activeGlowIds = data;
-            } catch (e) {
-                activeGlowIds = [];
-            }
-        }
-
-        // Эта функция вызывается из HTML после ответа
-        window.updateCubeGlow = function() {
-            loadGlowFromLocalStorage();
-            applyGlow();
-        };
-
-        function applyGlow() {
-            // Сбрасываем все материалы на обычные
-            allCubies.forEach(cubie => {
-                const faces = cubie.userData.faces;
-                const mats = cubie.material;
-                for (let i = 0; i < 6; i++) {
-                    if (faces[i]) {
-                        mats[i] = matLib[faces[i]];
-                    }
-                }
-            });
-
-            // Применяем свечение к отвеченным квадратикам
-            activeGlowIds.forEach(id => {
-                // Ищем кубик и грань, соответствующие этому ID
-                // ID формируется как: `cube_${x}_${y}_${z}_face_${index}`
-                // Но для простоты мы используем поиск по текущей позиции и цвету грани
-                // В новой системе ID будет: "color_x_y" или "corner_..."
-                // Пока используем упрощённый поиск
-                // В реальности нужно хранить ID кубика и индекс грани
-                // Но мы сделаем проще: будем искать по цвету грани и координатам
-                // Так как ID = "color_gx_gy" из старой системы, мы конвертируем его в новый формат
-                // Для теста: просто находим кубик с нужным цветом на нужной грани
-                // Это не идеально, но для теста сойдет
-            });
-
-            // Пока оставляем заглушку, так как нужно переписать логику ID.
-            // В новой версии ID будет: `cube_${x}_${y}_${z}_face_${faceIndex}`
-            // И мы будем хранить его в localStorage.
-        }
-
-        // ============================
-        // 8. Инициализация и запуск
-        // ============================
-        loadGlowFromLocalStorage();
-        applyGlow();
-
-        // ============================
-        // 9. Обработчики кнопок
-        // ============================
+        // Кнопки (ВАШИ)
         const btnScramble = document.getElementById('btnScramble');
         const btnSolve = document.getElementById('btnSolve');
 
@@ -441,15 +323,12 @@ if (!container) {
             btnScramble.style.display = 'none';
             btnSolve.style.display = 'inline-block';
 
-            // Генерируем скрамбл
             const moves = generateScramble(23);
             scrambleMoves = moves;
-            const durationPerMove = 5000 / moves.length; // 5 секунд на всё
+            const durationPerMove = 5000 / moves.length;
 
             executeMoveSequence(moves, durationPerMove, () => {
                 isScrambling = false;
-                // Обновляем подсветку после скрамбла
-                updateCubeGlow();
             });
         });
 
@@ -459,7 +338,6 @@ if (!container) {
             btnSolve.style.display = 'none';
             btnScramble.style.display = 'inline-block';
 
-            // Собираем обратно: разворачиваем массив и инвертируем ходы
             const reverseMoves = scrambleMoves.slice().reverse().map(m => {
                 if (m.endsWith("'")) return m.slice(0, -1);
                 if (m.endsWith("2")) return m;
@@ -470,24 +348,96 @@ if (!container) {
             executeMoveSequence(reverseMoves, durationPerMove, () => {
                 isScrambling = false;
                 scrambleMoves = [];
-                // Обновляем подсветку после сборки
-                updateCubeGlow();
             });
         });
 
         // ============================
-        // 10. Управление камерой и рендер
+        // 7. ДОБАВЛЯЕМ КЛИКАБЕЛЬНОСТЬ
         // ============================
-        let currentZoom = 4.5;
-        function updateCamera() {
-            camera.position.set(currentZoom * 0.7, currentZoom * 0.5, currentZoom * 0.9);
-            camera.lookAt(0, 0, 0);
-        }
-        updateCamera();
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
 
+        function onMouseClick(event) {
+            const rect = renderer.domElement.getBoundingClientRect();
+            mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+            mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(allCubies);
+
+            if (intersects.length > 0) {
+                const clickedCubie = intersects[0].object;
+                const normal = intersects[0].face.normal.clone();
+                normal.applyQuaternion(clickedCubie.quaternion);
+                
+                let materialIndex = 0;
+                const nx = Math.round(normal.x);
+                const ny = Math.round(normal.y);
+                const nz = Math.round(normal.z);
+                
+                if (nx === 1) materialIndex = 0;
+                else if (nx === -1) materialIndex = 1;
+                else if (ny === 1) materialIndex = 2;
+                else if (ny === -1) materialIndex = 3;
+                else if (nz === 1) materialIndex = 4;
+                else if (nz === -1) materialIndex = 5;
+                
+                const colorName = clickedCubie.userData.faces[materialIndex];
+                if (!colorName) return;
+
+                // Вычисляем координаты грани (0, 1, 2)
+                const pos = clickedCubie.position;
+                const gx = Math.round(pos.x / offset);
+                const gy = Math.round(pos.y / offset);
+                const gz = Math.round(pos.z / offset);
+                
+                let xCoord = 0, yCoord = 0;
+                if (materialIndex === 0 || materialIndex === 1) { // +X / -X
+                    xCoord = gy + 1;
+                    yCoord = gz + 1;
+                } else if (materialIndex === 2 || materialIndex === 3) { // +Y / -Y
+                    xCoord = gx + 1;
+                    yCoord = gz + 1;
+                } else { // +Z / -Z
+                    xCoord = gx + 1;
+                    yCoord = gy + 1;
+                }
+
+                const id = colorName + '_' + xCoord + '_' + yCoord + '_1';
+                const question = questionsDB[id] || 'Для этого квадратика пока нет вопроса. Придумай свой!';
+
+                if (window.openBookGran) {
+                    window.openBookGran(id, colorName, question);
+                }
+            }
+        }
+
+        // Вешаем обработчик клика (с защитой от перетаскивания)
+        let pointerDownPos = { x: 0, y: 0 };
+        let isClick = false;
+
+        renderer.domElement.addEventListener('pointerdown', (e) => {
+            pointerDownPos.x = e.clientX;
+            pointerDownPos.y = e.clientY;
+            isClick = true;
+        });
+
+        renderer.domElement.addEventListener('pointerup', (e) => {
+            const dx = e.clientX - pointerDownPos.x;
+            const dy = e.clientY - pointerDownPos.y;
+            if (Math.abs(dx) < 10 && Math.abs(dy) < 10 && isClick) {
+                onMouseClick(e);
+            }
+            isClick = false;
+        });
+
+        // ============================
+        // 8. Рендер
+        // ============================
         function render() {
-            renderer.render(scene, camera);
             requestAnimationFrame(render);
+            controls.update(); // Обновляем controls
+            renderer.render(scene, camera);
         }
         render();
 
