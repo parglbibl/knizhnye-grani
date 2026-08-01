@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Книжные грани — тест скрамблера (стабильная версия)</title>
+    <title>Книжные грани — тест скрамблера</title>
     <link rel="stylesheet" href="../css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -62,7 +62,7 @@
             </h1>
             <div style="font-size: 0.9rem; line-height: 1.8; color: var(--text-secondary); text-align: justify;">
                 <p style="margin-bottom: 1.5rem; text-align: center; font-weight: 500; color: #1e2a3a;">
-                    Стабильная версия с вращением слоёв.
+                    Полноценный движок с вращением слоёв.
                 </p>
             </div>
         </div>
@@ -162,6 +162,7 @@
   firebase.initializeApp(firebaseConfig);
   const database = firebase.database();
 
+  // Полная база вопросов
   const questionsDB = {
     'red_0_0_1': 'Какая книга подарила тебе ощущение дома, даже если ты был далеко?',
     'red_0_1_1': 'Какая книга заставила тебя почувствовать гордость за место, где ты живёшь?',
@@ -381,8 +382,7 @@
     {
         "imports": {
             "three": "https://unpkg.com/three@0.128.0/build/three.module.js",
-            "three/addons/": "https://unpkg.com/three@0.128.0/examples/jsm/",
-            "three-cube": "https://unpkg.com/three-cube@0.1.29/index.js"
+            "three/addons/": "https://unpkg.com/three@0.128.0/examples/jsm/"
         }
     }
 </script>
