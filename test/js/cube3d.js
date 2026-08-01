@@ -409,7 +409,7 @@ if (!container) {
         });
 
         // ============================
-        // 10. ДОБАВЛЯЕМ ВРАЩЕНИЕ МЫШКОЙ И КЛИКИ (БЕЗ БЛОКИРОВКИ СКРАМБЛЕРА)
+        // 10. ДОБАВЛЯЕМ ВРАЩЕНИЕ МЫШКОЙ И КЛИКИ
         // ============================
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
@@ -517,8 +517,6 @@ if (!container) {
             const dx = Math.abs(coords.x - startX);
             const dy = Math.abs(coords.y - startY);
             
-            // Если клик был коротким и без движения - открываем вопрос
-            // Проверяем, не идёт ли анимация, чтобы случайно не кликнуть во время скрамбла
             if (dx < 6 && dy < 6 && !isScrambling && !isAnimating) {
                 onMouseClick(e);
             }
