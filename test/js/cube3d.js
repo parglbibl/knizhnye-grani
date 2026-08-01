@@ -26,9 +26,6 @@ if (!container) {
     }
 
     function initCube(size) {
-        // ============================
-        // 1. Базовые настройки сцены
-        // ============================
         const scene = new THREE.Scene();
         scene.background = null;
 
@@ -52,9 +49,6 @@ if (!container) {
         const cubeGroup = new THREE.Group();
         scene.add(cubeGroup);
 
-        // ============================
-        // 2. Текстуры и материалы
-        // ============================
         const textureLoader = new THREE.TextureLoader();
         const texturePaths = {
             red: '../images/cube_textures/red.jpg',
@@ -85,9 +79,6 @@ if (!container) {
             map: textures[color], roughness: 0.3, metalness: 0.2, emissive: emissiveHex, emissiveIntensity: 0.25 
         });
 
-        // ============================
-        // 3. Создание кубиков (РАЗМЕРЫ ИЗ ОРИГИНАЛА)
-        // ============================
         const offset = 0.685;  
         const sizeCubie = 0.675;    
         const radius = 0.08;    
@@ -127,12 +118,29 @@ if (!container) {
                     cubie.position.set(x * offset, y * offset, z * offset);
                     cubeGroup.add(cubie);
 
+                    // Генерируем 100% уникальный физический ID
+                    const isCorner = (x !== 0 && y !== 0 && z !== 0);
+                    const isEdge = (x === 0 || y === 0 || z === 0) && !isCenter;
+                    
+                    let fixedId;
+                    if (isCenter) {
+                        fixedId = `center_${x}_${y}_${z}`;
+                    } else if (isCorner) {
+                        const colorStr = faces.filter(f => f !== null).join('_');
+                        fixedId = `corner_${colorStr}`;
+                    } else if (isEdge) {
+                        const colorStr = faces.filter(f => f !== null).join('_');
+                        fixedId = `edge_${colorStr}`;
+                    }
+
                     cubie.userData = {
                         isCenter: isCenter,
                         gridX: x, gridY: y, gridZ: z,
                         faces: faces,
                         mats: mats,
-                        originalPos: new THREE.Vector3(x * offset, y * offset, z * offset)
+                        originalPos: new THREE.Vector3(x * offset, y * offset, z * offset),
+                        fixedId: fixedId, // <--- ЭТОТ ID НИКОГДА НЕ МЕНЯЕТСЯ
+                        cubieColor: faces
                     };
 
                     allCubies.push(cubie);
@@ -140,17 +148,11 @@ if (!container) {
             }
         }
 
-        // ============================
-        // 4. Свет (РАВНОМЕРНЫЙ, БЕЗ ТЕНЕЙ)
-        // ============================
         const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1.0);
         scene.add(hemiLight);
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
         scene.add(ambientLight);
 
-        // ============================
-        // 5. Вращение слоёв (ВАШ ИДЕАЛЬНЫЙ СКРАМБЛЕР)
-        // ============================
         let isAnimating = false;
 
         function getCubiesInLayer(axis, index) {
@@ -229,9 +231,6 @@ if (!container) {
             animateRotation();
         }
 
-        // ============================
-        // 6. Скрамблер и Сборщик
-        // ============================
         let scrambleMoves = [];
         let isScrambling = false;
 
@@ -311,7 +310,7 @@ if (!container) {
         }
 
         // ============================
-        // 7. Подсветка (ОРИГИНАЛЬНАЯ ЛОГИКА)
+        // ПОДСВЕТКА ПО ФИЗИЧЕСКОМУ ID
         // ============================
         let activeGlowIds = [];
 
@@ -342,35 +341,12 @@ if (!container) {
 
             activeGlowIds.forEach(id => {
                 allCubies.forEach(cubie => {
-                    const faces = cubie.userData.faces;
-                    const mats = cubie.material;
-                    const pos = cubie.position;
-                    
-                    const gx = Math.round(pos.x / offset);
-                    const gy = Math.round(pos.y / offset);
-                    const gz = Math.round(pos.z / offset);
-
-                    for (let i = 0; i < 6; i++) {
-                        if (faces[i]) {
-                            let elementX = 0, elementY = 0;
-                            
-                            if (i === 0 || i === 1) { // +X / -X
-                                elementX = gy + 1;
-                                elementY = gz + 1;
-                            } else if (i === 2 || i === 3) { // +Y / -Y
-                                elementX = gx + 1;
-                                elementY = gz + 1;
-                            } else { // +Z / -Z
-                                elementX = gx + 1;
-                                elementY = gy + 1;
-                            }
-
-                            const elementId = faces[i] + '_' + String(elementX) + '_' + String(elementY) + '_1';
-                            
-                            if (activeGlowIds.includes(elementId)) {
-                                if (glowLib[faces[i]]) {
-                                    mats[i] = glowLib[faces[i]];
-                                }
+                    if (cubie.userData.fixedId === id) {
+                        const faces = cubie.userData.faces;
+                        const mats = cubie.material;
+                        for (let i = 0; i < 6; i++) {
+                            if (faces[i] && glowLib[faces[i]]) {
+                                mats[i] = glowLib[faces[i]];
                             }
                         }
                     }
@@ -378,15 +354,9 @@ if (!container) {
             });
         }
 
-        // ============================
-        // 8. Инициализация
-        // ============================
         loadGlowFromLocalStorage();
         applyGlow();
 
-        // ============================
-        // 9. Обработчики кнопок
-        // ============================
         const btnScramble = document.getElementById('btnScramble');
         const btnSolve = document.getElementById('btnSolve');
 
@@ -427,17 +397,10 @@ if (!container) {
         });
 
         // ============================
-        // 10. КЛИКАБЕЛЬНОСТЬ (ПО ТЕКУЩИМ КООРДИНАТАМ)
+        // КЛИК ПО ФИЗИЧЕСКОМУ ID
         // ============================
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
-
-        function getGridCoords(position) {
-            const x = Math.round(position.x / offset);
-            const y = Math.round(position.y / offset);
-            const z = Math.round(position.z / offset);
-            return { x, y, z };
-        }
 
         function onMouseClick(event) {
             const rect = renderer.domElement.getBoundingClientRect();
@@ -449,8 +412,6 @@ if (!container) {
 
             if (intersects.length > 0) {
                 const clickedCubie = intersects[0].object;
-                const pos = clickedCubie.position;
-                const coords = getGridCoords(pos);
                 
                 const normal = intersects[0].face.normal.clone();
                 normal.applyQuaternion(clickedCubie.quaternion);
@@ -471,26 +432,14 @@ if (!container) {
                 const colorName = clickedCubie.userData.faces[materialIndex];
                 if (!colorName) return;
                 
-                let gx = 0, gy = 0;
-                
-                if (materialIndex === 0 || materialIndex === 1) {
-                    gx = coords.y + 1;
-                    gy = coords.z + 1;
-                } else if (materialIndex === 2 || materialIndex === 3) {
-                    gx = coords.x + 1;
-                    gy = coords.z + 1;
-                } else {
-                    gx = coords.x + 1;
-                    gy = coords.y + 1;
-                }
-                
+                const fixedId = clickedCubie.userData.fixedId;
+
                 if (window.openBookGran) {
-                    window.openBookGran(colorName + '_' + gx + '_' + gy + '_1', colorName);
+                    window.openBookGran(fixedId, colorName);
                 }
             }
         }
 
-        // Обработчик клика
         let pointerDownPos = { x: 0, y: 0 };
         let isClick = false;
 
@@ -509,9 +458,6 @@ if (!container) {
             isClick = false;
         });
 
-        // ============================
-        // 11. Рендер + обновление камеры
-        // ============================
         function render() {
             requestAnimationFrame(render);
             controls.update();
