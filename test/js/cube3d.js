@@ -133,7 +133,7 @@ if (!container) {
                         faces: faces,
                         mats: mats,
                         originalPos: new THREE.Vector3(x * offset, y * offset, z * offset),
-                        cubieColor: faces // Сохраняем массив цветов для быстрого доступа
+                        cubieColor: faces
                     };
 
                     allCubies.push(cubie);
@@ -142,22 +142,15 @@ if (!container) {
         }
 
         // ============================
-        // 4. Свет (ТОЧНО КАК В ОРИГИНАЛЕ)
+        // 4. Свет (РАВНОМЕРНЫЙ, БЕЗ ТЕНЕЙ)
         // ============================
-        const ambientLight = new THREE.AmbientLight(0x606080, 0.6);
+        // Мягкий рассеянный свет сверху и снизу
+        const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1.0);
+        scene.add(hemiLight);
+
+        // Дополнительный свет со всех сторон, чтобы убрать тени
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
         scene.add(ambientLight);
-        
-        const mainLight = new THREE.DirectionalLight(0xffffff, 0.9);
-        mainLight.position.set(2, 4, 3);
-        scene.add(mainLight);
-        
-        const fillLight = new THREE.DirectionalLight(0xffffff, 0.5);
-        fillLight.position.set(-2, 1, 2);
-        scene.add(fillLight);
-        
-        const backLight = new THREE.DirectionalLight(0xffffff, 0.2);
-        backLight.position.set(0, 1, -3);
-        scene.add(backLight);
 
         // ============================
         // 5. Вращение слоёв (ВАШ ИДЕАЛЬНЫЙ СКРАМБЛЕР)
@@ -322,7 +315,7 @@ if (!container) {
         }
 
         // ============================
-        // 7. Подсветка (НОВАЯ, ГАРАНТИРОВАННАЯ ЛОГИКА)
+        // 7. Подсветка (ПО ЦВЕТУ, БЕЗ КООРДИНАТ)
         // ============================
         let activeGlowIds = [];
 
@@ -341,7 +334,6 @@ if (!container) {
         };
 
         function applyGlow() {
-            // 1. Сбрасываем всё на обычные текстуры
             allCubies.forEach(cubie => {
                 const faces = cubie.userData.faces;
                 const mats = cubie.material;
@@ -352,20 +344,16 @@ if (!container) {
                 }
             });
 
-            // 2. Проходим по каждой сохранённой грани
             activeGlowIds.forEach(id => {
-                // Разбиваем ID на части: "red_0_0_1" -> ["red", "0", "0", "1"]
                 const parts = id.split('_');
-                const targetColor = parts[0]; // это цвет
+                const targetColor = parts[0];
                 
-                // Ищем любой кубик, у которого есть грань этого цвета
                 allCubies.forEach(cubie => {
                     const faces = cubie.userData.faces;
                     const mats = cubie.material;
 
                     for (let i = 0; i < 6; i++) {
                         if (faces[i] === targetColor) {
-                            // Если этот цвет совпадает, зажигаем свечение
                             if (glowLib[targetColor]) {
                                 mats[i] = glowLib[targetColor];
                             }
