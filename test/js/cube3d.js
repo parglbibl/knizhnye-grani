@@ -26,9 +26,6 @@ if (!container) {
     }
 
     function initCube(size) {
-        // ============================
-        // 1. Базовые настройки сцены
-        // ============================
         const scene = new THREE.Scene();
         scene.background = null;
 
@@ -53,7 +50,7 @@ if (!container) {
         scene.add(cubeGroup);
 
         // ============================
-        // 2. Текстуры и материалы
+        // Текстуры и материалы
         // ============================
         const textureLoader = new THREE.TextureLoader();
         const texturePaths = {
@@ -86,7 +83,7 @@ if (!container) {
         });
 
         // ============================
-        // 3. Создание кубиков
+        // Создание кубиков
         // ============================
         const offset = 0.685;  
         const sizeCubie = 0.675;    
@@ -103,51 +100,62 @@ if (!container) {
             white: createGlowMat('white', 0xffffff), orange: createGlowMat('orange', 0xff8c00)
         };
 
-        const allCubies = [];
+        let allCubies = [];
 
-        for (let x = -1; x <= 1; x++) {
-            for (let y = -1; y <= 1; y++) {
-                for (let z = -1; z <= 1; z++) {
-                    if (x === 0 && y === 0 && z === 0) continue;
+        function buildCubies() {
+            // Очищаем старые кубики
+            while(cubeGroup.children.length > 0) {
+                const child = cubeGroup.children[0];
+                child.geometry.dispose();
+                cubeGroup.remove(child);
+            }
+            allCubies = [];
 
-                    const isCenter = (x === 0 && y === 0) || (x === 0 && z === 0) || (y === 0 && z === 0);
-                    
-                    const faces = [
-                        x === 1 ? 'red' : (x === -1 ? 'orange' : null),
-                        x === -1 ? 'orange' : (x === 1 ? 'red' : null),
-                        y === 1 ? 'white' : (y === -1 ? 'yellow' : null),
-                        y === -1 ? 'yellow' : (y === 1 ? 'white' : null),
-                        z === 1 ? 'green' : (z === -1 ? 'blue' : null),
-                        z === -1 ? 'blue' : (z === 1 ? 'green' : null)
-                    ];
-                    const mats = faces.map(f => f ? matLib[f] : matLib['red']);
+            for (let x = -1; x <= 1; x++) {
+                for (let y = -1; y <= 1; y++) {
+                    for (let z = -1; z <= 1; z++) {
+                        if (x === 0 && y === 0 && z === 0) continue;
 
-                    const geometry = new RoundedBoxGeometry(sizeCubie, sizeCubie, sizeCubie, segments, radius);
-                    const cubie = new THREE.Mesh(geometry, mats);
-                    cubie.position.set(x * offset, y * offset, z * offset);
-                    cubeGroup.add(cubie);
+                        const isCenter = (x === 0 && y === 0) || (x === 0 && z === 0) || (y === 0 && z === 0);
+                        
+                        const faces = [
+                            x === 1 ? 'red' : (x === -1 ? 'orange' : null),
+                            x === -1 ? 'orange' : (x === 1 ? 'red' : null),
+                            y === 1 ? 'white' : (y === -1 ? 'yellow' : null),
+                            y === -1 ? 'yellow' : (y === 1 ? 'white' : null),
+                            z === 1 ? 'green' : (z === -1 ? 'blue' : null),
+                            z === -1 ? 'blue' : (z === 1 ? 'green' : null)
+                        ];
+                        const mats = faces.map(f => f ? matLib[f] : matLib['red']);
 
-                    const faceIds = faces.map((color, idx) => {
-                        if (!color) return null;
-                        return `face_${color}_${x}_${y}_${z}_${idx}`;
-                    });
+                        const geometry = new RoundedBoxGeometry(sizeCubie, sizeCubie, sizeCubie, segments, radius);
+                        const cubie = new THREE.Mesh(geometry, mats);
+                        cubie.position.set(x * offset, y * offset, z * offset);
+                        cubeGroup.add(cubie);
 
-                    cubie.userData = {
-                        isCenter: isCenter,
-                        gridX: x, gridY: y, gridZ: z,
-                        faces: faces,
-                        mats: mats,
-                        originalPos: new THREE.Vector3(x * offset, y * offset, z * offset),
-                        faceIds: faceIds
-                    };
+                        const faceIds = faces.map((color, idx) => {
+                            if (!color) return null;
+                            return `face_${color}_${x}_${y}_${z}_${idx}`;
+                        });
 
-                    allCubies.push(cubie);
+                        cubie.userData = {
+                            isCenter: isCenter,
+                            gridX: x, gridY: y, gridZ: z,
+                            faces: faces,
+                            mats: mats,
+                            faceIds: faceIds
+                        };
+
+                        allCubies.push(cubie);
+                    }
                 }
             }
         }
 
+        buildCubies();
+
         // ============================
-        // 4. Свет
+        // Свет
         // ============================
         const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1.0);
         scene.add(hemiLight);
@@ -155,7 +163,7 @@ if (!container) {
         scene.add(ambientLight);
 
         // ============================
-        // 5. Вращение слоёв (С ПЕРЕСТАНОВКОЙ НАКЛЕЕК)
+        // Анимация перемещения кубиков (без вращения)
         // ============================
         let isAnimating = false;
 
@@ -177,164 +185,72 @@ if (!container) {
             return result;
         }
 
-        // Вспомогательная функция: перестановка массивов наклеек
-        function rotateStickers(cubie, axis, angle) {
-            const faces = cubie.userData.faces;
-            const faceIds = cubie.userData.faceIds;
-            const mats = cubie.material;
-
-            // Если угол отрицательный, меняем направление перестановки
-            const direction = angle > 0 ? 1 : -1;
-            
-            // Логика перестановки для каждой оси
-            // face order: [0=+X, 1=-X, 2=+Y, 3=-Y, 4=+Z, 5=-Z]
-            
-            if (axis === 'x') {
-                // При вращении вокруг X: Y и Z меняются местами
-                // +Y -> +Z, +Z -> -Y, -Y -> -Z, -Z -> +Y
-                const newFaces = [...faces];
-                const newIds = [...faceIds];
-                const newMats = [...mats];
-                
-                if (direction === 1) { // +90 deg
-                    newFaces[2] = faces[4]; newFaces[3] = faces[5];
-                    newFaces[4] = faces[3]; newFaces[5] = faces[2];
-                    newIds[2] = faceIds[4]; newIds[3] = faceIds[5];
-                    newIds[4] = faceIds[3]; newIds[5] = faceIds[2];
-                    newMats[2] = mats[4]; newMats[3] = mats[5];
-                    newMats[4] = mats[3]; newMats[5] = mats[2];
-                } else { // -90 deg
-                    newFaces[2] = faces[5]; newFaces[3] = faces[4];
-                    newFaces[4] = faces[2]; newFaces[5] = faces[3];
-                    newIds[2] = faceIds[5]; newIds[3] = faceIds[4];
-                    newIds[4] = faceIds[2]; newIds[5] = faceIds[3];
-                    newMats[2] = mats[5]; newMats[3] = mats[4];
-                    newMats[4] = mats[2]; newMats[5] = mats[3];
-                }
-                
-                cubie.userData.faces = newFaces;
-                cubie.userData.faceIds = newIds;
-                cubie.material = newMats;
-            } 
-            else if (axis === 'y') {
-                // При вращении вокруг Y: X и Z меняются местами
-                const newFaces = [...faces];
-                const newIds = [...faceIds];
-                const newMats = [...mats];
-                
-                if (direction === 1) { // +90 deg
-                    newFaces[0] = faces[5]; newFaces[1] = faces[4];
-                    newFaces[4] = faces[0]; newFaces[5] = faces[1];
-                    newIds[0] = faceIds[5]; newIds[1] = faceIds[4];
-                    newIds[4] = faceIds[0]; newIds[5] = faceIds[1];
-                    newMats[0] = mats[5]; newMats[1] = mats[4];
-                    newMats[4] = mats[0]; newMats[5] = mats[1];
-                } else { // -90 deg
-                    newFaces[0] = faces[4]; newFaces[1] = faces[5];
-                    newFaces[4] = faces[1]; newFaces[5] = faces[0];
-                    newIds[0] = faceIds[4]; newIds[1] = faceIds[5];
-                    newIds[4] = faceIds[1]; newIds[5] = faceIds[0];
-                    newMats[0] = mats[4]; newMats[1] = mats[5];
-                    newMats[4] = mats[1]; newMats[5] = mats[0];
-                }
-                
-                cubie.userData.faces = newFaces;
-                cubie.userData.faceIds = newIds;
-                cubie.material = newMats;
-            }
-            else if (axis === 'z') {
-                // При вращении вокруг Z: X и Y меняются местами
-                const newFaces = [...faces];
-                const newIds = [...faceIds];
-                const newMats = [...mats];
-                
-                if (direction === 1) { // +90 deg
-                    newFaces[0] = faces[3]; newFaces[1] = faces[2];
-                    newFaces[2] = faces[0]; newFaces[3] = faces[1];
-                    newIds[0] = faceIds[3]; newIds[1] = faceIds[2];
-                    newIds[2] = faceIds[0]; newIds[3] = faceIds[1];
-                    newMats[0] = mats[3]; newMats[1] = mats[2];
-                    newMats[2] = mats[0]; newMats[3] = mats[1];
-                } else { // -90 deg
-                    newFaces[0] = faces[2]; newFaces[1] = faces[3];
-                    newFaces[2] = faces[1]; newFaces[3] = faces[0];
-                    newIds[0] = faceIds[2]; newIds[1] = faceIds[3];
-                    newIds[2] = faceIds[1]; newIds[3] = faceIds[0];
-                    newMats[0] = mats[2]; newMats[1] = mats[3];
-                    newMats[2] = mats[1]; newMats[3] = mats[0];
-                }
-                
-                cubie.userData.faces = newFaces;
-                cubie.userData.faceIds = newIds;
-                cubie.material = newMats;
-            }
-        }
-
         function rotateLayer(axis, index, angle, duration, callback) {
             const cubies = getCubiesInLayer(axis, index);
             if (cubies.length === 0) { if (callback) callback(); return; }
 
-            const tempGroup = new THREE.Group();
-            scene.add(tempGroup);
-
-            cubies.forEach(cubie => {
-                const worldPos = new THREE.Vector3();
-                const worldQuat = new THREE.Quaternion();
-                cubie.getWorldPosition(worldPos);
-                cubie.getWorldQuaternion(worldQuat);
-                scene.remove(cubie);
-                tempGroup.add(cubie);
-                cubie.position.copy(worldPos);
-                cubie.quaternion.copy(worldQuat);
+            // Вычисляем новые координаты
+            const newPositions = cubies.map(cubie => {
+                const pos = cubie.position.clone();
+                const gx = Math.round(pos.x / offset);
+                const gy = Math.round(pos.y / offset);
+                const gz = Math.round(pos.z / offset);
+                
+                let newX = gx, newY = gy, newZ = gz;
+                
+                // Поворот координат на 90 градусов
+                const cos = Math.round(Math.cos(angle));
+                const sin = Math.round(Math.sin(angle));
+                
+                if (axis === 'x') {
+                    newY = gy * cos - gz * sin;
+                    newZ = gy * sin + gz * cos;
+                } else if (axis === 'y') {
+                    newX = gx * cos + gz * sin;
+                    newZ = -gx * sin + gz * cos;
+                } else if (axis === 'z') {
+                    newX = gx * cos - gy * sin;
+                    newY = gx * sin + gy * cos;
+                }
+                
+                return {
+                    cubie: cubie,
+                    startPos: pos.clone(),
+                    endPos: new THREE.Vector3(newX * offset, newY * offset, newZ * offset),
+                    startRot: cubie.quaternion.clone(),
+                    endRot: new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(axis === 'x' ? 1 : 0, axis === 'y' ? 1 : 0, axis === 'z' ? 1 : 0), angle).multiply(cubie.quaternion.clone())
+                };
             });
 
-            const rotAxis = new THREE.Vector3(axis === 'x' ? 1 : 0, axis === 'y' ? 1 : 0, axis === 'z' ? 1 : 0);
-            
             const startTime = Date.now();
-            const startQuat = tempGroup.quaternion.clone();
-            const endQuat = new THREE.Quaternion().setFromAxisAngle(rotAxis, angle);
-            endQuat.multiply(startQuat);
 
-            function animateRotation() {
+            function animateMove() {
                 const elapsed = Date.now() - startTime;
                 const t = Math.min(elapsed / duration, 1);
                 const ease = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
-                tempGroup.quaternion.slerpQuaternions(startQuat, endQuat, ease);
+
+                newPositions.forEach(item => {
+                    item.cubie.position.lerpVectors(item.startPos, item.endPos, ease);
+                    item.cubie.quaternion.slerpQuaternions(item.startRot, item.endRot, ease);
+                });
 
                 if (t < 1) {
-                    requestAnimationFrame(animateRotation);
+                    requestAnimationFrame(animateMove);
                 } else {
-                    tempGroup.quaternion.copy(endQuat);
-                    tempGroup.updateMatrixWorld(true);
-
-                    const children = tempGroup.children.slice();
-                    children.forEach(cubie => {
-                        const worldPos = new THREE.Vector3();
-                        const worldQuat = new THREE.Quaternion();
-                        cubie.getWorldPosition(worldPos);
-                        cubie.getWorldQuaternion(worldQuat);
-                        tempGroup.remove(cubie);
-                        scene.add(cubie);
-                        cubie.position.copy(worldPos);
-                        cubie.quaternion.copy(worldQuat);
+                    newPositions.forEach(item => {
+                        item.cubie.position.copy(item.endPos);
+                        item.cubie.quaternion.copy(item.endRot);
                     });
-                    scene.remove(tempGroup);
-
-                    // ПЕРЕСТАВЛЯЕМ НАКЛЕЙКИ ПОСЛЕ ПОВОРОТА
-                    cubies.forEach(cubie => {
-                        rotateStickers(cubie, axis, angle);
-                    });
-
+                    
                     updateCubeGlow();
-
                     if (callback) callback();
                 }
             }
-            animateRotation();
+            animateMove();
         }
 
         // ============================
-        // 6. Скрамблер и Сборщик
+        // Скрамблер и Сборщик
         // ============================
         let scrambleMoves = [];
         let isScrambling = false;
@@ -415,7 +331,7 @@ if (!container) {
         }
 
         // ============================
-        // 7. Подсветка
+        // Подсветка
         // ============================
         let activeGlowIds = [];
 
@@ -465,7 +381,7 @@ if (!container) {
         applyGlow();
 
         // ============================
-        // 8. Обработчики кнопок
+        // Обработчики кнопок
         // ============================
         const btnScramble = document.getElementById('btnScramble');
         const btnSolve = document.getElementById('btnSolve');
@@ -507,7 +423,7 @@ if (!container) {
         });
 
         // ============================
-        // 9. КЛИКАБЕЛЬНОСТЬ
+        // Кликабельность
         // ============================
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
@@ -569,7 +485,7 @@ if (!container) {
         });
 
         // ============================
-        // 10. Рендер
+        // Рендер
         // ============================
         function render() {
             requestAnimationFrame(render);
