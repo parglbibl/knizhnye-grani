@@ -33,7 +33,6 @@ if (!container) {
         camera.position.set(3.5, 2.5, 4.5);
         camera.lookAt(0, 0, 0);
 
-        // === ПРАВКА 1: Добавляем камеру в сцену ===
         scene.add(camera);
 
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -151,21 +150,20 @@ if (!container) {
         buildCubies();
 
         // ============================
-        // ========= ОСВЕЩЕНИЕ (ПРИВЯЗАНО К КАМЕРЕ) =========
+        // ========= ОСВЕЩЕНИЕ (ПРИВЯЗАНО К КАМЕРЕ, ПРИГЛУШЕННОЕ) =========
         // ============================
         const ambientLight = new THREE.AmbientLight(0x606080, 0.6);
         scene.add(ambientLight);
 
-        // === ПРАВКА 2: Добавляем свет в камеру, а не в сцену ===
-        const mainLight = new THREE.DirectionalLight(0xffffff, 0.9);
+        const mainLight = new THREE.DirectionalLight(0xffffff, 0.45);
         mainLight.position.set(2, 4, 3);
         camera.add(mainLight);
 
-        const fillLight = new THREE.DirectionalLight(0xffffff, 0.5);
+        const fillLight = new THREE.DirectionalLight(0xffffff, 0.3);
         fillLight.position.set(-2, 1, 2);
         camera.add(fillLight);
 
-        const backLight = new THREE.DirectionalLight(0xffffff, 0.2);
+        const backLight = new THREE.DirectionalLight(0xffffff, 0.1);
         backLight.position.set(0, 1, -3);
         camera.add(backLight);
 
