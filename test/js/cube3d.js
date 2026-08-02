@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 
 const container = document.getElementById('cube-container');
@@ -37,6 +38,13 @@ if (!container) {
         renderer.setSize(size, size);
         renderer.setClearColor(0x000000, 0);
         container.appendChild(renderer.domElement);
+
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.1;
+        controls.enableZoom = false;
+        controls.rotateSpeed = 1.0;
+        controls.target.set(0, 0, 0);
 
         const cubeGroup = new THREE.Group();
         scene.add(cubeGroup);
@@ -140,7 +148,7 @@ if (!container) {
         buildCubies();
 
         // ============================
-        // ========= СВЕТ (ВОЗВРАЩЁН В ОРИГИНАЛ) =========
+        // ========= СВЕТ (ТОЧНО КАК В ОРИГИНАЛЕ) =========
         // ============================
         const ambientLight = new THREE.AmbientLight(0x606080, 0.6);
         scene.add(ambientLight);
@@ -158,7 +166,7 @@ if (!container) {
         scene.add(backLight);
 
         // ============================
-        // ВРАЩЕНИЕ СЛОЁВ (ТВОЁ РАБОЧЕЕ)
+        // Вращение слоёв
         // ============================
         let isAnimating = false;
 
@@ -482,8 +490,9 @@ if (!container) {
         applyGlow();
 
         function render() {
-            renderer.render(scene, camera);
             requestAnimationFrame(render);
+            controls.update();
+            renderer.render(scene, camera);
         }
         render();
 
