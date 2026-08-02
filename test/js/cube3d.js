@@ -147,11 +147,31 @@ if (!container) {
 
         buildCubies();
 
-        const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1.0);
-        scene.add(hemiLight);
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+        // ============================
+        // СВЕТ (ЯРКИЙ, КАК НА ВТОРОМ СКРИНШОТЕ)
+        // ============================
+        // Усиленный общий свет
+        const ambientLight = new THREE.AmbientLight(0xffffff, 1.0); 
         scene.add(ambientLight);
 
+        // Главный свет слева сверху для объёма и бликов
+        const mainLight = new THREE.DirectionalLight(0xffffff, 1.2);
+        mainLight.position.set(2, 5, 3);
+        scene.add(mainLight);
+
+        // Дополнительный свет справа снизу, чтобы убрать тёмные пятна
+        const fillLight = new THREE.DirectionalLight(0xffffff, 0.6);
+        fillLight.position.set(-3, 1, 2);
+        scene.add(fillLight);
+
+        // Контровый свет сзади для подсветки рёбер
+        const backLight = new THREE.DirectionalLight(0xffffff, 0.4);
+        backLight.position.set(0, 2, -5);
+        scene.add(backLight);
+
+        // ============================
+        // ВРАЩЕНИЕ СЛОЁВ
+        // ============================
         let isAnimating = false;
 
         function getCubiesInLayer(axis, index) {
@@ -243,7 +263,6 @@ if (!container) {
 
         let scrambleMoves = [];
         let isScrambling = false;
-        // Флаг полной блокировки кликов
         let isBlocked = false; 
 
         function generateScramble(length = 23) {
@@ -327,7 +346,7 @@ if (!container) {
         btnScramble.addEventListener('click', function() {
             if (isScrambling || isAnimating || isBlocked) return;
             
-            isBlocked = true; // Блокируем клики
+            isBlocked = true;
             isScrambling = true;
             btnScramble.style.display = 'none';
             btnSolve.style.display = 'inline-block';
@@ -360,12 +379,12 @@ if (!container) {
                 scrambleMoves = [];
                 updateCubeGlow();
                 
-                isBlocked = false; // РАЗБЛОКИРУЕМ КЛИКИ ПОСЛЕ СБОРКИ
+                isBlocked = false;
             });
         });
 
         // ============================
-        // ОБРАБОТЧИК КЛИКА (с защитой isBlocked)
+        // ОБРАБОТЧИК КЛИКА
         // ============================
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
@@ -418,7 +437,6 @@ if (!container) {
         renderer.domElement.addEventListener('pointerup', (e) => {
             const dx = e.clientX - pointerDownPos.x;
             const dy = e.clientY - pointerDownPos.y;
-            // ЕСЛИ isBlocked === true, КЛИК НЕ СРАБОТАЕТ
             if (Math.abs(dx) < 10 && Math.abs(dy) < 10 && isClick && !isBlocked) {
                 onMouseClick(e);
             }
