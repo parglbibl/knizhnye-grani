@@ -42,7 +42,7 @@ if (!container) {
         const controls = new OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.dampingFactor = 0.1;
-        controls.enableZoom = false;
+        controls.enableZoom = true;
         controls.rotateSpeed = 1.0;
         controls.target.set(0, 0, 0);
 
@@ -166,7 +166,7 @@ if (!container) {
         scene.add(backLight);
 
         // ============================
-        // Вращение слоёв
+        // Вращение слоёв (с блокировкой)
         // ============================
         let isAnimating = false;
 
