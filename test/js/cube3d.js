@@ -44,7 +44,7 @@ if (!container) {
         const controls = new OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.dampingFactor = 0.1;
-        controls.enableZoom = true; // ===== ЗУМ ВКЛЮЧЁН =====
+        controls.enableZoom = true;
         controls.rotateSpeed = 1.0;
         controls.target.set(0, 0, 0);
 
@@ -97,7 +97,7 @@ if (!container) {
             blue: createGlowMat('blue', 0x0051ba, 0.12),
             yellow: createGlowMat('yellow', 0xffd700, 0.12),
             green: createGlowMat('green', 0x009e60, 0.12),
-            white: createGlowMat('white', 0xffffff, 0.04), // Белая грань — очень мягко
+            white: createGlowMat('white', 0xffffff, 0.04),
             orange: createGlowMat('orange', 0xff8c00, 0.12)
         };
 
@@ -155,7 +155,7 @@ if (!container) {
         buildCubies();
 
         // ============================
-        // ========= ОСВЕЩЕНИЕ (ПРИВЯЗАНО К КАМЕРЕ, ПРИГЛУШЕННОЕ) =========
+        // ========= ОСВЕЩЕНИЕ =========
         // ============================
         const ambientLight = new THREE.AmbientLight(0x606080, 0.6);
         scene.add(ambientLight);
@@ -387,10 +387,25 @@ if (!container) {
         });
 
         // ============================
-        // ОБРАБОТЧИК КЛИКА
+        // ===== ТОЧНАЯ ЛОГИКА КЛИКА (ИЗ ОРИГИНАЛА) =====
         // ============================
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
+
+        function getGridCoords(position) {
+            const x = Math.round(position.x / offset);
+            const y = Math.round(position.y / offset);
+            const z = Math.round(position.z / offset);
+            return { x, y, z };
+        }
+
+        function openGran(colorName, gx, gy) {
+            gx = Math.min(2, Math.max(0, gx));
+            gy = Math.min(2, Math.max(0, gy));
+            if (window.openBookGran) {
+                window.openBookGran(colorName, gx, gy);
+            }
+        }
 
         function onMouseClick(event) {
             const rect = renderer.domElement.getBoundingClientRect();
@@ -402,6 +417,8 @@ if (!container) {
 
             if (intersects.length > 0) {
                 const clickedCubie = intersects[0].object;
+                const pos = clickedCubie.position;
+                const coords = getGridCoords(pos);
                 
                 const normal = intersects[0].face.normal.clone();
                 normal.applyQuaternion(clickedCubie.quaternion);
@@ -421,30 +438,121 @@ if (!container) {
 
                 const colorName = clickedCubie.userData.faces[materialIndex];
                 if (!colorName) return;
-
-                if (window.openBookGran) {
-                    window.openBookGran(colorName);
+                
+                let gx = 0, gy = 0;
+                
+                if (materialIndex === 0 || materialIndex === 1) {
+                    gx = coords.y + 1;
+                    gy = coords.z + 1;
+                } else if (materialIndex === 2 || materialIndex === 3) {
+                    gx = coords.x + 1;
+                    gy = coords.z + 1;
+                } else {
+                    gx = coords.x + 1;
+                    gy = coords.y + 1;
                 }
+                
+                openGran(colorName, gx, gy);
             }
         }
 
-        let pointerDownPos = { x: 0, y: 0 };
-        let isClick = false;
+        // ============================
+        // ОБРАБОТЧИКИ МЫШИ (ПК)
+        // ============================
+        let isDragging = false;
+        let startX = 0, startY = 0;
+        let lastX = 0, lastY = 0;
 
-        renderer.domElement.addEventListener('pointerdown', (e) => {
-            pointerDownPos.x = e.clientX;
-            pointerDownPos.y = e.clientY;
-            isClick = true;
-        });
+        function getXY(e) {
+            if (e.touches) {
+                return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+            }
+            return { x: e.clientX, y: e.clientY };
+        }
 
-        renderer.domElement.addEventListener('pointerup', (e) => {
-            const dx = e.clientX - pointerDownPos.x;
-            const dy = e.clientY - pointerDownPos.y;
-            if (Math.abs(dx) < 10 && Math.abs(dy) < 10 && isClick && !isBlocked) {
+        function onMouseDown(e) {
+            const coords = getXY(e);
+            isDragging = true;
+            startX = coords.x;
+            startY = coords.y;
+            lastX = coords.x;
+            lastY = coords.y;
+            renderer.domElement.style.cursor = 'grabbing';
+        }
+
+        function onMouseMove(e) {
+            if (!isDragging) return;
+            const coords = getXY(e);
+            const deltaX = coords.x - lastX;
+            const deltaY = coords.y - lastY;
+            if (deltaX !== 0 || deltaY !== 0) {
+                const axis = new THREE.Vector3(deltaY, deltaX, 0).normalize();
+                const angle = Math.sqrt(deltaX * deltaX + deltaY * deltaY) * 0.008;
+                const quaternion = new THREE.Quaternion().setFromAxisAngle(axis, angle);
+                cubeGroup.quaternion.multiply(quaternion);
+                lastX = coords.x;
+                lastY = coords.y;
+            }
+        }
+
+        function onMouseUp(e) {
+            isDragging = false;
+            renderer.domElement.style.cursor = 'pointer';
+            const coords = getXY(e);
+            const dx = Math.abs(coords.x - startX);
+            const dy = Math.abs(coords.y - startY);
+            if (dx < 6 && dy < 6) {
                 onMouseClick(e);
             }
-            isClick = false;
-        });
+        }
+
+        renderer.domElement.addEventListener('mousedown', onMouseDown);
+        window.addEventListener('mousemove', onMouseMove);
+        window.addEventListener('mouseup', onMouseUp);
+
+        // ============================
+        // ОБРАБОТЧИКИ ТАЧА (ТЕЛЕФОН)
+        // ============================
+        let touchStartX = 0, touchStartY = 0;
+        let touchLastX = 0, touchLastY = 0;
+        let touchMoved = false;
+
+        function onTouchStart(e) {
+            const touch = e.touches[0];
+            touchStartX = touch.clientX;
+            touchStartY = touch.clientY;
+            touchLastX = touch.clientX;
+            touchLastY = touch.clientY;
+            touchMoved = false;
+        }
+
+        function onTouchMove(e) {
+            const touch = e.touches[0];
+            const deltaX = touch.clientX - touchLastX;
+            const deltaY = touch.clientY - touchLastY;
+            if (deltaX !== 0 || deltaY !== 0) {
+                touchMoved = true;
+                const axis = new THREE.Vector3(deltaY, deltaX, 0).normalize();
+                const angle = Math.sqrt(deltaX * deltaX + deltaY * deltaY) * 0.008;
+                const quaternion = new THREE.Quaternion().setFromAxisAngle(axis, angle);
+                cubeGroup.quaternion.multiply(quaternion);
+                touchLastX = touch.clientX;
+                touchLastY = touch.clientY;
+            }
+        }
+
+        function onTouchEnd(e) {
+            const touch = e.changedTouches[0];
+            const dx = Math.abs(touch.clientX - touchStartX);
+            const dy = Math.abs(touch.clientY - touchStartY);
+            if (dx < 10 && dy < 10 && !touchMoved) {
+                onMouseClick(e);
+            }
+        }
+
+        renderer.domElement.addEventListener('touchstart', onTouchStart, { passive: false });
+        renderer.domElement.addEventListener('touchmove', onTouchMove, { passive: false });
+        renderer.domElement.addEventListener('touchend', onTouchEnd, { passive: true });
 
         // ============================
         // ПОДСВЕТКА
