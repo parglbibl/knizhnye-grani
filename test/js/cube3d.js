@@ -33,6 +33,9 @@ if (!container) {
         camera.position.set(3.5, 2.5, 4.5);
         camera.lookAt(0, 0, 0);
 
+        // Камера в сцену для привязки света
+        scene.add(camera);
+
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         renderer.setSize(size, size);
@@ -42,8 +45,8 @@ if (!container) {
         const controls = new OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.dampingFactor = 0.1;
-        controls.enableZoom = false;
-        controls.rotateSpeed = 1.0;
+        controls.enableZoom = true; // ВЗЯТО ИЗ ТВОЕГО КОДА
+        controls.rotateSpeed = 1.0; // ВЗЯТО ИЗ ТВОЕГО КОДА
         controls.target.set(0, 0, 0);
 
         const cubeGroup = new THREE.Group();
@@ -75,8 +78,10 @@ if (!container) {
             orange: loadTexture(texturePaths.orange)
         };
         const createMat = (color) => new THREE.MeshStandardMaterial({ map: textures[color], ...matConfig });
-        const createGlowMat = (color, emissiveHex) => new THREE.MeshStandardMaterial({ 
-            map: textures[color], roughness: 0.3, metalness: 0.2, emissive: emissiveHex, emissiveIntensity: 0.25 
+        
+        // МЯГКАЯ ПОДСВЕТКА (белая 0.04, остальные 0.12)
+        const createGlowMat = (color, emissiveHex, intensity) => new THREE.MeshStandardMaterial({ 
+            map: textures[color], roughness: 0.3, metalness: 0.2, emissive: emissiveHex, emissiveIntensity: intensity 
         });
 
         const offset = 0.685;  
@@ -88,10 +93,14 @@ if (!container) {
             red: createMat('red'), blue: createMat('blue'), yellow: createMat('yellow'),
             green: createMat('green'), white: createMat('white'), orange: createMat('orange')
         };
+        
         const glowLib = {
-            red: createGlowMat('red', 0xc41e3a), blue: createGlowMat('blue', 0x0051ba),
-            yellow: createGlowMat('yellow', 0xffd700), green: createGlowMat('green', 0x009e60),
-            white: createGlowMat('white', 0xffffff), orange: createGlowMat('orange', 0xff8c00)
+            red: createGlowMat('red', 0xc41e3a, 0.12),
+            blue: createGlowMat('blue', 0x0051ba, 0.12),
+            yellow: createGlowMat('yellow', 0xffd700, 0.12),
+            green: createGlowMat('green', 0x009e60, 0.12),
+            white: createGlowMat('white', 0xffffff, 0.04),
+            orange: createGlowMat('orange', 0xff8c00, 0.12)
         };
 
         let allCubies = [];
@@ -148,25 +157,25 @@ if (!container) {
         buildCubies();
 
         // ============================
-        // ========= СВЕТ (ТОЧНО КАК В ОРИГИНАЛЕ) =========
+        // ========= ОСВЕЩЕНИЕ (ТВОЁ ИДЕАЛЬНОЕ, ПРИВЯЗАННОЕ К КАМЕРЕ) =========
         // ============================
         const ambientLight = new THREE.AmbientLight(0x606080, 0.6);
         scene.add(ambientLight);
-        
-        const mainLight = new THREE.DirectionalLight(0xffffff, 0.9);
+
+        const mainLight = new THREE.DirectionalLight(0xffffff, 0.45);
         mainLight.position.set(2, 4, 3);
-        scene.add(mainLight);
-        
-        const fillLight = new THREE.DirectionalLight(0xffffff, 0.5);
+        camera.add(mainLight);
+
+        const fillLight = new THREE.DirectionalLight(0xffffff, 0.3);
         fillLight.position.set(-2, 1, 2);
-        scene.add(fillLight);
-        
-        const backLight = new THREE.DirectionalLight(0xffffff, 0.2);
+        camera.add(fillLight);
+
+        const backLight = new THREE.DirectionalLight(0xffffff, 0.1);
         backLight.position.set(0, 1, -3);
-        scene.add(backLight);
+        camera.add(backLight);
 
         // ============================
-        // Вращение слоёв (с блокировкой)
+        // СКРАМБЛЕР
         // ============================
         let isAnimating = false;
 
@@ -380,7 +389,7 @@ if (!container) {
         });
 
         // ============================
-        // ОБРАБОТЧИК КЛИКА
+        // ОБРАБОТЧИК КЛИКА (ИЗ ТВОЕГО КОДА)
         // ============================
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
@@ -490,31 +499,11 @@ if (!container) {
         applyGlow();
 
         // ============================
-        // РУЧНАЯ БЛОКИРОВКА ВЕРТИКАЛИ (встроена в render)
+        // ЦИКЛ РЕНДЕРА
         // ============================
-        let verticalLimit = 0.2; // насколько близко к полюсу можно подойти
-
         function render() {
             requestAnimationFrame(render);
             controls.update();
-
-            const angle = controls.getPolarAngle();
-
-            // Если угол слишком близок к 0 (белая грань) — стопорим
-            if (angle < verticalLimit) {
-                const newPos = camera.position.clone();
-                newPos.y = verticalLimit * 4.5; // принудительная высота
-                camera.position.copy(newPos);
-                controls.update();
-            }
-            // Если угол слишком близок к PI (жёлтая грань) — стопорим
-            else if (angle > Math.PI - verticalLimit) {
-                const newPos = camera.position.clone();
-                newPos.y = -verticalLimit * 4.5;
-                camera.position.copy(newPos);
-                controls.update();
-            }
-
             renderer.render(scene, camera);
         }
         render();
