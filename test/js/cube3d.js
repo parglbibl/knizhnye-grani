@@ -65,7 +65,7 @@ if (!container) {
             return tex;
         };
 
-        const matConfig = { roughness: 0.65, metalness: 0.02 };
+        const matConfig = { roughness: 0.9, metalness: 0.0 };
         const textures = {
             red: loadTexture(texturePaths.red),
             blue: loadTexture(texturePaths.blue),
@@ -75,6 +75,9 @@ if (!container) {
             orange: loadTexture(texturePaths.orange)
         };
         const createMat = (color) => new THREE.MeshStandardMaterial({ map: textures[color], ...matConfig });
+        const createGlowMat = (color, emissiveHex) => new THREE.MeshStandardMaterial({ 
+            map: textures[color], roughness: 0.3, metalness: 0.2, emissive: emissiveHex, emissiveIntensity: 0.12 
+        });
 
         const offset = 0.685;  
         const sizeCubie = 0.675;    
@@ -84,6 +87,11 @@ if (!container) {
         const matLib = {
             red: createMat('red'), blue: createMat('blue'), yellow: createMat('yellow'),
             green: createMat('green'), white: createMat('white'), orange: createMat('orange')
+        };
+        const glowLib = {
+            red: createGlowMat('red', 0xc41e3a), blue: createGlowMat('blue', 0x0051ba),
+            yellow: createGlowMat('yellow', 0xffd700), green: createGlowMat('green', 0x009e60),
+            white: createGlowMat('white', 0xffffff), orange: createGlowMat('orange', 0xff8c00)
         };
 
         let allCubies = [];
@@ -101,6 +109,8 @@ if (!container) {
                     for (let z = -1; z <= 1; z++) {
                         if (x === 0 && y === 0 && z === 0) continue;
 
+                        const isCenter = (x === 0 && y === 0) || (x === 0 && z === 0) || (y === 0 && z === 0);
+                        
                         const faces = [
                             x === 1 ? 'red' : (x === -1 ? 'orange' : null),
                             x === -1 ? 'orange' : (x === 1 ? 'red' : null),
@@ -122,6 +132,7 @@ if (!container) {
                         });
 
                         cubie.userData = {
+                            isCenter: isCenter,
                             gridX: x, gridY: y, gridZ: z,
                             faces: faces,
                             mats: mats,
@@ -137,7 +148,7 @@ if (!container) {
         buildCubies();
 
         // ============================
-        // ========= ОСВЕЩЕНИЕ (ОРИГИНАЛЬНОЕ) =========
+        // ========= ОСВЕЩЕНИЕ (ТОЧНО КАК НА СКРИНШОТАХ) =========
         // ============================
         const ambientLight = new THREE.AmbientLight(0x606080, 0.6);
         scene.add(ambientLight);
@@ -153,67 +164,6 @@ if (!container) {
         const backLight = new THREE.DirectionalLight(0xffffff, 0.2);
         backLight.position.set(0, 1, -3);
         scene.add(backLight);
-
-        // ============================
-        // ===== ДИНАМИЧЕСКАЯ ПОДСВЕТКА ВИДИМОЙ ГРАНИ =====
-        // ============================
-        const raycaster = new THREE.Raycaster();
-        const mouse = new THREE.Vector2();
-        let currentHighlighted = null;
-
-        function highlightVisibleFace() {
-            // Сбрасываем подсветку у всех граней
-            allCubies.forEach(cubie => {
-                const mats = cubie.material;
-                for (let i = 0; i < 6; i++) {
-                    if (mats[i]) {
-                        mats[i].emissive.setHex(0x000000);
-                        mats[i].emissiveIntensity = 0;
-                    }
-                }
-            });
-
-            // Проверяем, какая грань сейчас смотрит на камеру (по центру экрана)
-            const centerX = 0;
-            const centerY = 0;
-            mouse.set(centerX, centerY);
-            raycaster.setFromCamera(mouse, camera);
-            const intersects = raycaster.intersectObjects(allCubies);
-
-            if (intersects.length > 0) {
-                const hit = intersects[0];
-                const cubie = hit.object;
-                const normal = hit.face.normal.clone().applyQuaternion(cubie.quaternion);
-                
-                let matIndex = 0;
-                const nx = Math.round(normal.x);
-                const ny = Math.round(normal.y);
-                const nz = Math.round(normal.z);
-                
-                if (nx === 1) matIndex = 0;
-                else if (nx === -1) matIndex = 1;
-                else if (ny === 1) matIndex = 2;
-                else if (ny === -1) matIndex = 3;
-                else if (nz === 1) matIndex = 4;
-                else if (nz === -1) matIndex = 5;
-                
-                const colorName = cubie.userData.faces[matIndex];
-                if (colorName) {
-                    const colorMap = {
-                        'red': 0xc41e3a,
-                        'blue': 0x0051ba,
-                        'yellow': 0xffd700,
-                        'green': 0x009e60,
-                        'white': 0xffffff,
-                        'orange': 0xff8c00
-                    };
-                    // МЯГКОЕ свечение видимой грани
-                    cubie.material[matIndex].emissive.setHex(colorMap[colorName]);
-                    cubie.material[matIndex].emissiveIntensity = 0.12;
-                    currentHighlighted = { cubie, matIndex };
-                }
-            }
-        }
 
         // ============================
         // Вращение слоёв (скрамблер)
@@ -299,6 +249,7 @@ if (!container) {
                         item.cubie.quaternion.copy(item.endRot);
                     });
                     
+                    updateCubeGlow();
                     isAnimating = false;
                     if (callback) callback();
                 }
@@ -402,7 +353,7 @@ if (!container) {
 
             executeMoveSequence(moves, durationPerMove, () => {
                 isScrambling = false;
-                highlightVisibleFace();
+                updateCubeGlow();
             });
         });
 
@@ -422,14 +373,18 @@ if (!container) {
             executeMoveSequence(reverseMoves, durationPerMove, () => {
                 isScrambling = false;
                 scrambleMoves = [];
-                highlightVisibleFace();
+                updateCubeGlow();
+                
                 isBlocked = false;
             });
         });
 
         // ============================
-        // КЛИК ПО ГРАНИ (ДЛЯ ОТКРЫТИЯ ПОПАПА)
+        // ОБРАБОТЧИК КЛИКА
         // ============================
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+
         function onMouseClick(event) {
             const rect = renderer.domElement.getBoundingClientRect();
             mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
@@ -440,15 +395,27 @@ if (!container) {
 
             if (intersects.length > 0) {
                 const clickedCubie = intersects[0].object;
-                const normal = intersects[0].face.normal.clone().applyQuaternion(clickedCubie.quaternion);
-                let matIndex = 0;
-                const nx = Math.round(normal.x), ny = Math.round(normal.y), nz = Math.round(normal.z);
-                if (nx === 1) matIndex = 0; else if (nx === -1) matIndex = 1;
-                else if (ny === 1) matIndex = 2; else if (ny === -1) matIndex = 3;
-                else if (nz === 1) matIndex = 4; else if (nz === -1) matIndex = 5;
                 
-                const colorName = clickedCubie.userData.faces[matIndex];
-                if (colorName && window.openBookGran) {
+                const normal = intersects[0].face.normal.clone();
+                normal.applyQuaternion(clickedCubie.quaternion);
+                
+                let materialIndex = 0;
+                const nx = Math.round(normal.x);
+                const ny = Math.round(normal.y);
+                const nz = Math.round(normal.z);
+                
+                if (nx === 1) materialIndex = 0;
+                else if (nx === -1) materialIndex = 1;
+                else if (ny === 1) materialIndex = 2;
+                else if (ny === -1) materialIndex = 3;
+                else if (nz === 1) materialIndex = 4;
+                else if (nz === -1) materialIndex = 5;
+                else materialIndex = 0;
+
+                const colorName = clickedCubie.userData.faces[materialIndex];
+                if (!colorName) return;
+
+                if (window.openBookGran) {
                     window.openBookGran(colorName);
                 }
             }
@@ -456,23 +423,78 @@ if (!container) {
 
         let pointerDownPos = { x: 0, y: 0 };
         let isClick = false;
+
         renderer.domElement.addEventListener('pointerdown', (e) => {
-            pointerDownPos.x = e.clientX; pointerDownPos.y = e.clientY; isClick = true;
+            pointerDownPos.x = e.clientX;
+            pointerDownPos.y = e.clientY;
+            isClick = true;
         });
+
         renderer.domElement.addEventListener('pointerup', (e) => {
-            const dx = e.clientX - pointerDownPos.x, dy = e.clientY - pointerDownPos.y;
-            if (Math.abs(dx) < 10 && Math.abs(dy) < 10 && isClick && !isBlocked) onMouseClick(e);
+            const dx = e.clientX - pointerDownPos.x;
+            const dy = e.clientY - pointerDownPos.y;
+            if (Math.abs(dx) < 10 && Math.abs(dy) < 10 && isClick && !isBlocked) {
+                onMouseClick(e);
+            }
             isClick = false;
         });
 
         // ============================
-        // ОСНОВНОЙ ЦИКЛ
+        // ПОДСВЕТКА (МЯГКАЯ, 0.12)
+        // ============================
+        let activeGlowIds = [];
+
+        function loadGlowFromLocalStorage() {
+            try {
+                const data = JSON.parse(localStorage.getItem('myGranProgress') || '[]');
+                activeGlowIds = data;
+            } catch (e) {
+                activeGlowIds = [];
+            }
+        }
+
+        window.updateCubeGlow = function() {
+            loadGlowFromLocalStorage();
+            applyGlow();
+        };
+
+        function applyGlow() {
+            allCubies.forEach(cubie => {
+                const faces = cubie.userData.faces;
+                const mats = cubie.material;
+                for (let i = 0; i < 6; i++) {
+                    if (faces[i]) {
+                        mats[i] = matLib[faces[i]];
+                    }
+                }
+            });
+
+            activeGlowIds.forEach(glowId => {
+                allCubies.forEach(cubie => {
+                    const faceIds = cubie.userData.faceIds;
+                    const faces = cubie.userData.faces;
+                    const mats = cubie.material;
+                    
+                    for (let i = 0; i < 6; i++) {
+                        if (faceIds[i] === glowId) {
+                            if (faces[i] && glowLib[faces[i]]) {
+                                mats[i] = glowLib[faces[i]];
+                            }
+                        }
+                    }
+                });
+            });
+        }
+
+        loadGlowFromLocalStorage();
+        applyGlow();
+
+        // ============================
+        // ЦИКЛ РЕНДЕРА
         // ============================
         function render() {
             requestAnimationFrame(render);
             controls.update();
-            // Каждый кадр проверяем, какая грань видна, и мягко подсвечиваем её
-            highlightVisibleFace();
             renderer.render(scene, camera);
         }
         render();
