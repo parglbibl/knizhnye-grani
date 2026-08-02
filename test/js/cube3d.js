@@ -148,25 +148,21 @@ if (!container) {
         buildCubies();
 
         // ============================
-        // СВЕТ (ЯРКИЙ, КАК НА ВТОРОМ СКРИНШОТЕ)
+        // СВЕТ (В ТОЧНОСТИ КАК В ОРИГИНАЛЕ)
         // ============================
-        // Усиленный общий свет
-        const ambientLight = new THREE.AmbientLight(0xffffff, 1.0); 
+        const ambientLight = new THREE.AmbientLight(0x606080, 0.6);
         scene.add(ambientLight);
-
-        // Главный свет слева сверху для объёма и бликов
-        const mainLight = new THREE.DirectionalLight(0xffffff, 1.2);
-        mainLight.position.set(2, 5, 3);
+        
+        const mainLight = new THREE.DirectionalLight(0xffffff, 0.9);
+        mainLight.position.set(2, 4, 3);
         scene.add(mainLight);
-
-        // Дополнительный свет справа снизу, чтобы убрать тёмные пятна
-        const fillLight = new THREE.DirectionalLight(0xffffff, 0.6);
-        fillLight.position.set(-3, 1, 2);
+        
+        const fillLight = new THREE.DirectionalLight(0xffffff, 0.5);
+        fillLight.position.set(-2, 1, 2);
         scene.add(fillLight);
-
-        // Контровый свет сзади для подсветки рёбер
-        const backLight = new THREE.DirectionalLight(0xffffff, 0.4);
-        backLight.position.set(0, 2, -5);
+        
+        const backLight = new THREE.DirectionalLight(0xffffff, 0.2);
+        backLight.position.set(0, 1, -3);
         scene.add(backLight);
 
         // ============================
