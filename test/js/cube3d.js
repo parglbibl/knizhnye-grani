@@ -49,6 +49,9 @@ if (!container) {
         const cubeGroup = new THREE.Group();
         scene.add(cubeGroup);
 
+        // ============================
+        // ТЕКСТУРЫ (регистр исправлен, как в репозитории)
+        // ============================
         const textureLoader = new THREE.TextureLoader();
         const texturePaths = {
             red: '../images/cube_textures/red.jpg',
@@ -79,6 +82,9 @@ if (!container) {
             map: textures[color], roughness: 0.3, metalness: 0.2, emissive: emissiveHex, emissiveIntensity: 0.25 
         });
 
+        // ============================
+        // Создание кубиков
+        // ============================
         const offset = 0.685;  
         const sizeCubie = 0.675;    
         const radius = 0.08;    
@@ -148,7 +154,7 @@ if (!container) {
         buildCubies();
 
         // ============================
-        // СВЕТ (В ТОЧНОСТИ КАК В ОРИГИНАЛЕ)
+        // СВЕТ (ТОЧНО КАК В ОРИГИНАЛЕ)
         // ============================
         const ambientLight = new THREE.AmbientLight(0x606080, 0.6);
         scene.add(ambientLight);
@@ -166,7 +172,7 @@ if (!container) {
         scene.add(backLight);
 
         // ============================
-        // ВРАЩЕНИЕ СЛОЁВ
+        // Вращение слоёв
         // ============================
         let isAnimating = false;
 
