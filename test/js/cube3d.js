@@ -33,7 +33,6 @@ if (!container) {
         camera.position.set(3.5, 2.5, 4.5);
         camera.lookAt(0, 0, 0);
 
-        // Добавляем камеру в сцену, чтобы свет, привязанный к ней, работал
         scene.add(camera);
 
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -45,7 +44,7 @@ if (!container) {
         const controls = new OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.dampingFactor = 0.1;
-        controls.enableZoom = true;
+        controls.enableZoom = false;
         controls.rotateSpeed = 1.0;
         controls.target.set(0, 0, 0);
 
@@ -151,12 +150,11 @@ if (!container) {
         buildCubies();
 
         // ============================
-        // ========= ОСВЕЩЕНИЕ, ПРИВЯЗАННОЕ К КАМЕРЕ =========
+        // ========= ОСВЕЩЕНИЕ (ТОЧНО КАК В ОРИГИНАЛЕ, НО ПРИВЯЗАНО К КАМЕРЕ) =========
         // ============================
         const ambientLight = new THREE.AmbientLight(0x606080, 0.6);
         scene.add(ambientLight);
 
-        // Эти света — дети камеры, они всегда светят с одной точки относительно камеры
         const mainLight = new THREE.DirectionalLight(0xffffff, 0.9);
         mainLight.position.set(2, 4, 3);
         camera.add(mainLight);
