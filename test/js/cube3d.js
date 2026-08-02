@@ -75,9 +75,6 @@ if (!container) {
             orange: loadTexture(texturePaths.orange)
         };
         const createMat = (color) => new THREE.MeshStandardMaterial({ map: textures[color], ...matConfig });
-        const createGlowMat = (color, emissiveHex, intensity) => new THREE.MeshStandardMaterial({ 
-            map: textures[color], roughness: 0.3, metalness: 0.2, emissive: emissiveHex, emissiveIntensity: intensity 
-        });
 
         const offset = 0.685;  
         const sizeCubie = 0.675;    
@@ -87,15 +84,6 @@ if (!container) {
         const matLib = {
             red: createMat('red'), blue: createMat('blue'), yellow: createMat('yellow'),
             green: createMat('green'), white: createMat('white'), orange: createMat('orange')
-        };
-        // Индивидуальная яркость для каждой грани
-        const glowLib = {
-            red: createGlowMat('red', 0xc41e3a, 0.18),   // чуть ярче
-            blue: createGlowMat('blue', 0x0051ba, 0.18), // чуть ярче
-            yellow: createGlowMat('yellow', 0xffd700, 0.18), // чуть ярче
-            green: createGlowMat('green', 0x009e60, 0.12),
-            white: createGlowMat('white', 0xffffff, 0.08), // темнее
-            orange: createGlowMat('orange', 0xff8c00, 0.12)
         };
 
         let allCubies = [];
@@ -113,8 +101,6 @@ if (!container) {
                     for (let z = -1; z <= 1; z++) {
                         if (x === 0 && y === 0 && z === 0) continue;
 
-                        const isCenter = (x === 0 && y === 0) || (x === 0 && z === 0) || (y === 0 && z === 0);
-                        
                         const faces = [
                             x === 1 ? 'red' : (x === -1 ? 'orange' : null),
                             x === -1 ? 'orange' : (x === 1 ? 'red' : null),
@@ -136,7 +122,6 @@ if (!container) {
                         });
 
                         cubie.userData = {
-                            isCenter: isCenter,
                             gridX: x, gridY: y, gridZ: z,
                             faces: faces,
                             mats: mats,
@@ -152,22 +137,27 @@ if (!container) {
         buildCubies();
 
         // ============================
-        // ========= ОСВЕЩЕНИЕ (ТЁПЛОЕ, ЧУТЬ ЯРЧЕ) =========
+        // ========= ОСВЕЩЕНИЕ =========
         // ============================
-        const ambientLight = new THREE.AmbientLight(0xffeedd, 0.55);
+        const ambientLight = new THREE.AmbientLight(0x606080, 0.6);
         scene.add(ambientLight);
 
-        const mainLight = new THREE.DirectionalLight(0xfff0e6, 0.75);
+        const mainLight = new THREE.DirectionalLight(0xffffff, 0.9);
         mainLight.position.set(2, 4, 3);
         scene.add(mainLight);
 
-        const fillLight = new THREE.DirectionalLight(0xfff0e6, 0.55);
+        const fillLight = new THREE.DirectionalLight(0xffffff, 0.5);
         fillLight.position.set(-2, 1, 2);
         scene.add(fillLight);
 
-        const backLight = new THREE.DirectionalLight(0xffeedd, 0.25);
+        const backLight = new THREE.DirectionalLight(0xffffff, 0.2);
         backLight.position.set(0, 1, -3);
         scene.add(backLight);
+
+        // ===== ДОБАВЛЕННЫЙ НИЖНИЙ СВЕТ (УБИРАЕТ ЧЁРНУЮ БЕЗДНУ) =====
+        const bottomLight = new THREE.DirectionalLight(0xffffff, 0.35);
+        bottomLight.position.set(0, -3, 0);
+        scene.add(bottomLight);
 
         // ============================
         // Вращение слоёв (скрамблер)
@@ -253,7 +243,6 @@ if (!container) {
                         item.cubie.quaternion.copy(item.endRot);
                     });
                     
-                    updateCubeGlow();
                     isAnimating = false;
                     if (callback) callback();
                 }
@@ -357,7 +346,7 @@ if (!container) {
 
             executeMoveSequence(moves, durationPerMove, () => {
                 isScrambling = false;
-                updateCubeGlow();
+                isBlocked = false;
             });
         });
 
@@ -377,8 +366,6 @@ if (!container) {
             executeMoveSequence(reverseMoves, durationPerMove, () => {
                 isScrambling = false;
                 scrambleMoves = [];
-                updateCubeGlow();
-                
                 isBlocked = false;
             });
         });
@@ -442,56 +429,6 @@ if (!container) {
             }
             isClick = false;
         });
-
-        // ============================
-        // ПОДСВЕТКА (ИНДИВИДУАЛЬНАЯ ЯРКОСТЬ)
-        // ============================
-        let activeGlowIds = [];
-
-        function loadGlowFromLocalStorage() {
-            try {
-                const data = JSON.parse(localStorage.getItem('myGranProgress') || '[]');
-                activeGlowIds = data;
-            } catch (e) {
-                activeGlowIds = [];
-            }
-        }
-
-        window.updateCubeGlow = function() {
-            loadGlowFromLocalStorage();
-            applyGlow();
-        };
-
-        function applyGlow() {
-            allCubies.forEach(cubie => {
-                const faces = cubie.userData.faces;
-                const mats = cubie.material;
-                for (let i = 0; i < 6; i++) {
-                    if (faces[i]) {
-                        mats[i] = matLib[faces[i]];
-                    }
-                }
-            });
-
-            activeGlowIds.forEach(glowId => {
-                allCubies.forEach(cubie => {
-                    const faceIds = cubie.userData.faceIds;
-                    const faces = cubie.userData.faces;
-                    const mats = cubie.material;
-                    
-                    for (let i = 0; i < 6; i++) {
-                        if (faceIds[i] === glowId) {
-                            if (faces[i] && glowLib[faces[i]]) {
-                                mats[i] = glowLib[faces[i]];
-                            }
-                        }
-                    }
-                });
-            });
-        }
-
-        loadGlowFromLocalStorage();
-        applyGlow();
 
         // ============================
         // ЦИКЛ РЕНДЕРА
