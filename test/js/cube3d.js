@@ -33,8 +33,6 @@ if (!container) {
         camera.position.set(3.5, 2.5, 4.5);
         camera.lookAt(0, 0, 0);
 
-        scene.add(camera);
-
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         renderer.setSize(size, size);
@@ -42,8 +40,9 @@ if (!container) {
         container.appendChild(renderer.domElement);
 
         const controls = new OrbitControls(camera, renderer.domElement);
-        controls.enableDamping = false; // ОТКЛЮЧАЕМ ИНЕРЦИЮ, чтобы блокировка работала чётко
-        controls.enableZoom = true;
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.1;
+        controls.enableZoom = false;
         controls.rotateSpeed = 1.0;
         controls.target.set(0, 0, 0);
 
@@ -51,13 +50,13 @@ if (!container) {
         scene.add(cubeGroup);
 
         const textureLoader = new THREE.TextureLoader();
-        const textureFiles = {
-            red: '/images/cube_textures/red.jpg',
-            blue: '/images/cube_textures/blue.jpg',
-            yellow: '/images/cube_textures/yellow.jpg',
-            green: '/images/cube_textures/green.jpg',
-            white: '/images/cube_textures/white.jpg',
-            orange: '/images/cube_textures/orange.jpg'
+        const texturePaths = {
+            red: '../images/cube_textures/red.jpg',
+            blue: '../images/cube_textures/blue.jpg',
+            yellow: '../images/cube_textures/yellow.jpg',
+            green: '../images/cube_textures/green.jpg',
+            white: '../images/cube_textures/white.jpg',
+            orange: '../images/cube_textures/orange.jpg'
         };
         const loadTexture = (url) => {
             const tex = textureLoader.load(url);
@@ -66,136 +65,325 @@ if (!container) {
             return tex;
         };
 
-        const textureMaterials = {
-            red: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.red), roughness: 0.9, metalness: 0.0 }),
-            blue: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.blue), roughness: 0.9, metalness: 0.0 }),
-            yellow: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.yellow), roughness: 0.9, metalness: 0.0 }),
-            green: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.green), roughness: 0.9, metalness: 0.0 }),
-            white: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.white), roughness: 0.9, metalness: 0.0 }),
-            orange: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.orange), roughness: 0.9, metalness: 0.0 })
+        const matConfig = { roughness: 0.9, metalness: 0.0 };
+        const textures = {
+            red: loadTexture(texturePaths.red),
+            blue: loadTexture(texturePaths.blue),
+            yellow: loadTexture(texturePaths.yellow),
+            green: loadTexture(texturePaths.green),
+            white: loadTexture(texturePaths.white),
+            orange: loadTexture(texturePaths.orange)
         };
-
-        const fallbackMaterials = {
-            red: new THREE.MeshStandardMaterial({ color: 0xc41e3a, roughness: 0.9, metalness: 0.0 }),
-            blue: new THREE.MeshStandardMaterial({ color: 0x0051ba, roughness: 0.9, metalness: 0.0 }),
-            yellow: new THREE.MeshStandardMaterial({ color: 0xffd700, roughness: 0.9, metalness: 0.0 }),
-            green: new THREE.MeshStandardMaterial({ color: 0x009e60, roughness: 0.9, metalness: 0.0 }),
-            white: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9, metalness: 0.0 }),
-            orange: new THREE.MeshStandardMaterial({ color: 0xff8c00, roughness: 0.9, metalness: 0.0 })
-        };
-
-        // Мягкая подсветка: белая 0.04, остальные 0.12
-        const glowMaterials = {
-            red: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.red), roughness: 0.3, metalness: 0.2, emissive: 0xc41e3a, emissiveIntensity: 0.12 }),
-            blue: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.blue), roughness: 0.3, metalness: 0.2, emissive: 0x0051ba, emissiveIntensity: 0.12 }),
-            yellow: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.yellow), roughness: 0.3, metalness: 0.2, emissive: 0xffd700, emissiveIntensity: 0.12 }),
-            green: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.green), roughness: 0.3, metalness: 0.2, emissive: 0x009e60, emissiveIntensity: 0.12 }),
-            white: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.white), roughness: 0.3, metalness: 0.2, emissive: 0xffffff, emissiveIntensity: 0.04 }),
-            orange: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.orange), roughness: 0.3, metalness: 0.2, emissive: 0xff8c00, emissiveIntensity: 0.12 })
-        };
+        const createMat = (color) => new THREE.MeshStandardMaterial({ map: textures[color], ...matConfig });
+        const createGlowMat = (color, emissiveHex) => new THREE.MeshStandardMaterial({ 
+            map: textures[color], roughness: 0.3, metalness: 0.2, emissive: emissiveHex, emissiveIntensity: 0.25 
+        });
 
         const offset = 0.685;  
         const sizeCubie = 0.675;    
         const radius = 0.08;    
-        const segments = 4;     
+        const segments = 4;
 
-        const cubies = [];
+        const matLib = {
+            red: createMat('red'), blue: createMat('blue'), yellow: createMat('yellow'),
+            green: createMat('green'), white: createMat('white'), orange: createMat('orange')
+        };
+        const glowLib = {
+            red: createGlowMat('red', 0xc41e3a), blue: createGlowMat('blue', 0x0051ba),
+            yellow: createGlowMat('yellow', 0xffd700), green: createGlowMat('green', 0x009e60),
+            white: createGlowMat('white', 0xffffff), orange: createGlowMat('orange', 0xff8c00)
+        };
 
-        for (let x = -1; x <= 1; x++) {
-            for (let y = -1; y <= 1; y++) {
-                for (let z = -1; z <= 1; z++) {
-                    const faceNames = [
-                        x === 1 ? 'red' : 'orange',
-                        x === -1 ? 'orange' : 'red',
-                        y === 1 ? 'white' : 'yellow',
-                        y === -1 ? 'yellow' : 'white',
-                        z === 1 ? 'green' : 'blue',
-                        z === -1 ? 'blue' : 'green'
-                    ];
+        let allCubies = [];
 
-                    const matArray = [
-                        x === 1 ? textureMaterials.red || fallbackMaterials.red : (x === -1 ? textureMaterials.orange || fallbackMaterials.orange : textureMaterials.red || fallbackMaterials.red),
-                        x === -1 ? textureMaterials.orange || fallbackMaterials.orange : (x === 1 ? textureMaterials.red || fallbackMaterials.red : textureMaterials.orange || fallbackMaterials.orange),
-                        y === 1 ? textureMaterials.white || fallbackMaterials.white : (y === -1 ? textureMaterials.yellow || fallbackMaterials.yellow : textureMaterials.white || fallbackMaterials.white),
-                        y === -1 ? textureMaterials.yellow || fallbackMaterials.yellow : (y === 1 ? textureMaterials.white || fallbackMaterials.white : textureMaterials.yellow || fallbackMaterials.yellow),
-                        z === 1 ? textureMaterials.green || fallbackMaterials.green : (z === -1 ? textureMaterials.blue || fallbackMaterials.blue : textureMaterials.green || fallbackMaterials.green),
-                        z === -1 ? textureMaterials.blue || fallbackMaterials.blue : (z === 1 ? textureMaterials.green || fallbackMaterials.green : textureMaterials.blue || fallbackMaterials.blue)
-                    ];
-                    
-                    const geometry = new RoundedBoxGeometry(sizeCubie, sizeCubie, sizeCubie, segments, radius);
-                    const cubie = new THREE.Mesh(geometry, matArray);
-                    cubie.userData = { 
-                        originalPos: { x: x * offset, y: y * offset, z: z * offset },
-                        gridX: x, gridY: y, gridZ: z,
-                        materials: matArray,
-                        faceNames: faceNames
-                    };
-                    cubie.position.set(x * offset, y * offset, z * offset);
-                    cubeGroup.add(cubie);
-                    cubies.push(cubie);
+        function buildCubies() {
+            while(cubeGroup.children.length > 0) {
+                const child = cubeGroup.children[0];
+                child.geometry.dispose();
+                cubeGroup.remove(child);
+            }
+            allCubies = [];
+
+            for (let x = -1; x <= 1; x++) {
+                for (let y = -1; y <= 1; y++) {
+                    for (let z = -1; z <= 1; z++) {
+                        if (x === 0 && y === 0 && z === 0) continue;
+
+                        const isCenter = (x === 0 && y === 0) || (x === 0 && z === 0) || (y === 0 && z === 0);
+                        
+                        const faces = [
+                            x === 1 ? 'red' : (x === -1 ? 'orange' : null),
+                            x === -1 ? 'orange' : (x === 1 ? 'red' : null),
+                            y === 1 ? 'white' : (y === -1 ? 'yellow' : null),
+                            y === -1 ? 'yellow' : (y === 1 ? 'white' : null),
+                            z === 1 ? 'green' : (z === -1 ? 'blue' : null),
+                            z === -1 ? 'blue' : (z === 1 ? 'green' : null)
+                        ];
+                        const mats = faces.map(f => f ? matLib[f] : matLib['red']);
+
+                        const geometry = new RoundedBoxGeometry(sizeCubie, sizeCubie, sizeCubie, segments, radius);
+                        const cubie = new THREE.Mesh(geometry, mats);
+                        cubie.position.set(x * offset, y * offset, z * offset);
+                        cubeGroup.add(cubie);
+
+                        const faceIds = faces.map((color, idx) => {
+                            if (!color) return null;
+                            return `face_${color}_${x}_${y}_${z}_${idx}`;
+                        });
+
+                        cubie.userData = {
+                            isCenter: isCenter,
+                            gridX: x, gridY: y, gridZ: z,
+                            faces: faces,
+                            mats: mats,
+                            faceIds: faceIds
+                        };
+
+                        allCubies.push(cubie);
+                    }
                 }
             }
         }
 
-        // Подсветка пройденных граней
-        setTimeout(() => {
-            try {
-                const myProgress = JSON.parse(localStorage.getItem('myGranProgress') || '[]');
-                if (myProgress.length > 0) {
-                    cubies.forEach(cubie => {
-                        const faces = cubie.userData.faceNames;
-                        const matArray = cubie.material;
-                        for (let i = 0; i < faces.length; i++) {
-                            const color = faces[i];
-                            const gx = (i === 0 || i === 1) ? (cubie.userData.gridY + 1) : (i === 2 || i === 3) ? (cubie.userData.gridX + 1) : (cubie.userData.gridX + 1);
-                            const gy = (i === 0 || i === 1) ? (cubie.userData.gridZ + 1) : (i === 2 || i === 3) ? (cubie.userData.gridZ + 1) : (cubie.userData.gridY + 1);
-                            const elementId = color + '_' + String(gx) + '_' + String(gy) + '_1';
-                            
-                            if (myProgress.includes(elementId)) {
-                                if (glowMaterials[color]) {
-                                    matArray[i] = glowMaterials[color];
-                                }
-                            }
-                        }
-                    });
-                }
-            } catch (e) {}
-        }, 100);
+        buildCubies();
 
-        // Освещение (привязано к камере)
+        // ============================
+        // ========= СВЕТ (ТОЧНО КАК В ОРИГИНАЛЕ) =========
+        // ============================
         const ambientLight = new THREE.AmbientLight(0x606080, 0.6);
         scene.add(ambientLight);
-
-        const mainLight = new THREE.DirectionalLight(0xffffff, 0.45);
+        
+        const mainLight = new THREE.DirectionalLight(0xffffff, 0.9);
         mainLight.position.set(2, 4, 3);
-        camera.add(mainLight);
-
-        const fillLight = new THREE.DirectionalLight(0xffffff, 0.3);
+        scene.add(mainLight);
+        
+        const fillLight = new THREE.DirectionalLight(0xffffff, 0.5);
         fillLight.position.set(-2, 1, 2);
-        camera.add(fillLight);
-
-        const backLight = new THREE.DirectionalLight(0xffffff, 0.1);
+        scene.add(fillLight);
+        
+        const backLight = new THREE.DirectionalLight(0xffffff, 0.2);
         backLight.position.set(0, 1, -3);
-        camera.add(backLight);
+        scene.add(backLight);
 
-        // Логика клика
+        // ============================
+        // Вращение слоёв (с блокировкой)
+        // ============================
+        let isAnimating = false;
+
+        function getCubiesInLayer(axis, index) {
+            const result = [];
+            allCubies.forEach(cubie => {
+                const pos = cubie.position.clone();
+                const gx = Math.round(pos.x / offset);
+                const gy = Math.round(pos.y / offset);
+                const gz = Math.round(pos.z / offset);
+                
+                let match = false;
+                if (axis === 'x' && gx === index) match = true;
+                else if (axis === 'y' && gy === index) match = true;
+                else if (axis === 'z' && gz === index) match = true;
+
+                if (match) result.push(cubie);
+            });
+            return result;
+        }
+
+        function rotateLayer(axis, index, angle, duration, callback) {
+            isAnimating = true;
+
+            const cubies = getCubiesInLayer(axis, index);
+            if (cubies.length === 0) { 
+                isAnimating = false;
+                if (callback) callback(); 
+                return; 
+            }
+
+            const newPositions = cubies.map(cubie => {
+                const pos = cubie.position.clone();
+                const gx = Math.round(pos.x / offset);
+                const gy = Math.round(pos.y / offset);
+                const gz = Math.round(pos.z / offset);
+                
+                let newX = gx, newY = gy, newZ = gz;
+                
+                const cos = Math.round(Math.cos(angle));
+                const sin = Math.round(Math.sin(angle));
+                
+                if (axis === 'x') {
+                    newY = gy * cos - gz * sin;
+                    newZ = gy * sin + gz * cos;
+                } else if (axis === 'y') {
+                    newX = gx * cos + gz * sin;
+                    newZ = -gx * sin + gz * cos;
+                } else if (axis === 'z') {
+                    newX = gx * cos - gy * sin;
+                    newY = gx * sin + gy * cos;
+                }
+                
+                return {
+                    cubie: cubie,
+                    startPos: pos.clone(),
+                    endPos: new THREE.Vector3(newX * offset, newY * offset, newZ * offset),
+                    startRot: cubie.quaternion.clone(),
+                    endRot: new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(axis === 'x' ? 1 : 0, axis === 'y' ? 1 : 0, axis === 'z' ? 1 : 0), angle).multiply(cubie.quaternion.clone())
+                };
+            });
+
+            const startTime = Date.now();
+
+            function animateMove() {
+                const elapsed = Date.now() - startTime;
+                const t = Math.min(elapsed / duration, 1);
+                const ease = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+
+                newPositions.forEach(item => {
+                    item.cubie.position.lerpVectors(item.startPos, item.endPos, ease);
+                    item.cubie.quaternion.slerpQuaternions(item.startRot, item.endRot, ease);
+                });
+
+                if (t < 1) {
+                    requestAnimationFrame(animateMove);
+                } else {
+                    newPositions.forEach(item => {
+                        item.cubie.position.copy(item.endPos);
+                        item.cubie.quaternion.copy(item.endRot);
+                    });
+                    
+                    updateCubeGlow();
+                    isAnimating = false;
+                    if (callback) callback();
+                }
+            }
+            animateMove();
+        }
+
+        let scrambleMoves = [];
+        let isScrambling = false;
+        let isBlocked = false; 
+
+        function generateScramble(length = 23) {
+            const moves = ['U', 'D', 'L', 'R', 'F', 'B'];
+            const modifiers = ['', "'", "2"];
+            let result = [];
+            let lastAxis = '';
+            for (let i = 0; i < length; i++) {
+                let move;
+                let axis;
+                do {
+                    move = moves[Math.floor(Math.random() * moves.length)];
+                    axis = move.charAt(0);
+                } while (axis === lastAxis);
+                lastAxis = axis;
+                const mod = modifiers[Math.floor(Math.random() * modifiers.length)];
+                result.push(move + mod);
+            }
+            return result;
+        }
+
+        function parseMove(moveStr) {
+            const axisMap = { 'U': 'y', 'D': 'y', 'L': 'x', 'R': 'x', 'F': 'z', 'B': 'z' };
+            const indexMap = { 'U': 1, 'D': -1, 'L': -1, 'R': 1, 'F': 1, 'B': -1 };
+            const angleMap = { 'U': -1, 'D': 1, 'L': 1, 'R': -1, 'F': -1, 'B': 1 };
+
+            const base = moveStr.charAt(0);
+            const mod = moveStr.slice(1);
+            let angle = angleMap[base] * Math.PI / 2;
+            let count = 1;
+            if (mod === "'") angle *= -1;
+            else if (mod === "2") count = 2;
+
+            return { axis: axisMap[base], index: indexMap[base], angle, count };
+        }
+
+        function executeMove(moveStr, duration, callback) {
+            const parsed = parseMove(moveStr);
+            let remaining = parsed.count;
+            let currentAngle = parsed.angle;
+
+            function doSingleRotation() {
+                if (remaining === 0) {
+                    if (callback) callback();
+                    return;
+                }
+                rotateLayer(parsed.axis, parsed.index, currentAngle, duration, () => {
+                    remaining--;
+                    if (remaining > 0) {
+                        doSingleRotation();
+                    } else {
+                        if (callback) callback();
+                    }
+                });
+            }
+            doSingleRotation();
+        }
+
+        function executeMoveSequence(moves, durationPerMove, onComplete) {
+            if (moves.length === 0) {
+                if (onComplete) onComplete();
+                return;
+            }
+            let index = 0;
+            function next() {
+                if (index >= moves.length) {
+                    if (onComplete) onComplete();
+                    return;
+                }
+                executeMove(moves[index], durationPerMove, () => {
+                    index++;
+                    setTimeout(next, 20);
+                });
+            }
+            next();
+        }
+
+        const btnScramble = document.getElementById('btnScramble');
+        const btnSolve = document.getElementById('btnSolve');
+
+        btnScramble.addEventListener('click', function() {
+            if (isScrambling || isAnimating || isBlocked) return;
+            
+            isBlocked = true;
+            isScrambling = true;
+            btnScramble.style.display = 'none';
+            btnSolve.style.display = 'inline-block';
+
+            const moves = generateScramble(23);
+            scrambleMoves = moves;
+            const durationPerMove = 5000 / moves.length;
+
+            executeMoveSequence(moves, durationPerMove, () => {
+                isScrambling = false;
+                updateCubeGlow();
+            });
+        });
+
+        btnSolve.addEventListener('click', function() {
+            if (isScrambling || isAnimating || scrambleMoves.length === 0) return;
+            isScrambling = true;
+            btnSolve.style.display = 'none';
+            btnScramble.style.display = 'inline-block';
+
+            const reverseMoves = scrambleMoves.slice().reverse().map(m => {
+                if (m.endsWith("'")) return m.slice(0, -1);
+                if (m.endsWith("2")) return m;
+                return m + "'";
+            });
+            const durationPerMove = 5000 / reverseMoves.length;
+
+            executeMoveSequence(reverseMoves, durationPerMove, () => {
+                isScrambling = false;
+                scrambleMoves = [];
+                updateCubeGlow();
+                
+                isBlocked = false;
+            });
+        });
+
+        // ============================
+        // ОБРАБОТЧИК КЛИКА
+        // ============================
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
-
-        function getGridCoords(position) {
-            const x = Math.round(position.x / offset);
-            const y = Math.round(position.y / offset);
-            const z = Math.round(position.z / offset);
-            return { x, y, z };
-        }
-
-        function openGran(colorName, gx, gy) {
-            gx = Math.min(2, Math.max(0, gx));
-            gy = Math.min(2, Math.max(0, gy));
-            if (window.openBookGran) {
-                window.openBookGran(colorName, gx, gy);
-            }
-        }
 
         function onMouseClick(event) {
             const rect = renderer.domElement.getBoundingClientRect();
@@ -203,12 +391,10 @@ if (!container) {
             mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
 
             raycaster.setFromCamera(mouse, camera);
-            const intersects = raycaster.intersectObjects(cubies);
+            const intersects = raycaster.intersectObjects(allCubies);
 
             if (intersects.length > 0) {
                 const clickedCubie = intersects[0].object;
-                const pos = clickedCubie.position;
-                const coords = getGridCoords(pos);
                 
                 const normal = intersects[0].face.normal.clone();
                 normal.applyQuaternion(clickedCubie.quaternion);
@@ -226,27 +412,15 @@ if (!container) {
                 else if (nz === -1) materialIndex = 5;
                 else materialIndex = 0;
 
-                const colorName = clickedCubie.userData.faceNames[materialIndex];
+                const colorName = clickedCubie.userData.faces[materialIndex];
                 if (!colorName) return;
-                
-                let gx = 0, gy = 0;
-                
-                if (materialIndex === 0 || materialIndex === 1) {
-                    gx = coords.y + 1;
-                    gy = coords.z + 1;
-                } else if (materialIndex === 2 || materialIndex === 3) {
-                    gx = coords.x + 1;
-                    gy = coords.z + 1;
-                } else {
-                    gx = coords.x + 1;
-                    gy = coords.y + 1;
+
+                if (window.openBookGran) {
+                    window.openBookGran(colorName);
                 }
-                
-                openGran(colorName, gx, gy);
             }
         }
 
-        // Обработчики мыши (вращение камеры через OrbitControls)
         let pointerDownPos = { x: 0, y: 0 };
         let isClick = false;
 
@@ -259,189 +433,85 @@ if (!container) {
         renderer.domElement.addEventListener('pointerup', (e) => {
             const dx = e.clientX - pointerDownPos.x;
             const dy = e.clientY - pointerDownPos.y;
-            if (Math.abs(dx) < 10 && Math.abs(dy) < 10 && isClick) {
+            if (Math.abs(dx) < 10 && Math.abs(dy) < 10 && isClick && !isBlocked) {
                 onMouseClick(e);
             }
             isClick = false;
         });
 
-        // Скрамблер и кнопки
-        let isAnimating = false;
-        let scrambleMoves = [];
-        let isScrambling = false;
-        let isBlocked = false;
+        // ============================
+        // ПОДСВЕТКА
+        // ============================
+        let activeGlowIds = [];
 
-        function getCubiesInLayer(axis, index) {
-            const result = [];
-            cubies.forEach(cubie => {
-                const pos = cubie.position.clone();
-                const gx = Math.round(pos.x / offset);
-                const gy = Math.round(pos.y / offset);
-                const gz = Math.round(pos.z / offset);
-                let match = false;
-                if (axis === 'x' && gx === index) match = true;
-                else if (axis === 'y' && gy === index) match = true;
-                else if (axis === 'z' && gz === index) match = true;
-                if (match) result.push(cubie);
-            });
-            return result;
+        function loadGlowFromLocalStorage() {
+            try {
+                const data = JSON.parse(localStorage.getItem('myGranProgress') || '[]');
+                activeGlowIds = data;
+            } catch (e) {
+                activeGlowIds = [];
+            }
         }
 
-        function rotateLayer(axis, index, angle, duration, callback) {
-            isAnimating = true;
-            const cubiesLayer = getCubiesInLayer(axis, index);
-            if (cubiesLayer.length === 0) { isAnimating = false; if (callback) callback(); return; }
+        window.updateCubeGlow = function() {
+            loadGlowFromLocalStorage();
+            applyGlow();
+        };
 
-            const newPositions = cubiesLayer.map(cubie => {
-                const pos = cubie.position.clone();
-                const gx = Math.round(pos.x / offset);
-                const gy = Math.round(pos.y / offset);
-                const gz = Math.round(pos.z / offset);
-                let newX = gx, newY = gy, newZ = gz;
-                const cos = Math.round(Math.cos(angle));
-                const sin = Math.round(Math.sin(angle));
-                if (axis === 'x') { newY = gy * cos - gz * sin; newZ = gy * sin + gz * cos; }
-                else if (axis === 'y') { newX = gx * cos + gz * sin; newZ = -gx * sin + gz * cos; }
-                else if (axis === 'z') { newX = gx * cos - gy * sin; newY = gx * sin + gy * cos; }
-                return {
-                    cubie: cubie,
-                    startPos: pos.clone(),
-                    endPos: new THREE.Vector3(newX * offset, newY * offset, newZ * offset),
-                    startRot: cubie.quaternion.clone(),
-                    endRot: new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(axis === 'x' ? 1 : 0, axis === 'y' ? 1 : 0, axis === 'z' ? 1 : 0), angle).multiply(cubie.quaternion.clone())
-                };
-            });
-
-            const startTime = Date.now();
-            function animateMove() {
-                const elapsed = Date.now() - startTime;
-                const t = Math.min(elapsed / duration, 1);
-                const ease = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
-                newPositions.forEach(item => {
-                    item.cubie.position.lerpVectors(item.startPos, item.endPos, ease);
-                    item.cubie.quaternion.slerpQuaternions(item.startRot, item.endRot, ease);
-                });
-                if (t < 1) requestAnimationFrame(animateMove);
-                else {
-                    newPositions.forEach(item => {
-                        item.cubie.position.copy(item.endPos);
-                        item.cubie.quaternion.copy(item.endRot);
-                    });
-                    isAnimating = false;
-                    if (callback) callback();
+        function applyGlow() {
+            allCubies.forEach(cubie => {
+                const faces = cubie.userData.faces;
+                const mats = cubie.material;
+                for (let i = 0; i < 6; i++) {
+                    if (faces[i]) {
+                        mats[i] = matLib[faces[i]];
+                    }
                 }
-            }
-            animateMove();
-        }
+            });
 
-        function generateScramble(length = 23) {
-            const moves = ['U', 'D', 'L', 'R', 'F', 'B'];
-            const modifiers = ['', "'", "2"];
-            let result = [];
-            let lastAxis = '';
-            for (let i = 0; i < length; i++) {
-                let move, axis;
-                do {
-                    move = moves[Math.floor(Math.random() * moves.length)];
-                    axis = move.charAt(0);
-                } while (axis === lastAxis);
-                lastAxis = axis;
-                const mod = modifiers[Math.floor(Math.random() * modifiers.length)];
-                result.push(move + mod);
-            }
-            return result;
-        }
-
-        function parseMove(moveStr) {
-            const axisMap = { 'U': 'y', 'D': 'y', 'L': 'x', 'R': 'x', 'F': 'z', 'B': 'z' };
-            const indexMap = { 'U': 1, 'D': -1, 'L': -1, 'R': 1, 'F': 1, 'B': -1 };
-            const angleMap = { 'U': -1, 'D': 1, 'L': 1, 'R': -1, 'F': -1, 'B': 1 };
-            const base = moveStr.charAt(0);
-            const mod = moveStr.slice(1);
-            let angle = angleMap[base] * Math.PI / 2;
-            let count = 1;
-            if (mod === "'") angle *= -1;
-            else if (mod === "2") count = 2;
-            return { axis: axisMap[base], index: indexMap[base], angle, count };
-        }
-
-        function executeMove(moveStr, duration, callback) {
-            const parsed = parseMove(moveStr);
-            let remaining = parsed.count;
-            let currentAngle = parsed.angle;
-            function doSingle() {
-                if (remaining === 0) { if (callback) callback(); return; }
-                rotateLayer(parsed.axis, parsed.index, currentAngle, duration, () => {
-                    remaining--;
-                    if (remaining > 0) doSingle();
-                    else if (callback) callback();
+            activeGlowIds.forEach(glowId => {
+                allCubies.forEach(cubie => {
+                    const faceIds = cubie.userData.faceIds;
+                    const faces = cubie.userData.faces;
+                    const mats = cubie.material;
+                    
+                    for (let i = 0; i < 6; i++) {
+                        if (faceIds[i] === glowId) {
+                            if (faces[i] && glowLib[faces[i]]) {
+                                mats[i] = glowLib[faces[i]];
+                            }
+                        }
+                    }
                 });
-            }
-            doSingle();
+            });
         }
 
-        function executeMoveSequence(moves, durationPerMove, onComplete) {
-            if (moves.length === 0) { if (onComplete) onComplete(); return; }
-            let index = 0;
-            function next() {
-                if (index >= moves.length) { if (onComplete) onComplete(); return; }
-                executeMove(moves[index], durationPerMove, () => {
-                    index++;
-                    setTimeout(next, 20);
-                });
-            }
-            next();
-        }
+        loadGlowFromLocalStorage();
+        applyGlow();
 
-        const btnScramble = document.getElementById('btnScramble');
-        const btnSolve = document.getElementById('btnSolve');
+        // ============================
+        // РУЧНАЯ БЛОКИРОВКА ВЕРТИКАЛИ (встроена в render)
+        // ============================
+        let verticalLimit = 0.2; // насколько близко к полюсу можно подойти
 
-        btnScramble.addEventListener('click', function() {
-            if (isScrambling || isAnimating || isBlocked) return;
-            isBlocked = true;
-            isScrambling = true;
-            btnScramble.style.display = 'none';
-            btnSolve.style.display = 'inline-block';
-            const moves = generateScramble(23);
-            scrambleMoves = moves;
-            const durationPerMove = 5000 / moves.length;
-            executeMoveSequence(moves, durationPerMove, () => {
-                isScrambling = false;
-            });
-        });
-
-        btnSolve.addEventListener('click', function() {
-            if (isScrambling || isAnimating || scrambleMoves.length === 0) return;
-            isScrambling = true;
-            btnSolve.style.display = 'none';
-            btnScramble.style.display = 'inline-block';
-            const reverseMoves = scrambleMoves.slice().reverse().map(m => {
-                if (m.endsWith("'")) return m.slice(0, -1);
-                if (m.endsWith("2")) return m;
-                return m + "'";
-            });
-            const durationPerMove = 5000 / reverseMoves.length;
-            executeMoveSequence(reverseMoves, durationPerMove, () => {
-                isScrambling = false;
-                scrambleMoves = [];
-                isBlocked = false;
-            });
-        });
-
-        // ===== ИДЕАЛЬНАЯ БЛОКИРОВКА ВЕРТИКАЛИ (БЕЗ ИНЕРЦИИ) =====
         function render() {
             requestAnimationFrame(render);
             controls.update();
 
-            // Текущий угол камеры по вертикали (0 = сверху, PI = снизу)
             const angle = controls.getPolarAngle();
 
-            // Жёсткая остановка, если угол приближается к плоской грани
-            if (angle < 0.05) {
-                camera.position.y = 0.05 * 4.5; // принудительно стопорим на безопасной высоте
+            // Если угол слишком близок к 0 (белая грань) — стопорим
+            if (angle < verticalLimit) {
+                const newPos = camera.position.clone();
+                newPos.y = verticalLimit * 4.5; // принудительная высота
+                camera.position.copy(newPos);
                 controls.update();
-            } else if (angle > Math.PI - 0.05) {
-                camera.position.y = -0.05 * 4.5; // стопорим снизу
+            }
+            // Если угол слишком близок к PI (жёлтая грань) — стопорим
+            else if (angle > Math.PI - verticalLimit) {
+                const newPos = camera.position.clone();
+                newPos.y = -verticalLimit * 4.5;
+                camera.position.copy(newPos);
                 controls.update();
             }
 
