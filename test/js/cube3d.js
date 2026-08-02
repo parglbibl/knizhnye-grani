@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 
 const container = document.getElementById('cube-container');
@@ -39,19 +38,9 @@ if (!container) {
         renderer.setClearColor(0x000000, 0);
         container.appendChild(renderer.domElement);
 
-        const controls = new OrbitControls(camera, renderer.domElement);
-        controls.enableDamping = true;
-        controls.dampingFactor = 0.1;
-        controls.enableZoom = true;
-        controls.rotateSpeed = 1.0;
-        controls.target.set(0, 0, 0);
-
         const cubeGroup = new THREE.Group();
         scene.add(cubeGroup);
 
-        // ============================
-        // ТЕКСТУРЫ (регистр исправлен, как в репозитории)
-        // ============================
         const textureLoader = new THREE.TextureLoader();
         const texturePaths = {
             red: '../images/cube_textures/red.jpg',
@@ -82,9 +71,6 @@ if (!container) {
             map: textures[color], roughness: 0.3, metalness: 0.2, emissive: emissiveHex, emissiveIntensity: 0.25 
         });
 
-        // ============================
-        // Создание кубиков
-        // ============================
         const offset = 0.685;  
         const sizeCubie = 0.675;    
         const radius = 0.08;    
@@ -172,7 +158,7 @@ if (!container) {
         scene.add(backLight);
 
         // ============================
-        // Вращение слоёв
+        // Вращение слоёв (с блокировкой)
         // ============================
         let isAnimating = false;
 
@@ -386,10 +372,17 @@ if (!container) {
         });
 
         // ============================
-        // ОБРАБОТЧИК КЛИКА
+        // ОБРАБОТЧИК КЛИКА (с блокировкой)
         // ============================
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
+
+        function getGridCoords(position) {
+            const x = Math.round(position.x / offset);
+            const y = Math.round(position.y / offset);
+            const z = Math.round(position.z / offset);
+            return { x, y, z };
+        }
 
         function onMouseClick(event) {
             const rect = renderer.domElement.getBoundingClientRect();
@@ -401,6 +394,8 @@ if (!container) {
 
             if (intersects.length > 0) {
                 const clickedCubie = intersects[0].object;
+                const pos = clickedCubie.position;
+                const coords = getGridCoords(pos);
                 
                 const normal = intersects[0].face.normal.clone();
                 normal.applyQuaternion(clickedCubie.quaternion);
@@ -427,78 +422,145 @@ if (!container) {
             }
         }
 
-        let pointerDownPos = { x: 0, y: 0 };
-        let isClick = false;
+        // ===== ОБРАБОТЧИКИ МЫШИ (ПК) =====
+        let isDragging = false;
+        let startX = 0, startY = 0;
+        let lastX = 0, lastY = 0;
 
-        renderer.domElement.addEventListener('pointerdown', (e) => {
-            pointerDownPos.x = e.clientX;
-            pointerDownPos.y = e.clientY;
-            isClick = true;
-        });
+        function getXY(e) {
+            if (e.touches) {
+                return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+            }
+            return { x: e.clientX, y: e.clientY };
+        }
 
-        renderer.domElement.addEventListener('pointerup', (e) => {
-            const dx = e.clientX - pointerDownPos.x;
-            const dy = e.clientY - pointerDownPos.y;
-            if (Math.abs(dx) < 10 && Math.abs(dy) < 10 && isClick && !isBlocked) {
+        function onMouseDown(e) {
+            const coords = getXY(e);
+            isDragging = true;
+            startX = coords.x;
+            startY = coords.y;
+            lastX = coords.x;
+            lastY = coords.y;
+            container.style.cursor = 'grabbing';
+        }
+
+        function onMouseMove(e) {
+            if (!isDragging) return;
+            const coords = getXY(e);
+            const deltaX = coords.x - lastX;
+            const deltaY = coords.y - lastY;
+            if (deltaX !== 0 || deltaY !== 0) {
+                // === КВАТЕРНИОНЫ ===
+                const axis = new THREE.Vector3(deltaY, deltaX, 0).normalize();
+                const angle = Math.sqrt(deltaX * deltaX + deltaY * deltaY) * 0.008;
+                const quaternion = new THREE.Quaternion().setFromAxisAngle(axis, angle);
+                cubeGroup.quaternion.multiply(quaternion);
+                lastX = coords.x;
+                lastY = coords.y;
+            }
+        }
+
+        function onMouseUp(e) {
+            isDragging = false;
+            container.style.cursor = 'pointer';
+            
+            const coords = getXY(e);
+            const dx = Math.abs(coords.x - startX);
+            const dy = Math.abs(coords.y - startY);
+            
+            if (dx < 6 && dy < 6 && !isBlocked) {
                 onMouseClick(e);
             }
-            isClick = false;
-        });
+        }
 
-        // ============================
-        // ПОДСВЕТКА
-        // ============================
-        let activeGlowIds = [];
+        container.addEventListener('mousedown', onMouseDown);
+        window.addEventListener('mousemove', onMouseMove);
+        window.addEventListener('mouseup', onMouseUp);
 
-        function loadGlowFromLocalStorage() {
-            try {
-                const data = JSON.parse(localStorage.getItem('myGranProgress') || '[]');
-                activeGlowIds = data;
-            } catch (e) {
-                activeGlowIds = [];
+        // ===== ОБРАБОТЧИКИ ТАЧА (ТЕЛЕФОН) =====
+        let touchStartX = 0, touchStartY = 0;
+        let touchLastX = 0, touchLastY = 0;
+        let touchMoved = false;
+
+        function onTouchStart(e) {
+            const touch = e.touches[0];
+            touchStartX = touch.clientX;
+            touchStartY = touch.clientY;
+            touchLastX = touch.clientX;
+            touchLastY = touch.clientY;
+            touchMoved = false;
+        }
+
+        function onTouchMove(e) {
+            const touch = e.touches[0];
+            const deltaX = touch.clientX - touchLastX;
+            const deltaY = touch.clientY - touchLastY;
+            if (deltaX !== 0 || deltaY !== 0) {
+                touchMoved = true;
+                const axis = new THREE.Vector3(deltaY, deltaX, 0).normalize();
+                const angle = Math.sqrt(deltaX * deltaX + deltaY * deltaY) * 0.008;
+                const quaternion = new THREE.Quaternion().setFromAxisAngle(axis, angle);
+                cubeGroup.quaternion.multiply(quaternion);
+                touchLastX = touch.clientX;
+                touchLastY = touch.clientY;
             }
         }
 
-        window.updateCubeGlow = function() {
-            loadGlowFromLocalStorage();
-            applyGlow();
-        };
-
-        function applyGlow() {
-            allCubies.forEach(cubie => {
-                const faces = cubie.userData.faces;
-                const mats = cubie.material;
-                for (let i = 0; i < 6; i++) {
-                    if (faces[i]) {
-                        mats[i] = matLib[faces[i]];
-                    }
-                }
-            });
-
-            activeGlowIds.forEach(glowId => {
-                allCubies.forEach(cubie => {
-                    const faceIds = cubie.userData.faceIds;
-                    const faces = cubie.userData.faces;
-                    const mats = cubie.material;
-                    
-                    for (let i = 0; i < 6; i++) {
-                        if (faceIds[i] === glowId) {
-                            if (faces[i] && glowLib[faces[i]]) {
-                                mats[i] = glowLib[faces[i]];
-                            }
-                        }
-                    }
-                });
-            });
+        function onTouchEnd(e) {
+            const touch = e.changedTouches[0];
+            const dx = Math.abs(touch.clientX - touchStartX);
+            const dy = Math.abs(touch.clientY - touchStartY);
+            
+            if (dx < 10 && dy < 10 && !touchMoved && !isBlocked) {
+                onMouseClick(e);
+            }
         }
 
-        loadGlowFromLocalStorage();
-        applyGlow();
+        const el = renderer.domElement;
+        el.addEventListener('touchstart', onTouchStart, { passive: false });
+        el.addEventListener('touchmove', onTouchMove, { passive: false });
+        el.addEventListener('touchend', onTouchEnd, { passive: true });
+
+        // ===== ЗУМ =====
+        let currentZoom = 4.5;
+
+        container.addEventListener('wheel', function(e) {
+            e.preventDefault();
+            const delta = e.deltaY > 0 ? 0.5 : -0.5;
+            currentZoom = Math.min(7, Math.max(2.5, currentZoom + delta));
+            updateCamera();
+        }, { passive: false });
+
+        let lastTouchDist = 0;
+        el.addEventListener('touchstart', function(e) {
+            if (e.touches.length === 2) {
+                const dx = e.touches[0].clientX - e.touches[1].clientX;
+                const dy = e.touches[0].clientY - e.touches[1].clientY;
+                lastTouchDist = Math.sqrt(dx*dx + dy*dy);
+            }
+        }, { passive: true });
+
+        el.addEventListener('touchmove', function(e) {
+            if (e.touches.length === 2) {
+                e.preventDefault();
+                const dx = e.touches[0].clientX - e.touches[1].clientX;
+                const dy = e.touches[0].clientY - e.touches[1].clientY;
+                const dist = Math.sqrt(dx*dx + dy*dy);
+                const delta = (dist - lastTouchDist) * 0.02;
+                currentZoom = Math.min(7, Math.max(2.5, currentZoom - delta));
+                updateCamera();
+                lastTouchDist = dist;
+            }
+        }, { passive: false });
+
+        function updateCamera() {
+            camera.position.set(currentZoom * 0.7, currentZoom * 0.5, currentZoom * 0.9);
+            camera.lookAt(0, 0, 0);
+        }
 
         function render() {
-            requestAnimationFrame(render);
-            controls.update();
             renderer.render(scene, camera);
+            requestAnimationFrame(render);
         }
         render();
 
