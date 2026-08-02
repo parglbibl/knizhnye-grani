@@ -29,10 +29,6 @@ if (!container) {
         const scene = new THREE.Scene();
         scene.background = null;
 
-        // === РЕКОМЕНДАЦИЯ 5: Мягкое окружение (HemisphereLight) ===
-        const hemi = new THREE.HemisphereLight(0xffffff, 0x8899aa, 0.15);
-        scene.add(hemi);
-
         const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 1000);
         camera.position.set(3.5, 2.5, 4.5);
         camera.lookAt(0, 0, 0);
@@ -41,12 +37,6 @@ if (!container) {
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         renderer.setSize(size, size);
         renderer.setClearColor(0x000000, 0);
-
-        // === РЕКОМЕНДАЦИЯ 1: Настройка рендерера (версия 3) ===
-        renderer.outputColorSpace = THREE.SRGBColorSpace;
-        renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer.toneMappingExposure = 1.15;
-
         container.appendChild(renderer.domElement);
 
         const controls = new OrbitControls(camera, renderer.domElement);
@@ -72,16 +62,10 @@ if (!container) {
             const tex = textureLoader.load(url);
             tex.wrapS = THREE.ClampToEdgeWrapping;
             tex.wrapT = THREE.ClampToEdgeWrapping;
-            
-            // === РЕКОМЕНДАЦИЯ 4: Улучшение текстур ===
-            tex.colorSpace = THREE.SRGBColorSpace;
-            tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
-            
             return tex;
         };
 
-        // === РЕКОМЕНДАЦИЯ 2: Материалы (ближе к версии 3) ===
-        const matConfig = { roughness: 0.65, metalness: 0.02 };
+        const matConfig = { roughness: 0.9, metalness: 0.0 };
         const textures = {
             red: loadTexture(texturePaths.red),
             blue: loadTexture(texturePaths.blue),
@@ -91,6 +75,9 @@ if (!container) {
             orange: loadTexture(texturePaths.orange)
         };
         const createMat = (color) => new THREE.MeshStandardMaterial({ map: textures[color], ...matConfig });
+        const createGlowMat = (color, emissiveHex) => new THREE.MeshStandardMaterial({ 
+            map: textures[color], roughness: 0.3, metalness: 0.2, emissive: emissiveHex, emissiveIntensity: 0.12 
+        });
 
         const offset = 0.685;  
         const sizeCubie = 0.675;    
@@ -100,6 +87,11 @@ if (!container) {
         const matLib = {
             red: createMat('red'), blue: createMat('blue'), yellow: createMat('yellow'),
             green: createMat('green'), white: createMat('white'), orange: createMat('orange')
+        };
+        const glowLib = {
+            red: createGlowMat('red', 0xc41e3a), blue: createGlowMat('blue', 0x0051ba),
+            yellow: createGlowMat('yellow', 0xffd700), green: createGlowMat('green', 0x009e60),
+            white: createGlowMat('white', 0xffffff), orange: createGlowMat('orange', 0xff8c00)
         };
 
         let allCubies = [];
@@ -156,7 +148,7 @@ if (!container) {
         buildCubies();
 
         // ============================
-        // ========= ОСВЕЩЕНИЕ (ТОЧНО КАК НА СКРИНШОТАХ) =========
+        // ========= ОСВЕЩЕНИЕ (ТОЧНО КАК В ОРИГИНАЛЕ) =========
         // ============================
         const ambientLight = new THREE.AmbientLight(0x606080, 0.6);
         scene.add(ambientLight);
@@ -448,7 +440,7 @@ if (!container) {
         });
 
         // ============================
-        // ПОДСВЕТКА (ГЛАВНОЕ ИЗМЕНЕНИЕ — БЕЗ ЗАМЕНЫ МАТЕРИАЛОВ)
+        // ПОДСВЕТКА
         // ============================
         let activeGlowIds = [];
 
@@ -467,42 +459,26 @@ if (!container) {
         };
 
         function applyGlow() {
-            // === РЕКОМЕНДАЦИЯ 6: НЕ ЗАМЕНЯЕМ МАТЕРИАЛЫ, МЕНЯЕМ ТОЛЬКО СВОЙСТВА ===
-            
-            // Сначала сбрасываем подсветку у всех граней
             allCubies.forEach(cubie => {
+                const faces = cubie.userData.faces;
                 const mats = cubie.material;
                 for (let i = 0; i < 6; i++) {
-                    if (mats[i]) {
-                        mats[i].emissive.setHex(0x000000);
-                        mats[i].emissiveIntensity = 0;
+                    if (faces[i]) {
+                        mats[i] = matLib[faces[i]];
                     }
                 }
             });
 
-            // Затем включаем подсветку только у пройденных граней
             activeGlowIds.forEach(glowId => {
                 allCubies.forEach(cubie => {
                     const faceIds = cubie.userData.faceIds;
                     const faces = cubie.userData.faces;
                     const mats = cubie.material;
                     
-                    const colorMap = {
-                        'red': 0xc41e3a,
-                        'blue': 0x0051ba,
-                        'yellow': 0xffd700,
-                        'green': 0x009e60,
-                        'white': 0xffffff,
-                        'orange': 0xff8c00
-                    };
-
                     for (let i = 0; i < 6; i++) {
                         if (faceIds[i] === glowId) {
-                            const color = faces[i];
-                            if (color && colorMap[color]) {
-                                // === РЕКОМЕНДАЦИЯ 3: Уменьшенная яркость подсветки ===
-                                mats[i].emissive.setHex(colorMap[color]);
-                                mats[i].emissiveIntensity = 0.12; // было 0.25
+                            if (faces[i] && glowLib[faces[i]]) {
+                                mats[i] = glowLib[faces[i]];
                             }
                         }
                     }
