@@ -89,12 +89,9 @@ if (!container) {
             green: createMat('green'), white: createMat('white'), orange: createMat('orange')
         };
         const glowLib = {
-            red: createGlowMat('red', 0xc41e3a), 
-            blue: createGlowMat('blue', 0x0051ba),
-            yellow: createGlowMat('yellow', 0xffd700), 
-            green: createGlowMat('green', 0x009e60),
-            white: createGlowMat('white', 0xffffff), 
-            orange: createGlowMat('orange', 0xff8c00)
+            red: createGlowMat('red', 0xc41e3a), blue: createGlowMat('blue', 0x0051ba),
+            yellow: createGlowMat('yellow', 0xffd700), green: createGlowMat('green', 0x009e60),
+            white: createGlowMat('white', 0xffffff), orange: createGlowMat('orange', 0xff8c00)
         };
 
         let allCubies = [];
@@ -151,20 +148,20 @@ if (!container) {
         buildCubies();
 
         // ============================
-        // ========= ОСВЕЩЕНИЕ (ТОЧНО КАК НА СКРИНШОТАХ) =========
+        // ========= ОСВЕЩЕНИЕ (ТЁПЛОЕ, ПОД ТЕКСТУРЫ) =========
         // ============================
-        const ambientLight = new THREE.AmbientLight(0x606080, 0.6);
+        const ambientLight = new THREE.AmbientLight(0xffeedd, 0.45);
         scene.add(ambientLight);
 
-        const mainLight = new THREE.DirectionalLight(0xffffff, 0.9);
+        const mainLight = new THREE.DirectionalLight(0xfff0e6, 0.55);
         mainLight.position.set(2, 4, 3);
         scene.add(mainLight);
 
-        const fillLight = new THREE.DirectionalLight(0xffffff, 0.5);
+        const fillLight = new THREE.DirectionalLight(0xfff0e6, 0.35);
         fillLight.position.set(-2, 1, 2);
         scene.add(fillLight);
 
-        const backLight = new THREE.DirectionalLight(0xffffff, 0.2);
+        const backLight = new THREE.DirectionalLight(0xffeedd, 0.15);
         backLight.position.set(0, 1, -3);
         scene.add(backLight);
 
