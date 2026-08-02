@@ -96,9 +96,6 @@ if (!container) {
 
         let allCubies = [];
 
-        // ============================
-        // Шаг 1. Создание кубиков (без faceMap)
-        // ============================
         function buildCubies() {
             while(cubeGroup.children.length > 0) {
                 const child = cubeGroup.children[0];
@@ -129,7 +126,7 @@ if (!container) {
                         cubie.position.set(x * offset, y * offset, z * offset);
                         cubeGroup.add(cubie);
 
-                        // Генерируем ID для каждой грани
+                        // Генерируем ID для каждой грани (понадобится для подсветки)
                         const faceIds = faces.map((color, idx) => {
                             if (!color) return null;
                             return `face_${color}_${x}_${y}_${z}_${idx}`;
@@ -157,45 +154,7 @@ if (!container) {
         scene.add(ambientLight);
 
         // ============================
-        // Шаг 4. Функция перестановки наклеек (с учётом направления)
-        // ============================
-        function rotateStickerData(cubie, axis, angle) {
-            const oldIds = [...cubie.userData.faceIds];
-            const oldFaces = [...cubie.userData.faces];
-            const oldMats = [...cubie.material];
-
-            const direction = Math.round(angle / (Math.PI / 2));
-            let map;
-
-            if (axis === 'x') {
-                if (direction === 1) {
-                    map = [0, 1, 5, 4, 2, 3];
-                } else {
-                    map = [0, 1, 4, 5, 3, 2];
-                }
-            } else if (axis === 'y') {
-                if (direction === 1) {
-                    map = [5, 4, 2, 3, 0, 1];
-                } else {
-                    map = [4, 5, 2, 3, 1, 0];
-                }
-            } else if (axis === 'z') {
-                if (direction === 1) {
-                    map = [3, 2, 0, 1, 4, 5];
-                } else {
-                    map = [2, 3, 1, 0, 4, 5];
-                }
-            }
-
-            if (!map) return;
-
-            cubie.userData.faceIds = map.map(i => oldIds[i]);
-            cubie.userData.faces = map.map(i => oldFaces[i]);
-            cubie.material = map.map(i => oldMats[i]);
-        }
-
-        // ============================
-        // Шаг 6. Вращение слоёв (с isAnimating)
+        // Вращение слоёв
         // ============================
         let isAnimating = false;
 
@@ -218,7 +177,7 @@ if (!container) {
         }
 
         function rotateLayer(axis, index, angle, duration, callback) {
-            isAnimating = true; // Шаг 6: ставим true в начале
+            isAnimating = true;
 
             const cubies = getCubiesInLayer(axis, index);
             if (cubies.length === 0) { 
@@ -276,13 +235,10 @@ if (!container) {
                     newPositions.forEach(item => {
                         item.cubie.position.copy(item.endPos);
                         item.cubie.quaternion.copy(item.endRot);
-                        
-                        // Шаг 4: переставляем наклейки прямо здесь
-                        rotateStickerData(item.cubie, axis, angle);
                     });
                     
                     updateCubeGlow();
-                    isAnimating = false; // Шаг 6: сбрасываем в конце
+                    isAnimating = false;
                     if (callback) callback();
                 }
             }
@@ -371,13 +327,12 @@ if (!container) {
         }
 
         // ============================
-        // Кнопки (с защитой isAnimating)
+        // Кнопки
         // ============================
         const btnScramble = document.getElementById('btnScramble');
         const btnSolve = document.getElementById('btnSolve');
 
         btnScramble.addEventListener('click', function() {
-            // Шаг 8: защита
             if (isScrambling || isAnimating) return;
             isScrambling = true;
             btnScramble.style.display = 'none';
@@ -394,7 +349,6 @@ if (!container) {
         });
 
         btnSolve.addEventListener('click', function() {
-            // Шаг 7: защита
             if (isScrambling || isAnimating || scrambleMoves.length === 0) return;
             isScrambling = true;
             btnSolve.style.display = 'none';
@@ -415,7 +369,7 @@ if (!container) {
         });
 
         // ============================
-        // Шаг 3. Обработчик клика (по faceIds, без faceMap)
+        // Обработчик клика (по цвету, без ID)
         // ============================
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
@@ -447,14 +401,12 @@ if (!container) {
                 else if (nz === -1) materialIndex = 5;
                 else materialIndex = 0;
 
-                // Берём ID напрямую из наклейки (Шаг 3)
-                const faceId = clickedCubie.userData.faceIds[materialIndex];
                 const colorName = clickedCubie.userData.faces[materialIndex];
+                if (!colorName) return;
 
-                if (!faceId || !colorName) return;
-
+                // Передаём только цвет. В HTML уже есть база вопросов по цвету.
                 if (window.openBookGran) {
-                    window.openBookGran(faceId, colorName);
+                    window.openBookGran(colorName);
                 }
             }
         }
@@ -478,7 +430,7 @@ if (!container) {
         });
 
         // ============================
-        // Шаг 5. Подсветка (исправленная)
+        // Подсветка
         // ============================
         let activeGlowIds = [];
 
