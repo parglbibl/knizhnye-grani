@@ -48,10 +48,9 @@ if (!container) {
         controls.rotateSpeed = 1.0;
         controls.target.set(0, 0, 0);
 
-        // ===== ЖЁСТКАЯ БЛОКИРОВКА ВЕРТИКАЛИ (исправленная) =====
-        controls.minPolarAngle = 0.1;        // не даёт уйти в зенит
-        controls.maxPolarAngle = Math.PI - 0.1; // не даёт уйти под куб
-        controls.update(); // принудительно применяем ограничения
+        // Убираем любые ограничения, чтобы горизонталь крутилась свободно
+        controls.minPolarAngle = 0;
+        controls.maxPolarAngle = Math.PI;
 
         const cubeGroup = new THREE.Group();
         scene.add(cubeGroup);
@@ -434,9 +433,29 @@ if (!container) {
             });
         });
 
+        // ===== РУЧНАЯ БЛОКИРОВКА ВЕРТИКАЛИ (ПО УГЛУ КАМЕРЫ) =====
+        let lastPolarAngle = controls.getPolarAngle();
+
         function render() {
             requestAnimationFrame(render);
             controls.update();
+
+            // Получаем текущий вертикальный угол (0 = сверху, PI = снизу)
+            const currentAngle = controls.getPolarAngle();
+
+            // Если угол дошёл до "плоской" грани (0° или 180°) — стопорим
+            if (currentAngle < 0.05) {
+                // Защита от ухода в зенит (белая грань)
+                controls.minPolarAngle = 0.05;
+            } else if (currentAngle > Math.PI - 0.05) {
+                // Защита от ухода в надир (жёлтая грань)
+                controls.maxPolarAngle = Math.PI - 0.05;
+            } else {
+                // Если мы в безопасном диапазоне — снимаем ограничения
+                controls.minPolarAngle = 0;
+                controls.maxPolarAngle = Math.PI;
+            }
+
             renderer.render(scene, camera);
         }
         render();
