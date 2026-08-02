@@ -44,7 +44,7 @@ if (!container) {
         const controls = new OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.dampingFactor = 0.1;
-        controls.enableZoom = false;
+        controls.enableZoom = true; // ===== ЗУМ ВКЛЮЧЁН =====
         controls.rotateSpeed = 1.0;
         controls.target.set(0, 0, 0);
 
@@ -78,7 +78,6 @@ if (!container) {
         };
         const createMat = (color) => new THREE.MeshStandardMaterial({ map: textures[color], ...matConfig });
         
-        // Функция создания материалов с индивидуальной emissiveIntensity для белой грани
         const createGlowMat = (color, emissiveHex, intensity) => new THREE.MeshStandardMaterial({ 
             map: textures[color], roughness: 0.3, metalness: 0.2, emissive: emissiveHex, emissiveIntensity: intensity 
         });
@@ -93,7 +92,6 @@ if (!container) {
             green: createMat('green'), white: createMat('white'), orange: createMat('orange')
         };
         
-        // Индивидуальная настройка: белой грани даём 0.04 (очень мягко), остальным 0.12
         const glowLib = {
             red: createGlowMat('red', 0xc41e3a, 0.12),
             blue: createGlowMat('blue', 0x0051ba, 0.12),
