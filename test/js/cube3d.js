@@ -77,8 +77,10 @@ if (!container) {
             orange: loadTexture(texturePaths.orange)
         };
         const createMat = (color) => new THREE.MeshStandardMaterial({ map: textures[color], ...matConfig });
-        const createGlowMat = (color, emissiveHex) => new THREE.MeshStandardMaterial({ 
-            map: textures[color], roughness: 0.3, metalness: 0.2, emissive: emissiveHex, emissiveIntensity: 0.12 
+        
+        // Функция создания материалов с индивидуальной emissiveIntensity для белой грани
+        const createGlowMat = (color, emissiveHex, intensity) => new THREE.MeshStandardMaterial({ 
+            map: textures[color], roughness: 0.3, metalness: 0.2, emissive: emissiveHex, emissiveIntensity: intensity 
         });
 
         const offset = 0.685;  
@@ -90,10 +92,15 @@ if (!container) {
             red: createMat('red'), blue: createMat('blue'), yellow: createMat('yellow'),
             green: createMat('green'), white: createMat('white'), orange: createMat('orange')
         };
+        
+        // Индивидуальная настройка: белой грани даём 0.04 (очень мягко), остальным 0.12
         const glowLib = {
-            red: createGlowMat('red', 0xc41e3a), blue: createGlowMat('blue', 0x0051ba),
-            yellow: createGlowMat('yellow', 0xffd700), green: createGlowMat('green', 0x009e60),
-            white: createGlowMat('white', 0xffffff), orange: createGlowMat('orange', 0xff8c00)
+            red: createGlowMat('red', 0xc41e3a, 0.12),
+            blue: createGlowMat('blue', 0x0051ba, 0.12),
+            yellow: createGlowMat('yellow', 0xffd700, 0.12),
+            green: createGlowMat('green', 0x009e60, 0.12),
+            white: createGlowMat('white', 0xffffff, 0.04), // Белая грань — очень мягко
+            orange: createGlowMat('orange', 0xff8c00, 0.12)
         };
 
         let allCubies = [];
