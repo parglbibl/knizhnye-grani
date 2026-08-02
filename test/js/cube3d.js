@@ -41,17 +41,15 @@ if (!container) {
         const cubeGroup = new THREE.Group();
         scene.add(cubeGroup);
 
-        // ===== ТЕКСТУРЫ (из твоего оригинала) =====
         const textureLoader = new THREE.TextureLoader();
-        const textureFiles = {
-            red: '/images/cube_textures/red.jpg',
-            blue: '/images/cube_textures/blue.jpg',
-            yellow: '/images/cube_textures/yellow.jpg',
-            green: '/images/cube_textures/green.jpg',
-            white: '/images/cube_textures/white.jpg',
-            orange: '/images/cube_textures/orange.jpg'
+        const texturePaths = {
+            red: '../images/cube_textures/red.jpg',
+            blue: '../images/cube_textures/blue.jpg',
+            yellow: '../images/cube_textures/yellow.jpg',
+            green: '../images/cube_textures/green.jpg',
+            white: '../images/cube_textures/white.jpg',
+            orange: '../images/cube_textures/orange.jpg'
         };
-
         const loadTexture = (url) => {
             const tex = textureLoader.load(url);
             tex.wrapS = THREE.ClampToEdgeWrapping;
@@ -59,103 +57,91 @@ if (!container) {
             return tex;
         };
 
-        const textureMaterials = {
-            red: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.red), roughness: 0.9, metalness: 0.0 }),
-            blue: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.blue), roughness: 0.9, metalness: 0.0 }),
-            yellow: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.yellow), roughness: 0.9, metalness: 0.0 }),
-            green: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.green), roughness: 0.9, metalness: 0.0 }),
-            white: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.white), roughness: 0.9, metalness: 0.0 }),
-            orange: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.orange), roughness: 0.9, metalness: 0.0 })
+        const matConfig = { roughness: 0.9, metalness: 0.0 };
+        const textures = {
+            red: loadTexture(texturePaths.red),
+            blue: loadTexture(texturePaths.blue),
+            yellow: loadTexture(texturePaths.yellow),
+            green: loadTexture(texturePaths.green),
+            white: loadTexture(texturePaths.white),
+            orange: loadTexture(texturePaths.orange)
         };
-
-        // ===== МАТЕРИАЛЫ ДЛЯ ПОДСВЕТКИ =====
-        const glowMaterials = {
-            red: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.red), roughness: 0.3, metalness: 0.2, emissive: 0xc41e3a, emissiveIntensity: 0.25 }),
-            blue: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.blue), roughness: 0.3, metalness: 0.2, emissive: 0x0051ba, emissiveIntensity: 0.25 }),
-            yellow: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.yellow), roughness: 0.3, metalness: 0.2, emissive: 0xffd700, emissiveIntensity: 0.25 }),
-            green: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.green), roughness: 0.3, metalness: 0.2, emissive: 0x009e60, emissiveIntensity: 0.25 }),
-            white: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.white), roughness: 0.3, metalness: 0.2, emissive: 0xffffff, emissiveIntensity: 0.15 }),
-            orange: new THREE.MeshStandardMaterial({ map: loadTexture(textureFiles.orange), roughness: 0.3, metalness: 0.2, emissive: 0xff8c00, emissiveIntensity: 0.25 })
-        };
-
-        const fallbackMaterials = {
-            red: new THREE.MeshStandardMaterial({ color: 0xc41e3a, roughness: 0.9, metalness: 0.0 }),
-            blue: new THREE.MeshStandardMaterial({ color: 0x0051ba, roughness: 0.9, metalness: 0.0 }),
-            yellow: new THREE.MeshStandardMaterial({ color: 0xffd700, roughness: 0.9, metalness: 0.0 }),
-            green: new THREE.MeshStandardMaterial({ color: 0x009e60, roughness: 0.9, metalness: 0.0 }),
-            white: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9, metalness: 0.0 }),
-            orange: new THREE.MeshStandardMaterial({ color: 0xff8c00, roughness: 0.9, metalness: 0.0 })
-        };
+        const createMat = (color) => new THREE.MeshStandardMaterial({ map: textures[color], ...matConfig });
+        const createGlowMat = (color, emissiveHex) => new THREE.MeshStandardMaterial({ 
+            map: textures[color], roughness: 0.3, metalness: 0.2, emissive: emissiveHex, emissiveIntensity: 0.25 
+        });
 
         const offset = 0.685;  
         const sizeCubie = 0.675;    
         const radius = 0.08;    
-        const segments = 4;     
+        const segments = 4;
 
-        const cubies = [];
+        const matLib = {
+            red: createMat('red'), blue: createMat('blue'), yellow: createMat('yellow'),
+            green: createMat('green'), white: createMat('white'), orange: createMat('orange')
+        };
+        const glowLib = {
+            red: createGlowMat('red', 0xc41e3a), blue: createGlowMat('blue', 0x0051ba),
+            yellow: createGlowMat('yellow', 0xffd700), green: createGlowMat('green', 0x009e60),
+            white: createGlowMat('white', 0xffffff), orange: createGlowMat('orange', 0xff8c00)
+        };
 
-        for (let x = -1; x <= 1; x++) {
-            for (let y = -1; y <= 1; y++) {
-                for (let z = -1; z <= 1; z++) {
-                    const faceNames = [
-                        x === 1 ? 'red' : 'orange',
-                        x === -1 ? 'orange' : 'red',
-                        y === 1 ? 'white' : 'yellow',
-                        y === -1 ? 'yellow' : 'white',
-                        z === 1 ? 'green' : 'blue',
-                        z === -1 ? 'blue' : 'green'
-                    ];
+        let allCubies = [];
 
-                    const matArray = [
-                        x === 1 ? textureMaterials.red || fallbackMaterials.red : (x === -1 ? textureMaterials.orange || fallbackMaterials.orange : textureMaterials.red || fallbackMaterials.red),
-                        x === -1 ? textureMaterials.orange || fallbackMaterials.orange : (x === 1 ? textureMaterials.red || fallbackMaterials.red : textureMaterials.orange || fallbackMaterials.orange),
-                        y === 1 ? textureMaterials.white || fallbackMaterials.white : (y === -1 ? textureMaterials.yellow || fallbackMaterials.yellow : textureMaterials.white || fallbackMaterials.white),
-                        y === -1 ? textureMaterials.yellow || fallbackMaterials.yellow : (y === 1 ? textureMaterials.white || fallbackMaterials.white : textureMaterials.yellow || fallbackMaterials.yellow),
-                        z === 1 ? textureMaterials.green || fallbackMaterials.green : (z === -1 ? textureMaterials.blue || fallbackMaterials.blue : textureMaterials.green || fallbackMaterials.green),
-                        z === -1 ? textureMaterials.blue || fallbackMaterials.blue : (z === 1 ? textureMaterials.green || fallbackMaterials.green : textureMaterials.blue || fallbackMaterials.blue)
-                    ];
-                    
-                    const geometry = new RoundedBoxGeometry(sizeCubie, sizeCubie, sizeCubie, segments, radius);
-                    const cubie = new THREE.Mesh(geometry, matArray);
-                    cubie.userData = { 
-                        originalPos: { x: x * offset, y: y * offset, z: z * offset },
-                        gridX: x, gridY: y, gridZ: z,
-                        materials: matArray,
-                        faceNames: faceNames
-                    };
-                    cubie.position.set(x * offset, y * offset, z * offset);
-                    cubeGroup.add(cubie);
-                    cubies.push(cubie);
+        function buildCubies() {
+            while(cubeGroup.children.length > 0) {
+                const child = cubeGroup.children[0];
+                child.geometry.dispose();
+                cubeGroup.remove(child);
+            }
+            allCubies = [];
+
+            for (let x = -1; x <= 1; x++) {
+                for (let y = -1; y <= 1; y++) {
+                    for (let z = -1; z <= 1; z++) {
+                        if (x === 0 && y === 0 && z === 0) continue;
+
+                        const isCenter = (x === 0 && y === 0) || (x === 0 && z === 0) || (y === 0 && z === 0);
+                        
+                        const faces = [
+                            x === 1 ? 'red' : (x === -1 ? 'orange' : null),
+                            x === -1 ? 'orange' : (x === 1 ? 'red' : null),
+                            y === 1 ? 'white' : (y === -1 ? 'yellow' : null),
+                            y === -1 ? 'yellow' : (y === 1 ? 'white' : null),
+                            z === 1 ? 'green' : (z === -1 ? 'blue' : null),
+                            z === -1 ? 'blue' : (z === 1 ? 'green' : null)
+                        ];
+                        const mats = faces.map(f => f ? matLib[f] : matLib['red']);
+
+                        const geometry = new RoundedBoxGeometry(sizeCubie, sizeCubie, sizeCubie, segments, radius);
+                        const cubie = new THREE.Mesh(geometry, mats);
+                        cubie.position.set(x * offset, y * offset, z * offset);
+                        cubeGroup.add(cubie);
+
+                        const faceIds = faces.map((color, idx) => {
+                            if (!color) return null;
+                            return `face_${color}_${x}_${y}_${z}_${idx}`;
+                        });
+
+                        cubie.userData = {
+                            isCenter: isCenter,
+                            gridX: x, gridY: y, gridZ: z,
+                            faces: faces,
+                            mats: mats,
+                            faceIds: faceIds
+                        };
+
+                        allCubies.push(cubie);
+                    }
                 }
             }
         }
 
-        // ===== ПОДСВЕТКА ПРОЙДЕННЫХ ГРАНЕЙ =====
-        setTimeout(() => {
-            try {
-                const myProgress = JSON.parse(localStorage.getItem('myGranProgress') || '[]');
-                if (myProgress.length > 0) {
-                    cubies.forEach(cubie => {
-                        const faces = cubie.userData.faceNames;
-                        const matArray = cubie.material;
-                        for (let i = 0; i < faces.length; i++) {
-                            const color = faces[i];
-                            const gx = (i === 0 || i === 1) ? (cubie.userData.gridY + 1) : (i === 2 || i === 3) ? (cubie.userData.gridX + 1) : (cubie.userData.gridX + 1);
-                            const gy = (i === 0 || i === 1) ? (cubie.userData.gridZ + 1) : (i === 2 || i === 3) ? (cubie.userData.gridZ + 1) : (cubie.userData.gridY + 1);
-                            const elementId = color + '_' + String(gx) + '_' + String(gy) + '_1';
-                            
-                            if (myProgress.includes(elementId)) {
-                                if (glowMaterials[color]) {
-                                    matArray[i] = glowMaterials[color];
-                                }
-                            }
-                        }
-                    });
-                }
-            } catch (e) {}
-        }, 100);
+        buildCubies();
 
-        // ===== СВЕТ (оригинальный) =====
+        // ============================
+        // ========= СВЕТ (ВОЗВРАЩЁН В ОРИГИНАЛ) =========
+        // ============================
         const ambientLight = new THREE.AmbientLight(0x606080, 0.6);
         scene.add(ambientLight);
         
@@ -171,218 +157,14 @@ if (!container) {
         backLight.position.set(0, 1, -3);
         scene.add(backLight);
 
-        // ===== ЛОГИКА КЛИКА (оригинальная) =====
-        const raycaster = new THREE.Raycaster();
-        const mouse = new THREE.Vector2();
-
-        function getGridCoords(position) {
-            const x = Math.round(position.x / offset);
-            const y = Math.round(position.y / offset);
-            const z = Math.round(position.z / offset);
-            return { x, y, z };
-        }
-
-        function openGran(colorName, gx, gy) {
-            gx = Math.min(2, Math.max(0, gx));
-            gy = Math.min(2, Math.max(0, gy));
-            if (window.openBookGran) {
-                window.openBookGran(colorName, gx, gy);
-            }
-        }
-
-        function onMouseClick(event) {
-            const rect = renderer.domElement.getBoundingClientRect();
-            mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-            mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-
-            raycaster.setFromCamera(mouse, camera);
-            const intersects = raycaster.intersectObjects(cubies);
-
-            if (intersects.length > 0) {
-                const clickedCubie = intersects[0].object;
-                const pos = clickedCubie.position;
-                const coords = getGridCoords(pos);
-                
-                const normal = intersects[0].face.normal.clone();
-                normal.applyQuaternion(clickedCubie.quaternion);
-                
-                let materialIndex = 0;
-                const nx = Math.round(normal.x);
-                const ny = Math.round(normal.y);
-                const nz = Math.round(normal.z);
-                
-                if (nx === 1) materialIndex = 0;
-                else if (nx === -1) materialIndex = 1;
-                else if (ny === 1) materialIndex = 2;
-                else if (ny === -1) materialIndex = 3;
-                else if (nz === 1) materialIndex = 4;
-                else if (nz === -1) materialIndex = 5;
-                else materialIndex = 0;
-
-                const colorName = clickedCubie.userData.faceNames[materialIndex];
-                if (!colorName) return;
-                
-                let gx = 0, gy = 0;
-                
-                if (materialIndex === 0 || materialIndex === 1) {
-                    gx = coords.y + 1;
-                    gy = coords.z + 1;
-                } else if (materialIndex === 2 || materialIndex === 3) {
-                    gx = coords.x + 1;
-                    gy = coords.z + 1;
-                } else {
-                    gx = coords.x + 1;
-                    gy = coords.y + 1;
-                }
-                
-                openGran(colorName, gx, gy);
-            }
-        }
-
-        // ===== ОБРАБОТЧИКИ МЫШИ (оригинальные) =====
-        let isDragging = false;
-        let startX = 0, startY = 0;
-        let lastX = 0, lastY = 0;
-
-        function getXY(e) {
-            if (e.touches) {
-                return { x: e.touches[0].clientX, y: e.touches[0].clientY };
-            }
-            return { x: e.clientX, y: e.clientY };
-        }
-
-        function onMouseDown(e) {
-            const coords = getXY(e);
-            isDragging = true;
-            startX = coords.x;
-            startY = coords.y;
-            lastX = coords.x;
-            lastY = coords.y;
-            container.style.cursor = 'grabbing';
-        }
-
-        function onMouseMove(e) {
-            if (!isDragging) return;
-            const coords = getXY(e);
-            const deltaX = coords.x - lastX;
-            const deltaY = coords.y - lastY;
-            if (deltaX !== 0 || deltaY !== 0) {
-                const axis = new THREE.Vector3(deltaY, deltaX, 0).normalize();
-                const angle = Math.sqrt(deltaX * deltaX + deltaY * deltaY) * 0.008;
-                const quaternion = new THREE.Quaternion().setFromAxisAngle(axis, angle);
-                cubeGroup.quaternion.multiply(quaternion);
-                lastX = coords.x;
-                lastY = coords.y;
-            }
-        }
-
-        function onMouseUp(e) {
-            isDragging = false;
-            container.style.cursor = 'pointer';
-            
-            const coords = getXY(e);
-            const dx = Math.abs(coords.x - startX);
-            const dy = Math.abs(coords.y - startY);
-            
-            if (dx < 6 && dy < 6 && !isBlocked) {
-                onMouseClick(e);
-            }
-        }
-
-        container.addEventListener('mousedown', onMouseDown);
-        window.addEventListener('mousemove', onMouseMove);
-        window.addEventListener('mouseup', onMouseUp);
-
-        // ===== ОБРАБОТЧИКИ ТАЧА (оригинальные) =====
-        let touchStartX = 0, touchStartY = 0;
-        let touchLastX = 0, touchLastY = 0;
-        let touchMoved = false;
-
-        function onTouchStart(e) {
-            const touch = e.touches[0];
-            touchStartX = touch.clientX;
-            touchStartY = touch.clientY;
-            touchLastX = touch.clientX;
-            touchLastY = touch.clientY;
-            touchMoved = false;
-        }
-
-        function onTouchMove(e) {
-            const touch = e.touches[0];
-            const deltaX = touch.clientX - touchLastX;
-            const deltaY = touch.clientY - touchLastY;
-            if (deltaX !== 0 || deltaY !== 0) {
-                touchMoved = true;
-                const axis = new THREE.Vector3(deltaY, deltaX, 0).normalize();
-                const angle = Math.sqrt(deltaX * deltaX + deltaY * deltaY) * 0.008;
-                const quaternion = new THREE.Quaternion().setFromAxisAngle(axis, angle);
-                cubeGroup.quaternion.multiply(quaternion);
-                touchLastX = touch.clientX;
-                touchLastY = touch.clientY;
-            }
-        }
-
-        function onTouchEnd(e) {
-            const touch = e.changedTouches[0];
-            const dx = Math.abs(touch.clientX - touchStartX);
-            const dy = Math.abs(touch.clientY - touchStartY);
-            
-            if (dx < 10 && dy < 10 && !touchMoved && !isBlocked) {
-                onMouseClick(e);
-            }
-        }
-
-        const el = renderer.domElement;
-        el.addEventListener('touchstart', onTouchStart, { passive: false });
-        el.addEventListener('touchmove', onTouchMove, { passive: false });
-        el.addEventListener('touchend', onTouchEnd, { passive: true });
-
-        // ===== ЗУМ (оригинальный) =====
-        let currentZoom = 4.5;
-
-        container.addEventListener('wheel', function(e) {
-            e.preventDefault();
-            const delta = e.deltaY > 0 ? 0.5 : -0.5;
-            currentZoom = Math.min(7, Math.max(2.5, currentZoom + delta));
-            updateCamera();
-        }, { passive: false });
-
-        let lastTouchDist = 0;
-        el.addEventListener('touchstart', function(e) {
-            if (e.touches.length === 2) {
-                const dx = e.touches[0].clientX - e.touches[1].clientX;
-                const dy = e.touches[0].clientY - e.touches[1].clientY;
-                lastTouchDist = Math.sqrt(dx*dx + dy*dy);
-            }
-        }, { passive: true });
-
-        el.addEventListener('touchmove', function(e) {
-            if (e.touches.length === 2) {
-                e.preventDefault();
-                const dx = e.touches[0].clientX - e.touches[1].clientX;
-                const dy = e.touches[0].clientY - e.touches[1].clientY;
-                const dist = Math.sqrt(dx*dx + dy*dy);
-                const delta = (dist - lastTouchDist) * 0.02;
-                currentZoom = Math.min(7, Math.max(2.5, currentZoom - delta));
-                updateCamera();
-                lastTouchDist = dist;
-            }
-        }, { passive: false });
-
-        function updateCamera() {
-            camera.position.set(currentZoom * 0.7, currentZoom * 0.5, currentZoom * 0.9);
-            camera.lookAt(0, 0, 0);
-        }
-
-        // ===== ДОБАВЛЯЕМ СКРАМБЛЕР И БЛОКИРОВКУ =====
+        // ============================
+        // ВРАЩЕНИЕ СЛОЁВ (ТВОЁ РАБОЧЕЕ)
+        // ============================
         let isAnimating = false;
-        let scrambleMoves = [];
-        let isScrambling = false;
-        let isBlocked = false;
 
         function getCubiesInLayer(axis, index) {
             const result = [];
-            cubies.forEach(cubie => {
+            allCubies.forEach(cubie => {
                 const pos = cubie.position.clone();
                 const gx = Math.round(pos.x / offset);
                 const gy = Math.round(pos.y / offset);
@@ -408,59 +190,68 @@ if (!container) {
                 return; 
             }
 
-            const tempGroup = new THREE.Group();
-            scene.add(tempGroup);
-
-            cubies.forEach(cubie => {
-                const worldPos = new THREE.Vector3();
-                const worldQuat = new THREE.Quaternion();
-                cubie.getWorldPosition(worldPos);
-                cubie.getWorldQuaternion(worldQuat);
-                scene.remove(cubie);
-                tempGroup.add(cubie);
-                cubie.position.copy(worldPos);
-                cubie.quaternion.copy(worldQuat);
+            const newPositions = cubies.map(cubie => {
+                const pos = cubie.position.clone();
+                const gx = Math.round(pos.x / offset);
+                const gy = Math.round(pos.y / offset);
+                const gz = Math.round(pos.z / offset);
+                
+                let newX = gx, newY = gy, newZ = gz;
+                
+                const cos = Math.round(Math.cos(angle));
+                const sin = Math.round(Math.sin(angle));
+                
+                if (axis === 'x') {
+                    newY = gy * cos - gz * sin;
+                    newZ = gy * sin + gz * cos;
+                } else if (axis === 'y') {
+                    newX = gx * cos + gz * sin;
+                    newZ = -gx * sin + gz * cos;
+                } else if (axis === 'z') {
+                    newX = gx * cos - gy * sin;
+                    newY = gx * sin + gy * cos;
+                }
+                
+                return {
+                    cubie: cubie,
+                    startPos: pos.clone(),
+                    endPos: new THREE.Vector3(newX * offset, newY * offset, newZ * offset),
+                    startRot: cubie.quaternion.clone(),
+                    endRot: new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(axis === 'x' ? 1 : 0, axis === 'y' ? 1 : 0, axis === 'z' ? 1 : 0), angle).multiply(cubie.quaternion.clone())
+                };
             });
 
-            const rotAxis = new THREE.Vector3(axis === 'x' ? 1 : 0, axis === 'y' ? 1 : 0, axis === 'z' ? 1 : 0);
-            
             const startTime = Date.now();
-            const startQuat = tempGroup.quaternion.clone();
-            const endQuat = new THREE.Quaternion().setFromAxisAngle(rotAxis, angle);
-            endQuat.multiply(startQuat);
 
-            function animateRotation() {
+            function animateMove() {
                 const elapsed = Date.now() - startTime;
                 const t = Math.min(elapsed / duration, 1);
                 const ease = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
-                tempGroup.quaternion.slerpQuaternions(startQuat, endQuat, ease);
+
+                newPositions.forEach(item => {
+                    item.cubie.position.lerpVectors(item.startPos, item.endPos, ease);
+                    item.cubie.quaternion.slerpQuaternions(item.startRot, item.endRot, ease);
+                });
 
                 if (t < 1) {
-                    requestAnimationFrame(animateRotation);
+                    requestAnimationFrame(animateMove);
                 } else {
-                    tempGroup.quaternion.copy(endQuat);
-                    tempGroup.updateMatrixWorld(true);
-
-                    const children = tempGroup.children.slice();
-                    children.forEach(cubie => {
-                        const worldPos = new THREE.Vector3();
-                        const worldQuat = new THREE.Quaternion();
-                        cubie.getWorldPosition(worldPos);
-                        cubie.getWorldQuaternion(worldQuat);
-                        tempGroup.remove(cubie);
-                        scene.add(cubie);
-                        cubie.position.copy(worldPos);
-                        cubie.quaternion.copy(worldQuat);
+                    newPositions.forEach(item => {
+                        item.cubie.position.copy(item.endPos);
+                        item.cubie.quaternion.copy(item.endRot);
                     });
-                    scene.remove(tempGroup);
-
+                    
                     updateCubeGlow();
                     isAnimating = false;
                     if (callback) callback();
                 }
             }
-            animateRotation();
+            animateMove();
         }
+
+        let scrambleMoves = [];
+        let isScrambling = false;
+        let isBlocked = false; 
 
         function generateScramble(length = 23) {
             const moves = ['U', 'D', 'L', 'R', 'F', 'B'];
@@ -580,38 +371,115 @@ if (!container) {
             });
         });
 
-        // ===== ПОДСВЕТКА ДЛЯ СКРАМБЛЕРА =====
+        // ============================
+        // ОБРАБОТЧИК КЛИКА
+        // ============================
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+
+        function onMouseClick(event) {
+            const rect = renderer.domElement.getBoundingClientRect();
+            mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+            mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(allCubies);
+
+            if (intersects.length > 0) {
+                const clickedCubie = intersects[0].object;
+                
+                const normal = intersects[0].face.normal.clone();
+                normal.applyQuaternion(clickedCubie.quaternion);
+                
+                let materialIndex = 0;
+                const nx = Math.round(normal.x);
+                const ny = Math.round(normal.y);
+                const nz = Math.round(normal.z);
+                
+                if (nx === 1) materialIndex = 0;
+                else if (nx === -1) materialIndex = 1;
+                else if (ny === 1) materialIndex = 2;
+                else if (ny === -1) materialIndex = 3;
+                else if (nz === 1) materialIndex = 4;
+                else if (nz === -1) materialIndex = 5;
+                else materialIndex = 0;
+
+                const colorName = clickedCubie.userData.faces[materialIndex];
+                if (!colorName) return;
+
+                if (window.openBookGran) {
+                    window.openBookGran(colorName);
+                }
+            }
+        }
+
+        let pointerDownPos = { x: 0, y: 0 };
+        let isClick = false;
+
+        renderer.domElement.addEventListener('pointerdown', (e) => {
+            pointerDownPos.x = e.clientX;
+            pointerDownPos.y = e.clientY;
+            isClick = true;
+        });
+
+        renderer.domElement.addEventListener('pointerup', (e) => {
+            const dx = e.clientX - pointerDownPos.x;
+            const dy = e.clientY - pointerDownPos.y;
+            if (Math.abs(dx) < 10 && Math.abs(dy) < 10 && isClick && !isBlocked) {
+                onMouseClick(e);
+            }
+            isClick = false;
+        });
+
+        // ============================
+        // ПОДСВЕТКА
+        // ============================
+        let activeGlowIds = [];
+
+        function loadGlowFromLocalStorage() {
+            try {
+                const data = JSON.parse(localStorage.getItem('myGranProgress') || '[]');
+                activeGlowIds = data;
+            } catch (e) {
+                activeGlowIds = [];
+            }
+        }
+
         window.updateCubeGlow = function() {
-            const myProgress = JSON.parse(localStorage.getItem('myGranProgress') || '[]');
-            cubies.forEach(cubie => {
-                const faces = cubie.userData.faceNames;
-                const matArray = cubie.material;
+            loadGlowFromLocalStorage();
+            applyGlow();
+        };
+
+        function applyGlow() {
+            allCubies.forEach(cubie => {
+                const faces = cubie.userData.faces;
+                const mats = cubie.material;
                 for (let i = 0; i < 6; i++) {
                     if (faces[i]) {
-                        matArray[i] = matLib[faces[i]];
+                        mats[i] = matLib[faces[i]];
                     }
                 }
             });
 
-            myProgress.forEach(id => {
-                cubies.forEach(cubie => {
-                    const faces = cubie.userData.faceNames;
-                    const matArray = cubie.material;
+            activeGlowIds.forEach(glowId => {
+                allCubies.forEach(cubie => {
+                    const faceIds = cubie.userData.faceIds;
+                    const faces = cubie.userData.faces;
+                    const mats = cubie.material;
+                    
                     for (let i = 0; i < 6; i++) {
-                        if (faces[i]) {
-                            const gx = (i === 0 || i === 1) ? (cubie.userData.gridY + 1) : (i === 2 || i === 3) ? (cubie.userData.gridX + 1) : (cubie.userData.gridX + 1);
-                            const gy = (i === 0 || i === 1) ? (cubie.userData.gridZ + 1) : (i === 2 || i === 3) ? (cubie.userData.gridZ + 1) : (cubie.userData.gridY + 1);
-                            const elementId = faces[i] + '_' + String(gx) + '_' + String(gy) + '_1';
-                            if (id === elementId) {
-                                if (glowMaterials[faces[i]]) {
-                                    matArray[i] = glowMaterials[faces[i]];
-                                }
+                        if (faceIds[i] === glowId) {
+                            if (faces[i] && glowLib[faces[i]]) {
+                                mats[i] = glowLib[faces[i]];
                             }
                         }
                     }
                 });
             });
-        };
+        }
+
+        loadGlowFromLocalStorage();
+        applyGlow();
 
         function render() {
             renderer.render(scene, camera);
