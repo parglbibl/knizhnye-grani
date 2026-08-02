@@ -33,6 +33,9 @@ if (!container) {
         camera.position.set(3.5, 2.5, 4.5);
         camera.lookAt(0, 0, 0);
 
+        // === ПРАВКА 1: Добавляем камеру в сцену ===
+        scene.add(camera);
+
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         renderer.setSize(size, size);
@@ -75,6 +78,9 @@ if (!container) {
             orange: loadTexture(texturePaths.orange)
         };
         const createMat = (color) => new THREE.MeshStandardMaterial({ map: textures[color], ...matConfig });
+        const createGlowMat = (color, emissiveHex) => new THREE.MeshStandardMaterial({ 
+            map: textures[color], roughness: 0.3, metalness: 0.2, emissive: emissiveHex, emissiveIntensity: 0.12 
+        });
 
         const offset = 0.685;  
         const sizeCubie = 0.675;    
@@ -84,6 +90,11 @@ if (!container) {
         const matLib = {
             red: createMat('red'), blue: createMat('blue'), yellow: createMat('yellow'),
             green: createMat('green'), white: createMat('white'), orange: createMat('orange')
+        };
+        const glowLib = {
+            red: createGlowMat('red', 0xc41e3a), blue: createGlowMat('blue', 0x0051ba),
+            yellow: createGlowMat('yellow', 0xffd700), green: createGlowMat('green', 0x009e60),
+            white: createGlowMat('white', 0xffffff), orange: createGlowMat('orange', 0xff8c00)
         };
 
         let allCubies = [];
@@ -101,6 +112,8 @@ if (!container) {
                     for (let z = -1; z <= 1; z++) {
                         if (x === 0 && y === 0 && z === 0) continue;
 
+                        const isCenter = (x === 0 && y === 0) || (x === 0 && z === 0) || (y === 0 && z === 0);
+                        
                         const faces = [
                             x === 1 ? 'red' : (x === -1 ? 'orange' : null),
                             x === -1 ? 'orange' : (x === 1 ? 'red' : null),
@@ -122,6 +135,7 @@ if (!container) {
                         });
 
                         cubie.userData = {
+                            isCenter: isCenter,
                             gridX: x, gridY: y, gridZ: z,
                             faces: faces,
                             mats: mats,
@@ -137,27 +151,23 @@ if (!container) {
         buildCubies();
 
         // ============================
-        // ========= ОСВЕЩЕНИЕ =========
+        // ========= ОСВЕЩЕНИЕ (ПРИВЯЗАНО К КАМЕРЕ) =========
         // ============================
         const ambientLight = new THREE.AmbientLight(0x606080, 0.6);
         scene.add(ambientLight);
 
+        // === ПРАВКА 2: Добавляем свет в камеру, а не в сцену ===
         const mainLight = new THREE.DirectionalLight(0xffffff, 0.9);
         mainLight.position.set(2, 4, 3);
-        scene.add(mainLight);
+        camera.add(mainLight);
 
         const fillLight = new THREE.DirectionalLight(0xffffff, 0.5);
         fillLight.position.set(-2, 1, 2);
-        scene.add(fillLight);
+        camera.add(fillLight);
 
         const backLight = new THREE.DirectionalLight(0xffffff, 0.2);
         backLight.position.set(0, 1, -3);
-        scene.add(backLight);
-
-        // ===== ДОБАВЛЕННЫЙ НИЖНИЙ СВЕТ (УБИРАЕТ ЧЁРНУЮ БЕЗДНУ) =====
-        const bottomLight = new THREE.DirectionalLight(0xffffff, 0.35);
-        bottomLight.position.set(0, -3, 0);
-        scene.add(bottomLight);
+        camera.add(backLight);
 
         // ============================
         // Вращение слоёв (скрамблер)
@@ -243,6 +253,7 @@ if (!container) {
                         item.cubie.quaternion.copy(item.endRot);
                     });
                     
+                    updateCubeGlow();
                     isAnimating = false;
                     if (callback) callback();
                 }
@@ -346,7 +357,7 @@ if (!container) {
 
             executeMoveSequence(moves, durationPerMove, () => {
                 isScrambling = false;
-                isBlocked = false;
+                updateCubeGlow();
             });
         });
 
@@ -366,6 +377,8 @@ if (!container) {
             executeMoveSequence(reverseMoves, durationPerMove, () => {
                 isScrambling = false;
                 scrambleMoves = [];
+                updateCubeGlow();
+                
                 isBlocked = false;
             });
         });
@@ -429,6 +442,56 @@ if (!container) {
             }
             isClick = false;
         });
+
+        // ============================
+        // ПОДСВЕТКА
+        // ============================
+        let activeGlowIds = [];
+
+        function loadGlowFromLocalStorage() {
+            try {
+                const data = JSON.parse(localStorage.getItem('myGranProgress') || '[]');
+                activeGlowIds = data;
+            } catch (e) {
+                activeGlowIds = [];
+            }
+        }
+
+        window.updateCubeGlow = function() {
+            loadGlowFromLocalStorage();
+            applyGlow();
+        };
+
+        function applyGlow() {
+            allCubies.forEach(cubie => {
+                const faces = cubie.userData.faces;
+                const mats = cubie.material;
+                for (let i = 0; i < 6; i++) {
+                    if (faces[i]) {
+                        mats[i] = matLib[faces[i]];
+                    }
+                }
+            });
+
+            activeGlowIds.forEach(glowId => {
+                allCubies.forEach(cubie => {
+                    const faceIds = cubie.userData.faceIds;
+                    const faces = cubie.userData.faces;
+                    const mats = cubie.material;
+                    
+                    for (let i = 0; i < 6; i++) {
+                        if (faceIds[i] === glowId) {
+                            if (faces[i] && glowLib[faces[i]]) {
+                                mats[i] = glowLib[faces[i]];
+                            }
+                        }
+                    }
+                });
+            });
+        }
+
+        loadGlowFromLocalStorage();
+        applyGlow();
 
         // ============================
         // ЦИКЛ РЕНДЕРА
