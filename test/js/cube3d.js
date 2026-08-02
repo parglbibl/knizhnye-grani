@@ -243,6 +243,8 @@ if (!container) {
 
         let scrambleMoves = [];
         let isScrambling = false;
+        // Флаг полной блокировки кликов
+        let isBlocked = false; 
 
         function generateScramble(length = 23) {
             const moves = ['U', 'D', 'L', 'R', 'F', 'B'];
@@ -323,7 +325,9 @@ if (!container) {
         const btnSolve = document.getElementById('btnSolve');
 
         btnScramble.addEventListener('click', function() {
-            if (isScrambling || isAnimating) return;
+            if (isScrambling || isAnimating || isBlocked) return;
+            
+            isBlocked = true; // Блокируем клики
             isScrambling = true;
             btnScramble.style.display = 'none';
             btnSolve.style.display = 'inline-block';
@@ -355,19 +359,18 @@ if (!container) {
                 isScrambling = false;
                 scrambleMoves = [];
                 updateCubeGlow();
+                
+                isBlocked = false; // РАЗБЛОКИРУЕМ КЛИКИ ПОСЛЕ СБОРКИ
             });
         });
 
         // ============================
-        // ОБРАБОТЧИК КЛИКА (с защитой от кликов во время скрамбла)
+        // ОБРАБОТЧИК КЛИКА (с защитой isBlocked)
         // ============================
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
 
         function onMouseClick(event) {
-            // ЕСЛИ ИДЁТ ПЕРЕМЕШИВАНИЕ ИЛИ СБОРКА — КЛИК БЛОКИРУЕТСЯ
-            if (isScrambling || isAnimating) return;
-
             const rect = renderer.domElement.getBoundingClientRect();
             mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
             mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
@@ -415,7 +418,8 @@ if (!container) {
         renderer.domElement.addEventListener('pointerup', (e) => {
             const dx = e.clientX - pointerDownPos.x;
             const dy = e.clientY - pointerDownPos.y;
-            if (Math.abs(dx) < 10 && Math.abs(dy) < 10 && isClick) {
+            // ЕСЛИ isBlocked === true, КЛИК НЕ СРАБОТАЕТ
+            if (Math.abs(dx) < 10 && Math.abs(dy) < 10 && isClick && !isBlocked) {
                 onMouseClick(e);
             }
             isClick = false;
