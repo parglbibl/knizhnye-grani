@@ -42,7 +42,7 @@ if (!container) {
         const controls = new OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.dampingFactor = 0.1;
-        controls.enableZoom = true;
+        controls.enableZoom = false;
         controls.rotateSpeed = 1.0;
         controls.target.set(0, 0, 0);
 
