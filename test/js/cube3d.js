@@ -89,9 +89,12 @@ if (!container) {
             green: createMat('green'), white: createMat('white'), orange: createMat('orange')
         };
         const glowLib = {
-            red: createGlowMat('red', 0xc41e3a), blue: createGlowMat('blue', 0x0051ba),
-            yellow: createGlowMat('yellow', 0xffd700), green: createGlowMat('green', 0x009e60),
-            white: createGlowMat('white', 0xffffff), orange: createGlowMat('orange', 0xff8c00)
+            red: createGlowMat('red', 0xc41e3a), 
+            blue: createGlowMat('blue', 0x0051ba),
+            yellow: createGlowMat('yellow', 0xffd700), 
+            green: createGlowMat('green', 0x009e60),
+            white: createGlowMat('white', 0xffffff), 
+            orange: createGlowMat('orange', 0xff8c00)
         };
 
         let allCubies = [];
@@ -440,7 +443,7 @@ if (!container) {
         });
 
         // ============================
-        // ПОДСВЕТКА (МЯГКАЯ, 0.12)
+        // ПОДСВЕТКА (МЯГКАЯ, 0.12, ВСЕ 6 ЦВЕТОВ)
         // ============================
         let activeGlowIds = [];
 
