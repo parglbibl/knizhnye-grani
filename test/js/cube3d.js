@@ -126,7 +126,6 @@ if (!container) {
                         cubie.position.set(x * offset, y * offset, z * offset);
                         cubeGroup.add(cubie);
 
-                        // Генерируем ID для каждой грани (понадобится для подсветки)
                         const faceIds = faces.map((color, idx) => {
                             if (!color) return null;
                             return `face_${color}_${x}_${y}_${z}_${idx}`;
@@ -153,9 +152,6 @@ if (!container) {
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
         scene.add(ambientLight);
 
-        // ============================
-        // Вращение слоёв
-        // ============================
         let isAnimating = false;
 
         function getCubiesInLayer(axis, index) {
@@ -245,9 +241,6 @@ if (!container) {
             animateMove();
         }
 
-        // ============================
-        // Скрамблер и Сборщик
-        // ============================
         let scrambleMoves = [];
         let isScrambling = false;
 
@@ -326,9 +319,6 @@ if (!container) {
             next();
         }
 
-        // ============================
-        // Кнопки
-        // ============================
         const btnScramble = document.getElementById('btnScramble');
         const btnSolve = document.getElementById('btnSolve');
 
@@ -369,7 +359,7 @@ if (!container) {
         });
 
         // ============================
-        // Обработчик клика (по цвету, без ID)
+        // Обработчик клика: передаём ТОЛЬКО цвет
         // ============================
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
@@ -404,7 +394,6 @@ if (!container) {
                 const colorName = clickedCubie.userData.faces[materialIndex];
                 if (!colorName) return;
 
-                // Передаём только цвет. В HTML уже есть база вопросов по цвету.
                 if (window.openBookGran) {
                     window.openBookGran(colorName);
                 }
@@ -479,9 +468,6 @@ if (!container) {
         loadGlowFromLocalStorage();
         applyGlow();
 
-        // ============================
-        // Рендер
-        // ============================
         function render() {
             requestAnimationFrame(render);
             controls.update();
