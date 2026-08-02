@@ -154,9 +154,9 @@ if (!container) {
         // ========= ОСВЕЩЕНИЕ, ПРИВЯЗАННОЕ К КАМЕРЕ =========
         // ============================
         const ambientLight = new THREE.AmbientLight(0x606080, 0.6);
-        scene.add(ambientLight); // ambient остаётся в сцене
+        scene.add(ambientLight);
 
-        // Эти света теперь — дети камеры, они всегда светят с одной точки относительно камеры
+        // Эти света — дети камеры, они всегда светят с одной точки относительно камеры
         const mainLight = new THREE.DirectionalLight(0xffffff, 0.9);
         mainLight.position.set(2, 4, 3);
         camera.add(mainLight);
