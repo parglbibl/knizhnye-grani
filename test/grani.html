@@ -339,7 +339,6 @@
       }
       if (!currentElementId) return;
 
-      // Извлекаем цвет (например, из "red_category" получаем "red")
       const category = currentElementId.replace('_category', '');
 
       const newAnswer = {
@@ -349,22 +348,21 @@
           timestamp: new Date().toLocaleString('ru-RU')
       };
 
+      // ===== СОХРАНЯЕМ ОТВЕТ В FIREBASE =====
       const answersRef = database.ref('answers/' + category);
       answersRef.push(newAnswer).then(() => {
           popupInput.value = '';
           document.getElementById('popupAge').value = '';
 
-          // ========= ЭТОТ БЛОК ВКЛЮЧАЕТ ПОДСВЕТКУ =========
+          // ===== ВКЛЮЧАЕМ ПОДСВЕТКУ =====
           let myProgress = JSON.parse(localStorage.getItem('myGranProgress') || '[]');
           if (!myProgress.includes(category)) {
               myProgress.push(category);
               localStorage.setItem('myGranProgress', JSON.stringify(myProgress));
-              // Принудительно обновляем подсветку на кубике
               if (window.updateCubeGlow) {
                   window.updateCubeGlow();
               }
           }
-          // =================================================
 
           alert('Спасибо! Твой ответ сохранён и теперь виден всем.');
       }).catch((error) => {
