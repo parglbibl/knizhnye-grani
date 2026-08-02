@@ -42,15 +42,10 @@ if (!container) {
         container.appendChild(renderer.domElement);
 
         const controls = new OrbitControls(camera, renderer.domElement);
-        controls.enableDamping = true;
-        controls.dampingFactor = 0.1;
+        controls.enableDamping = false; // ОТКЛЮЧАЕМ ИНЕРЦИЮ, чтобы блокировка работала чётко
         controls.enableZoom = true;
         controls.rotateSpeed = 1.0;
         controls.target.set(0, 0, 0);
-
-        // Убираем любые ограничения, чтобы горизонталь крутилась свободно
-        controls.minPolarAngle = 0;
-        controls.maxPolarAngle = Math.PI;
 
         const cubeGroup = new THREE.Group();
         scene.add(cubeGroup);
@@ -433,27 +428,21 @@ if (!container) {
             });
         });
 
-        // ===== РУЧНАЯ БЛОКИРОВКА ВЕРТИКАЛИ (ПО УГЛУ КАМЕРЫ) =====
-        let lastPolarAngle = controls.getPolarAngle();
-
+        // ===== ИДЕАЛЬНАЯ БЛОКИРОВКА ВЕРТИКАЛИ (БЕЗ ИНЕРЦИИ) =====
         function render() {
             requestAnimationFrame(render);
             controls.update();
 
-            // Получаем текущий вертикальный угол (0 = сверху, PI = снизу)
-            const currentAngle = controls.getPolarAngle();
+            // Текущий угол камеры по вертикали (0 = сверху, PI = снизу)
+            const angle = controls.getPolarAngle();
 
-            // Если угол дошёл до "плоской" грани (0° или 180°) — стопорим
-            if (currentAngle < 0.05) {
-                // Защита от ухода в зенит (белая грань)
-                controls.minPolarAngle = 0.05;
-            } else if (currentAngle > Math.PI - 0.05) {
-                // Защита от ухода в надир (жёлтая грань)
-                controls.maxPolarAngle = Math.PI - 0.05;
-            } else {
-                // Если мы в безопасном диапазоне — снимаем ограничения
-                controls.minPolarAngle = 0;
-                controls.maxPolarAngle = Math.PI;
+            // Жёсткая остановка, если угол приближается к плоской грани
+            if (angle < 0.05) {
+                camera.position.y = 0.05 * 4.5; // принудительно стопорим на безопасной высоте
+                controls.update();
+            } else if (angle > Math.PI - 0.05) {
+                camera.position.y = -0.05 * 4.5; // стопорим снизу
+                controls.update();
             }
 
             renderer.render(scene, camera);
