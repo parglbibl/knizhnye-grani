@@ -48,6 +48,10 @@ if (!container) {
         controls.rotateSpeed = 1.0;
         controls.target.set(0, 0, 0);
 
+        // ===== БЛОКИРОВКА ВЕРТИКАЛЬНОГО ВРАЩЕНИЯ =====
+        controls.minPolarAngle = 0.1;
+        controls.maxPolarAngle = Math.PI - 0.1;
+
         const cubeGroup = new THREE.Group();
         scene.add(cubeGroup);
 
