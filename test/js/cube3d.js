@@ -148,20 +148,20 @@ if (!container) {
         buildCubies();
 
         // ============================
-        // ========= ОСВЕЩЕНИЕ (ПОНИЖЕННАЯ ЯРКОСТЬ) =========
+        // ========= ОСВЕЩЕНИЕ (ТОЧНО КАК В ОРИГИНАЛЕ) =========
         // ============================
-        const ambientLight = new THREE.AmbientLight(0x606080, 0.3);
+        const ambientLight = new THREE.AmbientLight(0x606080, 0.6);
         scene.add(ambientLight);
-
-        const mainLight = new THREE.DirectionalLight(0xffffff, 0.45);
+        
+        const mainLight = new THREE.DirectionalLight(0xffffff, 0.9);
         mainLight.position.set(2, 4, 3);
         scene.add(mainLight);
-
-        const fillLight = new THREE.DirectionalLight(0xffffff, 0.25);
+        
+        const fillLight = new THREE.DirectionalLight(0xffffff, 0.5);
         fillLight.position.set(-2, 1, 2);
         scene.add(fillLight);
-
-        const backLight = new THREE.DirectionalLight(0xffffff, 0.1);
+        
+        const backLight = new THREE.DirectionalLight(0xffffff, 0.2);
         backLight.position.set(0, 1, -3);
         scene.add(backLight);
 
