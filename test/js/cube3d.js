@@ -148,20 +148,20 @@ if (!container) {
         buildCubies();
 
         // ============================
-        // ========= ОСВЕЩЕНИЕ (ТЁПЛОЕ, ПОД ТЕКСТУРЫ) =========
+        // ========= ОСВЕЩЕНИЕ (ТЁПЛОЕ, ЧУТЬ ЯРЧЕ) =========
         // ============================
-        const ambientLight = new THREE.AmbientLight(0xffeedd, 0.45);
+        const ambientLight = new THREE.AmbientLight(0xffeedd, 0.55);
         scene.add(ambientLight);
 
-        const mainLight = new THREE.DirectionalLight(0xfff0e6, 0.55);
+        const mainLight = new THREE.DirectionalLight(0xfff0e6, 0.75);
         mainLight.position.set(2, 4, 3);
         scene.add(mainLight);
 
-        const fillLight = new THREE.DirectionalLight(0xfff0e6, 0.35);
+        const fillLight = new THREE.DirectionalLight(0xfff0e6, 0.55);
         fillLight.position.set(-2, 1, 2);
         scene.add(fillLight);
 
-        const backLight = new THREE.DirectionalLight(0xffeedd, 0.15);
+        const backLight = new THREE.DirectionalLight(0xffeedd, 0.25);
         backLight.position.set(0, 1, -3);
         scene.add(backLight);
 
