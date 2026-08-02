@@ -148,21 +148,31 @@ if (!container) {
         buildCubies();
 
         // ============================
-        // ========= ОСВЕЩЕНИЕ (ТОЧНО КАК В ОРИГИНАЛЕ) =========
+        // ===== ПРЕМИАЛЬНОЕ ОСВЕЩЕНИЕ =====
         // ============================
-        const ambientLight = new THREE.AmbientLight(0x606080, 0.6);
+
+        // Мягкая общая заливка (приглушённая)
+        const ambientLight = new THREE.AmbientLight(0x404060, 0.45);
         scene.add(ambientLight);
-        
-        const mainLight = new THREE.DirectionalLight(0xffffff, 0.9);
-        mainLight.position.set(2, 4, 3);
+
+        // Основной направленный свет — слева сверху (тёплый, мягкий)
+        const mainLight = new THREE.DirectionalLight(0xffeedd, 0.55);
+        mainLight.position.set(3, 5, 4);
         scene.add(mainLight);
-        
-        const fillLight = new THREE.DirectionalLight(0xffffff, 0.5);
-        fillLight.position.set(-2, 1, 2);
-        scene.add(fillLight);
-        
-        const backLight = new THREE.DirectionalLight(0xffffff, 0.2);
-        backLight.position.set(0, 1, -3);
+
+        // Контровой свет — справа снизу (холодный, приглушённый, создаёт объём)
+        const rimLight = new THREE.DirectionalLight(0xccddff, 0.35);
+        rimLight.position.set(-3, -2, 4);
+        scene.add(rimLight);
+
+        // Заливка снизу — поднимает нижнюю часть кубика, убирает провалы в тень
+        const bottomLight = new THREE.DirectionalLight(0xeeeeff, 0.25);
+        bottomLight.position.set(0, -4, 0);
+        scene.add(bottomLight);
+
+        // Лёгкий свет сзади — для глубины
+        const backLight = new THREE.DirectionalLight(0xffffff, 0.15);
+        backLight.position.set(0, 1, -5);
         scene.add(backLight);
 
         // ============================
