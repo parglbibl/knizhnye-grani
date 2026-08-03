@@ -140,7 +140,7 @@
             }
         }
 
-        /* ===== Легенда (разъяснение обозначений) ===== */
+        /* ===== Легенда (разъяснение обозначений) — скрыта по умолчанию ===== */
         .legend {
             margin-top: 2rem;
             max-width: 600px;
@@ -152,6 +152,13 @@
             font-size: 0.9rem;
             color: #1e2a3a;
             line-height: 1.7;
+            display: none; /* скрыта до скрамблинга */
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        .legend.visible {
+            display: block;
+            opacity: 1;
         }
         .legend h3 {
             margin: 0 0 0.5rem 0;
@@ -202,6 +209,23 @@
             font-style: normal;
             color: #777;
         }
+        .legend .hint {
+            margin-top: 0.6rem;
+            font-size: 0.8rem;
+            color: #666;
+            text-align: center;
+            border-top: 1px solid #ddd;
+            padding-top: 0.6rem;
+        }
+        .legend .hint span {
+            background: #1e2a47;
+            color: #fff;
+            padding: 0 8px;
+            border-radius: 4px;
+        }
+        .legend .hint .prime-badge {
+            background: #3a2a4a;
+        }
     </style>
 </head>
 <body>
@@ -239,8 +263,8 @@
         </div>
     </div>
 
-    <!-- ===== ЛЕГЕНДА — РАЗЪЯСНЕНИЕ ОБОЗНАЧЕНИЙ ===== -->
-    <div class="legend">
+    <!-- ===== ЛЕГЕНДА — РАЗЪЯСНЕНИЕ ОБОЗНАЧЕНИЙ (появляется после скрамблинга) ===== -->
+    <div class="legend" id="legend">
         <h3>📐 Обозначения ходов</h3>
         <div class="legend-grid">
             <div class="legend-item"><span class="move r">R</span> <span class="desc">Правая грань ↻</span></div>
@@ -256,8 +280,8 @@
             <div class="legend-item"><span class="move d">D</span> <span class="desc">Нижняя грань ↻</span></div>
             <div class="legend-item"><span class="move dp">D'</span> <span class="desc">Нижняя грань ↺</span></div>
         </div>
-        <div style="margin-top: 0.6rem; font-size: 0.8rem; color: #666; text-align: center; border-top: 1px solid #ddd; padding-top: 0.6rem;">
-            <span style="background: #1e2a47; color: #fff; padding: 0 8px; border-radius: 4px;">R</span> — по часовой, <span style="background: #3a2a4a; color: #fff; padding: 0 8px; border-radius: 4px;">R'</span> — против часовой (штрих)
+        <div class="hint">
+            <span>R</span> — по часовой, <span class="prime-badge">R'</span> — против часовой (штрих)
         </div>
     </div>
 
@@ -282,5 +306,38 @@
 
     <!-- ===== ПОДКЛЮЧАЕМ МОДУЛЬ КУБИКА ===== -->
     <script type="module" src="./js/cube3d.js"></script>
+
+    <!-- ===== ДОПОЛНИТЕЛЬНЫЙ СКРИПТ ДЛЯ ОТОБРАЖЕНИЯ ЛЕГЕНДЫ ===== -->
+    <script>
+        // Ждём загрузки модуля, затем навешиваем обработчик на кнопку "Перемешать"
+        document.addEventListener('DOMContentLoaded', function() {
+            const scrambleBtn = document.getElementById('btnScramble');
+            const legend = document.getElementById('legend');
+
+            // Функция показа легенды
+            function showLegend() {
+                legend.classList.add('visible');
+            }
+
+            // Если легенда ещё не показана, показываем при первом скрамблинге
+            let legendShown = false;
+
+            // Перехватываем клик по кнопке "Перемешать"
+            scrambleBtn.addEventListener('click', function() {
+                if (!legendShown) {
+                    // Показываем легенду с небольшой задержкой, чтобы скрамблинг успел начаться
+                    setTimeout(() => {
+                        showLegend();
+                        legendShown = true;
+                    }, 300);
+                }
+            });
+
+            // Также если скрамблинг вызывается программно (например, из модуля) — 
+            // можно дополнительно отслеживать, но в основном пользователь нажимает кнопку.
+            // Для надёжности: если кубик уже был собран и пользователь жмёт "Перемешать" повторно,
+            // легенда уже показана, ничего не делаем.
+        });
+    </script>
 </body>
 </html>
