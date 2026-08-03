@@ -267,8 +267,6 @@ if (!container) {
                     newPositions.forEach(item => {
                         item.cubie.position.copy(item.endPos);
                         item.cubie.quaternion.copy(item.endRot);
-                        
-                        // Обновляем userData
                         item.cubie.userData.gridX = Math.round(item.cubie.position.x / offset);
                         item.cubie.userData.gridY = Math.round(item.cubie.position.y / offset);
                         item.cubie.userData.gridZ = Math.round(item.cubie.position.z / offset);
@@ -366,7 +364,7 @@ if (!container) {
         window.generateScramble = generateScramble;
         window.updateCubeGlow = updateCubeGlow;
 
-        // ===== ДИСКРЕТНОЕ РУЧНОЕ ВРАЩЕНИЕ (КАК В СКРАМБЛЕРЕ) =====
+        // ===== ДИСКРЕТНОЕ РУЧНОЕ ВРАЩЕНИЕ (ТОЛЬКО ПРИ ПОПАДАНИИ В ГРАНЬ) =====
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
 
@@ -383,25 +381,11 @@ if (!container) {
         let isDragging = false;
         let isPointerDown = false;
 
-        // ===== ПРИ ЛЮБОМ КАСАНИИ ЗОНЫ КУБИКА ОТКЛЮЧАЕМ ORBITCONTROLS =====
-        renderer.domElement.addEventListener('pointerdown', (e) => {
-            // При любом касании внутри контейнера — отключаем вращение сцены
-            controls.enabled = false;
-        });
-
-        renderer.domElement.addEventListener('pointerup', (e) => {
-            // При отпускании — включаем обратно, но только если нет активной анимации
-            if (!isAnimating && !isSnapping) {
-                controls.enabled = true;
-            }
-        });
-
         // ===== ДЛЯ МЫШИ =====
         renderer.domElement.addEventListener('mousedown', (e) => {
             if (window.isSolved) return;
             if (isScrambling || isAnimating || isBlocked) return;
             if (isPointerDown) return;
-            isPointerDown = true;
 
             const rect = renderer.domElement.getBoundingClientRect();
             mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
@@ -410,9 +394,13 @@ if (!container) {
             const intersects = raycaster.intersectObjects(allCubies);
 
             if (intersects.length === 0) {
-                isPointerDown = false;
+                // Если не попали в грань — разрешаем OrbitControls крутить сцену
                 return;
             }
+
+            // Попали в грань — отключаем OrbitControls и готовимся крутить грань
+            controls.enabled = false;
+            isPointerDown = true;
 
             const clicked = intersects[0].object;
             const normal = intersects[0].face.normal.clone().applyQuaternion(clicked.quaternion);
@@ -430,6 +418,7 @@ if (!container) {
                 dragAxis = 'z';
                 dragLayer = Math.round(clicked.position.z / offset);
             } else {
+                controls.enabled = true;
                 isPointerDown = false;
                 return;
             }
@@ -461,7 +450,10 @@ if (!container) {
 
         renderer.domElement.addEventListener('mouseup', (e) => {
             if (!isDragging || !dragStart) {
-                isPointerDown = false;
+                if (isPointerDown) {
+                    controls.enabled = true;
+                    isPointerDown = false;
+                }
                 return;
             }
 
@@ -486,11 +478,14 @@ if (!container) {
                 if (dragStart.normalZ < 0) angle *= -1;
 
                 rotateLayer(dragStart.axis, dragStart.layer, angle, 150, () => {
+                    controls.enabled = true;
                     if (isCubeSolved()) {
                         window.isSolved = true;
                     }
                     updateCubeGlow();
                 });
+            } else {
+                controls.enabled = true;
             }
 
             // ===== КЛИК БЕЗ ПЕРЕМЕЩЕНИЯ — ТОЛЬКО НА СОБРАННОМ =====
@@ -566,9 +561,8 @@ if (!container) {
             if (window.isSolved) return;
             if (isScrambling || isAnimating || isBlocked) return;
             if (isPointerDown) return;
-            isPointerDown = true;
-            e.preventDefault();
-
+            
+            // Сначала проверяем, есть ли попадание в грань
             const touch = e.changedTouches[0];
             const rect = renderer.domElement.getBoundingClientRect();
             mouse.x = ((touch.clientX - rect.left) / rect.width) * 2 - 1;
@@ -577,9 +571,14 @@ if (!container) {
             const intersects = raycaster.intersectObjects(allCubies);
 
             if (intersects.length === 0) {
-                isPointerDown = false;
+                // Не попали в грань — разрешаем OrbitControls крутить сцену
                 return;
             }
+
+            // Попали в грань — отключаем OrbitControls и готовимся крутить грань
+            controls.enabled = false;
+            isPointerDown = true;
+            e.preventDefault();
 
             const clicked = intersects[0].object;
             const normal = intersects[0].face.normal.clone().applyQuaternion(clicked.quaternion);
@@ -597,6 +596,7 @@ if (!container) {
                 dragAxis = 'z';
                 dragLayer = Math.round(clicked.position.z / offset);
             } else {
+                controls.enabled = true;
                 isPointerDown = false;
                 return;
             }
@@ -630,7 +630,10 @@ if (!container) {
 
         renderer.domElement.addEventListener('touchend', (e) => {
             if (!isDragging || !dragStart) {
-                isPointerDown = false;
+                if (isPointerDown) {
+                    controls.enabled = true;
+                    isPointerDown = false;
+                }
                 return;
             }
 
@@ -658,11 +661,14 @@ if (!container) {
                 if (dragStart.normalZ < 0) angle *= -1;
 
                 rotateLayer(dragStart.axis, dragStart.layer, angle, 150, () => {
+                    controls.enabled = true;
                     if (isCubeSolved()) {
                         window.isSolved = true;
                     }
                     updateCubeGlow();
                 });
+            } else {
+                controls.enabled = true;
             }
 
             // ===== КЛИК БЕЗ ПЕРЕМЕЩЕНИЯ — ТОЛЬКО НА СОБРАННОМ =====
