@@ -49,9 +49,9 @@ if (!container) {
         controls.rotateSpeed = 1.0;
         controls.target.set(0, 0, 0);
 
-        // ===== СТОПОР ВЕРТИКАЛИ (идеальный) =====
-        controls.minPolarAngle = 0.15;
-        controls.maxPolarAngle = Math.PI - 0.15;
+        // ===== ЕДИНСТВЕННОЕ ИЗМЕНЕНИЕ: СТОПОР ВЕРТИКАЛИ =====
+        controls.minPolarAngle = 0.1;
+        controls.maxPolarAngle = Math.PI - 0.1;
         controls.update();
 
         const cubeGroup = new THREE.Group();
