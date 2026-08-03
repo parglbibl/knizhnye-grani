@@ -2,6 +2,16 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 
+// ===== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ДЛЯ ДОСТУПА ИЗ КНОПОК =====
+window.isSolved = true;
+window.isScrambling = false;
+window.isAnimating = false;
+window.isBlocked = false;
+window.scrambleMoves = [];
+window.executeMoveSequence = null;
+window.generateScramble = null;
+window.updateCubeGlow = null;
+
 const container = document.getElementById('cube-container');
 if (!container) {
     console.error('Контейнер для кубика не найден');
@@ -347,49 +357,10 @@ if (!container) {
             next();
         }
 
-        const btnScramble = document.getElementById('btnScramble');
-        const btnSolve = document.getElementById('btnSolve');
-
-        btnScramble.addEventListener('click', function() {
-            if (isScrambling || isAnimating || isBlocked) return;
-            isBlocked = true;
-            isScrambling = true;
-            btnScramble.style.display = 'none';
-            btnSolve.style.display = 'inline-block';
-
-            const moves = generateScramble(23);
-            scrambleMoves = moves;
-            const durationPerMove = 5000 / moves.length;
-
-            executeMoveSequence(moves, durationPerMove, () => {
-                isScrambling = false;
-                updateCubeGlow();
-            });
-        });
-
-        btnSolve.addEventListener('click', function() {
-            if (isScrambling || isAnimating || scrambleMoves.length === 0) return;
-            isScrambling = true;
-            btnSolve.style.display = 'none';
-            btnScramble.style.display = 'inline-block';
-
-            const reverseMoves = scrambleMoves.slice().reverse().map(m => {
-                if (m.endsWith("'")) return m.slice(0, -1);
-                if (m.endsWith("2")) return m;
-                return m + "'";
-            });
-            const durationPerMove = 5000 / reverseMoves.length;
-
-            executeMoveSequence(reverseMoves, durationPerMove, () => {
-                isScrambling = false;
-                scrambleMoves = [];
-                updateCubeGlow();
-                isBlocked = false;
-            });
-        });
-
-        // ===== ФЛАГ СОСТОЯНИЯ: СОБРАН ИЛИ РАЗОБРАН =====
-        let isSolved = true; // при загрузке кубик собран
+        // Экспортируем функции в глобальную область для кнопок
+        window.executeMoveSequence = executeMoveSequence;
+        window.generateScramble = generateScramble;
+        window.updateCubeGlow = updateCubeGlow;
 
         // ===== РУЧНОЕ ВРАЩЕНИЕ (СВАЙП) — ОТДЕЛЬНО ДЛЯ МЫШИ И ПАЛЬЦЕВ =====
         const raycaster = new THREE.Raycaster();
@@ -411,7 +382,7 @@ if (!container) {
         // ===== ДЛЯ МЫШИ (ПК) =====
         renderer.domElement.addEventListener('mousedown', (e) => {
             // СВАЙП РАБОТАЕТ ТОЛЬКО НА РАЗОБРАННОМ КУБИКЕ
-            if (isSolved) return;
+            if (window.isSolved) return;
             if (isScrambling || isAnimating || isBlocked) return;
             if (isPointerDown) return;
             isPointerDown = true;
@@ -462,7 +433,7 @@ if (!container) {
 
         renderer.domElement.addEventListener('mousemove', (e) => {
             if (!isDragging || !dragStart) return;
-            if (isSolved) return; // дополнительная защита
+            if (window.isSolved) return; // дополнительная защита
 
             const dx = e.clientX - dragStart.x;
             const dy = e.clientY - dragStart.y;
@@ -525,13 +496,13 @@ if (!container) {
                 });
                 // После движения проверяем, не собрался ли кубик
                 if (isCubeSolved()) {
-                    isSolved = true;
+                    window.isSolved = true;
                 }
                 updateCubeGlow();
             }
 
             // ===== КЛИК БЕЗ ПЕРЕМЕЩЕНИЯ — ТОЛЬКО НА СОБРАННОМ КУБИКЕ =====
-            if (!dragStart.moved && isSolved) {
+            if (!dragStart.moved && window.isSolved) {
                 const rect = renderer.domElement.getBoundingClientRect();
                 mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
                 mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
@@ -601,7 +572,7 @@ if (!container) {
         // ===== ДЛЯ ПАЛЬЦЕВ (ТЕЛЕФОН) =====
         renderer.domElement.addEventListener('touchstart', (e) => {
             // СВАЙП РАБОТАЕТ ТОЛЬКО НА РАЗОБРАННОМ КУБИКЕ
-            if (isSolved) return;
+            if (window.isSolved) return;
             if (isScrambling || isAnimating || isBlocked) return;
             if (isPointerDown) return;
             isPointerDown = true;
@@ -654,7 +625,7 @@ if (!container) {
 
         renderer.domElement.addEventListener('touchmove', (e) => {
             if (!isDragging || !dragStart) return;
-            if (isSolved) return; // дополнительная защита
+            if (window.isSolved) return; // дополнительная защита
             e.preventDefault();
 
             const touch = e.changedTouches[0];
@@ -722,13 +693,13 @@ if (!container) {
                 });
                 // После движения проверяем, не собрался ли кубик
                 if (isCubeSolved()) {
-                    isSolved = true;
+                    window.isSolved = true;
                 }
                 updateCubeGlow();
             }
 
             // ===== КЛИК БЕЗ ПЕРЕМЕЩЕНИЯ — ТОЛЬКО НА СОБРАННОМ КУБИКЕ =====
-            if (!dragStart.moved && isSolved) {
+            if (!dragStart.moved && window.isSolved) {
                 const rect = renderer.domElement.getBoundingClientRect();
                 mouse.x = ((touch.clientX - rect.left) / rect.width) * 2 - 1;
                 mouse.y = -((touch.clientY - rect.top) / rect.height) * 2 + 1;
@@ -803,48 +774,6 @@ if (!container) {
             }
         });
 
-        // ===== ОБНОВЛЕНИЕ ФЛАГА ПОСЛЕ СКРАМБЛА И СБОРКИ =====
-        // Переопределяем кнопки с учётом флага isSolved
-        btnScramble.addEventListener('click', function() {
-            if (isScrambling || isAnimating || isBlocked) return;
-            isBlocked = true;
-            isScrambling = true;
-            isSolved = false; // кубик разобран
-            btnScramble.style.display = 'none';
-            btnSolve.style.display = 'inline-block';
-
-            const moves = generateScramble(23);
-            scrambleMoves = moves;
-            const durationPerMove = 5000 / moves.length;
-
-            executeMoveSequence(moves, durationPerMove, () => {
-                isScrambling = false;
-                updateCubeGlow();
-            });
-        });
-
-        btnSolve.addEventListener('click', function() {
-            if (isScrambling || isAnimating || scrambleMoves.length === 0) return;
-            isScrambling = true;
-            isSolved = true; // кубик собран
-            btnSolve.style.display = 'none';
-            btnScramble.style.display = 'inline-block';
-
-            const reverseMoves = scrambleMoves.slice().reverse().map(m => {
-                if (m.endsWith("'")) return m.slice(0, -1);
-                if (m.endsWith("2")) return m;
-                return m + "'";
-            });
-            const durationPerMove = 5000 / reverseMoves.length;
-
-            executeMoveSequence(reverseMoves, durationPerMove, () => {
-                isScrambling = false;
-                scrambleMoves = [];
-                updateCubeGlow();
-                isBlocked = false;
-            });
-        });
-
         // ===== ПОДСВЕТКА =====
         let activeGlowIds = [];
 
@@ -894,3 +823,58 @@ if (!container) {
         });
     }
 }
+
+// ===== КНОПКИ (ПЕРЕОПРЕДЕЛЕНИЕ ВНЕ INITCUBE) =====
+document.addEventListener('DOMContentLoaded', function() {
+    const btnScramble = document.getElementById('btnScramble');
+    const btnSolve = document.getElementById('btnSolve');
+
+    if (!btnScramble || !btnSolve) return;
+
+    // Убираем старые обработчики (если есть) через клонирование
+    const newBtnScramble = btnScramble.cloneNode(true);
+    const newBtnSolve = btnSolve.cloneNode(true);
+    btnScramble.parentNode.replaceChild(newBtnScramble, btnScramble);
+    btnSolve.parentNode.replaceChild(newBtnSolve, btnSolve);
+
+    // Вешаем новые
+    newBtnScramble.addEventListener('click', function() {
+        if (window.isScrambling || window.isAnimating || window.isBlocked) return;
+        window.isBlocked = true;
+        window.isScrambling = true;
+        window.isSolved = false; // <--- ГЛАВНОЕ: разрешаем свайп
+        this.style.display = 'none';
+        newBtnSolve.style.display = 'inline-block';
+
+        const moves = window.generateScramble ? window.generateScramble(23) : ['U', "R'", 'F2', 'L', "D'", 'B'];
+        window.scrambleMoves = moves;
+        const durationPerMove = 5000 / moves.length;
+
+        window.executeMoveSequence(moves, durationPerMove, () => {
+            window.isScrambling = false;
+            if (window.updateCubeGlow) window.updateCubeGlow();
+        });
+    });
+
+    newBtnSolve.addEventListener('click', function() {
+        if (window.isScrambling || window.isAnimating || !window.scrambleMoves || window.scrambleMoves.length === 0) return;
+        window.isScrambling = true;
+        window.isSolved = true; // <--- ГЛАВНОЕ: запрещаем свайп
+        this.style.display = 'none';
+        newBtnScramble.style.display = 'inline-block';
+
+        const reverseMoves = window.scrambleMoves.slice().reverse().map(m => {
+            if (m.endsWith("'")) return m.slice(0, -1);
+            if (m.endsWith("2")) return m;
+            return m + "'";
+        });
+        const durationPerMove = 5000 / reverseMoves.length;
+
+        window.executeMoveSequence(reverseMoves, durationPerMove, () => {
+            window.isScrambling = false;
+            window.scrambleMoves = [];
+            if (window.updateCubeGlow) window.updateCubeGlow();
+            window.isBlocked = false;
+        });
+    });
+});
