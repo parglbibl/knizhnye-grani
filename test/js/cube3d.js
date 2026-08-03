@@ -292,7 +292,6 @@ if (!container) {
         window.rotateLayer = rotateLayer;
 
         // ===== СКРАМБЛЕР И СБОРЩИК =====
-        // let scrambleMoves = []; // БОЛЬШЕ НЕ НУЖЕН
         let isScrambling = false;
         let isBlocked = false;
 
@@ -389,7 +388,7 @@ if (!container) {
             btnSolve.parentNode.replaceChild(newBtnSolve, btnSolve);
 
             newBtnScramble.addEventListener('click', function() {
-                if (window.isScrambling || window.isAnimating || window.isBlocked) return;
+                if (window.isScrambling || window.isAnimating) return;
                 window.isBlocked = true;
                 window.isScrambling = true;
                 window.isSolved = false;
@@ -407,17 +406,16 @@ if (!container) {
 
                 window.executeMoveSequence(moves, durationPerMove, () => {
                     window.isScrambling = false;
+                    window.isBlocked = false; // <--- ВАЖНО: разблокируем после скрамбла
                     if (window.updateCubeGlow) window.updateCubeGlow();
                 });
             });
 
             newBtnSolve.addEventListener('click', function() {
                 if (window.isScrambling || window.isAnimating || window.moveHistory.length === 0) return;
+                if (window.isBlocked) return; // защита от двойного нажатия
                 
-                // Блокируем повторные нажатия
-                if (window.isBlocked) return;
                 window.isBlocked = true;
-                
                 window.isScrambling = true;
                 window.isSolved = true;
                 this.style.display = 'none';
@@ -435,8 +433,8 @@ if (!container) {
                 window.executeMoveSequence(reverseMoves, durationPerMove, () => {
                     window.isScrambling = false;
                     window.moveHistory = []; // очищаем историю после успешной сборки
+                    window.isBlocked = false; // разблокируем
                     if (window.updateCubeGlow) window.updateCubeGlow();
-                    window.isBlocked = false;
                 });
             });
         });
@@ -506,7 +504,6 @@ window.doMove = function(direction) {
     if (window.isAnimating) return;
 
     // ЗАПИСЫВАЕМ ХОД В ИСТОРИЮ (ЕСЛИ НЕ ИДЁТ СБОРКА)
-    // Добавляем эту проверку, чтобы во время сборки ходы не записывались повторно
     if (!window.isScrambling) {
         window.moveHistory.push(direction);
     }
