@@ -394,7 +394,7 @@ if (!container) {
             const intersects = raycaster.intersectObjects(allCubies);
 
             if (intersects.length === 0) {
-                // Если не попали в грань — разрешаем OrbitControls крутить сцену
+                // Не попали в грань — разрешаем OrbitControls крутить сцену
                 return;
             }
 
@@ -479,9 +479,6 @@ if (!container) {
 
                 rotateLayer(dragStart.axis, dragStart.layer, angle, 150, () => {
                     controls.enabled = true;
-                    if (isCubeSolved()) {
-                        window.isSolved = true;
-                    }
                     updateCubeGlow();
                 });
             } else {
@@ -662,9 +659,6 @@ if (!container) {
 
                 rotateLayer(dragStart.axis, dragStart.layer, angle, 150, () => {
                     controls.enabled = true;
-                    if (isCubeSolved()) {
-                        window.isSolved = true;
-                    }
                     updateCubeGlow();
                 });
             } else {
