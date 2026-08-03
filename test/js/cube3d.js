@@ -17,8 +17,9 @@ window.allCubies = null;
 window.offset = null;
 window.cubeGroup = null;
 
-// ===== ФУНКЦИЯ ПОКАЗА КНОПОК (ВЫЗЫВАЕТСЯ ИЗ cube3d.js) =====
+// ===== ФУНКЦИЯ ПОКАЗА/СКРЫТИЯ КНОПОК =====
 window.showCubeControls = null;
+window.hideCubeControls = null;
 
 const container = document.getElementById('cube-container');
 if (!container) {
@@ -201,7 +202,7 @@ if (!container) {
             return true;
         }
 
-        // ===== ВРАЩЕНИЕ СЛОЁВ (с защитой от быстрых нажатий) =====
+        // ===== ВРАЩЕНИЕ СЛОЁВ =====
         let isAnimating = false;
 
         function getCubiesInLayer(axis, index) {
@@ -418,7 +419,7 @@ if (!container) {
                     window.isBlocked = false;
                     if (window.updateCubeGlow) window.updateCubeGlow();
 
-                    // ===== ВЫЗЫВАЕМ ПОКАЗ КНОПОК ПОСЛЕ СКРАМБЛА =====
+                    // ===== ПОКАЗЫВАЕМ КНОПКИ =====
                     if (typeof window.showCubeControls === 'function') {
                         window.showCubeControls();
                     }
@@ -447,6 +448,11 @@ if (!container) {
                     window.moveHistory = [];
                     window.isBlocked = false;
                     if (window.updateCubeGlow) window.updateCubeGlow();
+
+                    // ===== СКРЫВАЕМ КНОПКИ ПОСЛЕ СБОРКИ =====
+                    if (typeof window.hideCubeControls === 'function') {
+                        window.hideCubeControls();
+                    }
                 });
             });
         });
@@ -509,7 +515,7 @@ if (!container) {
     }
 }
 
-// ===== ГЛАВНАЯ ФУНКЦИЯ ДЛЯ КНОПОК (ИСПРАВЛЕННАЯ) =====
+// ===== ГЛАВНАЯ ФУНКЦИЯ ДЛЯ КНОПОК =====
 window.doMove = function(direction) {
     if (window.isSolved) return;
     if (!direction) return;
