@@ -380,6 +380,7 @@ if (!container) {
         let dragLayer = null;
         let isDragging = false;
         let isPointerDown = false;
+        let highlightedCubie = null; // для подсветки
 
         // ===== ДЛЯ МЫШИ =====
         renderer.domElement.addEventListener('mousedown', (e) => {
@@ -394,7 +395,6 @@ if (!container) {
             const intersects = raycaster.intersectObjects(allCubies);
 
             if (intersects.length === 0) {
-                // Не попали в грань — разрешаем OrbitControls крутить сцену
                 return;
             }
 
@@ -423,6 +423,17 @@ if (!container) {
                 return;
             }
 
+            // Подсветка грани
+            highlightedCubie = clicked;
+            const faceIndex = intersects[0].faceIndex;
+            if (faceIndex !== undefined) {
+                const matIndex = Math.floor(faceIndex / 2);
+                if (clicked.material[matIndex]) {
+                    clicked.material[matIndex].emissive = new THREE.Color(0xffffff);
+                    clicked.material[matIndex].emissiveIntensity = 0.3;
+                }
+            }
+
             dragStart = {
                 x: e.clientX,
                 y: e.clientY,
@@ -442,7 +453,7 @@ if (!container) {
 
             const dx = e.clientX - dragStart.x;
             const dy = e.clientY - dragStart.y;
-            const threshold = 30;
+            const threshold = 15; // уменьшили порог
 
             if (!dragStart.moved && Math.abs(dx) < threshold && Math.abs(dy) < threshold) return;
             dragStart.moved = true;
@@ -453,12 +464,33 @@ if (!container) {
                 if (isPointerDown) {
                     controls.enabled = true;
                     isPointerDown = false;
+                    // Сброс подсветки
+                    if (highlightedCubie) {
+                        for (let i = 0; i < 6; i++) {
+                            if (highlightedCubie.material[i]) {
+                                highlightedCubie.material[i].emissive = new THREE.Color(0x000000);
+                                highlightedCubie.material[i].emissiveIntensity = 0;
+                            }
+                        }
+                        highlightedCubie = null;
+                    }
                 }
                 return;
             }
 
             isDragging = false;
             isPointerDown = false;
+
+            // Сброс подсветки
+            if (highlightedCubie) {
+                for (let i = 0; i < 6; i++) {
+                    if (highlightedCubie.material[i]) {
+                        highlightedCubie.material[i].emissive = new THREE.Color(0x000000);
+                        highlightedCubie.material[i].emissiveIntensity = 0;
+                    }
+                }
+                highlightedCubie = null;
+            }
 
             if (dragStart.moved) {
                 const dx = e.clientX - dragStart.x;
@@ -559,7 +591,6 @@ if (!container) {
             if (isScrambling || isAnimating || isBlocked) return;
             if (isPointerDown) return;
             
-            // Сначала проверяем, есть ли попадание в грань
             const touch = e.changedTouches[0];
             const rect = renderer.domElement.getBoundingClientRect();
             mouse.x = ((touch.clientX - rect.left) / rect.width) * 2 - 1;
@@ -568,11 +599,9 @@ if (!container) {
             const intersects = raycaster.intersectObjects(allCubies);
 
             if (intersects.length === 0) {
-                // Не попали в грань — разрешаем OrbitControls крутить сцену
                 return;
             }
 
-            // Попали в грань — отключаем OrbitControls и готовимся крутить грань
             controls.enabled = false;
             isPointerDown = true;
             e.preventDefault();
@@ -598,6 +627,17 @@ if (!container) {
                 return;
             }
 
+            // Подсветка грани
+            highlightedCubie = clicked;
+            const faceIndex = intersects[0].faceIndex;
+            if (faceIndex !== undefined) {
+                const matIndex = Math.floor(faceIndex / 2);
+                if (clicked.material[matIndex]) {
+                    clicked.material[matIndex].emissive = new THREE.Color(0xffffff);
+                    clicked.material[matIndex].emissiveIntensity = 0.3;
+                }
+            }
+
             dragStart = {
                 x: touch.clientX,
                 y: touch.clientY,
@@ -619,7 +659,7 @@ if (!container) {
             const touch = e.changedTouches[0];
             const dx = touch.clientX - dragStart.x;
             const dy = touch.clientY - dragStart.y;
-            const threshold = 30;
+            const threshold = 15; // уменьшили порог
 
             if (!dragStart.moved && Math.abs(dx) < threshold && Math.abs(dy) < threshold) return;
             dragStart.moved = true;
@@ -630,6 +670,15 @@ if (!container) {
                 if (isPointerDown) {
                     controls.enabled = true;
                     isPointerDown = false;
+                    if (highlightedCubie) {
+                        for (let i = 0; i < 6; i++) {
+                            if (highlightedCubie.material[i]) {
+                                highlightedCubie.material[i].emissive = new THREE.Color(0x000000);
+                                highlightedCubie.material[i].emissiveIntensity = 0;
+                            }
+                        }
+                        highlightedCubie = null;
+                    }
                 }
                 return;
             }
@@ -639,6 +688,16 @@ if (!container) {
             e.preventDefault();
 
             const touch = e.changedTouches[0];
+
+            if (highlightedCubie) {
+                for (let i = 0; i < 6; i++) {
+                    if (highlightedCubie.material[i]) {
+                        highlightedCubie.material[i].emissive = new THREE.Color(0x000000);
+                        highlightedCubie.material[i].emissiveIntensity = 0;
+                    }
+                }
+                highlightedCubie = null;
+            }
 
             if (dragStart.moved) {
                 const dx = touch.clientX - dragStart.x;
