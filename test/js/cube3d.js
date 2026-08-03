@@ -16,6 +16,7 @@ window.camera = null;
 window.allCubies = null;
 window.offset = null;
 window.cubeGroup = null;
+window.scene = null;
 
 const container = document.getElementById('cube-container');
 if (!container) {
@@ -43,6 +44,7 @@ if (!container) {
     function initCube(size) {
         const scene = new THREE.Scene();
         scene.background = null;
+        window.scene = scene;
 
         const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 1000);
         camera.position.set(3.5, 2.5, 4.5);
@@ -437,6 +439,90 @@ if (!container) {
                     if (window.updateCubeGlow) window.updateCubeGlow();
                 });
             });
+        });
+
+        // ===== ДИСКРЕТНЫЙ ПОВОРОТ СЦЕНЫ НА 180° =====
+        // Поворот по вертикали (переворот верх/низ)
+        function flipSceneVertical() {
+            if (window.isAnimating || window.isScrambling) return;
+
+            // Поворачиваем всю группу кубиков на 180° вокруг оси X
+            const axis = new THREE.Vector3(1, 0, 0);
+            const angle = Math.PI; // 180°
+            const quat = new THREE.Quaternion().setFromAxisAngle(axis, angle);
+            window.cubeGroup.quaternion.multiply(quat);
+            // Обновляем нормали граней
+            window.cubeGroup.updateMatrixWorld(true);
+            if (window.updateCubeGlow) window.updateCubeGlow();
+        }
+
+        // Поворот по горизонтали (влево/вправо на 180°)
+        function flipSceneHorizontal(direction) {
+            if (window.isAnimating || window.isScrambling) return;
+
+            const axis = new THREE.Vector3(0, 1, 0);
+            const angle = direction === 'left' ? Math.PI : -Math.PI; // 180°
+            const quat = new THREE.Quaternion().setFromAxisAngle(axis, angle);
+            window.cubeGroup.quaternion.multiply(quat);
+            window.cubeGroup.updateMatrixWorld(true);
+            if (window.updateCubeGlow) window.updateCubeGlow();
+        }
+
+        // Обработчик клика по пустому месту (за пределами граней)
+        renderer.domElement.addEventListener('pointerdown', (e) => {
+            // Проверяем, попал ли клик в грань кубика
+            const rect = renderer.domElement.getBoundingClientRect();
+            const mouse = new THREE.Vector2(
+                ((e.clientX - rect.left) / rect.width) * 2 - 1,
+                -((e.clientY - rect.top) / rect.height) * 2 + 1
+            );
+            const raycaster = new THREE.Raycaster();
+            raycaster.setFromCamera(mouse, window.camera);
+            const intersects = raycaster.intersectObjects(window.allCubies);
+
+            // Если клик НЕ попал ни в одну грань — переворачиваем сцену
+            if (intersects.length === 0) {
+                // По умолчанию — вертикальный переворот (низ/верх)
+                flipSceneVertical();
+            }
+        });
+
+        // Обработчик горизонтального свайпа по пустому месту (влево/вправо)
+        let swipeStartX = 0;
+        let isSwiping = false;
+
+        renderer.domElement.addEventListener('pointerdown', (e) => {
+            // Если кликнули на грань — не начинаем свайп
+            const rect = renderer.domElement.getBoundingClientRect();
+            const mouse = new THREE.Vector2(
+                ((e.clientX - rect.left) / rect.width) * 2 - 1,
+                -((e.clientY - rect.top) / rect.height) * 2 + 1
+            );
+            const raycaster = new THREE.Raycaster();
+            raycaster.setFromCamera(mouse, window.camera);
+            const intersects = raycaster.intersectObjects(window.allCubies);
+
+            if (intersects.length === 0) {
+                swipeStartX = e.clientX;
+                isSwiping = true;
+            } else {
+                isSwiping = false;
+            }
+        });
+
+        renderer.domElement.addEventListener('pointermove', (e) => {
+            if (!isSwiping) return;
+            // Если свайп длиннее 50px — срабатывает поворот на 180°
+            const deltaX = e.clientX - swipeStartX;
+            if (Math.abs(deltaX) > 50) {
+                const direction = deltaX > 0 ? 'right' : 'left';
+                flipSceneHorizontal(direction);
+                isSwiping = false; // сбрасываем, чтобы не сработало повторно
+            }
+        });
+
+        renderer.domElement.addEventListener('pointerup', () => {
+            isSwiping = false;
         });
 
         // ===== ЗАКРЫТИЕ ПОПАПА =====
