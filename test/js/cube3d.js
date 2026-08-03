@@ -11,7 +11,10 @@ window.scrambleMoves = [];
 window.executeMoveSequence = null;
 window.generateScramble = null;
 window.updateCubeGlow = null;
-window.doMove = null;
+
+// Экспортируем функции, чтобы к ним можно было обратиться из HTML
+window.parseMove = null;
+window.rotateLayer = null;
 
 const container = document.getElementById('cube-container');
 if (!container) {
@@ -280,6 +283,10 @@ if (!container) {
             animateMove();
         }
 
+        // ===== ЭКСПОРТ В ГЛОБАЛЬНУЮ ОБЛАСТЬ =====
+        window.parseMove = parseMove;
+        window.rotateLayer = rotateLayer;
+
         // ===== СКРАМБЛЕР И СБОРЩИК =====
         let scrambleMoves = [];
         let isScrambling = false;
@@ -365,23 +372,6 @@ if (!container) {
         window.generateScramble = generateScramble;
         window.updateCubeGlow = updateCubeGlow;
 
-        // ===== ЭКСПОРТИРУЕМ ФУНКЦИЮ ПОВОРОТА В ГЛОБАЛЬНУЮ ОБЛАСТЬ =====
-        window.doMove = function(moveStr) {
-            // Кнопки работают ТОЛЬКО когда кубик разобран (после скрамбла)
-            if (!window.isSolved) { // <--- ИЗМЕНЕНИЕ ЗДЕСЬ
-                if (window.isScrambling || window.isAnimating || window.isBlocked) return;
-                if (!moveStr) return;
-
-                const parsed = parseMove(moveStr);
-                rotateLayer(parsed.axis, parsed.index, parsed.angle, 150, () => {
-                    if (isCubeSolved()) {
-                        window.isSolved = true;
-                    }
-                    updateCubeGlow();
-                });
-            }
-        };
-
         // ===== КНОПКИ «ПЕРЕМЕШАТЬ» И «СОБРАТЬ» =====
         document.addEventListener('DOMContentLoaded', function() {
             const btnScramble = document.getElementById('btnScramble');
@@ -398,7 +388,7 @@ if (!container) {
                 if (window.isScrambling || window.isAnimating || window.isBlocked) return;
                 window.isBlocked = true;
                 window.isScrambling = true;
-                window.isSolved = false; // разрешаем кнопкам работать
+                window.isSolved = false;
                 this.style.display = 'none';
                 newBtnSolve.style.display = 'inline-block';
 
@@ -415,7 +405,7 @@ if (!container) {
             newBtnSolve.addEventListener('click', function() {
                 if (window.isScrambling || window.isAnimating || !window.scrambleMoves || window.scrambleMoves.length === 0) return;
                 window.isScrambling = true;
-                window.isSolved = true; // запрещаем кнопкам работать
+                window.isSolved = true;
                 this.style.display = 'none';
                 newBtnScramble.style.display = 'inline-block';
 
