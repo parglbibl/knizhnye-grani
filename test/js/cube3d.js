@@ -310,7 +310,8 @@ if (!container) {
         }
 
         function parseMove(moveStr) {
-            const axisMap = { 'U': 'y', 'D': 'y', 'L': 'x', 'R': 'x', 'F': 'z', 'B': 'z' };
+            // Сначала парсим как обычно
+            const baseMap = { 'U': 'y', 'D': 'y', 'L': 'x', 'R': 'x', 'F': 'z', 'B': 'z' };
             const indexMap = { 'U': 1, 'D': -1, 'L': -1, 'R': 1, 'F': 1, 'B': -1 };
             const angleMap = { 'U': -1, 'D': 1, 'L': 1, 'R': -1, 'F': -1, 'B': 1 };
 
@@ -321,7 +322,31 @@ if (!container) {
             if (mod === "'") angle *= -1;
             else if (mod === "2") count = 2;
 
-            return { axis: axisMap[base], index: indexMap[base], angle, count };
+            // Получаем мировую ось
+            const worldAxis = baseMap[base];
+            const index = indexMap[base];
+
+            // === КЛЮЧЕВОЕ: преобразуем мировую ось в локальную ось кубика ===
+            // Берём кватернион кубика и применяем его к мировому вектору
+            const worldVec = new THREE.Vector3(
+                worldAxis === 'x' ? 1 : 0,
+                worldAxis === 'y' ? 1 : 0,
+                worldAxis === 'z' ? 1 : 0
+            );
+            // Обратное вращение: применяем инвертированный кватернион кубика
+            const localVec = worldVec.clone().applyQuaternion(cubeGroup.quaternion.clone().invert());
+            
+            // Округляем до целых значений (0, 1, -1)
+            const localAxis = 
+                Math.abs(localVec.x) > 0.5 ? 'x' :
+                Math.abs(localVec.y) > 0.5 ? 'y' :
+                Math.abs(localVec.z) > 0.5 ? 'z' : 'y';
+            
+            // Корректируем индекс слоя в локальной системе
+            // Для кнопок U/D индекс всегда ±1 (крайние слои)
+            // Но для L/R/F/B индекс тоже ±1
+
+            return { axis: localAxis, index: index, angle: angle * count };
         }
 
         function executeMove(moveStr, duration, callback) {
@@ -483,7 +508,7 @@ if (!container) {
 
 // ===== ГЛАВНАЯ ФУНКЦИЯ ДЛЯ КНОПОК ПОВОРОТА =====
 window.doMove = function(moveStr) {
-    // === КНОПКИ РАБОТАЮТ ТОЛЬКО НА РАЗОБРАННОМ КУБИКЕ ===
+    // Кнопки работают только на разобранном кубике
     if (window.isSolved) return;
 
     if (!moveStr) return;
