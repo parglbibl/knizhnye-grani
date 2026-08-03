@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Кубик Рубика — R, L, F, B, U, D</title>
+    <title>Кубик Рубика</title>
     <style>
         body {
             margin: 0;
@@ -58,13 +58,19 @@
             transform: scale(1.05);
         }
 
-        /* ===== КНОПКИ ПОВОРОТА ГРАНЕЙ ===== */
+        /* ===== КНОПКИ ПОВОРОТА ГРАНЕЙ (СКРЫТЫ ИЗНАЧАЛЬНО) ===== */
         .cube-buttons {
             margin-top: 1.5rem;
-            display: flex;
+            display: none; /* скрыты до скрамблинга */
             flex-direction: column;
             gap: 0.5rem;
             align-items: center;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        .cube-buttons.visible {
+            display: flex;
+            opacity: 1;
         }
         .btn-row {
             display: flex;
@@ -140,7 +146,7 @@
             }
         }
 
-        /* ===== Легенда (разъяснение обозначений) — скрыта по умолчанию ===== */
+        /* ===== Легенда (разъяснение обозначений) — СКРЫТА ИЗНАЧАЛЬНО ===== */
         .legend {
             margin-top: 2rem;
             max-width: 600px;
@@ -152,7 +158,7 @@
             font-size: 0.9rem;
             color: #1e2a3a;
             line-height: 1.7;
-            display: none; /* скрыта до скрамблинга */
+            display: none;
             opacity: 0;
             transition: opacity 0.5s ease;
         }
@@ -205,10 +211,6 @@
             font-weight: 400;
             font-size: 0.85rem;
         }
-        .legend-item .desc i {
-            font-style: normal;
-            color: #777;
-        }
         .legend .hint {
             margin-top: 0.6rem;
             font-size: 0.8rem;
@@ -232,29 +234,26 @@
 
     <div id="cube-container"></div>
 
-    <!-- ===== КНОПКИ «ПЕРЕМЕШАТЬ» И «СОБРАТЬ» ===== -->
+    <!-- ===== КНОПКА «ПЕРЕМЕШАТЬ» (изначально только она) ===== -->
     <div class="controls">
         <button id="btnScramble">Перемешать</button>
-        <button id="btnSolve">Собрать</button>
+        <button id="btnSolve" style="display:none;">Собрать</button>
     </div>
 
-    <!-- ===== КНОПКИ ПОВОРОТА ГРАНЕЙ ===== -->
-    <div class="cube-buttons">
-        <!-- R / R'  и  L / L' -->
+    <!-- ===== КНОПКИ ПОВОРОТА ГРАНЕЙ (СКРЫТЫ ДО СКРАМБЛИНГА) ===== -->
+    <div class="cube-buttons" id="cubeButtons">
         <div class="btn-row">
             <button class="cube-btn r" onclick="window.doMove('R')">R</button>
             <button class="cube-btn prime r" onclick="window.doMove('R\'')">R'</button>
             <button class="cube-btn l" onclick="window.doMove('L')">L</button>
             <button class="cube-btn prime l" onclick="window.doMove('L\'')">L'</button>
         </div>
-        <!-- F / F'  и  B / B' -->
         <div class="btn-row">
             <button class="cube-btn f" onclick="window.doMove('F')">F</button>
             <button class="cube-btn prime f" onclick="window.doMove('F\'')">F'</button>
             <button class="cube-btn b" onclick="window.doMove('B')">B</button>
             <button class="cube-btn prime b" onclick="window.doMove('B\'')">B'</button>
         </div>
-        <!-- U / U'  и  D / D' -->
         <div class="btn-row">
             <button class="cube-btn u" onclick="window.doMove('U')">U</button>
             <button class="cube-btn prime u" onclick="window.doMove('U\'')">U'</button>
@@ -263,7 +262,7 @@
         </div>
     </div>
 
-    <!-- ===== ЛЕГЕНДА — РАЗЪЯСНЕНИЕ ОБОЗНАЧЕНИЙ (появляется после скрамблинга) ===== -->
+    <!-- ===== ЛЕГЕНДА (СКРЫТА ДО СКРАМБЛИНГА) ===== -->
     <div class="legend" id="legend">
         <h3>📐 Обозначения ходов</h3>
         <div class="legend-grid">
@@ -285,7 +284,7 @@
         </div>
     </div>
 
-    <!-- ===== ПОПАП ДЛЯ ВОПРОСОВ ===== -->
+    <!-- ===== ПОПАП ===== -->
     <div id="popup" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); backdrop-filter:blur(6px); z-index:9999; align-items:center; justify-content:center;">
         <div style="background:#fff; max-width:500px; width:90%; padding:2rem; border-radius:28px; position:relative;">
             <button onclick="document.getElementById('popup').style.display='none'" style="position:absolute; top:15px; right:20px; font-size:28px; background:none; border:none; cursor:pointer; color:#999;">×</button>
@@ -294,7 +293,7 @@
         </div>
     </div>
 
-    <!-- ===== ПОДКЛЮЧАЕМ THREE.JS ЧЕРЕЗ CDN ===== -->
+    <!-- ===== ПОДКЛЮЧАЕМ THREE.JS ===== -->
     <script type="importmap">
         {
             "imports": {
@@ -307,36 +306,33 @@
     <!-- ===== ПОДКЛЮЧАЕМ МОДУЛЬ КУБИКА ===== -->
     <script type="module" src="./js/cube3d.js"></script>
 
-    <!-- ===== ДОПОЛНИТЕЛЬНЫЙ СКРИПТ ДЛЯ ОТОБРАЖЕНИЯ ЛЕГЕНДЫ ===== -->
+    <!-- ===== СКРИПТ ПОКАЗА КНОПОК И ЛЕГЕНДЫ ПОСЛЕ СКРАМБЛИНГА ===== -->
     <script>
-        // Ждём загрузки модуля, затем навешиваем обработчик на кнопку "Перемешать"
         document.addEventListener('DOMContentLoaded', function() {
             const scrambleBtn = document.getElementById('btnScramble');
+            const solveBtn = document.getElementById('btnSolve');
+            const cubeButtons = document.getElementById('cubeButtons');
             const legend = document.getElementById('legend');
+            
+            let isShown = false;
 
-            // Функция показа легенды
-            function showLegend() {
-                legend.classList.add('visible');
+            function showControls() {
+                if (!isShown) {
+                    cubeButtons.classList.add('visible');
+                    legend.classList.add('visible');
+                    solveBtn.style.display = 'inline-block';
+                    isShown = true;
+                }
             }
 
-            // Если легенда ещё не показана, показываем при первом скрамблинге
-            let legendShown = false;
-
-            // Перехватываем клик по кнопке "Перемешать"
+            // При клике на "Перемешать" показываем все контролы
             scrambleBtn.addEventListener('click', function() {
-                if (!legendShown) {
-                    // Показываем легенду с небольшой задержкой, чтобы скрамблинг успел начаться
-                    setTimeout(() => {
-                        showLegend();
-                        legendShown = true;
-                    }, 300);
-                }
+                // Показываем с небольшой задержкой, чтобы скрамблинг начался
+                setTimeout(showControls, 200);
             });
 
-            // Также если скрамблинг вызывается программно (например, из модуля) — 
-            // можно дополнительно отслеживать, но в основном пользователь нажимает кнопку.
-            // Для надёжности: если кубик уже был собран и пользователь жмёт "Перемешать" повторно,
-            // легенда уже показана, ничего не делаем.
+            // Также если кубик уже был инициализирован и пользователь нажимает "Перемешать" повторно,
+            // контролы уже видны, ничего не делаем.
         });
     </script>
 </body>
