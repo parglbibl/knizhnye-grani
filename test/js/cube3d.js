@@ -518,70 +518,70 @@ if (!container) {
                     cubie.quaternion.setFromEuler(euler);
                 });
                 updateCubeGlow();
-            } else {
-                if (isCubeSolved()) {
-                    // ОТКРЫТИЕ ПОПАПА
-                    const rect = renderer.domElement.getBoundingClientRect();
-                    mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-                    mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
-                    raycaster.setFromCamera(mouse, camera);
-                    const intersects = raycaster.intersectObjects(allCubies);
-                    if (intersects.length > 0) {
-                        const clicked = intersects[0].object;
-                        const normal = intersects[0].face.normal.clone().applyQuaternion(clicked.quaternion);
-                        const nx = Math.round(normal.x);
-                        const ny = Math.round(normal.y);
-                        const nz = Math.round(normal.z);
-                        let materialIndex = 0;
-                        if (nx === 1) materialIndex = 0;
-                        else if (nx === -1) materialIndex = 1;
-                        else if (ny === 1) materialIndex = 2;
-                        else if (ny === -1) materialIndex = 3;
-                        else if (nz === 1) materialIndex = 4;
-                        else if (nz === -1) materialIndex = 5;
-                        else materialIndex = 0;
+            }
 
-                        const colorName = clicked.userData.faces[materialIndex];
-                        if (!colorName) return;
+            // ===== КЛИК БЕЗ ПЕРЕМЕЩЕНИЯ — ТОЛЬКО НА СОБРАННОМ КУБИКЕ =====
+            if (!dragStart.moved && isCubeSolved()) {
+                const rect = renderer.domElement.getBoundingClientRect();
+                mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+                mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+                raycaster.setFromCamera(mouse, camera);
+                const intersects = raycaster.intersectObjects(allCubies);
+                if (intersects.length > 0) {
+                    const clicked = intersects[0].object;
+                    const normal = intersects[0].face.normal.clone().applyQuaternion(clicked.quaternion);
+                    const nx = Math.round(normal.x);
+                    const ny = Math.round(normal.y);
+                    const nz = Math.round(normal.z);
+                    let materialIndex = 0;
+                    if (nx === 1) materialIndex = 0;
+                    else if (nx === -1) materialIndex = 1;
+                    else if (ny === 1) materialIndex = 2;
+                    else if (ny === -1) materialIndex = 3;
+                    else if (nz === 1) materialIndex = 4;
+                    else if (nz === -1) materialIndex = 5;
+                    else materialIndex = 0;
 
-                        const coords = getGridCoords(clicked.position);
-                        let gx = 0, gy = 0;
-                        if (materialIndex === 0 || materialIndex === 1) {
-                            gx = coords.y + 1;
-                            gy = coords.z + 1;
-                        } else if (materialIndex === 2 || materialIndex === 3) {
-                            gx = coords.x + 1;
-                            gy = coords.z + 1;
-                        } else {
-                            gx = coords.x + 1;
-                            gy = coords.y + 1;
-                        }
+                    const colorName = clicked.userData.faces[materialIndex];
+                    if (!colorName) return;
 
-                        const popup = document.getElementById('popup');
-                        const title = document.getElementById('popupTitle');
-                        const question = document.getElementById('popupQuestion');
-                        const colorNames = {
-                            red: 'Любовь',
-                            blue: 'Надежда',
-                            yellow: 'Совесть',
-                            green: 'Добро',
-                            white: 'Память',
-                            orange: 'Семья'
-                        };
-                        const questions = {
-                            red_0_0_1: 'Какая книга подарила тебе ощущение дома?',
-                            blue_0_0_1: 'Какая книга помогла тебе проснуться утром?',
-                            yellow_0_0_1: 'Какая книга помогла тебе услышать свой тихий внутренний голос?',
-                            green_0_0_1: 'Назови книгу, которая вдохновила тебя сделать кому-то приятное просто так.',
-                            white_0_0_1: 'Какая книга заставила тебя вспомнить голос бабушки или дедушки?',
-                            orange_0_0_1: 'Какая книга подарила тебе ощущение, что ты всегда можешь вернуться домой?'
-                        };
-                        const key = colorName + '_' + gx + '_' + gy + '_1';
-                        title.textContent = colorNames[colorName] || colorName;
-                        question.textContent = questions[key] || 'Придумай свой вопрос для этой грани!';
-                        popup.style.display = 'flex';
-                        document.body.style.overflow = 'hidden';
+                    const coords = getGridCoords(clicked.position);
+                    let gx = 0, gy = 0;
+                    if (materialIndex === 0 || materialIndex === 1) {
+                        gx = coords.y + 1;
+                        gy = coords.z + 1;
+                    } else if (materialIndex === 2 || materialIndex === 3) {
+                        gx = coords.x + 1;
+                        gy = coords.z + 1;
+                    } else {
+                        gx = coords.x + 1;
+                        gy = coords.y + 1;
                     }
+
+                    const popup = document.getElementById('popup');
+                    const title = document.getElementById('popupTitle');
+                    const question = document.getElementById('popupQuestion');
+                    const colorNames = {
+                        red: 'Любовь',
+                        blue: 'Надежда',
+                        yellow: 'Совесть',
+                        green: 'Добро',
+                        white: 'Память',
+                        orange: 'Семья'
+                    };
+                    const questions = {
+                        red_0_0_1: 'Какая книга подарила тебе ощущение дома?',
+                        blue_0_0_1: 'Какая книга помогла тебе проснуться утром?',
+                        yellow_0_0_1: 'Какая книга помогла тебе услышать свой тихий внутренний голос?',
+                        green_0_0_1: 'Назови книгу, которая вдохновила тебя сделать кому-то приятное просто так.',
+                        white_0_0_1: 'Какая книга заставила тебя вспомнить голос бабушки или дедушки?',
+                        orange_0_0_1: 'Какая книга подарила тебе ощущение, что ты всегда можешь вернуться домой?'
+                    };
+                    const key = colorName + '_' + gx + '_' + gy + '_1';
+                    title.textContent = colorNames[colorName] || colorName;
+                    question.textContent = questions[key] || 'Придумай свой вопрос для этой грани!';
+                    popup.style.display = 'flex';
+                    document.body.style.overflow = 'hidden';
                 }
             }
 
@@ -708,70 +708,70 @@ if (!container) {
                     cubie.quaternion.setFromEuler(euler);
                 });
                 updateCubeGlow();
-            } else {
-                if (isCubeSolved()) {
-                    // ОТКРЫТИЕ ПОПАПА (такой же код, как в mouseup)
-                    const rect = renderer.domElement.getBoundingClientRect();
-                    mouse.x = ((touch.clientX - rect.left) / rect.width) * 2 - 1;
-                    mouse.y = -((touch.clientY - rect.top) / rect.height) * 2 + 1;
-                    raycaster.setFromCamera(mouse, camera);
-                    const intersects = raycaster.intersectObjects(allCubies);
-                    if (intersects.length > 0) {
-                        const clicked = intersects[0].object;
-                        const normal = intersects[0].face.normal.clone().applyQuaternion(clicked.quaternion);
-                        const nx = Math.round(normal.x);
-                        const ny = Math.round(normal.y);
-                        const nz = Math.round(normal.z);
-                        let materialIndex = 0;
-                        if (nx === 1) materialIndex = 0;
-                        else if (nx === -1) materialIndex = 1;
-                        else if (ny === 1) materialIndex = 2;
-                        else if (ny === -1) materialIndex = 3;
-                        else if (nz === 1) materialIndex = 4;
-                        else if (nz === -1) materialIndex = 5;
-                        else materialIndex = 0;
+            }
 
-                        const colorName = clicked.userData.faces[materialIndex];
-                        if (!colorName) return;
+            // ===== КЛИК БЕЗ ПЕРЕМЕЩЕНИЯ — ТОЛЬКО НА СОБРАННОМ КУБИКЕ =====
+            if (!dragStart.moved && isCubeSolved()) {
+                const rect = renderer.domElement.getBoundingClientRect();
+                mouse.x = ((touch.clientX - rect.left) / rect.width) * 2 - 1;
+                mouse.y = -((touch.clientY - rect.top) / rect.height) * 2 + 1;
+                raycaster.setFromCamera(mouse, camera);
+                const intersects = raycaster.intersectObjects(allCubies);
+                if (intersects.length > 0) {
+                    const clicked = intersects[0].object;
+                    const normal = intersects[0].face.normal.clone().applyQuaternion(clicked.quaternion);
+                    const nx = Math.round(normal.x);
+                    const ny = Math.round(normal.y);
+                    const nz = Math.round(normal.z);
+                    let materialIndex = 0;
+                    if (nx === 1) materialIndex = 0;
+                    else if (nx === -1) materialIndex = 1;
+                    else if (ny === 1) materialIndex = 2;
+                    else if (ny === -1) materialIndex = 3;
+                    else if (nz === 1) materialIndex = 4;
+                    else if (nz === -1) materialIndex = 5;
+                    else materialIndex = 0;
 
-                        const coords = getGridCoords(clicked.position);
-                        let gx = 0, gy = 0;
-                        if (materialIndex === 0 || materialIndex === 1) {
-                            gx = coords.y + 1;
-                            gy = coords.z + 1;
-                        } else if (materialIndex === 2 || materialIndex === 3) {
-                            gx = coords.x + 1;
-                            gy = coords.z + 1;
-                        } else {
-                            gx = coords.x + 1;
-                            gy = coords.y + 1;
-                        }
+                    const colorName = clicked.userData.faces[materialIndex];
+                    if (!colorName) return;
 
-                        const popup = document.getElementById('popup');
-                        const title = document.getElementById('popupTitle');
-                        const question = document.getElementById('popupQuestion');
-                        const colorNames = {
-                            red: 'Любовь',
-                            blue: 'Надежда',
-                            yellow: 'Совесть',
-                            green: 'Добро',
-                            white: 'Память',
-                            orange: 'Семья'
-                        };
-                        const questions = {
-                            red_0_0_1: 'Какая книга подарила тебе ощущение дома?',
-                            blue_0_0_1: 'Какая книга помогла тебе проснуться утром?',
-                            yellow_0_0_1: 'Какая книга помогла тебе услышать свой тихий внутренний голос?',
-                            green_0_0_1: 'Назови книгу, которая вдохновила тебя сделать кому-то приятное просто так.',
-                            white_0_0_1: 'Какая книга заставила тебя вспомнить голос бабушки или дедушки?',
-                            orange_0_0_1: 'Какая книга подарила тебе ощущение, что ты всегда можешь вернуться домой?'
-                        };
-                        const key = colorName + '_' + gx + '_' + gy + '_1';
-                        title.textContent = colorNames[colorName] || colorName;
-                        question.textContent = questions[key] || 'Придумай свой вопрос для этой грани!';
-                        popup.style.display = 'flex';
-                        document.body.style.overflow = 'hidden';
+                    const coords = getGridCoords(clicked.position);
+                    let gx = 0, gy = 0;
+                    if (materialIndex === 0 || materialIndex === 1) {
+                        gx = coords.y + 1;
+                        gy = coords.z + 1;
+                    } else if (materialIndex === 2 || materialIndex === 3) {
+                        gx = coords.x + 1;
+                        gy = coords.z + 1;
+                    } else {
+                        gx = coords.x + 1;
+                        gy = coords.y + 1;
                     }
+
+                    const popup = document.getElementById('popup');
+                    const title = document.getElementById('popupTitle');
+                    const question = document.getElementById('popupQuestion');
+                    const colorNames = {
+                        red: 'Любовь',
+                        blue: 'Надежда',
+                        yellow: 'Совесть',
+                        green: 'Добро',
+                        white: 'Память',
+                        orange: 'Семья'
+                    };
+                    const questions = {
+                        red_0_0_1: 'Какая книга подарила тебе ощущение дома?',
+                        blue_0_0_1: 'Какая книга помогла тебе проснуться утром?',
+                        yellow_0_0_1: 'Какая книга помогла тебе услышать свой тихий внутренний голос?',
+                        green_0_0_1: 'Назови книгу, которая вдохновила тебя сделать кому-то приятное просто так.',
+                        white_0_0_1: 'Какая книга заставила тебя вспомнить голос бабушки или дедушки?',
+                        orange_0_0_1: 'Какая книга подарила тебе ощущение, что ты всегда можешь вернуться домой?'
+                    };
+                    const key = colorName + '_' + gx + '_' + gy + '_1';
+                    title.textContent = colorNames[colorName] || colorName;
+                    question.textContent = questions[key] || 'Придумай свой вопрос для этой грани!';
+                    popup.style.display = 'flex';
+                    document.body.style.overflow = 'hidden';
                 }
             }
 
