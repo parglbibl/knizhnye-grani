@@ -17,6 +17,9 @@ window.allCubies = null;
 window.offset = null;
 window.cubeGroup = null;
 
+// ===== ФУНКЦИЯ ПОКАЗА КНОПОК (ВЫЗЫВАЕТСЯ ИЗ cube3d.js) =====
+window.showCubeControls = null;
+
 const container = document.getElementById('cube-container');
 if (!container) {
     console.error('Контейнер для кубика не найден');
@@ -70,7 +73,6 @@ if (!container) {
         window.cubeGroup = cubeGroup;
 
         const textureLoader = new THREE.TextureLoader();
-        // Относительные пути к текстурам (для тестовой папки)
         const texturePaths = {
             red: '../images/cube_textures/red.jpg',
             blue: '../images/cube_textures/blue.jpg',
@@ -415,6 +417,11 @@ if (!container) {
                     window.isScrambling = false;
                     window.isBlocked = false;
                     if (window.updateCubeGlow) window.updateCubeGlow();
+
+                    // ===== ВЫЗЫВАЕМ ПОКАЗ КНОПОК ПОСЛЕ СКРАМБЛА =====
+                    if (typeof window.showCubeControls === 'function') {
+                        window.showCubeControls();
+                    }
                 });
             });
 
