@@ -7,7 +7,7 @@ window.isSolved = true;
 window.isScrambling = false;
 window.isAnimating = false;
 window.isBlocked = false;
-window.scrambleMoves = [];
+window.moveHistory = []; // <--- ИСТОРИЯ ВСЕХ ХОДОВ
 window.executeMoveSequence = null;
 window.generateScramble = null;
 window.updateCubeGlow = null;
@@ -292,7 +292,7 @@ if (!container) {
         window.rotateLayer = rotateLayer;
 
         // ===== СКРАМБЛЕР И СБОРЩИК =====
-        let scrambleMoves = [];
+        // let scrambleMoves = []; // БОЛЬШЕ НЕ НУЖЕН
         let isScrambling = false;
         let isBlocked = false;
 
@@ -396,8 +396,13 @@ if (!container) {
                 this.style.display = 'none';
                 newBtnSolve.style.display = 'inline-block';
 
+                // Очищаем историю перед новым скрамблом
+                window.moveHistory = [];
+
                 const moves = window.generateScramble ? window.generateScramble(23) : ['U', "R'", 'F2', 'L', "D'", 'B'];
-                window.scrambleMoves = moves;
+                // Записываем скрамбл в историю
+                moves.forEach(m => window.moveHistory.push(m));
+
                 const durationPerMove = 5000 / moves.length;
 
                 window.executeMoveSequence(moves, durationPerMove, () => {
@@ -407,22 +412,29 @@ if (!container) {
             });
 
             newBtnSolve.addEventListener('click', function() {
-                if (window.isScrambling || window.isAnimating || !window.scrambleMoves || window.scrambleMoves.length === 0) return;
+                if (window.isScrambling || window.isAnimating || window.moveHistory.length === 0) return;
+                
+                // Блокируем повторные нажатия
+                if (window.isBlocked) return;
+                window.isBlocked = true;
+                
                 window.isScrambling = true;
                 window.isSolved = true;
                 this.style.display = 'none';
                 newBtnScramble.style.display = 'inline-block';
 
-                const reverseMoves = window.scrambleMoves.slice().reverse().map(m => {
+                // Берём всю историю и строим обратную последовательность
+                const reverseMoves = window.moveHistory.slice().reverse().map(m => {
                     if (m.endsWith("'")) return m.slice(0, -1);
                     if (m.endsWith("2")) return m;
                     return m + "'";
                 });
+                
                 const durationPerMove = 5000 / reverseMoves.length;
 
                 window.executeMoveSequence(reverseMoves, durationPerMove, () => {
                     window.isScrambling = false;
-                    window.scrambleMoves = [];
+                    window.moveHistory = []; // очищаем историю после успешной сборки
                     if (window.updateCubeGlow) window.updateCubeGlow();
                     window.isBlocked = false;
                 });
@@ -492,6 +504,12 @@ window.doMove = function(direction) {
     if (window.isSolved) return;
     if (!direction) return;
     if (window.isAnimating) return;
+
+    // ЗАПИСЫВАЕМ ХОД В ИСТОРИЮ (ЕСЛИ НЕ ИДЁТ СБОРКА)
+    // Добавляем эту проверку, чтобы во время сборки ходы не записывались повторно
+    if (!window.isScrambling) {
+        window.moveHistory.push(direction);
+    }
 
     // Проверяем штрих
     let isReverse = direction.includes("'");
