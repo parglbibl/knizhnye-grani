@@ -221,7 +221,6 @@ if (!container) {
 
         function rotateLayer(axis, index, angle, duration, callback) {
             if (isAnimating) {
-                // Если анимация уже идёт — игнорируем новый вызов
                 if (callback) callback();
                 return;
             }
@@ -508,6 +507,7 @@ window.doMove = function(direction) {
     if (!direction) return;
     if (window.isAnimating) return;
 
+    // ЗАПИСЫВАЕМ КАЖДЫЙ РУЧНОЙ ХОД В ИСТОРИЮ
     if (!window.isScrambling) {
         window.moveHistory.push(direction);
     }
@@ -572,6 +572,7 @@ window.doMove = function(direction) {
 
     const angle = isReverse ? -baseAngle : baseAngle;
 
+    // Длительность 150 мс для ручного поворота
     window.rotateLayer(axis, index, angle, 150, () => {
         if (window.updateCubeGlow) window.updateCubeGlow();
     });
