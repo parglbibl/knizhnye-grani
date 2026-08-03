@@ -96,6 +96,7 @@
             min-width: 44px;
             min-height: 44px;
             box-shadow: 0 4px 0 #0f1520;
+            user-select: none;
         }
         .cube-btn:active {
             transform: translateY(4px);
@@ -172,5 +173,30 @@
 
     <!-- ===== ПОДКЛЮЧАЕМ МОДУЛЬ КУБИКА ===== -->
     <script type="module" src="./js/cube3d.js"></script>
+
+    <!-- ===== ОБРАБОТЧИКИ КНОПОК ПОВОРОТА (прямо здесь, надёжно) ===== -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const btns = document.querySelectorAll('.cube-btn');
+            btns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // Защита: если кубик собран или идёт анимация — не реагируем
+                    if (window.isSolved === true) return;
+                    if (window.isScrambling || window.isAnimating || window.isBlocked) return;
+
+                    const moveStr = this.dataset.move;
+                    if (!moveStr) return;
+
+                    // Вызываем функцию поворота, которая есть в глобальной области cube3d.js
+                    // Мы будем использовать window.doMove(moveStr)
+                    if (typeof window.doMove === 'function') {
+                        window.doMove(moveStr);
+                    } else {
+                        console.warn('Функция doMove не найдена. Проверьте cube3d.js');
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>
