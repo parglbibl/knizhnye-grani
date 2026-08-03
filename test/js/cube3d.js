@@ -487,28 +487,26 @@ if (!container) {
     }
 }
 
-// ===== ГЛАВНАЯ ФУНКЦИЯ ДЛЯ КНОПОК (ПО НОРМАЛЯМ ГРАНЕЙ) =====
+// ===== ГЛАВНАЯ ФУНКЦИЯ ДЛЯ КНОПОК (ТОЧНАЯ ЛОГИКА ИЗ СКРИНШОТОВ) =====
 window.doMove = function(direction) {
     if (window.isSolved) return;
     if (!direction) return;
     if (window.isAnimating) return;
 
-    // Проверяем, есть ли штрих (обратный ход)
+    // Проверяем штрих
     let isReverse = direction.includes("'");
-    let cleanDir = direction.replace("'", ""); // убираем штрих
+    let cleanDir = direction.replace("'", "");
 
     const camera = window.camera;
-    const allCubies = window.allCubies;
-    const offset = window.offset;
-    if (!camera || !allCubies) return;
+    if (!camera) return;
 
-    // 1. Определяем направления камеры (в мировых координатах)
+    // 1. Получаем направления камеры
     const camDir = new THREE.Vector3();
-    camera.getWorldDirection(camDir); // ось Z камеры
+    camera.getWorldDirection(camDir);
     const camUp = new THREE.Vector3(0, 1, 0).applyQuaternion(camera.quaternion);
     const camRight = new THREE.Vector3(1, 0, 0).applyQuaternion(camera.quaternion);
 
-    // 2. Строим таблицу visibleFaces (в мировых осях)
+    // 2. Строим visibleFaces (как на скриншоте)
     const faceNormals = {
         '+x': new THREE.Vector3(1, 0, 0),
         '-x': new THREE.Vector3(-1, 0, 0),
@@ -518,17 +516,17 @@ window.doMove = function(direction) {
         '-z': new THREE.Vector3(0, 0, -1)
     };
 
-    // 3. Сопоставляем букву с направлением камеры
+    // Сопоставляем букву с направлением камеры
     let targetDir = null;
     if (cleanDir === 'U') targetDir = camUp;
     else if (cleanDir === 'D') targetDir = camUp.clone().negate();
     else if (cleanDir === 'R') targetDir = camRight;
     else if (cleanDir === 'L') targetDir = camRight.clone().negate();
-    else if (cleanDir === 'F') targetDir = camDir.clone().negate(); // к себе
-    else if (cleanDir === 'B') targetDir = camDir; // от себя
+    else if (cleanDir === 'F') targetDir = camDir.clone().negate();
+    else if (cleanDir === 'B') targetDir = camDir;
     else return;
 
-    // 4. Находим ближайшую грань к этому направлению
+    // 3. Находим грань, нормаль которой ближе всего к направлению камеры
     let bestFace = null;
     let bestDot = -Infinity;
     for (let [faceName, normal] of Object.entries(faceNormals)) {
@@ -540,7 +538,7 @@ window.doMove = function(direction) {
     }
     if (!bestFace) return;
 
-    // 5. Преобразуем название грани в ось и индекс
+    // 4. Определяем ось и индекс
     let axis = '';
     let index = 0;
     if (bestFace === '+x') { axis = 'x'; index = 1; }
@@ -551,8 +549,23 @@ window.doMove = function(direction) {
     else if (bestFace === '-z') { axis = 'z'; index = -1; }
     else return;
 
-    // Поворачиваем слой
-    const angle = (isReverse ? -1 : 1) * Math.PI / 2;
+    // 5. Вычисляем угол: 
+    // Для +X и +Z: по часовой = -90°, против = +90°
+    // Для -X и -Z: по часовой = +90°, против = -90°
+    let baseAngle = 0;
+    if (axis === 'y') {
+        // Для Y всё просто: U = -90, D = +90
+        baseAngle = (index === 1) ? -Math.PI/2 : Math.PI/2;
+    } else {
+        // Для X и Z: направление зависит от знака индекса
+        if (index === 1) baseAngle = -Math.PI/2;
+        else baseAngle = Math.PI/2;
+    }
+
+    // Применяем реверс (штрих)
+    const angle = isReverse ? -baseAngle : baseAngle;
+
+    // 6. Поворачиваем слой
     window.rotateLayer(axis, index, angle, 150, () => {
         if (window.updateCubeGlow) window.updateCubeGlow();
     });
