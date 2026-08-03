@@ -13,6 +13,8 @@ window.generateScramble = null;
 window.updateCubeGlow = null;
 window.rotateLayer = null;
 window.camera = null;
+window.allCubies = null;
+window.offset = null;
 
 const container = document.getElementById('cube-container');
 if (!container) {
@@ -46,6 +48,7 @@ if (!container) {
         camera.lookAt(0, 0, 0);
         scene.add(camera);
         window.camera = camera;
+        window.offset = 0.685;
 
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -117,6 +120,7 @@ if (!container) {
         };
 
         let allCubies = [];
+        window.allCubies = allCubies;
 
         function buildCubies() {
             while (cubeGroup.children.length > 0) {
@@ -481,59 +485,79 @@ if (!container) {
     }
 }
 
-// ===== ГЛАВНАЯ ФУНКЦИЯ ДЛЯ КНОПОК (БЕЗ БУКВ) =====
-// Эта функция вызывается из HTML по клику на кнопку
+// ===== ГЛАВНАЯ ФУНКЦИЯ ДЛЯ КНОПОК (С RAYCASTER) =====
 window.doMove = function(direction) {
     if (window.isSolved) return;
     if (!direction) return;
     if (window.isAnimating) return;
 
+    // Определяем, обратное ли направление (против часовой)
     let isReverse = direction.endsWith('_rev');
     let dir = isReverse ? direction.replace('_rev', '') : direction;
 
-    // === ВЫЧИСЛЯЕМ НАПРАВЛЕНИЕ ОТНОСИТЕЛЬНО КАМЕРЫ ===
-    const up = new THREE.Vector3(0, 1, 0).applyQuaternion(window.camera.quaternion);
-    const right = new THREE.Vector3(1, 0, 0).applyQuaternion(window.camera.quaternion);
-    const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(window.camera.quaternion);
+    // Создаём луч из камеры в нужном направлении
+    const raycaster = new THREE.Raycaster();
+    const camera = window.camera;
+    const allCubies = window.allCubies;
+    const offset = window.offset;
 
-    // Нормализуем и округляем до ближайших осей
-    const axes = [
-        { name: 'y', dir: up, index: 1 },
-        { name: 'y', dir: up.clone().negate(), index: -1 },
-        { name: 'x', dir: right, index: 1 },
-        { name: 'x', dir: right.clone().negate(), index: -1 },
-        { name: 'z', dir: forward, index: 1 },
-        { name: 'z', dir: forward.clone().negate(), index: -1 }
-    ];
+    // Направление луча относительно камеры
+    const up = new THREE.Vector3(0, 1, 0).applyQuaternion(camera.quaternion);
+    const right = new THREE.Vector3(1, 0, 0).applyQuaternion(camera.quaternion);
+    const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
 
-    // Сопоставляем направление с вектором камеры
     let targetDir = null;
-    let targetIndex = 0;
-    if (dir === 'up') { targetDir = up; targetIndex = 1; }
-    else if (dir === 'down') { targetDir = up.clone().negate(); targetIndex = -1; }
-    else if (dir === 'right') { targetDir = right; targetIndex = 1; }
-    else if (dir === 'left') { targetDir = right.clone().negate(); targetIndex = -1; }
-    else if (dir === 'toward') { targetDir = forward; targetIndex = 1; }
-    else if (dir === 'away') { targetDir = forward.clone().negate(); targetIndex = -1; }
+    if (dir === 'up') targetDir = up;
+    else if (dir === 'down') targetDir = up.clone().negate();
+    else if (dir === 'right') targetDir = right;
+    else if (dir === 'left') targetDir = right.clone().negate();
+    else if (dir === 'toward') targetDir = forward;
+    else if (dir === 'away') targetDir = forward.clone().negate();
 
     if (!targetDir) return;
 
-    // Находим ближайшую ось кубика к направлению камеры
-    let bestAxis = 'y';
-    let bestIndex = 1;
-    let bestDot = -Infinity;
-    for (let ax of axes) {
-        const dot = targetDir.dot(ax.dir);
-        if (dot > bestDot) {
-            bestDot = dot;
-            bestAxis = ax.name;
-            bestIndex = ax.index;
-        }
+    // Пускаем луч из центра камеры в нужном направлении
+    raycaster.set(camera.position, targetDir.normalize());
+
+    // Проверяем пересечения со всеми кубиками
+    const intersects = raycaster.intersectObjects(allCubies);
+
+    if (intersects.length === 0) {
+        // Если луч не попал в кубик — ничего не делаем
+        return;
     }
+
+    // Берём первый попавшийся кубик (он будет ближайшим в направлении)
+    const hit = intersects[0];
+    const cubie = hit.object;
+
+    // Определяем нормаль грани, в которую попал луч
+    const normal = hit.face.normal.clone().applyQuaternion(cubie.quaternion);
+    const nx = Math.round(normal.x);
+    const ny = Math.round(normal.y);
+    const nz = Math.round(normal.z);
+
+    let axis = '';
+    let index = 0;
+    if (nx !== 0) {
+        axis = 'x';
+        index = Math.round(cubie.position.x / offset);
+    } else if (ny !== 0) {
+        axis = 'y';
+        index = Math.round(cubie.position.y / offset);
+    } else if (nz !== 0) {
+        axis = 'z';
+        index = Math.round(cubie.position.z / offset);
+    } else {
+        return;
+    }
+
+    // Игнорируем средние слои
+    if (index === 0) return;
 
     // Поворачиваем слой
     const angle = (isReverse ? -1 : 1) * Math.PI / 2;
-    window.rotateLayer(bestAxis, bestIndex, angle, 150, () => {
+    window.rotateLayer(axis, index, angle, 150, () => {
         if (window.updateCubeGlow) window.updateCubeGlow();
     });
 };
