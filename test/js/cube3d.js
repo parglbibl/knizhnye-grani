@@ -493,8 +493,9 @@ window.doMove = function(direction) {
     if (!direction) return;
     if (window.isAnimating) return;
 
-    let isReverse = direction.endsWith('_rev');
-    let dir = isReverse ? direction.replace('_rev', '') : direction;
+    // Проверяем, есть ли штрих (обратный ход)
+    let isReverse = direction.includes("'");
+    let cleanDir = direction.replace("'", ""); // убираем штрих
 
     const camera = window.camera;
     const allCubies = window.allCubies;
@@ -508,7 +509,6 @@ window.doMove = function(direction) {
     const camRight = new THREE.Vector3(1, 0, 0).applyQuaternion(camera.quaternion);
 
     // 2. Строим таблицу visibleFaces (в мировых осях)
-    // Мы будем сравнивать нормали граней с векторами камеры
     const faceNormals = {
         '+x': new THREE.Vector3(1, 0, 0),
         '-x': new THREE.Vector3(-1, 0, 0),
@@ -518,45 +518,37 @@ window.doMove = function(direction) {
         '-z': new THREE.Vector3(0, 0, -1)
     };
 
-    // 3. Находим, какая грань соответствует каждому направлению камеры
-    let visibleFaces = {};
+    // 3. Сопоставляем букву с направлением камеры
+    let targetDir = null;
+    if (cleanDir === 'U') targetDir = camUp;
+    else if (cleanDir === 'D') targetDir = camUp.clone().negate();
+    else if (cleanDir === 'R') targetDir = camRight;
+    else if (cleanDir === 'L') targetDir = camRight.clone().negate();
+    else if (cleanDir === 'F') targetDir = camDir.clone().negate(); // к себе
+    else if (cleanDir === 'B') targetDir = camDir; // от себя
+    else return;
 
-    // Для каждого направления камеры ищем ближайшую нормаль грани
-    const cameraDirections = {
-        'up': camUp,
-        'down': camUp.clone().negate(),
-        'right': camRight,
-        'left': camRight.clone().negate(),
-        'toward': camDir.clone().negate(), // камера смотрит в сторону -Z, значит "к себе" = -Z
-        'away': camDir // "от себя" = +Z
-    };
-
-    for (let [key, dirVec] of Object.entries(cameraDirections)) {
-        let bestFace = null;
-        let bestDot = -Infinity;
-        for (let [faceName, normal] of Object.entries(faceNormals)) {
-            const dot = dirVec.dot(normal);
-            if (dot > bestDot) {
-                bestDot = dot;
-                bestFace = faceName;
-            }
+    // 4. Находим ближайшую грань к этому направлению
+    let bestFace = null;
+    let bestDot = -Infinity;
+    for (let [faceName, normal] of Object.entries(faceNormals)) {
+        const dot = targetDir.dot(normal);
+        if (dot > bestDot) {
+            bestDot = dot;
+            bestFace = faceName;
         }
-        visibleFaces[key] = bestFace;
     }
-
-    // 4. Определяем, какую грань нужно крутить
-    const targetFace = visibleFaces[dir];
-    if (!targetFace) return;
+    if (!bestFace) return;
 
     // 5. Преобразуем название грани в ось и индекс
     let axis = '';
     let index = 0;
-    if (targetFace === '+x') { axis = 'x'; index = 1; }
-    else if (targetFace === '-x') { axis = 'x'; index = -1; }
-    else if (targetFace === '+y') { axis = 'y'; index = 1; }
-    else if (targetFace === '-y') { axis = 'y'; index = -1; }
-    else if (targetFace === '+z') { axis = 'z'; index = 1; }
-    else if (targetFace === '-z') { axis = 'z'; index = -1; }
+    if (bestFace === '+x') { axis = 'x'; index = 1; }
+    else if (bestFace === '-x') { axis = 'x'; index = -1; }
+    else if (bestFace === '+y') { axis = 'y'; index = 1; }
+    else if (bestFace === '-y') { axis = 'y'; index = -1; }
+    else if (bestFace === '+z') { axis = 'z'; index = 1; }
+    else if (bestFace === '-z') { axis = 'z'; index = -1; }
     else return;
 
     // Поворачиваем слой
