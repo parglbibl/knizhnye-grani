@@ -17,10 +17,6 @@ window.allCubies = null;
 window.offset = null;
 window.cubeGroup = null;
 
-// ===== ФУНКЦИЯ ПОКАЗА/СКРЫТИЯ КНОПОК =====
-window.showCubeControls = null;
-window.hideCubeControls = null;
-
 const container = document.getElementById('cube-container');
 if (!container) {
     console.error('Контейнер для кубика не найден');
@@ -419,7 +415,6 @@ if (!container) {
                     window.isBlocked = false;
                     if (window.updateCubeGlow) window.updateCubeGlow();
 
-                    // ===== ПОКАЗЫВАЕМ КНОПКИ =====
                     if (typeof window.showCubeControls === 'function') {
                         window.showCubeControls();
                     }
@@ -449,7 +444,6 @@ if (!container) {
                     window.isBlocked = false;
                     if (window.updateCubeGlow) window.updateCubeGlow();
 
-                    // ===== СКРЫВАЕМ КНОПКИ ПОСЛЕ СБОРКИ =====
                     if (typeof window.hideCubeControls === 'function') {
                         window.hideCubeControls();
                     }
