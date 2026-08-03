@@ -13,6 +13,7 @@ window.generateScramble = null;
 window.updateCubeGlow = null;
 window.parseMove = null;
 window.rotateLayer = null;
+window.cubeGroup = null; // <-- ЭТО ВАЖНО: сюда запишем группу кубика
 
 const container = document.getElementById('cube-container');
 if (!container) {
@@ -63,6 +64,7 @@ if (!container) {
 
         const cubeGroup = new THREE.Group();
         scene.add(cubeGroup);
+        window.cubeGroup = cubeGroup; // <-- делаем доступной глобально
 
         const textureLoader = new THREE.TextureLoader();
         const texturePaths = {
@@ -282,7 +284,6 @@ if (!container) {
         }
 
         // ===== ЭКСПОРТ В ГЛОБАЛЬНУЮ ОБЛАСТЬ =====
-        window.parseMove = parseMove;
         window.rotateLayer = rotateLayer;
 
         // ===== СКРАМБЛЕР И СБОРЩИК =====
@@ -310,7 +311,6 @@ if (!container) {
         }
 
         function parseMove(moveStr) {
-            // Сначала парсим как обычно
             const baseMap = { 'U': 'y', 'D': 'y', 'L': 'x', 'R': 'x', 'F': 'z', 'B': 'z' };
             const indexMap = { 'U': 1, 'D': -1, 'L': -1, 'R': 1, 'F': 1, 'B': -1 };
             const angleMap = { 'U': -1, 'D': 1, 'L': 1, 'R': -1, 'F': -1, 'B': 1 };
@@ -322,31 +322,7 @@ if (!container) {
             if (mod === "'") angle *= -1;
             else if (mod === "2") count = 2;
 
-            // Получаем мировую ось
-            const worldAxis = baseMap[base];
-            const index = indexMap[base];
-
-            // === КЛЮЧЕВОЕ: преобразуем мировую ось в локальную ось кубика ===
-            // Берём кватернион кубика и применяем его к мировому вектору
-            const worldVec = new THREE.Vector3(
-                worldAxis === 'x' ? 1 : 0,
-                worldAxis === 'y' ? 1 : 0,
-                worldAxis === 'z' ? 1 : 0
-            );
-            // Обратное вращение: применяем инвертированный кватернион кубика
-            const localVec = worldVec.clone().applyQuaternion(cubeGroup.quaternion.clone().invert());
-            
-            // Округляем до целых значений (0, 1, -1)
-            const localAxis = 
-                Math.abs(localVec.x) > 0.5 ? 'x' :
-                Math.abs(localVec.y) > 0.5 ? 'y' :
-                Math.abs(localVec.z) > 0.5 ? 'z' : 'y';
-            
-            // Корректируем индекс слоя в локальной системе
-            // Для кнопок U/D индекс всегда ±1 (крайние слои)
-            // Но для L/R/F/B индекс тоже ±1
-
-            return { axis: localAxis, index: index, angle: angle * count };
+            return { axis: baseMap[base], index: indexMap[base], angle: angle * count };
         }
 
         function executeMove(moveStr, duration, callback) {
@@ -513,11 +489,39 @@ window.doMove = function(moveStr) {
 
     if (!moveStr) return;
     if (window.isAnimating) return;
+
+    // === 1. ПАРСИМ ХОД В МИРОВЫХ ОСЯХ ===
+    const baseMap = { 'U': 'y', 'D': 'y', 'L': 'x', 'R': 'x', 'F': 'z', 'B': 'z' };
+    const indexMap = { 'U': 1, 'D': -1, 'L': -1, 'R': 1, 'F': 1, 'B': -1 };
+    const angleMap = { 'U': -1, 'D': 1, 'L': 1, 'R': -1, 'F': -1, 'B': 1 };
+
+    const base = moveStr.charAt(0);
+    const mod = moveStr.slice(1);
+    let angle = angleMap[base] * Math.PI / 2;
+    if (mod === "'") angle *= -1;
+    else if (mod === "2") angle *= 2;
+
+    const worldAxis = baseMap[base];
+    const index = indexMap[base];
+
+    // === 2. ПРЕОБРАЗУЕМ МИРОВУЮ ОСЬ В ЛОКАЛЬНУЮ (относительно кубика) ===
+    const worldVec = new THREE.Vector3(
+        worldAxis === 'x' ? 1 : 0,
+        worldAxis === 'y' ? 1 : 0,
+        worldAxis === 'z' ? 1 : 0
+    );
     
-    const parsed = window.parseMove(moveStr);
-    if (!parsed) return;
+    // Применяем обратное вращение от кубика
+    const localVec = worldVec.clone().applyQuaternion(window.cubeGroup.quaternion.clone().invert());
     
-    window.rotateLayer(parsed.axis, parsed.index, parsed.angle, 150, () => {
+    // Округляем до целой оси
+    const localAxis = 
+        Math.abs(localVec.x) > 0.5 ? 'x' :
+        Math.abs(localVec.y) > 0.5 ? 'y' :
+        Math.abs(localVec.z) > 0.5 ? 'z' : 'y';
+
+    // === 3. ЗАПУСКАЕМ ПОВОРОТ В ЛОКАЛЬНОЙ СИСТЕМЕ ===
+    window.rotateLayer(localAxis, index, angle, 150, () => {
         if (window.updateCubeGlow) window.updateCubeGlow();
     });
 };
