@@ -198,7 +198,7 @@ if (!container) {
             return true;
         }
 
-        // ===== ВРАЩЕНИЕ СЛОЁВ (с улучшенной плавностью) =====
+        // ===== ВРАЩЕНИЕ СЛОЁВ (с защитой от быстрых нажатий) =====
         let isAnimating = false;
 
         function getCubiesInLayer(axis, index) {
@@ -220,6 +220,12 @@ if (!container) {
         }
 
         function rotateLayer(axis, index, angle, duration, callback) {
+            if (isAnimating) {
+                // Если анимация уже идёт — игнорируем новый вызов
+                if (callback) callback();
+                return;
+            }
+
             isAnimating = true;
             const cubies = getCubiesInLayer(axis, index);
             if (cubies.length === 0) {
@@ -263,7 +269,6 @@ if (!container) {
             function animateMove() {
                 const elapsed = Date.now() - startTime;
                 const t = Math.min(elapsed / duration, 1);
-                // Более плавный easing (easeInOutCubic)
                 const ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 
                 newPositions.forEach(item => {
@@ -292,7 +297,7 @@ if (!container) {
         // ===== ЭКСПОРТ В ГЛОБАЛЬНУЮ ОБЛАСТЬ =====
         window.rotateLayer = rotateLayer;
 
-        // ===== СКРАМБЛЕР И СБОРЩИК (с настраиваемой скоростью) =====
+        // ===== СКРАМБЛЕР И СБОРЩИК =====
         let isScrambling = false;
         let isBlocked = false;
 
@@ -366,7 +371,6 @@ if (!container) {
                 }
                 executeMove(moves[index], durationPerMove, () => {
                     index++;
-                    // Задержка между ходами для плавности
                     setTimeout(next, 15);
                 });
             }
@@ -377,7 +381,7 @@ if (!container) {
         window.generateScramble = generateScramble;
         window.updateCubeGlow = updateCubeGlow;
 
-        // ===== КНОПКИ «ПЕРЕМЕШАТЬ» И «СОБРАТЬ» (с настройкой скорости) =====
+        // ===== КНОПКИ «ПЕРЕМЕШАТЬ» И «СОБРАТЬ» =====
         document.addEventListener('DOMContentLoaded', function() {
             const btnScramble = document.getElementById('btnScramble');
             const btnSolve = document.getElementById('btnSolve');
@@ -389,10 +393,9 @@ if (!container) {
             btnScramble.parentNode.replaceChild(newBtnScramble, btnScramble);
             btnSolve.parentNode.replaceChild(newBtnSolve, btnSolve);
 
-            // Настройки скорости (можно менять)
-            const SCRAMBLE_DURATION = 4000; // общее время скрамблинга в мс
-            const SOLVE_DURATION = 4000;    // общее время сборки в мс
-            const DELAY_BETWEEN_MOVES = 15; // задержка между ходами в мс
+            const SCRAMBLE_DURATION = 4000;
+            const SOLVE_DURATION = 4000;
+            const DELAY_BETWEEN_MOVES = 15;
 
             newBtnScramble.addEventListener('click', function() {
                 if (window.isScrambling || window.isAnimating) return;
@@ -402,37 +405,13 @@ if (!container) {
                 this.style.display = 'none';
                 newBtnSolve.style.display = 'inline-block';
 
-                // Очищаем историю перед новым скрамблом
                 window.moveHistory = [];
 
                 const moves = window.generateScramble ? window.generateScramble(23) : ['U', "R'", 'F2', 'L', "D'", 'B'];
-                // Записываем скрамбл в историю
                 moves.forEach(m => window.moveHistory.push(m));
 
                 const durationPerMove = SCRAMBLE_DURATION / moves.length;
-
-                // Переопределяем executeMoveSequence с нашей задержкой
-                const customExecute = function(moves, durationPerMove, onComplete) {
-                    if (moves.length === 0) {
-                        if (onComplete) onComplete();
-                        return;
-                    }
-                    let index = 0;
-
-                    function next() {
-                        if (index >= moves.length) {
-                            if (onComplete) onComplete();
-                            return;
-                        }
-                        executeMove(moves[index], durationPerMove, () => {
-                            index++;
-                            setTimeout(next, DELAY_BETWEEN_MOVES);
-                        });
-                    }
-                    next();
-                };
-
-                customExecute(moves, durationPerMove, () => {
+                window.executeMoveSequence(moves, durationPerMove, () => {
                     window.isScrambling = false;
                     window.isBlocked = false;
                     if (window.updateCubeGlow) window.updateCubeGlow();
@@ -449,7 +428,6 @@ if (!container) {
                 this.style.display = 'none';
                 newBtnScramble.style.display = 'inline-block';
 
-                // Берём всю историю и строим обратную последовательность
                 const reverseMoves = window.moveHistory.slice().reverse().map(m => {
                     if (m.endsWith("'")) return m.slice(0, -1);
                     if (m.endsWith("2")) return m;
@@ -457,28 +435,7 @@ if (!container) {
                 });
                 
                 const durationPerMove = SOLVE_DURATION / reverseMoves.length;
-
-                const customExecute = function(moves, durationPerMove, onComplete) {
-                    if (moves.length === 0) {
-                        if (onComplete) onComplete();
-                        return;
-                    }
-                    let index = 0;
-
-                    function next() {
-                        if (index >= moves.length) {
-                            if (onComplete) onComplete();
-                            return;
-                        }
-                        executeMove(moves[index], durationPerMove, () => {
-                            index++;
-                            setTimeout(next, DELAY_BETWEEN_MOVES);
-                        });
-                    }
-                    next();
-                };
-
-                customExecute(reverseMoves, durationPerMove, () => {
+                window.executeMoveSequence(reverseMoves, durationPerMove, () => {
                     window.isScrambling = false;
                     window.moveHistory = [];
                     window.isBlocked = false;
@@ -551,25 +508,21 @@ window.doMove = function(direction) {
     if (!direction) return;
     if (window.isAnimating) return;
 
-    // ЗАПИСЫВАЕМ ХОД В ИСТОРИЮ (ЕСЛИ НЕ ИДЁТ СБОРКА)
     if (!window.isScrambling) {
         window.moveHistory.push(direction);
     }
 
-    // Проверяем штрих
     let isReverse = direction.includes("'");
     let cleanDir = direction.replace("'", "");
 
     const camera = window.camera;
     if (!camera) return;
 
-    // 1. Получаем направления камеры
     const camDir = new THREE.Vector3();
     camera.getWorldDirection(camDir);
     const camUp = new THREE.Vector3(0, 1, 0).applyQuaternion(camera.quaternion);
     const camRight = new THREE.Vector3(1, 0, 0).applyQuaternion(camera.quaternion);
 
-    // 2. Строим visibleFaces (как на скриншоте)
     const faceNormals = {
         '+x': new THREE.Vector3(1, 0, 0),
         '-x': new THREE.Vector3(-1, 0, 0),
@@ -579,7 +532,6 @@ window.doMove = function(direction) {
         '-z': new THREE.Vector3(0, 0, -1)
     };
 
-    // Сопоставляем букву с направлением камеры
     let targetDir = null;
     if (cleanDir === 'U') targetDir = camUp;
     else if (cleanDir === 'D') targetDir = camUp.clone().negate();
@@ -589,7 +541,6 @@ window.doMove = function(direction) {
     else if (cleanDir === 'B') targetDir = camDir;
     else return;
 
-    // 3. Находим грань, нормаль которой ближе всего к направлению камеры
     let bestFace = null;
     let bestDot = -Infinity;
     for (let [faceName, normal] of Object.entries(faceNormals)) {
@@ -601,7 +552,6 @@ window.doMove = function(direction) {
     }
     if (!bestFace) return;
 
-    // 4. Определяем ось и индекс
     let axis = '';
     let index = 0;
     if (bestFace === '+x') { axis = 'x'; index = 1; }
@@ -612,23 +562,16 @@ window.doMove = function(direction) {
     else if (bestFace === '-z') { axis = 'z'; index = -1; }
     else return;
 
-    // 5. Вычисляем угол: 
-    // Для +X и +Z: по часовой = -90°, против = +90°
-    // Для -X и -Z: по часовой = +90°, против = -90°
     let baseAngle = 0;
     if (axis === 'y') {
-        // Для Y всё просто: U = -90, D = +90
         baseAngle = (index === 1) ? -Math.PI/2 : Math.PI/2;
     } else {
-        // Для X и Z: направление зависит от знака индекса
         if (index === 1) baseAngle = -Math.PI/2;
         else baseAngle = Math.PI/2;
     }
 
-    // Применяем реверс (штрих)
     const angle = isReverse ? -baseAngle : baseAngle;
 
-    // 6. Поворачиваем слой
     window.rotateLayer(axis, index, angle, 150, () => {
         if (window.updateCubeGlow) window.updateCubeGlow();
     });
