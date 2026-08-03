@@ -33,7 +33,6 @@ if (!container) {
         camera.position.set(3.5, 2.5, 4.5);
         camera.lookAt(0, 0, 0);
 
-        // Добавляем камеру в сцену, чтобы свет, привязанный к ней, работал
         scene.add(camera);
 
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -49,9 +48,9 @@ if (!container) {
         controls.rotateSpeed = 1.0;
         controls.target.set(0, 0, 0);
 
-        // ===== ЕДИНСТВЕННОЕ ДОБАВЛЕНИЕ: СТОПОР НА ВЕРТИКАЛЬ =====
-        controls.minPolarAngle = 0.1;
-        controls.maxPolarAngle = Math.PI - 0.1;
+        // ===== СТОПОР НА ВЕРТИКАЛЬ (только это!) =====
+        controls.minPolarAngle = 0.05;
+        controls.maxPolarAngle = Math.PI - 0.05;
         controls.update();
 
         const cubeGroup = new THREE.Group();
@@ -161,7 +160,7 @@ if (!container) {
         const ambientLight = new THREE.AmbientLight(0x606080, 0.6);
         scene.add(ambientLight);
 
-        // Эти света — дети камеры, они всегда светят с одной точки относительно камеры
+        // Твой свет в camera.add, НИЧЕГО НЕ МЕНЯЕМ
         const mainLight = new THREE.DirectionalLight(0xffffff, 0.9);
         mainLight.position.set(2, 4, 3);
         camera.add(mainLight);
