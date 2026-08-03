@@ -383,6 +383,19 @@ if (!container) {
         let isDragging = false;
         let isPointerDown = false;
 
+        // ===== ПРИ ЛЮБОМ КАСАНИИ ЗОНЫ КУБИКА ОТКЛЮЧАЕМ ORBITCONTROLS =====
+        renderer.domElement.addEventListener('pointerdown', (e) => {
+            // При любом касании внутри контейнера — отключаем вращение сцены
+            controls.enabled = false;
+        });
+
+        renderer.domElement.addEventListener('pointerup', (e) => {
+            // При отпускании — включаем обратно, но только если нет активной анимации
+            if (!isAnimating && !isSnapping) {
+                controls.enabled = true;
+            }
+        });
+
         // ===== ДЛЯ МЫШИ =====
         renderer.domElement.addEventListener('mousedown', (e) => {
             if (window.isSolved) return;
@@ -401,9 +414,6 @@ if (!container) {
                 return;
             }
 
-            // Блокируем вращение всего кубика
-            controls.enabled = false;
-
             const clicked = intersects[0].object;
             const normal = intersects[0].face.normal.clone().applyQuaternion(clicked.quaternion);
             const nx = Math.round(normal.x);
@@ -421,7 +431,6 @@ if (!container) {
                 dragLayer = Math.round(clicked.position.z / offset);
             } else {
                 isPointerDown = false;
-                controls.enabled = true;
                 return;
             }
 
@@ -444,19 +453,15 @@ if (!container) {
 
             const dx = e.clientX - dragStart.x;
             const dy = e.clientY - dragStart.y;
-            const threshold = 30; // порог для распознавания жеста
+            const threshold = 30;
 
             if (!dragStart.moved && Math.abs(dx) < threshold && Math.abs(dy) < threshold) return;
             dragStart.moved = true;
-
-            // Запоминаем направление, но НЕ вращаем плавно
-            // Вращение произойдёт при отпускании
         });
 
         renderer.domElement.addEventListener('mouseup', (e) => {
             if (!isDragging || !dragStart) {
                 isPointerDown = false;
-                controls.enabled = true;
                 return;
             }
 
@@ -467,7 +472,6 @@ if (!container) {
                 const dx = e.clientX - dragStart.x;
                 const dy = e.clientY - dragStart.y;
                 
-                // Определяем направление
                 let angle = 0;
                 if (dragStart.axis === 'x') {
                     angle = dy > 0 ? Math.PI / 2 : -Math.PI / 2;
@@ -477,21 +481,16 @@ if (!container) {
                     angle = dx > 0 ? Math.PI / 2 : -Math.PI / 2;
                 }
 
-                // Корректируем направление в зависимости от нормали
                 if (dragStart.normalX < 0) angle *= -1;
                 if (dragStart.normalY < 0) angle *= -1;
                 if (dragStart.normalZ < 0) angle *= -1;
 
-                // Выполняем поворот на 90° с анимацией (как в скрамблере)
                 rotateLayer(dragStart.axis, dragStart.layer, angle, 150, () => {
-                    controls.enabled = true;
                     if (isCubeSolved()) {
                         window.isSolved = true;
                     }
                     updateCubeGlow();
                 });
-            } else {
-                controls.enabled = true;
             }
 
             // ===== КЛИК БЕЗ ПЕРЕМЕЩЕНИЯ — ТОЛЬКО НА СОБРАННОМ =====
@@ -582,9 +581,6 @@ if (!container) {
                 return;
             }
 
-            // Блокируем вращение всего кубика
-            controls.enabled = false;
-
             const clicked = intersects[0].object;
             const normal = intersects[0].face.normal.clone().applyQuaternion(clicked.quaternion);
             const nx = Math.round(normal.x);
@@ -602,7 +598,6 @@ if (!container) {
                 dragLayer = Math.round(clicked.position.z / offset);
             } else {
                 isPointerDown = false;
-                controls.enabled = true;
                 return;
             }
 
@@ -627,7 +622,7 @@ if (!container) {
             const touch = e.changedTouches[0];
             const dx = touch.clientX - dragStart.x;
             const dy = touch.clientY - dragStart.y;
-            const threshold = 30; // порог для распознавания жеста
+            const threshold = 30;
 
             if (!dragStart.moved && Math.abs(dx) < threshold && Math.abs(dy) < threshold) return;
             dragStart.moved = true;
@@ -636,7 +631,6 @@ if (!container) {
         renderer.domElement.addEventListener('touchend', (e) => {
             if (!isDragging || !dragStart) {
                 isPointerDown = false;
-                controls.enabled = true;
                 return;
             }
 
@@ -650,7 +644,6 @@ if (!container) {
                 const dx = touch.clientX - dragStart.x;
                 const dy = touch.clientY - dragStart.y;
                 
-                // Определяем направление
                 let angle = 0;
                 if (dragStart.axis === 'x') {
                     angle = dy > 0 ? Math.PI / 2 : -Math.PI / 2;
@@ -660,21 +653,16 @@ if (!container) {
                     angle = dx > 0 ? Math.PI / 2 : -Math.PI / 2;
                 }
 
-                // Корректируем направление в зависимости от нормали
                 if (dragStart.normalX < 0) angle *= -1;
                 if (dragStart.normalY < 0) angle *= -1;
                 if (dragStart.normalZ < 0) angle *= -1;
 
-                // Выполняем поворот на 90° с анимацией (как в скрамблере)
                 rotateLayer(dragStart.axis, dragStart.layer, angle, 150, () => {
-                    controls.enabled = true;
                     if (isCubeSolved()) {
                         window.isSolved = true;
                     }
                     updateCubeGlow();
                 });
-            } else {
-                controls.enabled = true;
             }
 
             // ===== КЛИК БЕЗ ПЕРЕМЕЩЕНИЯ — ТОЛЬКО НА СОБРАННОМ =====
