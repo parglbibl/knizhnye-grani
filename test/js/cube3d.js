@@ -70,13 +70,14 @@ if (!container) {
         window.cubeGroup = cubeGroup;
 
         const textureLoader = new THREE.TextureLoader();
+        // Относительные пути к текстурам (для тестовой папки)
         const texturePaths = {
-            red: '/images/cube_textures/red.jpg',
-            blue: '/images/cube_textures/blue.jpg',
-            yellow: '/images/cube_textures/yellow.jpg',
-            green: '/images/cube_textures/green.jpg',
-            white: '/images/cube_textures/white.jpg',
-            orange: '/images/cube_textures/orange.jpg'
+            red: '../images/cube_textures/red.jpg',
+            blue: '../images/cube_textures/blue.jpg',
+            yellow: '../images/cube_textures/yellow.jpg',
+            green: '../images/cube_textures/green.jpg',
+            white: '../images/cube_textures/white.jpg',
+            orange: '../images/cube_textures/orange.jpg'
         };
 
         const loadTexture = (url) => {
@@ -198,7 +199,7 @@ if (!container) {
             return true;
         }
 
-        // ===== ВРАЩЕНИЕ СЛОЁВ =====
+        // ===== ВРАЩЕНИЕ СЛОЁВ (с защитой от быстрых нажатий) =====
         let isAnimating = false;
 
         function getCubiesInLayer(axis, index) {
@@ -220,11 +221,15 @@ if (!container) {
         }
 
         function rotateLayer(axis, index, angle, duration, callback) {
-            window.isAnimating = true;
+            if (isAnimating) {
+                if (callback) callback();
+                return;
+            }
 
+            isAnimating = true;
             const cubies = getCubiesInLayer(axis, index);
             if (cubies.length === 0) {
-                window.isAnimating = false;
+                isAnimating = false;
                 if (callback) callback();
                 return;
             }
@@ -282,7 +287,7 @@ if (!container) {
                         item.cubie.userData.gridZ = Math.round(item.cubie.position.z / offset);
                     });
                     updateCubeGlow();
-                    window.isAnimating = false;
+                    isAnimating = false;
                     if (callback) callback();
                 }
             }
