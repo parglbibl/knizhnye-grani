@@ -1,587 +1,272 @@
-import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Книжные грани — собери свою грань</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- Yandex.Metrika counter -->
+    <script type="text/javascript">
+        (function(m,e,t,r,i,k,a){
+            m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+            m[i].l=1*new Date();
+            for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+            k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+        })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=109783209', 'ym');
 
-// ===== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ =====
-window.isSolved = true;
-window.isScrambling = false;
-window.isAnimating = false;
-window.isBlocked = false;
-window.moveHistory = [];
-window.executeMoveSequence = null;
-window.generateScramble = null;
-window.updateCubeGlow = null;
-window.rotateLayer = null;
-window.camera = null;
-window.allCubies = null;
-window.offset = null;
-window.cubeGroup = null;
+        ym(109783209, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
+    </script>
+    <noscript><div><img src="https://mc.yandex.ru/watch/109783209" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+    <!-- /Yandex.Metrika counter -->
 
-const container = document.getElementById('cube-container');
-if (!container) {
-    console.error('Контейнер для кубика не найден');
-} else {
-    function getContainerSize() {
-        const rect = container.getBoundingClientRect();
-        return Math.min(rect.width, rect.height);
-    }
+    <link rel="icon" type="image/x-icon" href="../favicon/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="../favicon/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../favicon/favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="../favicon/apple-touch-icon.png">
+    <link rel="manifest" href="../favicon/site.webmanifest">
+    <meta name="msapplication-TileColor" content="#ff2e5a">
+    <meta name="theme-color" content="#fef9f0">
+</head>
+<body>
 
-    const size = getContainerSize();
-    if (size === 0) {
-        requestAnimationFrame(function wait() {
-            const newSize = getContainerSize();
-            if (newSize === 0) {
-                requestAnimationFrame(wait);
-            } else {
-                initCube(newSize);
-            }
-        });
-    } else {
-        initCube(size);
-    }
+<header>
+    <div class="container header-inner">
+        <div class="logo">
+            <div class="logo-cbs">
+                <img src="../images/logo-cbs.png" alt="ЦБС Выборгского района">
+            </div>
+            <div class="logo-rost">
+                <img src="../images/logo-rost.png" alt="Проектный офис РОСТ">
+            </div>
+            <a href="../index.html">
+                <img src="../images/logo-grani.png" alt="Книжные грани" style="height: 40px; width: auto;">
+            </a>
+        </div>
+        <div class="menu-toggle" id="menuToggle">
+            <i class="fas fa-bars"></i>
+        </div>
+        <nav class="nav" id="nav"></nav>
+    </div>
+</header>
 
-    function initCube(size) {
-        const scene = new THREE.Scene();
-        scene.background = null; // прозрачный фон
-
-        const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 1000);
-        camera.position.set(3.5, 2.5, 4.5);
-        camera.lookAt(0, 0, 0);
-        scene.add(camera);
-        window.camera = camera;
-
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        renderer.setSize(size, size);
-        renderer.setClearColor(0x000000, 0);
-        container.appendChild(renderer.domElement);
-
-        const controls = new OrbitControls(camera, renderer.domElement);
-        controls.enableDamping = true;
-        controls.dampingFactor = 0.1;
-        controls.enableZoom = true;
-        controls.rotateSpeed = 0.5;
-        controls.target.set(0, 0, 0);
-        controls.minDistance = 3;
-        controls.maxDistance = 8;
-
-        const cubeGroup = new THREE.Group();
-        scene.add(cubeGroup);
-        window.cubeGroup = cubeGroup;
-
-        const textureLoader = new THREE.TextureLoader();
-        const texturePaths = {
-            red: '/images/cube_textures/red.jpg',
-            blue: '/images/cube_textures/blue.jpg',
-            yellow: '/images/cube_textures/yellow.jpg',
-            green: '/images/cube_textures/green.jpg',
-            white: '/images/cube_textures/white.jpg',
-            orange: '/images/cube_textures/orange.jpg'
-        };
-
-        const loadTexture = (url) => {
-            const tex = textureLoader.load(url);
-            tex.wrapS = THREE.ClampToEdgeWrapping;
-            tex.wrapT = THREE.ClampToEdgeWrapping;
-            return tex;
-        };
-
-        const matConfig = { roughness: 0.9, metalness: 0.0 };
-        const textures = {
-            red: loadTexture(texturePaths.red),
-            blue: loadTexture(texturePaths.blue),
-            yellow: loadTexture(texturePaths.yellow),
-            green: loadTexture(texturePaths.green),
-            white: loadTexture(texturePaths.white),
-            orange: loadTexture(texturePaths.orange)
-        };
-        const createMat = (color) => new THREE.MeshStandardMaterial({ map: textures[color], ...matConfig });
-
-        const createGlowMat = (color, emissiveHex, intensity) => new THREE.MeshStandardMaterial({
-            map: textures[color], roughness: 0.3, metalness: 0.2, emissive: emissiveHex, emissiveIntensity: intensity
-        });
-
-        const offset = 0.685;
-        const sizeCubie = 0.675;
-        const radius = 0.08;
-        const segments = 4;
-        window.offset = offset;
-
-        const matLib = {
-            red: createMat('red'), blue: createMat('blue'), yellow: createMat('yellow'),
-            green: createMat('green'), white: createMat('white'), orange: createMat('orange')
-        };
-
-        const glowLib = {
-            red: createGlowMat('red', 0xc41e3a, 0.12),
-            blue: createGlowMat('blue', 0x0051ba, 0.12),
-            yellow: createGlowMat('yellow', 0xffd700, 0.12),
-            green: createGlowMat('green', 0x009e60, 0.12),
-            white: createGlowMat('white', 0xffffff, 0.04),
-            orange: createGlowMat('orange', 0xff8c00, 0.12)
-        };
-
-        let allCubies = [];
-        window.allCubies = allCubies;
-
-        function buildCubies() {
-            while (cubeGroup.children.length > 0) {
-                const child = cubeGroup.children[0];
-                child.geometry.dispose();
-                cubeGroup.remove(child);
-            }
-            allCubies = [];
-
-            for (let x = -1; x <= 1; x++) {
-                for (let y = -1; y <= 1; y++) {
-                    for (let z = -1; z <= 1; z++) {
-                        if (x === 0 && y === 0 && z === 0) continue;
-
-                        const faces = [
-                            x === 1 ? 'red' : (x === -1 ? 'orange' : null),
-                            x === -1 ? 'orange' : (x === 1 ? 'red' : null),
-                            y === 1 ? 'white' : (y === -1 ? 'yellow' : null),
-                            y === -1 ? 'yellow' : (y === 1 ? 'white' : null),
-                            z === 1 ? 'green' : (z === -1 ? 'blue' : null),
-                            z === -1 ? 'blue' : (z === 1 ? 'green' : null)
-                        ];
-                        const mats = faces.map(f => f ? matLib[f] : matLib['red']);
-
-                        const geometry = new RoundedBoxGeometry(sizeCubie, sizeCubie, sizeCubie, segments, radius);
-                        const cubie = new THREE.Mesh(geometry, mats);
-                        cubie.position.set(x * offset, y * offset, z * offset);
-                        cubeGroup.add(cubie);
-
-                        cubie.userData = {
-                            gridX: x, gridY: y, gridZ: z,
-                            faces: faces,
-                            mats: mats
-                        };
-
-                        allCubies.push(cubie);
-                    }
-                }
-            }
-        }
-
-        buildCubies();
-
-        // ===== ОСВЕЩЕНИЕ =====
-        const ambientLight = new THREE.AmbientLight(0x606080, 0.6);
-        scene.add(ambientLight);
-
-        const mainLight = new THREE.DirectionalLight(0xffffff, 0.45);
-        mainLight.position.set(2, 4, 3);
-        camera.add(mainLight);
-
-        const fillLight = new THREE.DirectionalLight(0xffffff, 0.3);
-        fillLight.position.set(-2, 1, 2);
-        camera.add(fillLight);
-
-        const backLight = new THREE.DirectionalLight(0xffffff, 0.1);
-        backLight.position.set(0, 1, -3);
-        camera.add(backLight);
-
-        // ===== ФУНКЦИЯ ПРОВЕРКИ СБОРКИ =====
-        function isCubeSolved() {
-            for (let cubie of allCubies) {
-                const pos = cubie.position;
-                const gx = Math.round(pos.x / offset);
-                const gy = Math.round(pos.y / offset);
-                const gz = Math.round(pos.z / offset);
-                if (gx !== cubie.userData.gridX ||
-                    gy !== cubie.userData.gridY ||
-                    gz !== cubie.userData.gridZ) {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        // ===== ВРАЩЕНИЕ СЛОЁВ =====
-        let isAnimating = false;
-
-        function getCubiesInLayer(axis, index) {
-            const result = [];
-            allCubies.forEach(cubie => {
-                const pos = cubie.position;
-                const gx = Math.round(pos.x / offset);
-                const gy = Math.round(pos.y / offset);
-                const gz = Math.round(pos.z / offset);
-
-                let match = false;
-                if (axis === 'x' && gx === index) match = true;
-                else if (axis === 'y' && gy === index) match = true;
-                else if (axis === 'z' && gz === index) match = true;
-
-                if (match) result.push(cubie);
-            });
-            return result;
-        }
-
-        function rotateLayer(axis, index, angle, duration, callback) {
-            isAnimating = true;
-            const cubies = getCubiesInLayer(axis, index);
-            if (cubies.length === 0) {
-                isAnimating = false;
-                if (callback) callback();
-                return;
-            }
-
-            const newPositions = cubies.map(cubie => {
-                const pos = cubie.position.clone();
-                const gx = Math.round(pos.x / offset);
-                const gy = Math.round(pos.y / offset);
-                const gz = Math.round(pos.z / offset);
-
-                let newX = gx, newY = gy, newZ = gz;
-                const cos = Math.round(Math.cos(angle));
-                const sin = Math.round(Math.sin(angle));
-
-                if (axis === 'x') {
-                    newY = gy * cos - gz * sin;
-                    newZ = gy * sin + gz * cos;
-                } else if (axis === 'y') {
-                    newX = gx * cos + gz * sin;
-                    newZ = -gx * sin + gz * cos;
-                } else if (axis === 'z') {
-                    newX = gx * cos - gy * sin;
-                    newY = gx * sin + gy * cos;
-                }
-
-                return {
-                    cubie: cubie,
-                    startPos: pos.clone(),
-                    endPos: new THREE.Vector3(newX * offset, newY * offset, newZ * offset),
-                    startRot: cubie.quaternion.clone(),
-                    endRot: new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(axis === 'x' ? 1 : 0, axis === 'y' ? 1 : 0, axis === 'z' ? 1 : 0), angle).multiply(cubie.quaternion.clone())
-                };
-            });
-
-            const startTime = Date.now();
-
-            function animateMove() {
-                const elapsed = Date.now() - startTime;
-                const t = Math.min(elapsed / duration, 1);
-                const ease = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
-
-                newPositions.forEach(item => {
-                    item.cubie.position.lerpVectors(item.startPos, item.endPos, ease);
-                    item.cubie.quaternion.slerpQuaternions(item.startRot, item.endRot, ease);
-                });
-
-                if (t < 1) {
-                    requestAnimationFrame(animateMove);
-                } else {
-                    newPositions.forEach(item => {
-                        item.cubie.position.copy(item.endPos);
-                        item.cubie.quaternion.copy(item.endRot);
-                        item.cubie.userData.gridX = Math.round(item.cubie.position.x / offset);
-                        item.cubie.userData.gridY = Math.round(item.cubie.position.y / offset);
-                        item.cubie.userData.gridZ = Math.round(item.cubie.position.z / offset);
-                    });
-                    updateCubeGlow();
-                    isAnimating = false;
-                    if (callback) callback();
-                }
-            }
-            animateMove();
-        }
-
-        // ===== ЭКСПОРТ В ГЛОБАЛЬНУЮ ОБЛАСТЬ =====
-        window.rotateLayer = rotateLayer;
-
-        // ===== СКРАМБЛЕР И СБОРЩИК =====
-        let isScrambling = false;
-        let isBlocked = false;
-
-        function generateScramble(length = 23) {
-            const moves = ['U', 'D', 'L', 'R', 'F', 'B'];
-            const modifiers = ['', "'", "2"];
-            let result = [];
-            let lastAxis = '';
-            for (let i = 0; i < length; i++) {
-                let move;
-                let axis;
-                do {
-                    move = moves[Math.floor(Math.random() * moves.length)];
-                    axis = move.charAt(0);
-                } while (axis === lastAxis);
-                lastAxis = axis;
-                const mod = modifiers[Math.floor(Math.random() * modifiers.length)];
-                result.push(move + mod);
-            }
-            return result;
-        }
-
-        function parseMove(moveStr) {
-            const axisMap = { 'U': 'y', 'D': 'y', 'L': 'x', 'R': 'x', 'F': 'z', 'B': 'z' };
-            const indexMap = { 'U': 1, 'D': -1, 'L': -1, 'R': 1, 'F': 1, 'B': -1 };
-            const angleMap = { 'U': -1, 'D': 1, 'L': 1, 'R': -1, 'F': -1, 'B': 1 };
-
-            const base = moveStr.charAt(0);
-            const mod = moveStr.slice(1);
-            let angle = angleMap[base] * Math.PI / 2;
-            let count = 1;
-            if (mod === "'") angle *= -1;
-            else if (mod === "2") count = 2;
-
-            return { axis: axisMap[base], index: indexMap[base], angle: angle * count };
-        }
-
-        function executeMove(moveStr, duration, callback) {
-            const parsed = parseMove(moveStr);
-            let remaining = parsed.count;
-            let currentAngle = parsed.angle;
-
-            function doSingleRotation() {
-                if (remaining === 0) {
-                    if (callback) callback();
-                    return;
-                }
-                rotateLayer(parsed.axis, parsed.index, currentAngle, duration, () => {
-                    remaining--;
-                    if (remaining > 0) {
-                        doSingleRotation();
-                    } else {
-                        if (callback) callback();
-                    }
-                });
-            }
-            doSingleRotation();
-        }
-
-        function executeMoveSequence(moves, durationPerMove, onComplete) {
-            if (moves.length === 0) {
-                if (onComplete) onComplete();
-                return;
-            }
-            let index = 0;
-
-            function next() {
-                if (index >= moves.length) {
-                    if (onComplete) onComplete();
-                    return;
-                }
-                executeMove(moves[index], durationPerMove, () => {
-                    index++;
-                    setTimeout(next, 20);
-                });
-            }
-            next();
-        }
-
-        window.executeMoveSequence = executeMoveSequence;
-        window.generateScramble = generateScramble;
-        window.updateCubeGlow = updateCubeGlow;
-
-        // ===== КНОПКИ «ПЕРЕМЕШАТЬ» И «СОБРАТЬ» =====
-        document.addEventListener('DOMContentLoaded', function() {
-            const btnScramble = document.getElementById('btnScramble');
-            const btnSolve = document.getElementById('btnSolve');
-
-            if (!btnScramble || !btnSolve) return;
-
-            const newBtnScramble = btnScramble.cloneNode(true);
-            const newBtnSolve = btnSolve.cloneNode(true);
-            btnScramble.parentNode.replaceChild(newBtnScramble, btnScramble);
-            btnSolve.parentNode.replaceChild(newBtnSolve, btnSolve);
-
-            newBtnScramble.addEventListener('click', function() {
-                if (window.isScrambling || window.isAnimating) return;
-                window.isBlocked = true;
-                window.isScrambling = true;
-                window.isSolved = false;
-                this.style.display = 'none';
-                newBtnSolve.style.display = 'inline-block';
-
-                // Очищаем историю перед новым скрамблом
-                window.moveHistory = [];
-
-                const moves = window.generateScramble ? window.generateScramble(23) : ['U', "R'", 'F2', 'L', "D'", 'B'];
-                // Записываем скрамбл в историю
-                moves.forEach(m => window.moveHistory.push(m));
-
-                // === ВАША СКОРОСТЬ: 150 мс на ход + пауза 10 мс ===
-                const durationPerMove = 150;
-                window.executeMoveSequence(moves, durationPerMove, () => {
-                    window.isScrambling = false;
-                    window.isBlocked = false;
-                    if (window.updateCubeGlow) window.updateCubeGlow();
-                });
-            });
-
-            newBtnSolve.addEventListener('click', function() {
-                if (window.isScrambling || window.isAnimating || window.moveHistory.length === 0) return;
-                if (window.isBlocked) return;
+<section class="section" style="padding-top: 2rem; padding-bottom: 2rem;">
+    <div class="container" style="max-width: 900px; text-align: center;">
+        
+        <!-- ===== ЗАГОЛОВОК И МАНИФЕСТ ===== -->
+        <div class="grani-header" style="margin-bottom: 2.5rem; text-align: left; max-width: 750px; margin-left: auto; margin-right: auto;">
+            <h1 style="font-family: 'KB Tranceform', 'Montserrat', sans-serif; font-weight: 400; text-align: center; letter-spacing: 0.02em; color: #3a4a6e; margin-bottom: 1rem; font-size: 3.8rem;">
+                Шесть граней,<br>из которых складываемся мы
+            </h1>
+            
+            <div style="font-size: 0.9rem; line-height: 1.8; color: var(--text-secondary); text-align: justify;">
+                <p style="margin-bottom: 1.5rem; text-align: center; font-weight: 500; color: #1e2a3a;">
+                    Книги — это не просто слова. Это отражение наших чувств, воспоминаний и того, кем мы стали. <br>
+                    Шесть граней — шесть ценностей, которые живут в каждом из нас.
+                </p>
+                <p style="margin-bottom: 1rem;"><span style="color: #c41e3a; font-weight: 700; font-size: 1.05rem;">Любовь</span>, «что движет солнцем и светилами», как сказал когда-то Данте, и без неё мы – всего лишь пустые оболочки.</p>
+                <p style="margin-bottom: 1rem;"><span style="color: #0051ba; font-weight: 700; font-size: 1.05rem;">Надежда</span>, которая держит нас в самые тёмные времена, когда кажется, что выхода нет.</p>
+                <p style="margin-bottom: 1rem;"><span style="color: #ffd700; font-weight: 700; font-size: 1.05rem;">Совесть</span> помогает нам выбирать, даже когда выбор труден.</p>
+                <p style="margin-bottom: 1rem;"><span style="color: #009e60; font-weight: 700; font-size: 1.05rem;">Добро</span> — чтобы, прочитав книгу, мы вышли и сделали пусть маленькое, но хорошее дело.</p>
+                <p style="margin-bottom: 1rem;"><span style="color: #b0b0b0; font-weight: 700; font-size: 1.05rem;">Память</span> — как связь поколений, как благодарность нашим родным.</p>
+                <p style="margin-bottom: 1rem;"><span style="color: #ff8c00; font-weight: 700; font-size: 1.05rem;">Семья</span>, где мы учимся любви, терпению, прощению.</p>
                 
-                window.isBlocked = true;
-                window.isScrambling = true;
-                window.isSolved = true;
-                this.style.display = 'none';
-                newBtnScramble.style.display = 'inline-block';
+                <p style="margin-top: 1.5rem; text-align: center; font-weight: 500; color: #1e2a3a;">
+                    Нажми на любой квадратик кубика и вспомни книгу, которая откликается твоей душе. <br>
+                    Собери свою Книжную Грань.
+                </p>
+            </div>
+        </div>
 
-                // Берём всю историю и строим обратную последовательность
-                const reverseMoves = window.moveHistory.slice().reverse().map(m => {
-                    if (m.endsWith("'")) return m.slice(0, -1);
-                    if (m.endsWith("2")) return m;
-                    return m + "'";
-                });
-                
-                // === ВАША СКОРОСТЬ: 150 мс на ход + пауза 10 мс ===
-                const durationPerMove = 150;
-                window.executeMoveSequence(reverseMoves, durationPerMove, () => {
-                    window.isScrambling = false;
-                    window.moveHistory = [];
-                    window.isBlocked = false;
-                    if (window.updateCubeGlow) window.updateCubeGlow();
-                });
-            });
-        });
+        <!-- ===== КУБИК И ЛЕГЕНДА ===== -->
+        <div style="display: flex; flex-direction: row; justify-content: center; align-items: center; gap: 4rem; width: 100%; max-width: 1000px; margin: 0 auto; flex-wrap: wrap;">
+            <div style="flex: 0 0 280px; display: flex; justify-content: center; align-items: center;">
+                <div style="display: flex; flex-direction: column; gap: 0.9rem; padding: 1.8rem 2rem; background: rgba(255,255,255,0.8); backdrop-filter: blur(6px); border-radius: 28px; box-shadow: 0 12px 40px rgba(0,0,0,0.04); width: 100%; border: 1px solid rgba(255,255,255,0.5);">
+                    <div style="display: flex; align-items: center; gap: 1.2rem;"><img src="../images/cube_textures/red.jpg" style="width:40px;height:40px;border-radius:10px;object-fit:cover;"><span style="font-weight:500;font-size:1rem;color:var(--text-secondary);">Любовь</span></div>
+                    <div style="display: flex; align-items: center; gap: 1.2rem;"><img src="../images/cube_textures/blue.jpg" style="width:40px;height:40px;border-radius:10px;object-fit:cover;"><span style="font-weight:500;font-size:1rem;color:var(--text-secondary);">Надежда</span></div>
+                    <div style="display: flex; align-items: center; gap: 1.2rem;"><img src="../images/cube_textures/yellow.jpg" style="width:40px;height:40px;border-radius:10px;object-fit:cover;"><span style="font-weight:500;font-size:1rem;color:var(--text-secondary);">Совесть</span></div>
+                    <div style="display: flex; align-items: center; gap: 1.2rem;"><img src="../images/cube_textures/green.jpg" style="width:40px;height:40px;border-radius:10px;object-fit:cover;"><span style="font-weight:500;font-size:1rem;color:var(--text-secondary);">Добро</span></div>
+                    <div style="display: flex; align-items: center; gap: 1.2rem;"><img src="../images/cube_textures/white.jpg" style="width:40px;height:40px;border-radius:10px;object-fit:cover;"><span style="font-weight:500;font-size:1rem;color:var(--text-secondary);">Память</span></div>
+                    <div style="display: flex; align-items: center; gap: 1.2rem;"><img src="../images/cube_textures/orange.jpg" style="width:40px;height:40px;border-radius:10px;object-fit:cover;"><span style="font-weight:500;font-size:1rem;color:var(--text-secondary);">Семья</span></div>
+                </div>
+            </div>
 
-        // ===== ЗАКРЫТИЕ ПОПАПА =====
-        document.getElementById('popup').addEventListener('click', (e) => {
-            if (e.target === e.currentTarget) {
-                e.currentTarget.style.display = 'none';
-                document.body.style.overflow = '';
-            }
-        });
+            <div style="flex: 1; min-width: 320px; max-width: 580px; display: flex; justify-content: center;">
+                <div id="cube-container" style="width: 100%; aspect-ratio: 1 / 1; max-width: 580px; background: transparent; position: relative; touch-action: none;"></div>
+            </div>
+        </div>
 
-        // ===== ПОДСВЕТКА =====
-        let activeGlowIds = [];
+        <!-- ===== КНОПКИ УПРАВЛЕНИЯ (Скрамблер) ===== -->
+        <div style="display: flex; justify-content: center; gap: 1.5rem; margin-top: 2.5rem; flex-wrap: wrap;">
+            <button id="btnScramble" class="btn btn-primary" style="background: #ff2e5a; color: #fff; border-color: #ff2e5a;">Перемешать</button>
+            <button id="btnSolve" class="btn btn-primary" style="background: #2ecc71; color: #fff; border-color: #2ecc71; display: none;">Собрать</button>
+        </div>
 
-        function loadGlowFromLocalStorage() {
-            try {
-                const data = JSON.parse(localStorage.getItem('myGranProgress') || '[]');
-                activeGlowIds = data;
-            } catch (e) {
-                activeGlowIds = [];
-            }
-        }
+        <!-- ===== КНОПКИ ПОВОРОТА ГРАНЕЙ (U, D, L, R, F, B) ===== -->
+        <div style="margin-top: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem; align-items: center;">
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center;">
+                <button class="cube-btn" onclick="window.doMove('U')" style="padding:0.6rem 1.2rem; font-size:1.2rem; font-weight:700; border:none; border-radius:12px; background:#1e2a47; color:#fff; cursor:pointer; min-width:50px; min-height:44px; box-shadow:0 4px 0 #0f1520; transition:all 0.15s;">U</button>
+                <button class="cube-btn" onclick="window.doMove('D')" style="padding:0.6rem 1.2rem; font-size:1.2rem; font-weight:700; border:none; border-radius:12px; background:#1e2a47; color:#fff; cursor:pointer; min-width:50px; min-height:44px; box-shadow:0 4px 0 #0f1520; transition:all 0.15s;">D</button>
+                <button class="cube-btn" onclick="window.doMove('L')" style="padding:0.6rem 1.2rem; font-size:1.2rem; font-weight:700; border:none; border-radius:12px; background:#1e2a47; color:#fff; cursor:pointer; min-width:50px; min-height:44px; box-shadow:0 4px 0 #0f1520; transition:all 0.15s;">L</button>
+                <button class="cube-btn" onclick="window.doMove('R')" style="padding:0.6rem 1.2rem; font-size:1.2rem; font-weight:700; border:none; border-radius:12px; background:#1e2a47; color:#fff; cursor:pointer; min-width:50px; min-height:44px; box-shadow:0 4px 0 #0f1520; transition:all 0.15s;">R</button>
+                <button class="cube-btn" onclick="window.doMove('F')" style="padding:0.6rem 1.2rem; font-size:1.2rem; font-weight:700; border:none; border-radius:12px; background:#1e2a47; color:#fff; cursor:pointer; min-width:50px; min-height:44px; box-shadow:0 4px 0 #0f1520; transition:all 0.15s;">F</button>
+                <button class="cube-btn" onclick="window.doMove('B')" style="padding:0.6rem 1.2rem; font-size:1.2rem; font-weight:700; border:none; border-radius:12px; background:#1e2a47; color:#fff; cursor:pointer; min-width:50px; min-height:44px; box-shadow:0 4px 0 #0f1520; transition:all 0.15s;">B</button>
+            </div>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center;">
+                <button class="cube-btn prime" onclick="window.doMove(&quot;U'&quot;)" style="padding:0.6rem 1.2rem; font-size:1.2rem; font-weight:700; border:none; border-radius:12px; background:#3a2a4a; color:#fff; cursor:pointer; min-width:50px; min-height:44px; box-shadow:0 4px 0 #1f152a; transition:all 0.15s;">U'</button>
+                <button class="cube-btn prime" onclick="window.doMove(&quot;D'&quot;)" style="padding:0.6rem 1.2rem; font-size:1.2rem; font-weight:700; border:none; border-radius:12px; background:#3a2a4a; color:#fff; cursor:pointer; min-width:50px; min-height:44px; box-shadow:0 4px 0 #1f152a; transition:all 0.15s;">D'</button>
+                <button class="cube-btn prime" onclick="window.doMove(&quot;L'&quot;)" style="padding:0.6rem 1.2rem; font-size:1.2rem; font-weight:700; border:none; border-radius:12px; background:#3a2a4a; color:#fff; cursor:pointer; min-width:50px; min-height:44px; box-shadow:0 4px 0 #1f152a; transition:all 0.15s;">L'</button>
+                <button class="cube-btn prime" onclick="window.doMove(&quot;R'&quot;)" style="padding:0.6rem 1.2rem; font-size:1.2rem; font-weight:700; border:none; border-radius:12px; background:#3a2a4a; color:#fff; cursor:pointer; min-width:50px; min-height:44px; box-shadow:0 4px 0 #1f152a; transition:all 0.15s;">R'</button>
+                <button class="cube-btn prime" onclick="window.doMove(&quot;F'&quot;)" style="padding:0.6rem 1.2rem; font-size:1.2rem; font-weight:700; border:none; border-radius:12px; background:#3a2a4a; color:#fff; cursor:pointer; min-width:50px; min-height:44px; box-shadow:0 4px 0 #1f152a; transition:all 0.15s;">F'</button>
+                <button class="cube-btn prime" onclick="window.doMove(&quot;B'&quot;)" style="padding:0.6rem 1.2rem; font-size:1.2rem; font-weight:700; border:none; border-radius:12px; background:#3a2a4a; color:#fff; cursor:pointer; min-width:50px; min-height:44px; box-shadow:0 4px 0 #1f152a; transition:all 0.15s;">B'</button>
+            </div>
+        </div>
 
-        window.updateCubeGlow = function() {
-            loadGlowFromLocalStorage();
-            applyGlow();
-        };
+        <!-- ===== РАСШИФРОВКА ХОДОВ ===== -->
+        <div style="margin-top: 1rem; padding: 1rem 1.5rem; background: #fff; border-radius: 16px; border: 1px solid rgba(0,0,0,0.05); display: flex; flex-wrap: wrap; justify-content: center; gap: 0.6rem 1.5rem; max-width: 500px; font-size: 0.85rem; color: #555; box-shadow: 0 2px 10px rgba(0,0,0,0.03); text-align: center;">
+            <span><strong>U</strong> = <span style="background:#1e2a47;color:#fff;border-radius:6px;padding:0.1rem 0.5rem;font-size:0.7rem;font-weight:700;">Верхняя грань</span></span>
+            <span><strong>D</strong> = <span style="background:#1e2a47;color:#fff;border-radius:6px;padding:0.1rem 0.5rem;font-size:0.7rem;font-weight:700;">Нижняя грань</span></span>
+            <span><strong>L</strong> = <span style="background:#1e2a47;color:#fff;border-radius:6px;padding:0.1rem 0.5rem;font-size:0.7rem;font-weight:700;">Левая грань</span></span>
+            <span><strong>R</strong> = <span style="background:#1e2a47;color:#fff;border-radius:6px;padding:0.1rem 0.5rem;font-size:0.7rem;font-weight:700;">Правая грань</span></span>
+            <span><strong>F</strong> = <span style="background:#1e2a47;color:#fff;border-radius:6px;padding:0.1rem 0.5rem;font-size:0.7rem;font-weight:700;">Передняя грань</span></span>
+            <span><strong>B</strong> = <span style="background:#1e2a47;color:#fff;border-radius:6px;padding:0.1rem 0.5rem;font-size:0.7rem;font-weight:700;">Задняя грань</span></span>
+            <div style="width:100%;font-size:0.75rem;color:#999;margin-top:0.2rem;">Штрих <span style="background:#3a2a4a;color:#fff;border-radius:6px;padding:0.1rem 0.5rem;font-size:0.7rem;font-weight:700;">'</span> означает поворот <strong>против часовой стрелки</strong></div>
+        </div>
 
-        function applyGlow() {
-            allCubies.forEach(cubie => {
-                const faces = cubie.userData.faces;
-                const mats = cubie.material;
-                for (let i = 0; i < 6; i++) {
-                    if (faces[i]) {
-                        mats[i] = matLib[faces[i]];
-                    }
-                }
-            });
-        }
+    </div>
+</section>
 
-        loadGlowFromLocalStorage();
-        applyGlow();
+<footer>
+    <div class="container">
+        <div class="footer-grid">
+            <div class="footer-col">
+                <h3>Книжные грани</h3>
+                <p>Проект ЦБС Выборгского района</p>
+                <p>Работает на базе <strong>Библиотеки-мастерской</strong></p>
+                <p>пр. Просвещения, 43, ТРК «Парк-Молл», 2 этаж</p>
+                <p><strong>+7 (812) 246-93-15</strong></p>
+            </div>
+            <div class="footer-col">
+                <h3>Разделы</h3>
+                <p><a href="../index.html">Главная</a></p>
+                <p><a href="../about.html">О проекте</a></p>
+                <p><a href="../events.html">Мероприятия</a></p>
+                <p><a href="../contacts.html">Контакты</a></p>
+            </div>
+            <div class="footer-col">
+                <h3>Мы в соцсетях</h3>
+                <div class="footer-social">
+                    <a href="https://vk.com/officecbsbvib" target="_blank"><i class="fab fa-vk"></i></a>
+                </div>
+                <p style="margin-top:1.5rem;">Следите за анонсами в нашей группе ВКонтакте</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© <span id="current-year"></span> Книжные грани | ЦБС Выборгского района</p>
+        </div>
+    </div>
+</footer>
 
-        // ===== ЦИКЛ РЕНДЕРА =====
-        function render() {
-            requestAnimationFrame(render);
-            controls.update();
-            renderer.render(scene, camera);
-        }
-        render();
-
-        window.addEventListener('resize', () => {
-            const rect = container.getBoundingClientRect();
-            const newSize = Math.min(rect.width, rect.height);
-            renderer.setSize(newSize, newSize);
-            camera.aspect = 1;
-            camera.updateProjectionMatrix();
-        });
-    }
-}
-
-// ===== ГЛАВНАЯ ФУНКЦИЯ ДЛЯ КНОПОК (ТОЧНАЯ ЛОГИКА ИЗ СКРИНШОТОВ) =====
-window.doMove = function(direction) {
-    if (window.isSolved) return;
-    if (!direction) return;
-    if (window.isAnimating) return;
-
-    // ЗАПИСЫВАЕМ ХОД В ИСТОРИЮ (ЕСЛИ НЕ ИДЁТ СБОРКА)
-    if (!window.isScrambling) {
-        window.moveHistory.push(direction);
-    }
-
-    // Проверяем штрих
-    let isReverse = direction.includes("'");
-    let cleanDir = direction.replace("'", "");
-
-    const camera = window.camera;
-    if (!camera) return;
-
-    // 1. Получаем направления камеры
-    const camDir = new THREE.Vector3();
-    camera.getWorldDirection(camDir);
-    const camUp = new THREE.Vector3(0, 1, 0).applyQuaternion(camera.quaternion);
-    const camRight = new THREE.Vector3(1, 0, 0).applyQuaternion(camera.quaternion);
-
-    // 2. Строим visibleFaces (как на скриншоте)
-    const faceNormals = {
-        '+x': new THREE.Vector3(1, 0, 0),
-        '-x': new THREE.Vector3(-1, 0, 0),
-        '+y': new THREE.Vector3(0, 1, 0),
-        '-y': new THREE.Vector3(0, -1, 0),
-        '+z': new THREE.Vector3(0, 0, 1),
-        '-z': new THREE.Vector3(0, 0, -1)
-    };
-
-    // Сопоставляем букву с направлением камеры
-    let targetDir = null;
-    if (cleanDir === 'U') targetDir = camUp;
-    else if (cleanDir === 'D') targetDir = camUp.clone().negate();
-    else if (cleanDir === 'R') targetDir = camRight;
-    else if (cleanDir === 'L') targetDir = camRight.clone().negate();
-    else if (cleanDir === 'F') targetDir = camDir.clone().negate();
-    else if (cleanDir === 'B') targetDir = camDir;
-    else return;
-
-    // 3. Находим грань, нормаль которой ближе всего к направлению камеры
-    let bestFace = null;
-    let bestDot = -Infinity;
-    for (let [faceName, normal] of Object.entries(faceNormals)) {
-        const dot = targetDir.dot(normal);
-        if (dot > bestDot) {
-            bestDot = dot;
-            bestFace = faceName;
-        }
-    }
-    if (!bestFace) return;
-
-    // 4. Определяем ось и индекс
-    let axis = '';
-    let index = 0;
-    if (bestFace === '+x') { axis = 'x'; index = 1; }
-    else if (bestFace === '-x') { axis = 'x'; index = -1; }
-    else if (bestFace === '+y') { axis = 'y'; index = 1; }
-    else if (bestFace === '-y') { axis = 'y'; index = -1; }
-    else if (bestFace === '+z') { axis = 'z'; index = 1; }
-    else if (bestFace === '-z') { axis = 'z'; index = -1; }
-    else return;
-
-    // 5. Вычисляем угол: 
-    // Для +X и +Z: по часовой = -90°, против = +90°
-    // Для -X и -Z: по часовой = +90°, против = -90°
-    let baseAngle = 0;
-    if (axis === 'y') {
-        // Для Y всё просто: U = -90, D = +90
-        baseAngle = (index === 1) ? -Math.PI/2 : Math.PI/2;
-    } else {
-        // Для X и Z: направление зависит от знака индекса
-        if (index === 1) baseAngle = -Math.PI/2;
-        else baseAngle = Math.PI/2;
-    }
-
-    // Применяем реверс (штрих)
-    const angle = isReverse ? -baseAngle : baseAngle;
-
-    // 6. Поворачиваем слой
-    window.rotateLayer(axis, index, angle, 150, () => {
-        if (window.updateCubeGlow) window.updateCubeGlow();
-    });
-};
+<script src="../js/main.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyBH0b4U-EkIIX0fiE3SdYtG0AZ-9bjlEiw",
+    authDomain: "knizhnye-grani.firebaseapp.com",
+    databaseURL: "https://knizhnye-grani-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "knizhnye-grani",
+    storageBucket: "knizhnye-grani.firebasestorage.app",
+    messagingSenderId: "633401933627",
+    appId: "1:633401933627:web:978ea1152ad840062a411e"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const database = firebase.database();
+  const questionsDB = {
+    'red_0_0_1': 'Какая книга подарила тебе ощущение дома, даже если ты был далеко?',
+    'red_0_1_1': 'Какая книга заставила тебя почувствовать гордость за место, где ты живёшь?',
+    'red_0_2_1': 'Какую книгу ты бы отправил своему прошлому "я" со словами "ты справишься"?',
+    'red_1_0_1': 'От какой книги у тебя загорелись глаза и захотелось что-то делать?',
+    'red_1_1_1': 'Какую книгу ты бы взял с собой в отпуск с самыми близкими друзьями?',
+    'red_1_2_1': 'Какая книга заставила тебя выйти на улицу и увидеть красоту вокруг?',
+    'red_2_0_1': 'Какая книга навсегда изменила твоё представление о красоте?',
+    'red_2_1_1': 'Какая книга напоминает тебе о твоей юности и первых чувствах?',
+    'red_2_2_1': 'Есть ли книга, которая научила тебя принимать людей такими, какие они есть?',
+    'blue_0_0_1': 'Какая книга помогла тебе проснуться утром, даже когда не хотелось вставать?',
+    'blue_0_1_1': 'От какой книги у тебя появилась вера, что завтра будет лучше?',
+    'blue_0_2_1': 'Какая книга стала для тебя светом в самом длинном тоннеле?',
+    'blue_1_0_1': 'Какая книга подарила тебе силу бороться, когда казалось, что всё рухнуло?',
+    'blue_1_1_1': 'Вспомни книгу, которая заставила тебя поверить в чудо.',
+    'blue_1_2_1': 'От какой книги у тебя появилось желание жить и дышать полной грудью?',
+    'blue_2_0_1': 'Какая книга вернула тебе улыбку, когда мир казался серым?',
+    'blue_2_1_1': 'Назови книгу, которая доказала тебе: "Всё обязательно наладится".',
+    'blue_2_2_1': 'Какая книга оставила после себя ощущение, что ты не сдашься?',
+    'yellow_0_0_1': 'Какая книга помогла тебе услышать свой тихий внутренний голос?',
+    'yellow_0_1_1': 'Назови книгу, где герой сделал трудный, но правильный выбор.',
+    'yellow_0_2_1': 'Какая книга научила тебя не идти за толпой, а идти за собой?',
+    'yellow_1_0_1': 'Вспомни книгу, после которой ты перестал оправдывать то, что неправильно.',
+    'yellow_1_1_1': 'Какая книга заставила тебя спросить себя: "А я бы поступил так же?"',
+    'yellow_1_2_1': 'От какой книги у тебя проснулась совесть и захотелось что-то исправить?',
+    'yellow_2_0_1': 'Назови книгу, где герой выбирает честность, даже если это больно.',
+    'yellow_2_1_1': 'Какая книга помогла тебе разобраться в себе, когда было много сомнений?',
+    'yellow_2_2_1': 'Какая книга оставила тебе чувство, что ты не имеешь права молчать?',
+    'green_0_0_1': 'Назови книгу, которая вдохновила тебя сделать кому-то приятное просто так.',
+    'green_0_1_1': 'Какая книга научила тебя замечать тех, кому нужна помощь?',
+    'green_0_2_1': 'Вспомни книгу, где доброта оказалась сильнее любой ссоры.',
+    'green_1_0_1': 'От какой книги у тебя появилось желание улыбнуться незнакомцу?',
+    'green_1_1_1': 'Какая книга заставила тебя поверить, что мир держится на добрых людях?',
+    'green_1_2_1': 'Назови книгу, которая показала, что "просто так" — это самое важное.',
+    'green_2_0_1': 'Какая книга напомнила тебе, что маленький поступок меняет многое?',
+    'green_2_1_1': 'Вспомни книгу, которую ты бы подарил тому, кто сегодня грустит.',
+    'green_2_2_1': 'Какая книга подарила тебе ощущение, что ты можешь быть чьим-то лучом света?',
+    'white_0_0_1': 'Какая книга заставила тебя вспомнить голос бабушки или дедушки?',
+    'white_0_1_1': 'Назови книгу, которая помогла тебе почувствовать связь с твоими корнями.',
+    'white_0_2_1': 'Какая книга напомнила тебе о великой истории, которую нельзя забывать?',
+    'white_1_0_1': 'Вспомни книгу, которая стала для тебя семейной реликвией.',
+    'white_1_1_1': 'Какая книга помогла тебе сохранить память о том, кто ушёл?',
+    'white_1_2_1': 'Назови книгу, которая научила тебя благодарить за прошлое.',
+    'white_2_0_1': 'Какая книга вернула тебя в твоё детство, в твой самый родной уголок?',
+    'white_2_1_1': 'Вспомни книгу, которая заставила тебя позвонить родителям и сказать спасибо.',
+    'white_2_2_1': 'Какая книга напомнила тебе: "Пока мы помним – мы живы"?',
+    'orange_0_0_1': 'Какая книга подарила тебе ощущение, что ты всегда можешь вернуться домой?',
+    'orange_0_1_1': 'Назови книгу, которую ты хотел бы прочитать вслух всем своим близким.',
+    'orange_0_2_1': 'Какая книга заставила тебя собрать всю семью за одним столом?',
+    'orange_1_0_1': 'Вспомни книгу, которая научила тебя прощать родных, когда это трудно.',
+    'orange_1_1_1': 'Какая книга оставила тебе чувство, что твоя семья – это твоя крепость?',
+    'orange_1_2_1': 'Назови книгу, которая показала, что семья – это не кровь, а те, кто рядом.',
+    'orange_2_0_1': 'Какая книга помогла тебе понять своих родителей, когда они были далеко?',
+    'orange_2_1_1': 'Вспомни книгу, где семейные традиции спасали героев.',
+    'orange_2_2_1': 'Какая книга научила тебя беречь то, что у тебя есть дома?'
+  };
+  const colorNames = {
+    'red': 'Любовь',
+    'blue': 'Надежда',
+    'yellow': 'Совесть',
+    'green': 'Добро',
+    'white': 'Память',
+    'orange': 'Семья'
+  };
+  const texturePaths = {
+    'red': '../images/cube_textures/red.jpg',
+    'blue': '../images/cube_textures/blue.jpg',
+    'yellow': '../images/cube_textures/yellow.jpg',
+    'green': '../images/cube_textures/green.jpg',
+    'white': '../images/cube_textures/white.jpg',
+    'orange': '../images/cube_textures/orange.jpg'
+  };
+  function createPopup() {
+      const popupHTML = `
+          <div id="bookGranPopup" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); backdrop-filter:blur(6px); z-index:9999; align-items:center; justify-content:center;">
+              <div style="background:#fff; max-width:600px; width:90%; padding:2rem; border-radius:28px; position:relative; box-shadow:0 24px 70px rgba(0,0,0,0.25); max-height:90vh; overflow-y:auto;">
+                  <button id="popupClose" style="position:absolute; top:15px; right:20px; font-size:28px; background:none; border:none; cursor:pointer; color:#999; transition: color 0.2s;">&times;</button>
+                  <div style="display:flex; align-items:center; gap:0.8rem; margin-bottom:0.8rem;">
+                      <img id="popupThumb" src="" alt="Грань" style="width:32px; height:32px; border-radius:8px; object-fit:cover;">
+                      <h2 id="popupColorTitle" style="font-size:1.3rem; font-weight:600; margin:0; color:#1e2a3a;">Грань</h2>
+                  </div>
+                  <p id="popupQuestion" style="font-size:1.05rem; line-height:1.6; margin:0.8rem 0 1.8rem 0; color:#333; font-weight:400;"></p>
+                  <div id="popupAnswers" style="margin-bottom:1.8rem; max-height:150px; overflow-y:auto; border-top:1px solid #f0f0f0; padding-top:1.2rem;"></div>
+                  <div style="margin-bottom: 1rem;">
+                      <label for="popupAge" style="display: block; font-size: 0.85rem; font-weight: 500; color: #1e2a3a; margin-bottom: 0.3rem;">Ваш возраст</label>
+                      <select id="popupAge" style="width: 100%; padding: 0.6rem 1rem; border: 2px solid #eee; border-radius: 18px; font-family: inherit; font-size: 0.95rem; background: #fafbfc; outline: none; cursor: pointer
