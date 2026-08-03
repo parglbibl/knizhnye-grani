@@ -135,20 +135,20 @@
     <!-- ===== КНОПКИ ПОВОРОТА ГРАНЕЙ ===== -->
     <div class="cube-buttons">
         <div class="btn-row">
-            <button class="cube-btn" data-move="U">U</button>
-            <button class="cube-btn" data-move="D">D</button>
-            <button class="cube-btn" data-move="L">L</button>
-            <button class="cube-btn" data-move="R">R</button>
-            <button class="cube-btn" data-move="F">F</button>
-            <button class="cube-btn" data-move="B">B</button>
+            <button class="cube-btn" onclick="window.doMove('U')">U</button>
+            <button class="cube-btn" onclick="window.doMove('D')">D</button>
+            <button class="cube-btn" onclick="window.doMove('L')">L</button>
+            <button class="cube-btn" onclick="window.doMove('R')">R</button>
+            <button class="cube-btn" onclick="window.doMove('F')">F</button>
+            <button class="cube-btn" onclick="window.doMove('B')">B</button>
         </div>
         <div class="btn-row">
-            <button class="cube-btn prime" data-move="U'">U'</button>
-            <button class="cube-btn prime" data-move="D'">D'</button>
-            <button class="cube-btn prime" data-move="L'">L'</button>
-            <button class="cube-btn prime" data-move="R'">R'</button>
-            <button class="cube-btn prime" data-move="F'">F'</button>
-            <button class="cube-btn prime" data-move="B'">B'</button>
+            <button class="cube-btn prime" onclick="window.doMove(&quot;U'&quot;)">U'</button>
+            <button class="cube-btn prime" onclick="window.doMove(&quot;D'&quot;)">D'</button>
+            <button class="cube-btn prime" onclick="window.doMove(&quot;L'&quot;)">L'</button>
+            <button class="cube-btn prime" onclick="window.doMove(&quot;R'&quot;)">R'</button>
+            <button class="cube-btn prime" onclick="window.doMove(&quot;F'&quot;)">F'</button>
+            <button class="cube-btn prime" onclick="window.doMove(&quot;B'&quot;)">B'</button>
         </div>
     </div>
 
@@ -174,28 +174,18 @@
     <!-- ===== ПОДКЛЮЧАЕМ МОДУЛЬ КУБИКА ===== -->
     <script type="module" src="./js/cube3d.js"></script>
 
-    <!-- ===== ОБРАБОТЧИКИ КНОПОК ПОВОРОТА (прямо здесь, надёжно) ===== -->
+    <!-- ===== ОБРАБОТЧИК КНОПОК (гарантированный) ===== -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const btns = document.querySelectorAll('.cube-btn');
-            btns.forEach(btn => {
-                btn.addEventListener('click', function() {
-                    // Защита: если кубик собран или идёт анимация — не реагируем
-                    if (window.isSolved === true) return;
-                    if (window.isScrambling || window.isAnimating || window.isBlocked) return;
-
-                    const moveStr = this.dataset.move;
-                    if (!moveStr) return;
-
-                    // Вызываем функцию поворота, которая есть в глобальной области cube3d.js
-                    // Мы будем использовать window.doMove(moveStr)
-                    if (typeof window.doMove === 'function') {
-                        window.doMove(moveStr);
-                    } else {
-                        console.warn('Функция doMove не найдена. Проверьте cube3d.js');
-                    }
-                });
-            });
+            // Дополнительная защита для кнопок — если window.doMove не появилась сразу, ждём
+            function waitForDoMove() {
+                if (typeof window.doMove === 'function') {
+                    console.log('✅ doMove готова');
+                    return;
+                }
+                setTimeout(waitForDoMove, 100);
+            }
+            waitForDoMove();
         });
     </script>
 </body>
