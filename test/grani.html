@@ -306,7 +306,7 @@
     <!-- ===== ПОДКЛЮЧАЕМ МОДУЛЬ КУБИКА ===== -->
     <script type="module" src="./js/cube3d.js"></script>
 
-    <!-- ===== СКРИПТ ПОКАЗА КНОПОК И ЛЕГЕНДЫ ===== -->
+    <!-- ===== СКРИПТ ПОКАЗА И СКРЫТИЯ ===== -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const cubeButtons = document.getElementById('cubeButtons');
@@ -316,6 +316,12 @@
             window.showCubeControls = function() {
                 cubeButtons.classList.add('visible');
                 legend.classList.add('visible');
+            };
+
+            // Скрываем кнопки и легенду
+            window.hideCubeControls = function() {
+                cubeButtons.classList.remove('visible');
+                legend.classList.remove('visible');
             };
         });
     </script>
