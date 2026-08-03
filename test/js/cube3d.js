@@ -364,7 +364,7 @@ if (!container) {
         window.generateScramble = generateScramble;
         window.updateCubeGlow = updateCubeGlow;
 
-        // ===== ДИСКРЕТНОЕ РУЧНОЕ ВРАЩЕНИЕ (ТОЛЬКО ПРИ ПОПАДАНИИ В ГРАНЬ) =====
+        // ===== ДИСКРЕТНОЕ РУЧНОЕ ВРАЩЕНИЕ (ТОЛЬКО КРАЙНИЕ СЛОИ) =====
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
 
@@ -380,7 +380,7 @@ if (!container) {
         let dragLayer = null;
         let isDragging = false;
         let isPointerDown = false;
-        let highlightedCubie = null; // для подсветки
+        let highlightedCubie = null;
 
         // ===== ДЛЯ МЫШИ =====
         renderer.domElement.addEventListener('mousedown', (e) => {
@@ -398,7 +398,6 @@ if (!container) {
                 return;
             }
 
-            // Попали в грань — отключаем OrbitControls и готовимся крутить грань
             controls.enabled = false;
             isPointerDown = true;
 
@@ -423,14 +422,21 @@ if (!container) {
                 return;
             }
 
-            // Подсветка грани
+            // ===== ОТКЛЮЧАЕМ СРЕДНИЕ СЛОИ =====
+            if (dragLayer === 0) {
+                controls.enabled = true;
+                isPointerDown = false;
+                return;
+            }
+
+            // ===== ЯРКАЯ ПОДСВЕТКА (БЕЛОЕ СВЕЧЕНИЕ) =====
             highlightedCubie = clicked;
             const faceIndex = intersects[0].faceIndex;
             if (faceIndex !== undefined) {
                 const matIndex = Math.floor(faceIndex / 2);
                 if (clicked.material[matIndex]) {
                     clicked.material[matIndex].emissive = new THREE.Color(0xffffff);
-                    clicked.material[matIndex].emissiveIntensity = 0.3;
+                    clicked.material[matIndex].emissiveIntensity = 0.6;
                 }
             }
 
@@ -453,7 +459,7 @@ if (!container) {
 
             const dx = e.clientX - dragStart.x;
             const dy = e.clientY - dragStart.y;
-            const threshold = 15; // уменьшили порог
+            const threshold = 10; // очень чувствительно
 
             if (!dragStart.moved && Math.abs(dx) < threshold && Math.abs(dy) < threshold) return;
             dragStart.moved = true;
@@ -464,7 +470,6 @@ if (!container) {
                 if (isPointerDown) {
                     controls.enabled = true;
                     isPointerDown = false;
-                    // Сброс подсветки
                     if (highlightedCubie) {
                         for (let i = 0; i < 6; i++) {
                             if (highlightedCubie.material[i]) {
@@ -481,7 +486,6 @@ if (!container) {
             isDragging = false;
             isPointerDown = false;
 
-            // Сброс подсветки
             if (highlightedCubie) {
                 for (let i = 0; i < 6; i++) {
                     if (highlightedCubie.material[i]) {
@@ -627,14 +631,21 @@ if (!container) {
                 return;
             }
 
-            // Подсветка грани
+            // ===== ОТКЛЮЧАЕМ СРЕДНИЕ СЛОИ =====
+            if (dragLayer === 0) {
+                controls.enabled = true;
+                isPointerDown = false;
+                return;
+            }
+
+            // ===== ЯРКАЯ ПОДСВЕТКА (БЕЛОЕ СВЕЧЕНИЕ) =====
             highlightedCubie = clicked;
             const faceIndex = intersects[0].faceIndex;
             if (faceIndex !== undefined) {
                 const matIndex = Math.floor(faceIndex / 2);
                 if (clicked.material[matIndex]) {
                     clicked.material[matIndex].emissive = new THREE.Color(0xffffff);
-                    clicked.material[matIndex].emissiveIntensity = 0.3;
+                    clicked.material[matIndex].emissiveIntensity = 0.6;
                 }
             }
 
@@ -659,7 +670,7 @@ if (!container) {
             const touch = e.changedTouches[0];
             const dx = touch.clientX - dragStart.x;
             const dy = touch.clientY - dragStart.y;
-            const threshold = 15; // уменьшили порог
+            const threshold = 10;
 
             if (!dragStart.moved && Math.abs(dx) < threshold && Math.abs(dy) < threshold) return;
             dragStart.moved = true;
