@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 
 // ===== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ =====
@@ -16,7 +15,6 @@ window.camera = null;
 window.allCubies = null;
 window.offset = null;
 window.cubeGroup = null;
-window.scene = null;
 
 const container = document.getElementById('cube-container');
 if (!container) {
@@ -44,7 +42,6 @@ if (!container) {
     function initCube(size) {
         const scene = new THREE.Scene();
         scene.background = null;
-        window.scene = scene;
 
         const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 1000);
         camera.position.set(3.5, 2.5, 4.5);
@@ -57,15 +54,6 @@ if (!container) {
         renderer.setSize(size, size);
         renderer.setClearColor(0x000000, 0);
         container.appendChild(renderer.domElement);
-
-        const controls = new OrbitControls(camera, renderer.domElement);
-        controls.enableDamping = true;
-        controls.dampingFactor = 0.1;
-        controls.enableZoom = true;
-        controls.rotateSpeed = 0.5;
-        controls.target.set(0, 0, 0);
-        controls.minDistance = 3;
-        controls.maxDistance = 8;
 
         const cubeGroup = new THREE.Group();
         scene.add(cubeGroup);
@@ -441,36 +429,13 @@ if (!container) {
             });
         });
 
-        // ===== ДИСКРЕТНЫЙ ПОВОРОТ СЦЕНЫ НА 180° =====
-        // Поворот по вертикали (переворот верх/низ)
-        function flipSceneVertical() {
-            if (window.isAnimating || window.isScrambling) return;
+        // ===== ПЛАВНЫЙ ПЕРЕВОРОТ НА 180° (вместо OrbitControls) =====
+        let dragStartX = 0, dragStartY = 0;
+        let isDragging = false;
+        let totalAngleX = 0, totalAngleY = 0;
 
-            // Поворачиваем всю группу кубиков на 180° вокруг оси X
-            const axis = new THREE.Vector3(1, 0, 0);
-            const angle = Math.PI; // 180°
-            const quat = new THREE.Quaternion().setFromAxisAngle(axis, angle);
-            window.cubeGroup.quaternion.multiply(quat);
-            // Обновляем нормали граней
-            window.cubeGroup.updateMatrixWorld(true);
-            if (window.updateCubeGlow) window.updateCubeGlow();
-        }
-
-        // Поворот по горизонтали (влево/вправо на 180°)
-        function flipSceneHorizontal(direction) {
-            if (window.isAnimating || window.isScrambling) return;
-
-            const axis = new THREE.Vector3(0, 1, 0);
-            const angle = direction === 'left' ? Math.PI : -Math.PI; // 180°
-            const quat = new THREE.Quaternion().setFromAxisAngle(axis, angle);
-            window.cubeGroup.quaternion.multiply(quat);
-            window.cubeGroup.updateMatrixWorld(true);
-            if (window.updateCubeGlow) window.updateCubeGlow();
-        }
-
-        // Обработчик клика по пустому месту (за пределами граней)
         renderer.domElement.addEventListener('pointerdown', (e) => {
-            // Проверяем, попал ли клик в грань кубика
+            // Если кликнули на грань — не переворачиваем сцену
             const rect = renderer.domElement.getBoundingClientRect();
             const mouse = new THREE.Vector2(
                 ((e.clientX - rect.left) / rect.width) * 2 - 1,
@@ -480,49 +445,74 @@ if (!container) {
             raycaster.setFromCamera(mouse, window.camera);
             const intersects = raycaster.intersectObjects(window.allCubies);
 
-            // Если клик НЕ попал ни в одну грань — переворачиваем сцену
-            if (intersects.length === 0) {
-                // По умолчанию — вертикальный переворот (низ/верх)
-                flipSceneVertical();
-            }
-        });
+            if (intersects.length > 0 || window.isAnimating || window.isScrambling) return;
 
-        // Обработчик горизонтального свайпа по пустому месту (влево/вправо)
-        let swipeStartX = 0;
-        let isSwiping = false;
-
-        renderer.domElement.addEventListener('pointerdown', (e) => {
-            // Если кликнули на грань — не начинаем свайп
-            const rect = renderer.domElement.getBoundingClientRect();
-            const mouse = new THREE.Vector2(
-                ((e.clientX - rect.left) / rect.width) * 2 - 1,
-                -((e.clientY - rect.top) / rect.height) * 2 + 1
-            );
-            const raycaster = new THREE.Raycaster();
-            raycaster.setFromCamera(mouse, window.camera);
-            const intersects = raycaster.intersectObjects(window.allCubies);
-
-            if (intersects.length === 0) {
-                swipeStartX = e.clientX;
-                isSwiping = true;
-            } else {
-                isSwiping = false;
-            }
+            dragStartX = e.clientX;
+            dragStartY = e.clientY;
+            isDragging = true;
         });
 
         renderer.domElement.addEventListener('pointermove', (e) => {
-            if (!isSwiping) return;
-            // Если свайп длиннее 50px — срабатывает поворот на 180°
-            const deltaX = e.clientX - swipeStartX;
-            if (Math.abs(deltaX) > 50) {
-                const direction = deltaX > 0 ? 'right' : 'left';
-                flipSceneHorizontal(direction);
-                isSwiping = false; // сбрасываем, чтобы не сработало повторно
-            }
+            if (!isDragging || window.isAnimating || window.isScrambling) return;
+
+            const dx = e.clientX - dragStartX;
+            const dy = e.clientY - dragStartY;
+            const sensitivity = 0.005;
+
+            // Поворачиваем кубик плавно
+            const rotX = dy * sensitivity;
+            const rotY = dx * sensitivity;
+
+            const quatX = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), rotX);
+            const quatY = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), rotY);
+
+            window.cubeGroup.quaternion.multiply(quatX);
+            window.cubeGroup.quaternion.multiply(quatY);
+            window.cubeGroup.updateMatrixWorld(true);
+
+            totalAngleX += rotX;
+            totalAngleY += rotY;
         });
 
-        renderer.domElement.addEventListener('pointerup', () => {
-            isSwiping = false;
+        renderer.domElement.addEventListener('pointerup', (e) => {
+            if (!isDragging) return;
+            isDragging = false;
+
+            // ДОВОРОТ ДО БЛИЖАЙШЕГО 180°
+            const targetX = Math.round(totalAngleX / Math.PI) * Math.PI;
+            const targetY = Math.round(totalAngleY / Math.PI) * Math.PI;
+            const remainingX = targetX - totalAngleX;
+            const remainingY = targetY - totalAngleY;
+
+            if (Math.abs(remainingX) < 0.01 && Math.abs(remainingY) < 0.01) return;
+
+            const duration = 300;
+            const startTime = Date.now();
+            const startQuat = window.cubeGroup.quaternion.clone();
+
+            const quatX = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), remainingX);
+            const quatY = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), remainingY);
+            const endQuat = startQuat.clone().multiply(quatX).multiply(quatY);
+
+            function animateSnap() {
+                const elapsed = Date.now() - startTime;
+                const t = Math.min(elapsed / duration, 1);
+                const ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
+                window.cubeGroup.quaternion.slerpQuaternions(startQuat, endQuat, ease);
+                window.cubeGroup.updateMatrixWorld(true);
+
+                if (t < 1) {
+                    requestAnimationFrame(animateSnap);
+                } else {
+                    window.cubeGroup.quaternion.copy(endQuat);
+                    window.cubeGroup.updateMatrixWorld(true);
+                    totalAngleX = 0;
+                    totalAngleY = 0;
+                    if (window.updateCubeGlow) window.updateCubeGlow();
+                }
+            }
+            animateSnap();
         });
 
         // ===== ЗАКРЫТИЕ ПОПАПА =====
@@ -568,7 +558,6 @@ if (!container) {
         // ===== ЦИКЛ РЕНДЕРА =====
         function render() {
             requestAnimationFrame(render);
-            controls.update();
             renderer.render(scene, camera);
         }
         render();
