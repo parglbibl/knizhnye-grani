@@ -49,7 +49,7 @@ if (!container) {
         controls.rotateSpeed = 1.0;
         controls.target.set(0, 0, 0);
 
-        // ===== ЕДИНСТВЕННОЕ ИЗМЕНЕНИЕ: СТОПОР ВЕРТИКАЛИ =====
+        // ===== ЕДИНСТВЕННОЕ ДОБАВЛЕНИЕ: СТОПОР НА ВЕРТИКАЛЬ =====
         controls.minPolarAngle = 0.1;
         controls.maxPolarAngle = Math.PI - 0.1;
         controls.update();
@@ -349,7 +349,7 @@ if (!container) {
         const btnSolve = document.getElementById('btnSolve');
 
         btnScramble.addEventListener('click', function() {
-            if (isScrambling || isAnimating || isBlocked) return;
+            if (isScrambling || isAnimating) return;
             
             isBlocked = true;
             isScrambling = true;
