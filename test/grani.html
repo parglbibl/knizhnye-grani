@@ -29,25 +29,138 @@
     <link rel="manifest" href="../favicon/site.webmanifest">
     <meta name="msapplication-TileColor" content="#ff2e5a">
     <meta name="theme-color" content="#fef9f0">
+
+    <style>
+        /* ===== ЛОАДЕР (СКЕЛЕТОН) ===== */
+        #cube-loader {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(254, 249, 240, 0.9);
+            backdrop-filter: blur(4px);
+            border-radius: 16px;
+            z-index: 10;
+            transition: opacity 0.5s ease;
+            pointer-events: none;
+        }
+        #cube-loader.hidden {
+            opacity: 0;
+        }
+        .loader-spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid rgba(255, 46, 90, 0.2);
+            border-top-color: #ff2e5a;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .loader-text {
+            margin-top: 12px;
+            font-size: 0.85rem;
+            color: #555;
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* ===== СТИЛИ КНОПОК ===== */
+        .cube-btn {
+            padding: 0.6rem 1.2rem;
+            font-size: 1.2rem;
+            font-weight: 700;
+            font-family: 'Inter', sans-serif;
+            border: none;
+            border-radius: 12px;
+            background: #1e2a47;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            touch-action: manipulation;
+            min-width: 50px;
+            min-height: 44px;
+            box-shadow: 0 4px 0 #0f1520;
+            user-select: none;
+        }
+        .cube-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 0 0 #0f1520;
+        }
+        .cube-btn:hover {
+            background: #2a3a5a;
+        }
+        .cube-btn.prime {
+            background: #3a2a4a;
+            box-shadow: 0 4px 0 #1f152a;
+        }
+        .cube-btn.prime:hover {
+            background: #4a3a5a;
+        }
+        @media (max-width: 600px) {
+            .cube-btn {
+                padding: 0.4rem 0.8rem;
+                font-size: 1rem;
+                min-width: 40px;
+                min-height: 36px;
+            }
+        }
+
+        /* ===== РАСШИФРОВКА ===== */
+        .legend {
+            margin-top: 1rem;
+            padding: 1rem 1.5rem;
+            background: #fff;
+            border-radius: 16px;
+            border: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.6rem 1.5rem;
+            max-width: 500px;
+            font-size: 0.85rem;
+            color: #555;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+            text-align: center;
+        }
+        .legend span {
+            display: inline-block;
+        }
+        .badge {
+            display: inline-block;
+            background: #1e2a47;
+            color: #fff;
+            border-radius: 6px;
+            padding: 0.1rem 0.5rem;
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+        .badge.prime {
+            background: #3a2a4a;
+        }
+        .legend-note {
+            width: 100%;
+            font-size: 0.75rem;
+            color: #999;
+            margin-top: 0.2rem;
+        }
+    </style>
 </head>
 <body>
 
 <header>
     <div class="container header-inner">
         <div class="logo">
-            <div class="logo-cbs">
-                <img src="../images/logo-cbs.png" alt="ЦБС Выборгского района">
-            </div>
-            <div class="logo-rost">
-                <img src="../images/logo-rost.png" alt="Проектный офис РОСТ">
-            </div>
-            <a href="../index.html">
-                <img src="../images/logo-grani.png" alt="Книжные грани" style="height: 40px; width: auto;">
-            </a>
+            <div class="logo-cbs"><img src="../images/logo-cbs.png" alt="ЦБС Выборгского района"></div>
+            <div class="logo-rost"><img src="../images/logo-rost.png" alt="Проектный офис РОСТ"></div>
+            <a href="../index.html"><img src="../images/logo-grani.png" alt="Книжные грани" style="height: 40px; width: auto;"></a>
         </div>
-        <div class="menu-toggle" id="menuToggle">
-            <i class="fas fa-bars"></i>
-        </div>
+        <div class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></div>
         <nav class="nav" id="nav"></nav>
     </div>
 </header>
@@ -60,29 +173,24 @@
             <h1 style="font-family: 'KB Tranceform', 'Montserrat', sans-serif; font-weight: 400; text-align: center; letter-spacing: 0.02em; color: #3a4a6e; margin-bottom: 1rem; font-size: 3.8rem;">
                 Шесть граней,<br>из которых складываемся мы
             </h1>
-            
             <div style="font-size: 0.9rem; line-height: 1.8; color: var(--text-secondary); text-align: justify;">
                 <p style="margin-bottom: 1.5rem; text-align: center; font-weight: 500; color: #1e2a3a;">
-                    Книги — это не просто слова. Это отражение наших чувств, воспоминаний и того, кем мы стали. <br>
-                    Шесть граней — шесть ценностей, которые живут в каждом из нас.
+                    Книги — это не просто слова. Это отражение наших чувств, воспоминаний и того, кем мы стали. Шесть граней — шесть ценностей, которые живут в каждом из нас.
                 </p>
-                <p style="margin-bottom: 1rem;"><span style="color: #c41e3a; font-weight: 700; font-size: 1.05rem;">Любовь</span>, «что движет солнцем и светилами», как сказал когда-то Данте, и без неё мы – всего лишь пустые оболочки.</p>
-                <p style="margin-bottom: 1rem;"><span style="color: #0051ba; font-weight: 700; font-size: 1.05rem;">Надежда</span>, которая держит нас в самые тёмные времена, когда кажется, что выхода нет.</p>
+                <p style="margin-bottom: 1rem;"><span style="color: #c41e3a; font-weight: 700; font-size: 1.05rem;">Любовь</span>, «что движет солнцем и светилами».</p>
+                <p style="margin-bottom: 1rem;"><span style="color: #0051ba; font-weight: 700; font-size: 1.05rem;">Надежда</span>, которая держит нас в самые тёмные времена.</p>
                 <p style="margin-bottom: 1rem;"><span style="color: #ffd700; font-weight: 700; font-size: 1.05rem;">Совесть</span> помогает нам выбирать, даже когда выбор труден.</p>
                 <p style="margin-bottom: 1rem;"><span style="color: #009e60; font-weight: 700; font-size: 1.05rem;">Добро</span> — чтобы, прочитав книгу, мы вышли и сделали пусть маленькое, но хорошее дело.</p>
-                <p style="margin-bottom: 1rem;"><span style="color: #b0b0b0; font-weight: 700; font-size: 1.05rem;">Память</span> — как связь поколений, как благодарность нашим родным.</p>
+                <p style="margin-bottom: 1rem;"><span style="color: #b0b0b0; font-weight: 700; font-size: 1.05rem;">Память</span> — как связь поколений.</p>
                 <p style="margin-bottom: 1rem;"><span style="color: #ff8c00; font-weight: 700; font-size: 1.05rem;">Семья</span>, где мы учимся любви, терпению, прощению.</p>
-                
                 <p style="margin-top: 1.5rem; text-align: center; font-weight: 500; color: #1e2a3a;">
-                    Нажми на любой квадратик кубика и вспомни книгу, которая откликается твоей душе. <br>
-                    Собери свою Книжную Грань.
+                    Нажми на любой квадратик кубика и вспомни книгу, которая откликается твоей душе. Собери свою Книжную Грань.
                 </p>
             </div>
         </div>
 
         <!-- ===== КУБИК И ЛЕГЕНДА ===== -->
         <div style="display: flex; flex-direction: row; justify-content: center; align-items: center; gap: 4rem; width: 100%; max-width: 1000px; margin: 0 auto; flex-wrap: wrap;">
-            
             <div style="flex: 0 0 280px; display: flex; justify-content: center; align-items: center;">
                 <div style="display: flex; flex-direction: column; gap: 0.9rem; padding: 1.8rem 2rem; background: rgba(255,255,255,0.8); backdrop-filter: blur(6px); border-radius: 28px; box-shadow: 0 12px 40px rgba(0,0,0,0.04); width: 100%; border: 1px solid rgba(255,255,255,0.5);">
                     <div style="display: flex; align-items: center; gap: 1.2rem;"><img src="../images/cube_textures/red.jpg" style="width:40px;height:40px;border-radius:10px;object-fit:cover;"><span style="font-weight:500;font-size:1rem;color:var(--text-secondary);">Любовь</span></div>
@@ -94,49 +202,51 @@
                 </div>
             </div>
 
-            <div style="flex: 1; min-width: 320px; max-width: 580px; display: flex; justify-content: center;">
-                <div id="cube-container" style="width: 100%; aspect-ratio: 1 / 1; max-width: 580px; background: transparent; position: relative; touch-action: none;"></div>
+            <div style="flex: 1; min-width: 320px; max-width: 580px; display: flex; justify-content: center; position: relative;">
+                <div id="cube-container" style="width: 100%; aspect-ratio: 1 / 1; max-width: 580px; background: transparent; position: relative; touch-action: none;">
+                    <div id="cube-loader">
+                        <div class="loader-spinner"></div>
+                        <div class="loader-text">Загрузка кубика...</div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- ===== КНОПКИ УПРАВЛЕНИЯ (Скрамблер) ===== -->
+        <!-- ===== КНОПКИ УПРАВЛЕНИЯ ===== -->
         <div style="display: flex; justify-content: center; gap: 1.5rem; margin-top: 2.5rem; flex-wrap: wrap;">
             <button id="btnScramble" class="btn btn-primary" style="background: #ff2e5a; color: #fff; border-color: #ff2e5a;">Перемешать</button>
             <button id="btnSolve" class="btn btn-primary" style="background: #2ecc71; color: #fff; border-color: #2ecc71; display: none;">Собрать</button>
         </div>
 
-        <!-- ===== КНОПКИ ПОВОРОТА ГРАНЕЙ И РАСШИФРОВКА (появляются только после скрамбла) ===== -->
-        <div id="cube-controls-wrapper" style="display: none;">
-            <!-- ===== КНОПКИ ПОВОРОТА ГРАНЕЙ (U, D, L, R, F, B) ===== -->
-            <div style="margin-top: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem; align-items: center;">
-                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center;">
-                    <button class="cube-btn" onclick="window.doMove('U')" style="padding:0.6rem 1.2rem; font-size:1.2rem; font-weight:700; border:none; border-radius:12px; background:#1e2a47; color:#fff; cursor:pointer; min-width:50px; min-height:44px; box-shadow:0 4px 0 #0f1520; transition:all 0.15s;">U</button>
-                    <button class="cube-btn" onclick="window.doMove('D')" style="padding:0.6rem 1.2rem; font-size:1.2rem; font-weight:700; border:none; border-radius:12px; background:#1e2a47; color:#fff; cursor:pointer; min-width:50px; min-height:44px; box-shadow:0 4px 0 #0f1520; transition:all 0.15s;">D</button>
-                    <button class="cube-btn" onclick="window.doMove('L')" style="padding:0.6rem 1.2rem; font-size:1.2rem; font-weight:700; border:none; border-radius:12px; background:#1e2a47; color:#fff; cursor:pointer; min-width:50px; min-height:44px; box-shadow:0 4px 0 #0f1520; transition:all 0.15s;">L</button>
-                    <button class="cube-btn" onclick="window.doMove('R')" style="padding:0.6rem 1.2rem; font-size:1.2rem; font-weight:700; border:none; border-radius:12px; background:#1e2a47; color:#fff; cursor:pointer; min-width:50px; min-height:44px; box-shadow:0 4px 0 #0f1520; transition:all 0.15s;">R</button>
-                    <button class="cube-btn" onclick="window.doMove('F')" style="padding:0.6rem 1.2rem; font-size:1.2rem; font-weight:700; border:none; border-radius:12px; background:#1e2a47; color:#fff; cursor:pointer; min-width:50px; min-height:44px; box-shadow:0 4px 0 #0f1520; transition:all 0.15s;">F</button>
-                    <button class="cube-btn" onclick="window.doMove('B')" style="padding:0.6rem 1.2rem; font-size:1.2rem; font-weight:700; border:none; border-radius:12px; background:#1e2a47; color:#fff; cursor:pointer; min-width:50px; min-height:44px; box-shadow:0 4px 0 #0f1520; transition:all 0.15s;">B</button>
-                </div>
-                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center;">
-                    <button class="cube-btn prime" onclick="window.doMove(&quot;U'&quot;)" style="padding:0.6rem 1.2rem; font-size:1.2rem; font-weight:700; border:none; border-radius:12px; background:#3a2a4a; color:#fff; cursor:pointer; min-width:50px; min-height:44px; box-shadow:0 4px 0 #1f152a; transition:all 0.15s;">U'</button>
-                    <button class="cube-btn prime" onclick="window.doMove(&quot;D'&quot;)" style="padding:0.6rem 1.2rem; font-size:1.2rem; font-weight:700; border:none; border-radius:12px; background:#3a2a4a; color:#fff; cursor:pointer; min-width:50px; min-height:44px; box-shadow:0 4px 0 #1f152a; transition:all 0.15s;">D'</button>
-                    <button class="cube-btn prime" onclick="window.doMove(&quot;L'&quot;)" style="padding:0.6rem 1.2rem; font-size:1.2rem; font-weight:700; border:none; border-radius:12px; background:#3a2a4a; color:#fff; cursor:pointer; min-width:50px; min-height:44px; box-shadow:0 4px 0 #1f152a; transition:all 0.15s;">L'</button>
-                    <button class="cube-btn prime" onclick="window.doMove(&quot;R'&quot;)" style="padding:0.6rem 1.2rem; font-size:1.2rem; font-weight:700; border:none; border-radius:12px; background:#3a2a4a; color:#fff; cursor:pointer; min-width:50px; min-height:44px; box-shadow:0 4px 0 #1f152a; transition:all 0.15s;">R'</button>
-                    <button class="cube-btn prime" onclick="window.doMove(&quot;F'&quot;)" style="padding:0.6rem 1.2rem; font-size:1.2rem; font-weight:700; border:none; border-radius:12px; background:#3a2a4a; color:#fff; cursor:pointer; min-width:50px; min-height:44px; box-shadow:0 4px 0 #1f152a; transition:all 0.15s;">F'</button>
-                    <button class="cube-btn prime" onclick="window.doMove(&quot;B'&quot;)" style="padding:0.6rem 1.2rem; font-size:1.2rem; font-weight:700; border:none; border-radius:12px; background:#3a2a4a; color:#fff; cursor:pointer; min-width:50px; min-height:44px; box-shadow:0 4px 0 #1f152a; transition:all 0.15s;">B'</button>
-                </div>
+        <!-- ===== КНОПКИ ПОВОРОТА ГРАНЕЙ ===== -->
+        <div style="margin-top: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem; align-items: center;">
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center;">
+                <button class="cube-btn" onclick="window.doMove('U')">U</button>
+                <button class="cube-btn" onclick="window.doMove('D')">D</button>
+                <button class="cube-btn" onclick="window.doMove('L')">L</button>
+                <button class="cube-btn" onclick="window.doMove('R')">R</button>
+                <button class="cube-btn" onclick="window.doMove('F')">F</button>
+                <button class="cube-btn" onclick="window.doMove('B')">B</button>
             </div>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center;">
+                <button class="cube-btn prime" onclick="window.doMove(&quot;U'&quot;)">U'</button>
+                <button class="cube-btn prime" onclick="window.doMove(&quot;D'&quot;)">D'</button>
+                <button class="cube-btn prime" onclick="window.doMove(&quot;L'&quot;)">L'</button>
+                <button class="cube-btn prime" onclick="window.doMove(&quot;R'&quot;)">R'</button>
+                <button class="cube-btn prime" onclick="window.doMove(&quot;F'&quot;)">F'</button>
+                <button class="cube-btn prime" onclick="window.doMove(&quot;B'&quot;)">B'</button>
+            </div>
+        </div>
 
-            <!-- ===== РАСШИФРОВКА ХОДОВ ===== -->
-            <div style="margin-top: 1rem; padding: 1rem 1.5rem; background: #fff; border-radius: 16px; border: 1px solid rgba(0,0,0,0.05); display: flex; flex-wrap: wrap; justify-content: center; gap: 0.6rem 1.5rem; max-width: 500px; font-size: 0.85rem; color: #555; box-shadow: 0 2px 10px rgba(0,0,0,0.03); text-align: center;">
-                <span><strong>U</strong> = <span style="background:#1e2a47;color:#fff;border-radius:6px;padding:0.1rem 0.5rem;font-size:0.7rem;font-weight:700;">Верхняя грань</span></span>
-                <span><strong>D</strong> = <span style="background:#1e2a47;color:#fff;border-radius:6px;padding:0.1rem 0.5rem;font-size:0.7rem;font-weight:700;">Нижняя грань</span></span>
-                <span><strong>L</strong> = <span style="background:#1e2a47;color:#fff;border-radius:6px;padding:0.1rem 0.5rem;font-size:0.7rem;font-weight:700;">Левая грань</span></span>
-                <span><strong>R</strong> = <span style="background:#1e2a47;color:#fff;border-radius:6px;padding:0.1rem 0.5rem;font-size:0.7rem;font-weight:700;">Правая грань</span></span>
-                <span><strong>F</strong> = <span style="background:#1e2a47;color:#fff;border-radius:6px;padding:0.1rem 0.5rem;font-size:0.7rem;font-weight:700;">Передняя грань</span></span>
-                <span><strong>B</strong> = <span style="background:#1e2a47;color:#fff;border-radius:6px;padding:0.1rem 0.5rem;font-size:0.7rem;font-weight:700;">Задняя грань</span></span>
-                <div style="width:100%;font-size:0.75rem;color:#999;margin-top:0.2rem;">Штрих <span style="background:#3a2a4a;color:#fff;border-radius:6px;padding:0.1rem 0.5rem;font-size:0.7rem;font-weight:700;">'</span> означает поворот <strong>против часовой стрелки</strong></div>
-            </div>
+        <!-- ===== РАСШИФРОВКА ===== -->
+        <div class="legend">
+            <span><strong>U</strong> = <span class="badge">Верхняя грань</span></span>
+            <span><strong>D</strong> = <span class="badge">Нижняя грань</span></span>
+            <span><strong>L</strong> = <span class="badge">Левая грань</span></span>
+            <span><strong>R</strong> = <span class="badge">Правая грань</span></span>
+            <span><strong>F</strong> = <span class="badge">Передняя грань</span></span>
+            <span><strong>B</strong> = <span class="badge">Задняя грань</span></span>
+            <div class="legend-note">Штрих <span class="badge prime">'</span> означает поворот <strong>против часовой стрелки</strong></div>
         </div>
 
     </div>
@@ -176,6 +286,7 @@
 <script src="../js/main.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
 <script>
   const firebaseConfig = {
     apiKey: "AIzaSyBH0b4U-EkIIX0fiE3SdYtG0AZ-9bjlEiw",
@@ -188,6 +299,7 @@
   };
   firebase.initializeApp(firebaseConfig);
   const database = firebase.database();
+
   const questionsDB = {
     'red_0_0_1': 'Какая книга подарила тебе ощущение дома, даже если ты был далеко?',
     'red_0_1_1': 'Какая книга заставила тебя почувствовать гордость за место, где ты живёшь?',
@@ -244,6 +356,7 @@
     'orange_2_1_1': 'Вспомни книгу, где семейные традиции спасали героев.',
     'orange_2_2_1': 'Какая книга научила тебя беречь то, что у тебя есть дома?'
   };
+
   const colorNames = {
     'red': 'Любовь',
     'blue': 'Надежда',
@@ -252,6 +365,7 @@
     'white': 'Память',
     'orange': 'Семья'
   };
+
   const texturePaths = {
     'red': '../images/cube_textures/red.jpg',
     'blue': '../images/cube_textures/blue.jpg',
@@ -260,17 +374,22 @@
     'white': '../images/cube_textures/white.jpg',
     'orange': '../images/cube_textures/orange.jpg'
   };
+
   function createPopup() {
       const popupHTML = `
           <div id="bookGranPopup" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); backdrop-filter:blur(6px); z-index:9999; align-items:center; justify-content:center;">
               <div style="background:#fff; max-width:600px; width:90%; padding:2rem; border-radius:28px; position:relative; box-shadow:0 24px 70px rgba(0,0,0,0.25); max-height:90vh; overflow-y:auto;">
                   <button id="popupClose" style="position:absolute; top:15px; right:20px; font-size:28px; background:none; border:none; cursor:pointer; color:#999; transition: color 0.2s;">&times;</button>
+                  
                   <div style="display:flex; align-items:center; gap:0.8rem; margin-bottom:0.8rem;">
                       <img id="popupThumb" src="" alt="Грань" style="width:32px; height:32px; border-radius:8px; object-fit:cover;">
                       <h2 id="popupColorTitle" style="font-size:1.3rem; font-weight:600; margin:0; color:#1e2a3a;">Грань</h2>
                   </div>
+                  
                   <p id="popupQuestion" style="font-size:1.05rem; line-height:1.6; margin:0.8rem 0 1.8rem 0; color:#333; font-weight:400;"></p>
+                  
                   <div id="popupAnswers" style="margin-bottom:1.8rem; max-height:150px; overflow-y:auto; border-top:1px solid #f0f0f0; padding-top:1.2rem;"></div>
+                  
                   <div style="margin-bottom: 1rem;">
                       <label for="popupAge" style="display: block; font-size: 0.85rem; font-weight: 500; color: #1e2a3a; margin-bottom: 0.3rem;">Ваш возраст</label>
                       <select id="popupAge" style="width: 100%; padding: 0.6rem 1rem; border: 2px solid #eee; border-radius: 18px; font-family: inherit; font-size: 0.95rem; background: #fafbfc; outline: none; cursor: pointer;">
@@ -281,8 +400,11 @@
                           <option value="старше 35">старше 35 лет</option>
                       </select>
                   </div>
+                  
                   <textarea id="popupInput" placeholder="Напиши здесь название книги и свои чувства..." style="width:100%; padding:1rem 1.2rem; border:2px solid #eee; border-radius:18px; font-family:inherit; font-size:0.95rem; min-height:80px; resize:vertical; background:#fafbfc; outline:none;"></textarea>
+                  
                   <button id="popupSubmit" style="width:100%; margin-top:1rem; padding:0.9rem; background:#ff2e5a; color:#fff; border:none; border-radius:18px; font-weight:600; font-size:1rem; cursor:pointer; transition: transform 0.15s, box-shadow 0.15s; box-shadow:0 4px 16px rgba(255,46,90,0.25);">Ответить и поделиться</button>
+                  
                   <p style="font-size:0.7rem; color:#999; margin-top:1rem; text-align:center; line-height:1.4;">Твой ответ увидят все, кто откроет этот квадратик</p>
               </div>
           </div>
@@ -290,6 +412,7 @@
       document.body.insertAdjacentHTML('beforeend', popupHTML);
   }
   createPopup();
+
   const popup = document.getElementById('bookGranPopup');
   const popupClose = document.getElementById('popupClose');
   const popupColorTitle = document.getElementById('popupColorTitle');
@@ -298,20 +421,27 @@
   const popupAnswers = document.getElementById('popupAnswers');
   const popupInput = document.getElementById('popupInput');
   const popupSubmit = document.getElementById('popupSubmit');
+
   let currentElementId = null;
+
   window.openBookGran = function(colorName, gx, gy) {
       const elementId = colorName + '_' + String(gx) + '_' + String(gy) + '_1';
       currentElementId = elementId;
+
       popupColorTitle.textContent = colorNames[colorName] || colorName;
       popupThumb.src = texturePaths[colorName] || '';
+
       const question = questionsDB[elementId];
       popupQuestion.textContent = question || 'Для этого квадратика пока нет вопроса. Придумай свой!';
+      
       popupAnswers.innerHTML = '<p style="color:#aaa; font-size:0.9rem; text-align:center; margin:0;">Пока никто не ответил на этот вопрос.<br>Будь первым! ✨</p>';
       popupInput.value = '';
       popup.style.display = 'flex';
       document.body.style.overflow = 'hidden';
+      
       loadAnswers(elementId);
   };
+
   function loadAnswers(elementId) {
       const answersRef = database.ref('answers/' + elementId);
       answersRef.on('value', (snapshot) => {
@@ -335,24 +465,29 @@
           });
       });
   }
+
   popupSubmit.addEventListener('click', function() {
       const text = popupInput.value.trim();
       const age = document.getElementById('popupAge').value;
+
       if (!text) {
           alert('Пожалуйста, напиши свой ответ перед отправкой.');
           return;
       }
       if (!currentElementId) return;
+
       const newAnswer = {
           text: text,
           age: age,
           user: 'Аноним',
           timestamp: new Date().toLocaleString('ru-RU')
       };
+
       const answersRef = database.ref('answers/' + currentElementId);
       answersRef.push(newAnswer).then(() => {
           popupInput.value = '';
           document.getElementById('popupAge').value = '';
+
           let myProgress = JSON.parse(localStorage.getItem('myGranProgress') || '[]');
           if (!myProgress.includes(currentElementId)) {
               myProgress.push(currentElementId);
@@ -361,37 +496,25 @@
                   window.updateCubeGlow();
               }
           }
+
           alert('Спасибо! Твой ответ сохранён и теперь виден всем.');
       }).catch((error) => {
           console.error('Ошибка сохранения:', error);
           alert('Произошла ошибка. Попробуй ещё раз.');
       });
   });
+
   popupClose.addEventListener('click', function() {
       popup.style.display = 'none';
       document.body.style.overflow = '';
   });
+
   popup.addEventListener('click', function(e) {
       if (e.target === popup) {
           popup.style.display = 'none';
           document.body.style.overflow = '';
       }
   });
-</script>
-
-<!-- ===== СКРИПТ ДЛЯ АВТО-СКРЫТИЯ ПЛАШКИ С КНОПКАМИ ===== -->
-<script>
-    function updateControlsVisibility() {
-        const wrapper = document.getElementById('cube-controls-wrapper');
-        if (!wrapper) return;
-        if (window.isSolved === false) {
-            wrapper.style.display = 'block';
-        } else {
-            wrapper.style.display = 'none';
-        }
-    }
-    setInterval(updateControlsVisibility, 300);
-    document.addEventListener('DOMContentLoaded', updateControlsVisibility);
 </script>
 
 <script type="importmap">
@@ -402,6 +525,6 @@
         }
     }
 </script>
-<script type="module" src="/js/test/cube3d.js"></script>
+<script type="module" src="/js/cube3d.js"></script>
 </body>
 </html>
