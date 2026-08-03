@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Кубик — кнопки по направлению взгляда</title>
+    <title>Кубик Рубика — кнопки R, L, F, B, U, D</title>
     <style>
         body {
             margin: 0;
@@ -67,7 +67,7 @@
             color: #ff2e5a;
         }
 
-        /* ===== КНОПКИ ПОВОРОТА ГРАНЕЙ ===== */
+        /* ===== КНОПКИ ПОВОРОТА ГРАНЕЙ (R, L, F, B, U, D) ===== */
         .cube-buttons {
             margin-top: 1.5rem;
             display: flex;
@@ -83,8 +83,8 @@
         }
         .cube-btn {
             padding: 0.6rem 1.2rem;
-            font-size: 0.9rem;
-            font-weight: 600;
+            font-size: 1rem;
+            font-weight: 700;
             font-family: 'Inter', sans-serif;
             border: none;
             border-radius: 12px;
@@ -93,10 +93,11 @@
             cursor: pointer;
             transition: all 0.15s ease;
             touch-action: manipulation;
-            min-width: 70px;
+            min-width: 60px;
             min-height: 44px;
             box-shadow: 0 4px 0 #0f1520;
             user-select: none;
+            letter-spacing: 0.5px;
         }
         .cube-btn:active {
             transform: translateY(4px);
@@ -112,11 +113,38 @@
         .cube-btn.prime:hover {
             background: #4a3a5a;
         }
+        /* цветные акценты для граней */
+        .cube-btn.r { background: #c41e3a; box-shadow: 0 4px 0 #7a1224; }
+        .cube-btn.r:hover { background: #d42a46; }
+        .cube-btn.l { background: #f39c12; box-shadow: 0 4px 0 #b36d0b; }
+        .cube-btn.l:hover { background: #f7b731; }
+        .cube-btn.f { background: #27ae60; box-shadow: 0 4px 0 #1a7a42; }
+        .cube-btn.f:hover { background: #2ecc71; }
+        .cube-btn.b { background: #2980b9; box-shadow: 0 4px 0 #1a5276; }
+        .cube-btn.b:hover { background: #3498db; }
+        .cube-btn.u { background: #f1c40f; box-shadow: 0 4px 0 #b7950b; color: #1e2a47; }
+        .cube-btn.u:hover { background: #f4d03f; }
+        .cube-btn.d { background: #8e44ad; box-shadow: 0 4px 0 #5b2d6e; }
+        .cube-btn.d:hover { background: #a569bd; }
+
+        .cube-btn.prime.r { background: #a01830; box-shadow: 0 4px 0 #5e0e1c; }
+        .cube-btn.prime.r:hover { background: #b81e3a; }
+        .cube-btn.prime.l { background: #d4890b; box-shadow: 0 4px 0 #8a5a07; }
+        .cube-btn.prime.l:hover { background: #e6a017; }
+        .cube-btn.prime.f { background: #1e8e4a; box-shadow: 0 4px 0 #0f5a2e; }
+        .cube-btn.prime.f:hover { background: #26a85a; }
+        .cube-btn.prime.b { background: #1f6a93; box-shadow: 0 4px 0 #0f3e5a; }
+        .cube-btn.prime.b:hover { background: #287aa8; }
+        .cube-btn.prime.u { background: #d4ac0d; box-shadow: 0 4px 0 #8a7007; color: #1e2a47; }
+        .cube-btn.prime.u:hover { background: #e6c019; }
+        .cube-btn.prime.d { background: #6f3490; box-shadow: 0 4px 0 #451f5a; }
+        .cube-btn.prime.d:hover { background: #8844a8; }
+
         @media (max-width: 600px) {
             .cube-btn {
                 padding: 0.4rem 0.8rem;
-                font-size: 0.75rem;
-                min-width: 55px;
+                font-size: 0.8rem;
+                min-width: 50px;
                 min-height: 36px;
             }
         }
@@ -134,26 +162,26 @@
 
     <!-- ===== КНОПКИ ПОВОРОТА ГРАНЕЙ ===== -->
     <div class="cube-buttons">
+        <!-- R / R'  и  L / L' -->
         <div class="btn-row">
-            <button class="cube-btn" onclick="window.doMove('up')">⬆ Вверх</button>
-            <button class="cube-btn" onclick="window.doMove('down')">⬇ Вниз</button>
+            <button class="cube-btn r" onclick="window.doMove('R')">R</button>
+            <button class="cube-btn prime r" onclick="window.doMove('R_prime')">R'</button>
+            <button class="cube-btn l" onclick="window.doMove('L')">L</button>
+            <button class="cube-btn prime l" onclick="window.doMove('L_prime')">L'</button>
         </div>
+        <!-- F / F'  и  B / B' -->
         <div class="btn-row">
-            <button class="cube-btn" onclick="window.doMove('left')">⬅ Влево</button>
-            <button class="cube-btn" onclick="window.doMove('right')">➡ Вправо</button>
+            <button class="cube-btn f" onclick="window.doMove('F')">F</button>
+            <button class="cube-btn prime f" onclick="window.doMove('F_prime')">F'</button>
+            <button class="cube-btn b" onclick="window.doMove('B')">B</button>
+            <button class="cube-btn prime b" onclick="window.doMove('B_prime')">B'</button>
         </div>
+        <!-- U / U'  и  D / D' -->
         <div class="btn-row">
-            <button class="cube-btn" onclick="window.doMove('toward')">🔽 К себе</button>
-            <button class="cube-btn" onclick="window.doMove('away')">🔼 От себя</button>
-        </div>
-        <!-- Противоположные направления (против часовой) -->
-        <div class="btn-row" style="margin-top: 0.5rem; opacity: 0.7;">
-            <button class="cube-btn prime" onclick="window.doMove('up_rev')">⬆ Вверх (обр)</button>
-            <button class="cube-btn prime" onclick="window.doMove('down_rev')">⬇ Вниз (обр)</button>
-            <button class="cube-btn prime" onclick="window.doMove('left_rev')">⬅ Влево (обр)</button>
-            <button class="cube-btn prime" onclick="window.doMove('right_rev')">➡ Вправо (обр)</button>
-            <button class="cube-btn prime" onclick="window.doMove('toward_rev')">🔽 К себе (обр)</button>
-            <button class="cube-btn prime" onclick="window.doMove('away_rev')">🔼 От себя (обр)</button>
+            <button class="cube-btn u" onclick="window.doMove('U')">U</button>
+            <button class="cube-btn prime u" onclick="window.doMove('U_prime')">U'</button>
+            <button class="cube-btn d" onclick="window.doMove('D')">D</button>
+            <button class="cube-btn prime d" onclick="window.doMove('D_prime')">D'</button>
         </div>
     </div>
 
