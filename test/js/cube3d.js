@@ -485,9 +485,10 @@ if (!container) {
     }
 }
 
-// ===== ГЛАВНАЯ ФУНКЦИЯ ДЛЯ КНОПОК (ЗА ПРЕДЕЛАМИ ВСЕХ ФУНКЦИЙ) =====
-// ОНА ДОЛЖНА БЫТЬ ЗДЕСЬ, ЧТОБЫ БЫТЬ ДОСТУПНОЙ ИЗ HTML
+// ===== ГЛАВНАЯ ФУНКЦИЯ ДЛЯ КНОПОК =====
+// Она объявлена в конце, вне всех функций — это гарантирует глобальную доступность
 window.doMove = function(direction) {
+    console.log('✅ doMove вызвана с направлением:', direction);
     if (window.isSolved) return;
     if (!direction) return;
     if (window.isAnimating) return;
@@ -501,6 +502,11 @@ window.doMove = function(direction) {
     const camera = window.camera;
     const allCubies = window.allCubies;
     const offset = window.offset;
+
+    if (!camera || !allCubies) {
+        console.error('❌ camera или allCubies не определены');
+        return;
+    }
 
     // Направление луча относительно камеры
     const up = new THREE.Vector3(0, 1, 0).applyQuaternion(camera.quaternion);
@@ -524,7 +530,7 @@ window.doMove = function(direction) {
     const intersects = raycaster.intersectObjects(allCubies);
 
     if (intersects.length === 0) {
-        // Если луч не попал в кубик — ничего не делаем
+        console.log('❌ Луч не попал ни в один кубик');
         return;
     }
 
@@ -555,6 +561,8 @@ window.doMove = function(direction) {
 
     // Игнорируем средние слои
     if (index === 0) return;
+
+    console.log(`✅ Поворачиваем слой: ось=${axis}, индекс=${index}, обратное=${isReverse}`);
 
     // Поворачиваем слой
     const angle = (isReverse ? -1 : 1) * Math.PI / 2;
