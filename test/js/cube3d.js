@@ -11,8 +11,6 @@ window.scrambleMoves = [];
 window.executeMoveSequence = null;
 window.generateScramble = null;
 window.updateCubeGlow = null;
-
-// Экспортируем функции, чтобы к ним можно было обратиться из HTML
 window.parseMove = null;
 window.rotateLayer = null;
 
@@ -482,3 +480,23 @@ if (!container) {
         });
     }
 }
+
+// ===== ГЛАВНАЯ ФУНКЦИЯ ДЛЯ КНОПОК ПОВОРОТА =====
+// Она вызывается прямо из HTML через onclick
+window.doMove = function(moveStr) {
+    if (!moveStr) return;
+    
+    // Если идёт анимация — пропускаем
+    if (window.isAnimating) return;
+    
+    const parsed = window.parseMove(moveStr);
+    if (!parsed) return;
+    
+    // Запускаем поворот
+    window.rotateLayer(parsed.axis, parsed.index, parsed.angle, 150, () => {
+        // После поворота проверяем, не собрался ли кубик
+        // Собираем функцию проверки изнутри (она доступна внутри initCube, но мы её вызываем через колбэк)
+        // Мы просто обновляем подсветку — проверка на сборку не блокирует кнопки
+        if (window.updateCubeGlow) window.updateCubeGlow();
+    });
+};
