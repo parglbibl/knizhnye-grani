@@ -12,7 +12,7 @@ window.executeMoveSequence = null;
 window.generateScramble = null;
 window.updateCubeGlow = null;
 window.rotateLayer = null;
-window.camera = null; // <-- теперь камера доступна глобально
+window.camera = null;
 
 const container = document.getElementById('cube-container');
 if (!container) {
@@ -45,7 +45,7 @@ if (!container) {
         camera.position.set(3.5, 2.5, 4.5);
         camera.lookAt(0, 0, 0);
         scene.add(camera);
-        window.camera = camera; // <-- сохраняем камеру
+        window.camera = camera;
 
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -355,7 +355,7 @@ if (!container) {
         window.generateScramble = generateScramble;
         window.updateCubeGlow = updateCubeGlow;
 
-        // ===== ВСПОМОГАТЕЛЬНАЯ ФУНКЦИЯ ДЛЯ ПАРСИНГА =====
+        // ===== ВСПОМОГАТЕЛЬНАЯ ФУНКЦИЯ (ОСТАВЛЕНА ДЛЯ СКРАМБЛЕРА) =====
         function parseMove(moveStr) {
             const baseMap = { 'U': 'y', 'D': 'y', 'L': 'x', 'R': 'x', 'F': 'z', 'B': 'z' };
             const indexMap = { 'U': 1, 'D': -1, 'L': -1, 'R': 1, 'F': 1, 'B': -1 };
@@ -482,26 +482,21 @@ if (!container) {
     }
 }
 
-// ===== ГЛАВНАЯ ФУНКЦИЯ ДЛЯ КНОПОК ПОВОРОТА =====
-window.doMove = function(moveStr) {
+// ===== ГЛАВНАЯ ФУНКЦИЯ ДЛЯ КНОПОК (БЕЗ БУКВ) =====
+window.doMove = function(direction) {
     if (window.isSolved) return;
-    if (!moveStr) return;
+    if (!direction) return;
     if (window.isAnimating) return;
 
-    const base = moveStr.charAt(0);
-    const mod = moveStr.slice(1);
-    let angle = 0;
-    let count = 1;
-    if (mod === "'") { angle = -1; }
-    else if (mod === "2") { count = 2; }
+    let isReverse = direction.endsWith('_rev');
+    let dir = isReverse ? direction.replace('_rev', '') : direction;
 
-    // === ВЫЧИСЛЯЕМ ЛОКАЛЬНУЮ ОСЬ НА ОСНОВЕ КАМЕРЫ ===
-    // Берём векторы камеры: вверх, вправо, вперёд
+    // === ВЫЧИСЛЯЕМ НАПРАВЛЕНИЕ ОТНОСИТЕЛЬНО КАМЕРЫ ===
     const up = new THREE.Vector3(0, 1, 0).applyQuaternion(window.camera.quaternion);
     const right = new THREE.Vector3(1, 0, 0).applyQuaternion(window.camera.quaternion);
     const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(window.camera.quaternion);
-    
-    // Округляем до ближайших осей
+
+    // Нормализуем и округляем до ближайших осей
     const axes = [
         { name: 'y', dir: up, index: 1 },
         { name: 'y', dir: up.clone().negate(), index: -1 },
@@ -511,33 +506,34 @@ window.doMove = function(moveStr) {
         { name: 'z', dir: forward.clone().negate(), index: -1 }
     ];
 
-    // Сопоставляем букву с направлением от камеры
+    // Сопоставляем направление с вектором камеры
     let targetDir = null;
     let targetIndex = 0;
-    if (base === 'U') { targetDir = up; targetIndex = 1; }
-    else if (base === 'D') { targetDir = up.clone().negate(); targetIndex = -1; }
-    else if (base === 'R') { targetDir = right; targetIndex = 1; }
-    else if (base === 'L') { targetDir = right.clone().negate(); targetIndex = -1; }
-    else if (base === 'F') { targetDir = forward; targetIndex = 1; }
-    else if (base === 'B') { targetDir = forward.clone().negate(); targetIndex = -1; }
+    if (dir === 'up') { targetDir = up; targetIndex = 1; }
+    else if (dir === 'down') { targetDir = up.clone().negate(); targetIndex = -1; }
+    else if (dir === 'right') { targetDir = right; targetIndex = 1; }
+    else if (dir === 'left') { targetDir = right.clone().negate(); targetIndex = -1; }
+    else if (dir === 'toward') { targetDir = forward; targetIndex = 1; }
+    else if (dir === 'away') { targetDir = forward.clone().negate(); targetIndex = -1; }
 
     if (!targetDir) return;
 
     // Находим ближайшую ось кубика к направлению камеры
     let bestAxis = 'y';
+    let bestIndex = 1;
     let bestDot = -Infinity;
     for (let ax of axes) {
         const dot = targetDir.dot(ax.dir);
         if (dot > bestDot) {
             bestDot = dot;
             bestAxis = ax.name;
-            targetIndex = ax.index;
+            bestIndex = ax.index;
         }
     }
 
-    // Поворачиваем слой в найденной оси
-    const finalAngle = (angle === -1 ? -1 : 1) * Math.PI / 2 * count;
-    window.rotateLayer(bestAxis, targetIndex, finalAngle, 150, () => {
+    // Поворачиваем слой
+    const angle = (isReverse ? -1 : 1) * Math.PI / 2;
+    window.rotateLayer(bestAxis, bestIndex, angle, 150, () => {
         if (window.updateCubeGlow) window.updateCubeGlow();
     });
 };
