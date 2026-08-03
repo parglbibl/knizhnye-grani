@@ -42,7 +42,7 @@ if (!container) {
 
     function initCube(size) {
         const scene = new THREE.Scene();
-        scene.background = null;
+        scene.background = null; // прозрачный фон
 
         const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 1000);
         camera.position.set(3.5, 2.5, 4.5);
