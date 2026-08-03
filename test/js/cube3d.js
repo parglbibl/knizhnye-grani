@@ -53,7 +53,6 @@ if (!container) {
         scene.add(cubeGroup);
 
         const textureLoader = new THREE.TextureLoader();
-        // Текстуры возьмём с вашего сайта (они есть по этим путям)
         const texturePaths = {
             red: '/images/cube_textures/red.jpg',
             blue: '/images/cube_textures/blue.jpg',
@@ -389,7 +388,7 @@ if (!container) {
             });
         });
 
-        // ===== РУЧНОЕ ВРАЩЕНИЕ (СВАЙП) =====
+        // ===== РУЧНОЕ ВРАЩЕНИЕ (СВАЙП) — ОТДЕЛЬНО ДЛЯ МЫШИ И ПАЛЬЦЕВ =====
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
 
@@ -406,14 +405,8 @@ if (!container) {
         let isDragging = false;
         let isPointerDown = false;
 
-        // Запрещаем скролл при касании кубика
-        renderer.domElement.addEventListener('touchstart', (e) => {
-            if (e.target === renderer.domElement) {
-                e.preventDefault();
-            }
-        }, { passive: false });
-
-        renderer.domElement.addEventListener('pointerdown', (e) => {
+        // ===== ДЛЯ МЫШИ (ПК) =====
+        renderer.domElement.addEventListener('mousedown', (e) => {
             if (isScrambling || isAnimating || isBlocked) return;
             if (isPointerDown) return;
             isPointerDown = true;
@@ -462,12 +455,12 @@ if (!container) {
             isDragging = true;
         });
 
-        renderer.domElement.addEventListener('pointermove', (e) => {
+        renderer.domElement.addEventListener('mousemove', (e) => {
             if (!isDragging || !dragStart) return;
 
             const dx = e.clientX - dragStart.x;
             const dy = e.clientY - dragStart.y;
-            const threshold = 20;
+            const threshold = 15;
 
             if (!dragStart.moved && Math.abs(dx) < threshold && Math.abs(dy) < threshold) return;
             dragStart.moved = true;
@@ -498,7 +491,7 @@ if (!container) {
             });
         });
 
-        renderer.domElement.addEventListener('pointerup', (e) => {
+        renderer.domElement.addEventListener('mouseup', (e) => {
             if (!isDragging || !dragStart) {
                 isPointerDown = false;
                 return;
@@ -508,7 +501,6 @@ if (!container) {
             isPointerDown = false;
 
             if (dragStart.moved) {
-                // Доворот до 90°
                 const cubies = getCubiesInLayer(dragStart.axis, dragStart.layer);
                 cubies.forEach(cubie => {
                     const pos = cubie.position;
@@ -527,8 +519,8 @@ if (!container) {
                 });
                 updateCubeGlow();
             } else {
-                // КЛИК БЕЗ ПЕРЕМЕЩЕНИЯ — ТОЛЬКО НА СОБРАННОМ КУБИКЕ
                 if (isCubeSolved()) {
+                    // ОТКРЫТИЕ ПОПАПА
                     const rect = renderer.domElement.getBoundingClientRect();
                     mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
                     mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
@@ -565,7 +557,6 @@ if (!container) {
                             gy = coords.y + 1;
                         }
 
-                        // Открываем попап
                         const popup = document.getElementById('popup');
                         const title = document.getElementById('popupTitle');
                         const question = document.getElementById('popupQuestion');
@@ -597,7 +588,197 @@ if (!container) {
             dragStart = null;
         });
 
-        // Закрытие попапа по клику вне
+        // ===== ДЛЯ ПАЛЬЦЕВ (ТЕЛЕФОН) =====
+        renderer.domElement.addEventListener('touchstart', (e) => {
+            if (isScrambling || isAnimating || isBlocked) return;
+            if (isPointerDown) return;
+            isPointerDown = true;
+            e.preventDefault();
+
+            const touch = e.changedTouches[0];
+            const rect = renderer.domElement.getBoundingClientRect();
+            mouse.x = ((touch.clientX - rect.left) / rect.width) * 2 - 1;
+            mouse.y = -((touch.clientY - rect.top) / rect.height) * 2 + 1;
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(allCubies);
+
+            if (intersects.length === 0) {
+                isPointerDown = false;
+                return;
+            }
+
+            const clicked = intersects[0].object;
+            const normal = intersects[0].face.normal.clone().applyQuaternion(clicked.quaternion);
+            const nx = Math.round(normal.x);
+            const ny = Math.round(normal.y);
+            const nz = Math.round(normal.z);
+
+            if (nx !== 0) {
+                dragAxis = 'x';
+                dragLayer = Math.round(clicked.position.x / offset);
+            } else if (ny !== 0) {
+                dragAxis = 'y';
+                dragLayer = Math.round(clicked.position.y / offset);
+            } else if (nz !== 0) {
+                dragAxis = 'z';
+                dragLayer = Math.round(clicked.position.z / offset);
+            } else {
+                isPointerDown = false;
+                return;
+            }
+
+            dragStart = {
+                x: touch.clientX,
+                y: touch.clientY,
+                axis: dragAxis,
+                layer: dragLayer,
+                normalX: nx,
+                normalY: ny,
+                normalZ: nz,
+                moved: false
+            };
+            isDragging = true;
+        });
+
+        renderer.domElement.addEventListener('touchmove', (e) => {
+            if (!isDragging || !dragStart) return;
+            e.preventDefault();
+
+            const touch = e.changedTouches[0];
+            const dx = touch.clientX - dragStart.x;
+            const dy = touch.clientY - dragStart.y;
+            const threshold = 20;
+
+            if (!dragStart.moved && Math.abs(dx) < threshold && Math.abs(dy) < threshold) return;
+            dragStart.moved = true;
+
+            let angle = 0;
+            let axisVec = new THREE.Vector3();
+
+            if (dragStart.axis === 'x') {
+                angle = dy * 0.01;
+                axisVec.set(1, 0, 0);
+            } else if (dragStart.axis === 'y') {
+                angle = dx * 0.01;
+                axisVec.set(0, 1, 0);
+            } else if (dragStart.axis === 'z') {
+                angle = dx * 0.01;
+                axisVec.set(0, 0, 1);
+            }
+
+            if (dragStart.normalX < 0) angle *= -1;
+            if (dragStart.normalY < 0) angle *= -1;
+            if (dragStart.normalZ < 0) angle *= -1;
+
+            const cubies = getCubiesInLayer(dragStart.axis, dragStart.layer);
+            const quat = new THREE.Quaternion().setFromAxisAngle(axisVec, angle);
+            cubies.forEach(cubie => {
+                cubie.position.applyQuaternion(quat);
+                cubie.quaternion.multiply(quat);
+            });
+        });
+
+        renderer.domElement.addEventListener('touchend', (e) => {
+            if (!isDragging || !dragStart) {
+                isPointerDown = false;
+                return;
+            }
+
+            isDragging = false;
+            isPointerDown = false;
+            e.preventDefault();
+
+            const touch = e.changedTouches[0];
+
+            if (dragStart.moved) {
+                const cubies = getCubiesInLayer(dragStart.axis, dragStart.layer);
+                cubies.forEach(cubie => {
+                    const pos = cubie.position;
+                    pos.x = Math.round(pos.x / offset) * offset;
+                    pos.y = Math.round(pos.y / offset) * offset;
+                    pos.z = Math.round(pos.z / offset) * offset;
+                });
+                cubies.forEach(cubie => {
+                    const q = cubie.quaternion;
+                    q.normalize();
+                    const euler = new THREE.Euler().setFromQuaternion(q);
+                    euler.x = Math.round(euler.x / (Math.PI / 2)) * (Math.PI / 2);
+                    euler.y = Math.round(euler.y / (Math.PI / 2)) * (Math.PI / 2);
+                    euler.z = Math.round(euler.z / (Math.PI / 2)) * (Math.PI / 2);
+                    cubie.quaternion.setFromEuler(euler);
+                });
+                updateCubeGlow();
+            } else {
+                if (isCubeSolved()) {
+                    // ОТКРЫТИЕ ПОПАПА (такой же код, как в mouseup)
+                    const rect = renderer.domElement.getBoundingClientRect();
+                    mouse.x = ((touch.clientX - rect.left) / rect.width) * 2 - 1;
+                    mouse.y = -((touch.clientY - rect.top) / rect.height) * 2 + 1;
+                    raycaster.setFromCamera(mouse, camera);
+                    const intersects = raycaster.intersectObjects(allCubies);
+                    if (intersects.length > 0) {
+                        const clicked = intersects[0].object;
+                        const normal = intersects[0].face.normal.clone().applyQuaternion(clicked.quaternion);
+                        const nx = Math.round(normal.x);
+                        const ny = Math.round(normal.y);
+                        const nz = Math.round(normal.z);
+                        let materialIndex = 0;
+                        if (nx === 1) materialIndex = 0;
+                        else if (nx === -1) materialIndex = 1;
+                        else if (ny === 1) materialIndex = 2;
+                        else if (ny === -1) materialIndex = 3;
+                        else if (nz === 1) materialIndex = 4;
+                        else if (nz === -1) materialIndex = 5;
+                        else materialIndex = 0;
+
+                        const colorName = clicked.userData.faces[materialIndex];
+                        if (!colorName) return;
+
+                        const coords = getGridCoords(clicked.position);
+                        let gx = 0, gy = 0;
+                        if (materialIndex === 0 || materialIndex === 1) {
+                            gx = coords.y + 1;
+                            gy = coords.z + 1;
+                        } else if (materialIndex === 2 || materialIndex === 3) {
+                            gx = coords.x + 1;
+                            gy = coords.z + 1;
+                        } else {
+                            gx = coords.x + 1;
+                            gy = coords.y + 1;
+                        }
+
+                        const popup = document.getElementById('popup');
+                        const title = document.getElementById('popupTitle');
+                        const question = document.getElementById('popupQuestion');
+                        const colorNames = {
+                            red: 'Любовь',
+                            blue: 'Надежда',
+                            yellow: 'Совесть',
+                            green: 'Добро',
+                            white: 'Память',
+                            orange: 'Семья'
+                        };
+                        const questions = {
+                            red_0_0_1: 'Какая книга подарила тебе ощущение дома?',
+                            blue_0_0_1: 'Какая книга помогла тебе проснуться утром?',
+                            yellow_0_0_1: 'Какая книга помогла тебе услышать свой тихий внутренний голос?',
+                            green_0_0_1: 'Назови книгу, которая вдохновила тебя сделать кому-то приятное просто так.',
+                            white_0_0_1: 'Какая книга заставила тебя вспомнить голос бабушки или дедушки?',
+                            orange_0_0_1: 'Какая книга подарила тебе ощущение, что ты всегда можешь вернуться домой?'
+                        };
+                        const key = colorName + '_' + gx + '_' + gy + '_1';
+                        title.textContent = colorNames[colorName] || colorName;
+                        question.textContent = questions[key] || 'Придумай свой вопрос для этой грани!';
+                        popup.style.display = 'flex';
+                        document.body.style.overflow = 'hidden';
+                    }
+                }
+            }
+
+            dragStart = null;
+        });
+
+        // ===== ЗАКРЫТИЕ ПОПАПА ПО КЛИКУ ВНЕ =====
         document.getElementById('popup').addEventListener('click', (e) => {
             if (e.target === e.currentTarget) {
                 e.currentTarget.style.display = 'none';
