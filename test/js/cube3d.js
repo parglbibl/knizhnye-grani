@@ -364,7 +364,7 @@ if (!container) {
         window.generateScramble = generateScramble;
         window.updateCubeGlow = updateCubeGlow;
 
-        // ===== ДИСКРЕТНОЕ РУЧНОЕ ВРАЩЕНИЕ (ТОЛЬКО КРАЙНИЕ СЛОИ) =====
+        // ===== ДИСКРЕТНОЕ РУЧНОЕ ВРАЩЕНИЕ С ВЫБОРОМ ГРАНИ ПО НОРМАЛИ =====
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
 
@@ -401,8 +401,31 @@ if (!container) {
             controls.enabled = false;
             isPointerDown = true;
 
-            const clicked = intersects[0].object;
-            const normal = intersects[0].face.normal.clone().applyQuaternion(clicked.quaternion);
+            // ===== ВЫБИРАЕМ ЛУЧШЕЕ ПЕРЕСЕЧЕНИЕ (ПО НОРМАЛИ, НАПРАВЛЕННОЙ К КАМЕРЕ) =====
+            let bestIntersect = null;
+            let bestDot = -1;
+
+            for (let i = 0; i < intersects.length; i++) {
+                const intersect = intersects[i];
+                const cubie = intersect.object;
+                const normal = intersect.face.normal.clone().applyQuaternion(cubie.quaternion);
+                // Вектор от центра кубика к камере
+                const toCamera = new THREE.Vector3(0, 0, 1).applyQuaternion(camera.quaternion);
+                const dot = normal.dot(toCamera);
+                if (dot > bestDot) {
+                    bestDot = dot;
+                    bestIntersect = intersect;
+                }
+            }
+
+            if (!bestIntersect) {
+                controls.enabled = true;
+                isPointerDown = false;
+                return;
+            }
+
+            const clicked = bestIntersect.object;
+            const normal = bestIntersect.face.normal.clone().applyQuaternion(clicked.quaternion);
             const nx = Math.round(normal.x);
             const ny = Math.round(normal.y);
             const nz = Math.round(normal.z);
@@ -431,7 +454,7 @@ if (!container) {
 
             // ЯРКАЯ ПОДСВЕТКА
             highlightedCubie = clicked;
-            const faceIndex = intersects[0].faceIndex;
+            const faceIndex = bestIntersect.faceIndex;
             if (faceIndex !== undefined) {
                 const matIndex = Math.floor(faceIndex / 2);
                 if (clicked.material[matIndex]) {
@@ -445,9 +468,6 @@ if (!container) {
                 y: e.clientY,
                 axis: dragAxis,
                 layer: dragLayer,
-                normalX: nx,
-                normalY: ny,
-                normalZ: nz,
                 moved: false
             };
             isDragging = true;
@@ -502,16 +522,12 @@ if (!container) {
                 
                 let angle = 0;
 
-                // ===== ПРОСТАЯ ЛОГИКА: ВРАЩЕНИЕ ВОКРУГ ТОЙ ОСИ, КОТОРУЮ КОСНУЛИСЬ =====
-                // Направление: вправо → по часовой, влево → против часовой
+                // ===== ВРАЩЕНИЕ ВОКРУГ ЗАПОМНЕННОЙ ОСИ И СЛОЯ =====
                 if (dragAxis === 'x') {
-                    // Для оси X смотрим движение по вертикали (вверх/вниз)
                     angle = dy > 0 ? -Math.PI / 2 : Math.PI / 2;
                 } else if (dragAxis === 'y') {
-                    // Для оси Y смотрим движение по горизонтали (вправо/влево)
                     angle = dx > 0 ? Math.PI / 2 : -Math.PI / 2;
                 } else if (dragAxis === 'z') {
-                    // Для оси Z смотрим движение по вертикали (вверх/вниз)
                     angle = dy > 0 ? -Math.PI / 2 : Math.PI / 2;
                 }
 
@@ -612,8 +628,30 @@ if (!container) {
             isPointerDown = true;
             e.preventDefault();
 
-            const clicked = intersects[0].object;
-            const normal = intersects[0].face.normal.clone().applyQuaternion(clicked.quaternion);
+            // ===== ВЫБИРАЕМ ЛУЧШЕЕ ПЕРЕСЕЧЕНИЕ (ПО НОРМАЛИ, НАПРАВЛЕННОЙ К КАМЕРЕ) =====
+            let bestIntersect = null;
+            let bestDot = -1;
+
+            for (let i = 0; i < intersects.length; i++) {
+                const intersect = intersects[i];
+                const cubie = intersect.object;
+                const normal = intersect.face.normal.clone().applyQuaternion(cubie.quaternion);
+                const toCamera = new THREE.Vector3(0, 0, 1).applyQuaternion(camera.quaternion);
+                const dot = normal.dot(toCamera);
+                if (dot > bestDot) {
+                    bestDot = dot;
+                    bestIntersect = intersect;
+                }
+            }
+
+            if (!bestIntersect) {
+                controls.enabled = true;
+                isPointerDown = false;
+                return;
+            }
+
+            const clicked = bestIntersect.object;
+            const normal = bestIntersect.face.normal.clone().applyQuaternion(clicked.quaternion);
             const nx = Math.round(normal.x);
             const ny = Math.round(normal.y);
             const nz = Math.round(normal.z);
@@ -642,7 +680,7 @@ if (!container) {
 
             // ЯРКАЯ ПОДСВЕТКА
             highlightedCubie = clicked;
-            const faceIndex = intersects[0].faceIndex;
+            const faceIndex = bestIntersect.faceIndex;
             if (faceIndex !== undefined) {
                 const matIndex = Math.floor(faceIndex / 2);
                 if (clicked.material[matIndex]) {
@@ -656,9 +694,6 @@ if (!container) {
                 y: touch.clientY,
                 axis: dragAxis,
                 layer: dragLayer,
-                normalX: nx,
-                normalY: ny,
-                normalZ: nz,
                 moved: false
             };
             isDragging = true;
@@ -718,7 +753,7 @@ if (!container) {
                 
                 let angle = 0;
 
-                // ===== ПРОСТАЯ ЛОГИКА: ВРАЩЕНИЕ ВОКРУГ ТОЙ ОСИ, КОТОРУЮ КОСНУЛИСЬ =====
+                // ===== ВРАЩЕНИЕ ВОКРУГ ЗАПОМНЕННОЙ ОСИ И СЛОЯ =====
                 if (dragAxis === 'x') {
                     angle = dy > 0 ? -Math.PI / 2 : Math.PI / 2;
                 } else if (dragAxis === 'y') {
