@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Кубик — кнопки по направлению взгляда</title>
+    <title>Кубик — кнопки U, D, L, R, F, B</title>
     <style>
         body {
             margin: 0;
@@ -56,16 +56,6 @@
         #btnSolve:hover {
             transform: scale(1.05);
         }
-        .info {
-            margin-top: 20px;
-            font-size: 14px;
-            color: #555;
-            text-align: center;
-            max-width: 400px;
-        }
-        .info strong {
-            color: #ff2e5a;
-        }
 
         /* ===== КНОПКИ ПОВОРОТА ГРАНЕЙ ===== */
         .cube-buttons {
@@ -83,8 +73,8 @@
         }
         .cube-btn {
             padding: 0.6rem 1.2rem;
-            font-size: 0.9rem;
-            font-weight: 600;
+            font-size: 1.2rem;
+            font-weight: 700;
             font-family: 'Inter', sans-serif;
             border: none;
             border-radius: 12px;
@@ -93,7 +83,7 @@
             cursor: pointer;
             transition: all 0.15s ease;
             touch-action: manipulation;
-            min-width: 70px;
+            min-width: 50px;
             min-height: 44px;
             box-shadow: 0 4px 0 #0f1520;
             user-select: none;
@@ -115,10 +105,97 @@
         @media (max-width: 600px) {
             .cube-btn {
                 padding: 0.4rem 0.8rem;
-                font-size: 0.75rem;
-                min-width: 55px;
+                font-size: 1rem;
+                min-width: 40px;
                 min-height: 36px;
             }
+        }
+
+        /* ===== РАСШИФРОВКА ХОДОВ ===== */
+        .legend {
+            margin-top: 1rem;
+            padding: 0.8rem 1.5rem;
+            background: #fff;
+            border-radius: 16px;
+            border: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.8rem 1.2rem;
+            max-width: 500px;
+            font-size: 0.8rem;
+            color: #555;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        .legend-item strong {
+            color: #1e2a47;
+        }
+        .legend-item .badge {
+            display: inline-block;
+            background: #1e2a47;
+            color: #fff;
+            border-radius: 6px;
+            padding: 0.1rem 0.5rem;
+            font-size: 0.7rem;
+            font-weight: 700;
+            font-family: 'Inter', sans-serif;
+        }
+        .legend-item .badge.prime {
+            background: #3a2a4a;
+        }
+
+        /* ===== ПОПАП ДЛЯ ВОПРОСОВ ===== */
+        #popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(6px);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+        #popup.active {
+            display: flex;
+        }
+        .popup-content {
+            background: #fff;
+            max-width: 500px;
+            width: 90%;
+            padding: 2rem;
+            border-radius: 28px;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        }
+        .popup-close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 28px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #999;
+        }
+        .popup-close:hover {
+            color: #ff2e5a;
+        }
+        .popup-title {
+            color: #1e2a3a;
+            margin-bottom: 0.5rem;
+        }
+        .popup-question {
+            font-size: 1.05rem;
+            line-height: 1.6;
+            color: #333;
         }
     </style>
 </head>
@@ -132,37 +209,43 @@
         <button id="btnSolve">Собрать</button>
     </div>
 
-    <!-- ===== КНОПКИ ПОВОРОТА ГРАНЕЙ ===== -->
+    <!-- ===== КНОПКИ ПОВОРОТА ГРАНЕЙ (U, D, L, R, F, B) ===== -->
     <div class="cube-buttons">
         <div class="btn-row">
-            <button class="cube-btn" onclick="window.doMove('up')">⬆ Вверх</button>
-            <button class="cube-btn" onclick="window.doMove('down')">⬇ Вниз</button>
+            <button class="cube-btn" onclick="window.doMove('U')">U</button>
+            <button class="cube-btn" onclick="window.doMove('D')">D</button>
+            <button class="cube-btn" onclick="window.doMove('L')">L</button>
+            <button class="cube-btn" onclick="window.doMove('R')">R</button>
+            <button class="cube-btn" onclick="window.doMove('F')">F</button>
+            <button class="cube-btn" onclick="window.doMove('B')">B</button>
         </div>
         <div class="btn-row">
-            <button class="cube-btn" onclick="window.doMove('left')">⬅ Влево</button>
-            <button class="cube-btn" onclick="window.doMove('right')">➡ Вправо</button>
-        </div>
-        <div class="btn-row">
-            <button class="cube-btn" onclick="window.doMove('toward')">🔽 К себе</button>
-            <button class="cube-btn" onclick="window.doMove('away')">🔼 От себя</button>
-        </div>
-        <!-- Противоположные направления (против часовой) -->
-        <div class="btn-row" style="margin-top: 0.5rem; opacity: 0.7;">
-            <button class="cube-btn prime" onclick="window.doMove('up_rev')">⬆ Вверх (обр)</button>
-            <button class="cube-btn prime" onclick="window.doMove('down_rev')">⬇ Вниз (обр)</button>
-            <button class="cube-btn prime" onclick="window.doMove('left_rev')">⬅ Влево (обр)</button>
-            <button class="cube-btn prime" onclick="window.doMove('right_rev')">➡ Вправо (обр)</button>
-            <button class="cube-btn prime" onclick="window.doMove('toward_rev')">🔽 К себе (обр)</button>
-            <button class="cube-btn prime" onclick="window.doMove('away_rev')">🔼 От себя (обр)</button>
+            <button class="cube-btn prime" onclick="window.doMove(&quot;U'&quot;)">U'</button>
+            <button class="cube-btn prime" onclick="window.doMove(&quot;D'&quot;)">D'</button>
+            <button class="cube-btn prime" onclick="window.doMove(&quot;L'&quot;)">L'</button>
+            <button class="cube-btn prime" onclick="window.doMove(&quot;R'&quot;)">R'</button>
+            <button class="cube-btn prime" onclick="window.doMove(&quot;F'&quot;)">F'</button>
+            <button class="cube-btn prime" onclick="window.doMove(&quot;B'&quot;)">B'</button>
         </div>
     </div>
 
+    <!-- ===== РАСШИФРОВКА ===== -->
+    <div class="legend">
+        <span class="legend-item"><strong>U</strong> = <span class="badge">Up</span> (верх)</span>
+        <span class="legend-item"><strong>D</strong> = <span class="badge">Down</span> (низ)</span>
+        <span class="legend-item"><strong>L</strong> = <span class="badge">Left</span> (лево)</span>
+        <span class="legend-item"><strong>R</strong> = <span class="badge">Right</span> (право)</span>
+        <span class="legend-item"><strong>F</strong> = <span class="badge">Front</span> (перед)</span>
+        <span class="legend-item"><strong>B</strong> = <span class="badge">Back</span> (зад)</span>
+        <span class="legend-item" style="color:#999; font-size:0.7rem;">(со штрихом <span class="badge prime">'</span> — против часовой)</span>
+    </div>
+
     <!-- ===== ПОПАП ДЛЯ ВОПРОСОВ ===== -->
-    <div id="popup" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); backdrop-filter:blur(6px); z-index:9999; align-items:center; justify-content:center;">
-        <div style="background:#fff; max-width:500px; width:90%; padding:2rem; border-radius:28px; position:relative;">
-            <button onclick="document.getElementById('popup').style.display='none'" style="position:absolute; top:15px; right:20px; font-size:28px; background:none; border:none; cursor:pointer; color:#999;">×</button>
-            <h2 id="popupTitle" style="color:#1e2a3a; margin-bottom:0.5rem;">Грань</h2>
-            <p id="popupQuestion" style="font-size:1.05rem; line-height:1.6; color:#333;"></p>
+    <div id="popup">
+        <div class="popup-content">
+            <button class="popup-close" onclick="document.getElementById('popup').classList.remove('active')">×</button>
+            <h2 class="popup-title" id="popupTitle">Грань</h2>
+            <p class="popup-question" id="popupQuestion"></p>
         </div>
     </div>
 
