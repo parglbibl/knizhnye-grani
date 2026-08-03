@@ -11,6 +11,7 @@ window.scrambleMoves = [];
 window.executeMoveSequence = null;
 window.generateScramble = null;
 window.updateCubeGlow = null;
+window.doMove = null; // сюда запишем функцию поворота
 
 const container = document.getElementById('cube-container');
 if (!container) {
@@ -364,37 +365,28 @@ if (!container) {
         window.generateScramble = generateScramble;
         window.updateCubeGlow = updateCubeGlow;
 
-        // ===== КНОПКИ ПОВОРОТА ГРАНЕЙ =====
-        // Находим кнопки после загрузки DOM
-        document.addEventListener('DOMContentLoaded', function() {
-            const btns = document.querySelectorAll('.cube-btn');
-            btns.forEach(btn => {
-                btn.addEventListener('click', function() {
-                    if (window.isSolved) return;
-                    if (window.isScrambling || window.isAnimating || window.isBlocked) return;
+        // ===== ЭКСПОРТИРУЕМ ФУНКЦИЮ ПОВОРОТА В ГЛОБАЛЬНУЮ ОБЛАСТЬ =====
+        window.doMove = function(moveStr) {
+            if (window.isSolved) return;
+            if (window.isScrambling || window.isAnimating || window.isBlocked) return;
+            if (!moveStr) return;
 
-                    const moveStr = this.dataset.move;
-                    if (!moveStr) return;
-
-                    const parsed = parseMove(moveStr);
-                    rotateLayer(parsed.axis, parsed.index, parsed.angle, 150, () => {
-                        if (isCubeSolved()) {
-                            window.isSolved = true;
-                        }
-                        updateCubeGlow();
-                    });
-                });
+            const parsed = parseMove(moveStr);
+            rotateLayer(parsed.axis, parsed.index, parsed.angle, 150, () => {
+                if (isCubeSolved()) {
+                    window.isSolved = true;
+                }
+                updateCubeGlow();
             });
-        });
+        };
 
-        // ===== КНОПКИ «ПЕРЕМЕШАТЬ» И «СОБРАТЬ» (внешние, из HTML) =====
+        // ===== КНОПКИ «ПЕРЕМЕШАТЬ» И «СОБРАТЬ» =====
         document.addEventListener('DOMContentLoaded', function() {
             const btnScramble = document.getElementById('btnScramble');
             const btnSolve = document.getElementById('btnSolve');
 
             if (!btnScramble || !btnSolve) return;
 
-            // Переопределяем кнопки через клонирование (чтобы убрать старые обработчики)
             const newBtnScramble = btnScramble.cloneNode(true);
             const newBtnSolve = btnSolve.cloneNode(true);
             btnScramble.parentNode.replaceChild(newBtnScramble, btnScramble);
