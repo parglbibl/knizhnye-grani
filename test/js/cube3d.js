@@ -12,6 +12,9 @@ window.executeMoveSequence = null;
 window.generateScramble = null;
 window.updateCubeGlow = null;
 window.rotateLayer = null;
+window.camera = null;
+window.allCubies = null;
+window.offset = null;
 window.cubeGroup = null;
 
 const container = document.getElementById('cube-container');
@@ -45,6 +48,7 @@ if (!container) {
         camera.position.set(3.5, 2.5, 4.5);
         camera.lookAt(0, 0, 0);
         scene.add(camera);
+        window.camera = camera;
 
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -101,6 +105,7 @@ if (!container) {
         const sizeCubie = 0.675;
         const radius = 0.08;
         const segments = 4;
+        window.offset = offset;
 
         const matLib = {
             red: createMat('red'), blue: createMat('blue'), yellow: createMat('yellow'),
@@ -117,6 +122,7 @@ if (!container) {
         };
 
         let allCubies = [];
+        window.allCubies = allCubies;
 
         function buildCubies() {
             while (cubeGroup.children.length > 0) {
@@ -481,62 +487,77 @@ if (!container) {
     }
 }
 
-// ===== ГЛАВНАЯ ФУНКЦИЯ ДЛЯ КНОПОК (БЕЗ ЛУЧА, ТОЛЬКО НОРМАЛИ) =====
+// ===== ГЛАВНАЯ ФУНКЦИЯ ДЛЯ КНОПОК (ПО НОРМАЛЯМ ГРАНЕЙ) =====
 window.doMove = function(direction) {
     if (window.isSolved) return;
     if (!direction) return;
     if (window.isAnimating) return;
 
-    // Определяем обратное направление
     let isReverse = direction.endsWith('_rev');
     let dir = isReverse ? direction.replace('_rev', '') : direction;
 
-    // Получаем кватернион кубика
-    const cubeQuat = window.cubeGroup.quaternion.clone();
+    const camera = window.camera;
+    const allCubies = window.allCubies;
+    const offset = window.offset;
+    if (!camera || !allCubies) return;
 
-    // Определяем мировые векторы направлений
-    const worldUp = new THREE.Vector3(0, 1, 0);
-    const worldRight = new THREE.Vector3(1, 0, 0);
-    const worldForward = new THREE.Vector3(0, 0, -1);
+    // 1. Определяем направления камеры (в мировых координатах)
+    const camDir = new THREE.Vector3();
+    camera.getWorldDirection(camDir); // ось Z камеры
+    const camUp = new THREE.Vector3(0, 1, 0).applyQuaternion(camera.quaternion);
+    const camRight = new THREE.Vector3(1, 0, 0).applyQuaternion(camera.quaternion);
 
-    // Преобразуем их в локальные оси кубика
-    const localUp = worldUp.clone().applyQuaternion(cubeQuat.clone().invert());
-    const localRight = worldRight.clone().applyQuaternion(cubeQuat.clone().invert());
-    const localForward = worldForward.clone().applyQuaternion(cubeQuat.clone().invert());
+    // 2. Строим таблицу visibleFaces (в мировых осях)
+    // Мы будем сравнивать нормали граней с векторами камеры
+    const faceNormals = {
+        '+x': new THREE.Vector3(1, 0, 0),
+        '-x': new THREE.Vector3(-1, 0, 0),
+        '+y': new THREE.Vector3(0, 1, 0),
+        '-y': new THREE.Vector3(0, -1, 0),
+        '+z': new THREE.Vector3(0, 0, 1),
+        '-z': new THREE.Vector3(0, 0, -1)
+    };
 
-    // Выбираем нужное направление
-    let targetVec = null;
-    if (dir === 'up') targetVec = localUp;
-    else if (dir === 'down') targetVec = localUp.clone().negate();
-    else if (dir === 'right') targetVec = localRight;
-    else if (dir === 'left') targetVec = localRight.clone().negate();
-    else if (dir === 'toward') targetVec = localForward;
-    else if (dir === 'away') targetVec = localForward.clone().negate();
+    // 3. Находим, какая грань соответствует каждому направлению камеры
+    let visibleFaces = {};
 
-    if (!targetVec) return;
+    // Для каждого направления камеры ищем ближайшую нормаль грани
+    const cameraDirections = {
+        'up': camUp,
+        'down': camUp.clone().negate(),
+        'right': camRight,
+        'left': camRight.clone().negate(),
+        'toward': camDir.clone().negate(), // камера смотрит в сторону -Z, значит "к себе" = -Z
+        'away': camDir // "от себя" = +Z
+    };
 
-    // Округляем до ближайшей оси
-    const ax = Math.round(targetVec.x);
-    const ay = Math.round(targetVec.y);
-    const az = Math.round(targetVec.z);
-
-    let axis = '';
-    let index = 0;
-    if (ax !== 0) {
-        axis = 'x';
-        index = ax;
-    } else if (ay !== 0) {
-        axis = 'y';
-        index = ay;
-    } else if (az !== 0) {
-        axis = 'z';
-        index = az;
-    } else {
-        return;
+    for (let [key, dirVec] of Object.entries(cameraDirections)) {
+        let bestFace = null;
+        let bestDot = -Infinity;
+        for (let [faceName, normal] of Object.entries(faceNormals)) {
+            const dot = dirVec.dot(normal);
+            if (dot > bestDot) {
+                bestDot = dot;
+                bestFace = faceName;
+            }
+        }
+        visibleFaces[key] = bestFace;
     }
 
-    // Игнорируем средние слои
-    if (index === 0) return;
+    // 4. Определяем, какую грань нужно крутить
+    const targetFace = visibleFaces[dir];
+    if (!targetFace) return;
+
+    // 5. Преобразуем название грани в ось и индекс
+    let axis = '';
+    let index = 0;
+    if (targetFace === '+x') { axis = 'x'; index = 1; }
+    else if (targetFace === '-x') { axis = 'x'; index = -1; }
+    else if (targetFace === '+y') { axis = 'y'; index = 1; }
+    else if (targetFace === '-y') { axis = 'y'; index = -1; }
+    else if (targetFace === '+z') { axis = 'z'; index = 1; }
+    else if (targetFace === '-z') { axis = 'z'; index = -1; }
+    else return;
 
     // Поворачиваем слой
     const angle = (isReverse ? -1 : 1) * Math.PI / 2;
