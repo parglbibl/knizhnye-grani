@@ -364,8 +364,8 @@ if (!container) {
         window.generateScramble = generateScramble;
         window.updateCubeGlow = updateCubeGlow;
 
-        // ===== КНОПОЧНОЕ УПРАВЛЕНИЕ =====
-        // Находим кнопки после того, как DOM загрузится
+        // ===== КНОПКИ ПОВОРОТА ГРАНЕЙ =====
+        // Находим кнопки после загрузки DOM
         document.addEventListener('DOMContentLoaded', function() {
             const btns = document.querySelectorAll('.cube-btn');
             btns.forEach(btn => {
@@ -377,13 +377,66 @@ if (!container) {
                     if (!moveStr) return;
 
                     const parsed = parseMove(moveStr);
-                    // Поворачиваем слой с анимацией
                     rotateLayer(parsed.axis, parsed.index, parsed.angle, 150, () => {
                         if (isCubeSolved()) {
                             window.isSolved = true;
                         }
                         updateCubeGlow();
                     });
+                });
+            });
+        });
+
+        // ===== КНОПКИ «ПЕРЕМЕШАТЬ» И «СОБРАТЬ» (внешние, из HTML) =====
+        document.addEventListener('DOMContentLoaded', function() {
+            const btnScramble = document.getElementById('btnScramble');
+            const btnSolve = document.getElementById('btnSolve');
+
+            if (!btnScramble || !btnSolve) return;
+
+            // Переопределяем кнопки через клонирование (чтобы убрать старые обработчики)
+            const newBtnScramble = btnScramble.cloneNode(true);
+            const newBtnSolve = btnSolve.cloneNode(true);
+            btnScramble.parentNode.replaceChild(newBtnScramble, btnScramble);
+            btnSolve.parentNode.replaceChild(newBtnSolve, btnSolve);
+
+            newBtnScramble.addEventListener('click', function() {
+                if (window.isScrambling || window.isAnimating || window.isBlocked) return;
+                window.isBlocked = true;
+                window.isScrambling = true;
+                window.isSolved = false;
+                this.style.display = 'none';
+                newBtnSolve.style.display = 'inline-block';
+
+                const moves = window.generateScramble ? window.generateScramble(23) : ['U', "R'", 'F2', 'L', "D'", 'B'];
+                window.scrambleMoves = moves;
+                const durationPerMove = 5000 / moves.length;
+
+                window.executeMoveSequence(moves, durationPerMove, () => {
+                    window.isScrambling = false;
+                    if (window.updateCubeGlow) window.updateCubeGlow();
+                });
+            });
+
+            newBtnSolve.addEventListener('click', function() {
+                if (window.isScrambling || window.isAnimating || !window.scrambleMoves || window.scrambleMoves.length === 0) return;
+                window.isScrambling = true;
+                window.isSolved = true;
+                this.style.display = 'none';
+                newBtnScramble.style.display = 'inline-block';
+
+                const reverseMoves = window.scrambleMoves.slice().reverse().map(m => {
+                    if (m.endsWith("'")) return m.slice(0, -1);
+                    if (m.endsWith("2")) return m;
+                    return m + "'";
+                });
+                const durationPerMove = 5000 / reverseMoves.length;
+
+                window.executeMoveSequence(reverseMoves, durationPerMove, () => {
+                    window.isScrambling = false;
+                    window.scrambleMoves = [];
+                    if (window.updateCubeGlow) window.updateCubeGlow();
+                    window.isBlocked = false;
                 });
             });
         });
