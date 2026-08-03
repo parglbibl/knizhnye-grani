@@ -422,14 +422,14 @@ if (!container) {
                 return;
             }
 
-            // ===== ОТКЛЮЧАЕМ СРЕДНИЕ СЛОИ =====
+            // ОТКЛЮЧАЕМ СРЕДНИЕ СЛОИ
             if (dragLayer === 0) {
                 controls.enabled = true;
                 isPointerDown = false;
                 return;
             }
 
-            // ===== ЯРКАЯ ПОДСВЕТКА (БЕЛОЕ СВЕЧЕНИЕ) =====
+            // ЯРКАЯ ПОДСВЕТКА
             highlightedCubie = clicked;
             const faceIndex = intersects[0].faceIndex;
             if (faceIndex !== undefined) {
@@ -459,7 +459,7 @@ if (!container) {
 
             const dx = e.clientX - dragStart.x;
             const dy = e.clientY - dragStart.y;
-            const threshold = 10; // очень чувствительно
+            const threshold = 10;
 
             if (!dragStart.moved && Math.abs(dx) < threshold && Math.abs(dy) < threshold) return;
             dragStart.moved = true;
@@ -501,17 +501,17 @@ if (!container) {
                 const dy = e.clientY - dragStart.y;
                 
                 let angle = 0;
-                if (dragStart.axis === 'x') {
-                    angle = dy > 0 ? Math.PI / 2 : -Math.PI / 2;
-                } else if (dragStart.axis === 'y') {
+                // СТРОГОЕ ПРАВИЛО: ВПРАВО = ПО ЧАСОВОЙ, ВЛЕВО = ПРОТИВ ЧАСОВОЙ
+                if (dragStart.axis === 'y') {
+                    // Для оси Y (верх/низ) — движение вправо/влево
                     angle = dx > 0 ? Math.PI / 2 : -Math.PI / 2;
+                } else if (dragStart.axis === 'x') {
+                    // Для оси X (лево/право) — движение вверх/вниз
+                    angle = dy > 0 ? -Math.PI / 2 : Math.PI / 2;
                 } else if (dragStart.axis === 'z') {
-                    angle = dx > 0 ? Math.PI / 2 : -Math.PI / 2;
+                    // Для оси Z (перед/зад) — движение вверх/вниз
+                    angle = dy > 0 ? -Math.PI / 2 : Math.PI / 2;
                 }
-
-                if (dragStart.normalX < 0) angle *= -1;
-                if (dragStart.normalY < 0) angle *= -1;
-                if (dragStart.normalZ < 0) angle *= -1;
 
                 rotateLayer(dragStart.axis, dragStart.layer, angle, 150, () => {
                     controls.enabled = true;
@@ -631,14 +631,14 @@ if (!container) {
                 return;
             }
 
-            // ===== ОТКЛЮЧАЕМ СРЕДНИЕ СЛОИ =====
+            // ОТКЛЮЧАЕМ СРЕДНИЕ СЛОИ
             if (dragLayer === 0) {
                 controls.enabled = true;
                 isPointerDown = false;
                 return;
             }
 
-            // ===== ЯРКАЯ ПОДСВЕТКА (БЕЛОЕ СВЕЧЕНИЕ) =====
+            // ЯРКАЯ ПОДСВЕТКА
             highlightedCubie = clicked;
             const faceIndex = intersects[0].faceIndex;
             if (faceIndex !== undefined) {
@@ -715,17 +715,14 @@ if (!container) {
                 const dy = touch.clientY - dragStart.y;
                 
                 let angle = 0;
-                if (dragStart.axis === 'x') {
-                    angle = dy > 0 ? Math.PI / 2 : -Math.PI / 2;
-                } else if (dragStart.axis === 'y') {
+                // СТРОГОЕ ПРАВИЛО: ВПРАВО = ПО ЧАСОВОЙ, ВЛЕВО = ПРОТИВ ЧАСОВОЙ
+                if (dragStart.axis === 'y') {
                     angle = dx > 0 ? Math.PI / 2 : -Math.PI / 2;
+                } else if (dragStart.axis === 'x') {
+                    angle = dy > 0 ? -Math.PI / 2 : Math.PI / 2;
                 } else if (dragStart.axis === 'z') {
-                    angle = dx > 0 ? Math.PI / 2 : -Math.PI / 2;
+                    angle = dy > 0 ? -Math.PI / 2 : Math.PI / 2;
                 }
-
-                if (dragStart.normalX < 0) angle *= -1;
-                if (dragStart.normalY < 0) angle *= -1;
-                if (dragStart.normalZ < 0) angle *= -1;
 
                 rotateLayer(dragStart.axis, dragStart.layer, angle, 150, () => {
                     controls.enabled = true;
