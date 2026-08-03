@@ -82,8 +82,8 @@ if (!container) {
             orange: loadTexture(texturePaths.orange)
         };
         const createMat = (color) => new THREE.MeshStandardMaterial({ map: textures[color], ...matConfig });
-        const createGlowMat = (color, emissiveHex) => new THREE.MeshStandardMaterial({ 
-            map: textures[color], roughness: 0.3, metalness: 0.2, emissive: emissiveHex, emissiveIntensity: 0.25 
+        const createGlowMat = (color, emissiveHex, intensity) => new THREE.MeshStandardMaterial({ 
+            map: textures[color], roughness: 0.3, metalness: 0.2, emissive: emissiveHex, emissiveIntensity: intensity 
         });
 
         const offset = 0.685;  
@@ -95,10 +95,14 @@ if (!container) {
             red: createMat('red'), blue: createMat('blue'), yellow: createMat('yellow'),
             green: createMat('green'), white: createMat('white'), orange: createMat('orange')
         };
+        
         const glowLib = {
-            red: createGlowMat('red', 0xc41e3a), blue: createGlowMat('blue', 0x0051ba),
-            yellow: createGlowMat('yellow', 0xffd700), green: createGlowMat('green', 0x009e60),
-            white: createGlowMat('white', 0xffffff), orange: createGlowMat('orange', 0xff8c00)
+            red: createGlowMat('red', 0xc41e3a, 0.12),
+            blue: createGlowMat('blue', 0x0051ba, 0.12),
+            yellow: createGlowMat('yellow', 0xffd700, 0.12),
+            green: createGlowMat('green', 0x009e60, 0.12),
+            white: createGlowMat('white', 0xffffff, 0.04),
+            orange: createGlowMat('orange', 0xff8c00, 0.12)
         };
 
         let allCubies = [];
@@ -155,20 +159,20 @@ if (!container) {
         buildCubies();
 
         // ============================
-        // ========= ОСВЕЩЕНИЕ, ПРИВЯЗАННОЕ К КАМЕРЕ =========
+        // ========= ЭТАЛОННЫЙ ПРИГЛУШЁННЫЙ СВЕТ =========
         // ============================
         const ambientLight = new THREE.AmbientLight(0x606080, 0.6);
         scene.add(ambientLight);
 
-        const mainLight = new THREE.DirectionalLight(0xffffff, 0.9);
+        const mainLight = new THREE.DirectionalLight(0xffffff, 0.45);
         mainLight.position.set(2, 4, 3);
         camera.add(mainLight);
 
-        const fillLight = new THREE.DirectionalLight(0xffffff, 0.5);
+        const fillLight = new THREE.DirectionalLight(0xffffff, 0.3);
         fillLight.position.set(-2, 1, 2);
         camera.add(fillLight);
 
-        const backLight = new THREE.DirectionalLight(0xffffff, 0.2);
+        const backLight = new THREE.DirectionalLight(0xffffff, 0.1);
         backLight.position.set(0, 1, -3);
         camera.add(backLight);
 
