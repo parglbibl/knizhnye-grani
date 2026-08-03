@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 
-// ===== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ДЛЯ ДОСТУПА ИЗ КНОПОК =====
+// ===== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ =====
 window.isSolved = true;
 window.isScrambling = false;
 window.isAnimating = false;
@@ -357,12 +357,11 @@ if (!container) {
             next();
         }
 
-        // Экспортируем функции в глобальную область для кнопок
         window.executeMoveSequence = executeMoveSequence;
         window.generateScramble = generateScramble;
         window.updateCubeGlow = updateCubeGlow;
 
-        // ===== РУЧНОЕ ВРАЩЕНИЕ (СВАЙП) — ОТДЕЛЬНО ДЛЯ МЫШИ И ПАЛЬЦЕВ =====
+        // ===== ПЛАВНОЕ РУЧНОЕ ВРАЩЕНИЕ С ДОВОРОТОМ =====
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
 
@@ -378,11 +377,11 @@ if (!container) {
         let dragLayer = null;
         let isDragging = false;
         let isPointerDown = false;
+        let isSnapping = false; // для предотвращения повторного доворота
 
-        // ===== ДЛЯ МЫШИ (ПК) =====
+        // ===== ДЛЯ МЫШИ =====
         renderer.domElement.addEventListener('mousedown', (e) => {
-            // СВАЙП РАБОТАЕТ ТОЛЬКО НА РАЗОБРАННОМ КУБИКЕ
-            if (window.isSolved) return;
+            if (window.isSolved || isSnapping) return;
             if (isScrambling || isAnimating || isBlocked) return;
             if (isPointerDown) return;
             isPointerDown = true;
@@ -426,14 +425,15 @@ if (!container) {
                 normalX: nx,
                 normalY: ny,
                 normalZ: nz,
-                moved: false
+                moved: false,
+                totalAngle: 0
             };
             isDragging = true;
         });
 
         renderer.domElement.addEventListener('mousemove', (e) => {
-            if (!isDragging || !dragStart) return;
-            if (window.isSolved) return; // дополнительная защита
+            if (!isDragging || !dragStart || isSnapping) return;
+            if (window.isSolved) return;
 
             const dx = e.clientX - dragStart.x;
             const dy = e.clientY - dragStart.y;
@@ -460,6 +460,8 @@ if (!container) {
             if (dragStart.normalY < 0) angle *= -1;
             if (dragStart.normalZ < 0) angle *= -1;
 
+            dragStart.totalAngle += angle;
+
             const cubies = getCubiesInLayer(dragStart.axis, dragStart.layer);
             const quat = new THREE.Quaternion().setFromAxisAngle(axisVec, angle);
             cubies.forEach(cubie => {
@@ -478,30 +480,76 @@ if (!container) {
             isPointerDown = false;
 
             if (dragStart.moved) {
-                const cubies = getCubiesInLayer(dragStart.axis, dragStart.layer);
-                cubies.forEach(cubie => {
-                    const pos = cubie.position;
-                    pos.x = Math.round(pos.x / offset) * offset;
-                    pos.y = Math.round(pos.y / offset) * offset;
-                    pos.z = Math.round(pos.z / offset) * offset;
-                });
-                cubies.forEach(cubie => {
-                    const q = cubie.quaternion;
-                    q.normalize();
-                    const euler = new THREE.Euler().setFromQuaternion(q);
-                    euler.x = Math.round(euler.x / (Math.PI / 2)) * (Math.PI / 2);
-                    euler.y = Math.round(euler.y / (Math.PI / 2)) * (Math.PI / 2);
-                    euler.z = Math.round(euler.z / (Math.PI / 2)) * (Math.PI / 2);
-                    cubie.quaternion.setFromEuler(euler);
-                });
-                // После движения проверяем, не собрался ли кубик
-                if (isCubeSolved()) {
-                    window.isSolved = true;
+                // ПЛАВНЫЙ ДОВОРОТ ДО 90°
+                const targetAngle = Math.round(dragStart.totalAngle / (Math.PI / 2)) * (Math.PI / 2);
+                const remainingAngle = targetAngle - dragStart.totalAngle;
+
+                if (Math.abs(remainingAngle) > 0.001) {
+                    isSnapping = true;
+                    const cubies = getCubiesInLayer(dragStart.axis, dragStart.layer);
+                    const axisVec = new THREE.Vector3(
+                        dragStart.axis === 'x' ? 1 : 0,
+                        dragStart.axis === 'y' ? 1 : 0,
+                        dragStart.axis === 'z' ? 1 : 0
+                    );
+                    if (dragStart.normalX < 0 || dragStart.normalY < 0 || dragStart.normalZ < 0) {
+                        // направление доворота корректируется автоматически
+                    }
+
+                    const startPositions = cubies.map(c => c.position.clone());
+                    const startQuats = cubies.map(c => c.quaternion.clone());
+                    const quat = new THREE.Quaternion().setFromAxisAngle(axisVec, remainingAngle);
+                    const endPositions = startPositions.map(p => p.clone().applyQuaternion(quat));
+                    const endQuats = startQuats.map(q => q.clone().multiply(quat));
+
+                    const duration = 150;
+                    const startTime = Date.now();
+
+                    function animateSnap() {
+                        const elapsed = Date.now() - startTime;
+                        const t = Math.min(elapsed / duration, 1);
+                        const ease = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+
+                        cubies.forEach((cubie, i) => {
+                            cubie.position.lerpVectors(startPositions[i], endPositions[i], ease);
+                            cubie.quaternion.slerpQuaternions(startQuats[i], endQuats[i], ease);
+                        });
+
+                        if (t < 1) {
+                            requestAnimationFrame(animateSnap);
+                        } else {
+                            cubies.forEach((cubie, i) => {
+                                cubie.position.copy(endPositions[i]);
+                                cubie.quaternion.copy(endQuats[i]);
+                                // Обновляем userData, чтобы скрамблер не сломался
+                                cubie.userData.gridX = Math.round(cubie.position.x / offset);
+                                cubie.userData.gridY = Math.round(cubie.position.y / offset);
+                                cubie.userData.gridZ = Math.round(cubie.position.z / offset);
+                            });
+                            isSnapping = false;
+                            if (isCubeSolved()) {
+                                window.isSolved = true;
+                            }
+                            updateCubeGlow();
+                        }
+                    }
+                    animateSnap();
+                } else {
+                    // Если угол уже кратен 90, просто обновляем userData
+                    const cubies = getCubiesInLayer(dragStart.axis, dragStart.layer);
+                    cubies.forEach(cubie => {
+                        cubie.userData.gridX = Math.round(cubie.position.x / offset);
+                        cubie.userData.gridY = Math.round(cubie.position.y / offset);
+                        cubie.userData.gridZ = Math.round(cubie.position.z / offset);
+                    });
+                    if (isCubeSolved()) {
+                        window.isSolved = true;
+                    }
+                    updateCubeGlow();
                 }
-                updateCubeGlow();
             }
 
-            // ===== КЛИК БЕЗ ПЕРЕМЕЩЕНИЯ — ТОЛЬКО НА СОБРАННОМ КУБИКЕ =====
+            // ===== КЛИК БЕЗ ПЕРЕМЕЩЕНИЯ — ТОЛЬКО НА СОБРАННОМ =====
             if (!dragStart.moved && window.isSolved) {
                 const rect = renderer.domElement.getBoundingClientRect();
                 mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
@@ -569,10 +617,9 @@ if (!container) {
             dragStart = null;
         });
 
-        // ===== ДЛЯ ПАЛЬЦЕВ (ТЕЛЕФОН) =====
+        // ===== ДЛЯ ТЕЛЕФОНА =====
         renderer.domElement.addEventListener('touchstart', (e) => {
-            // СВАЙП РАБОТАЕТ ТОЛЬКО НА РАЗОБРАННОМ КУБИКЕ
-            if (window.isSolved) return;
+            if (window.isSolved || isSnapping) return;
             if (isScrambling || isAnimating || isBlocked) return;
             if (isPointerDown) return;
             isPointerDown = true;
@@ -618,14 +665,15 @@ if (!container) {
                 normalX: nx,
                 normalY: ny,
                 normalZ: nz,
-                moved: false
+                moved: false,
+                totalAngle: 0
             };
             isDragging = true;
         });
 
         renderer.domElement.addEventListener('touchmove', (e) => {
-            if (!isDragging || !dragStart) return;
-            if (window.isSolved) return; // дополнительная защита
+            if (!isDragging || !dragStart || isSnapping) return;
+            if (window.isSolved) return;
             e.preventDefault();
 
             const touch = e.changedTouches[0];
@@ -654,6 +702,8 @@ if (!container) {
             if (dragStart.normalY < 0) angle *= -1;
             if (dragStart.normalZ < 0) angle *= -1;
 
+            dragStart.totalAngle += angle;
+
             const cubies = getCubiesInLayer(dragStart.axis, dragStart.layer);
             const quat = new THREE.Quaternion().setFromAxisAngle(axisVec, angle);
             cubies.forEach(cubie => {
@@ -675,30 +725,71 @@ if (!container) {
             const touch = e.changedTouches[0];
 
             if (dragStart.moved) {
-                const cubies = getCubiesInLayer(dragStart.axis, dragStart.layer);
-                cubies.forEach(cubie => {
-                    const pos = cubie.position;
-                    pos.x = Math.round(pos.x / offset) * offset;
-                    pos.y = Math.round(pos.y / offset) * offset;
-                    pos.z = Math.round(pos.z / offset) * offset;
-                });
-                cubies.forEach(cubie => {
-                    const q = cubie.quaternion;
-                    q.normalize();
-                    const euler = new THREE.Euler().setFromQuaternion(q);
-                    euler.x = Math.round(euler.x / (Math.PI / 2)) * (Math.PI / 2);
-                    euler.y = Math.round(euler.y / (Math.PI / 2)) * (Math.PI / 2);
-                    euler.z = Math.round(euler.z / (Math.PI / 2)) * (Math.PI / 2);
-                    cubie.quaternion.setFromEuler(euler);
-                });
-                // После движения проверяем, не собрался ли кубик
-                if (isCubeSolved()) {
-                    window.isSolved = true;
+                // ПЛАВНЫЙ ДОВОРОТ ДО 90°
+                const targetAngle = Math.round(dragStart.totalAngle / (Math.PI / 2)) * (Math.PI / 2);
+                const remainingAngle = targetAngle - dragStart.totalAngle;
+
+                if (Math.abs(remainingAngle) > 0.001) {
+                    isSnapping = true;
+                    const cubies = getCubiesInLayer(dragStart.axis, dragStart.layer);
+                    const axisVec = new THREE.Vector3(
+                        dragStart.axis === 'x' ? 1 : 0,
+                        dragStart.axis === 'y' ? 1 : 0,
+                        dragStart.axis === 'z' ? 1 : 0
+                    );
+
+                    const startPositions = cubies.map(c => c.position.clone());
+                    const startQuats = cubies.map(c => c.quaternion.clone());
+                    const quat = new THREE.Quaternion().setFromAxisAngle(axisVec, remainingAngle);
+                    const endPositions = startPositions.map(p => p.clone().applyQuaternion(quat));
+                    const endQuats = startQuats.map(q => q.clone().multiply(quat));
+
+                    const duration = 150;
+                    const startTime = Date.now();
+
+                    function animateSnap() {
+                        const elapsed = Date.now() - startTime;
+                        const t = Math.min(elapsed / duration, 1);
+                        const ease = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+
+                        cubies.forEach((cubie, i) => {
+                            cubie.position.lerpVectors(startPositions[i], endPositions[i], ease);
+                            cubie.quaternion.slerpQuaternions(startQuats[i], endQuats[i], ease);
+                        });
+
+                        if (t < 1) {
+                            requestAnimationFrame(animateSnap);
+                        } else {
+                            cubies.forEach((cubie, i) => {
+                                cubie.position.copy(endPositions[i]);
+                                cubie.quaternion.copy(endQuats[i]);
+                                cubie.userData.gridX = Math.round(cubie.position.x / offset);
+                                cubie.userData.gridY = Math.round(cubie.position.y / offset);
+                                cubie.userData.gridZ = Math.round(cubie.position.z / offset);
+                            });
+                            isSnapping = false;
+                            if (isCubeSolved()) {
+                                window.isSolved = true;
+                            }
+                            updateCubeGlow();
+                        }
+                    }
+                    animateSnap();
+                } else {
+                    const cubies = getCubiesInLayer(dragStart.axis, dragStart.layer);
+                    cubies.forEach(cubie => {
+                        cubie.userData.gridX = Math.round(cubie.position.x / offset);
+                        cubie.userData.gridY = Math.round(cubie.position.y / offset);
+                        cubie.userData.gridZ = Math.round(cubie.position.z / offset);
+                    });
+                    if (isCubeSolved()) {
+                        window.isSolved = true;
+                    }
+                    updateCubeGlow();
                 }
-                updateCubeGlow();
             }
 
-            // ===== КЛИК БЕЗ ПЕРЕМЕЩЕНИЯ — ТОЛЬКО НА СОБРАННОМ КУБИКЕ =====
+            // ===== КЛИК БЕЗ ПЕРЕМЕЩЕНИЯ — ТОЛЬКО НА СОБРАННОМ =====
             if (!dragStart.moved && window.isSolved) {
                 const rect = renderer.domElement.getBoundingClientRect();
                 mouse.x = ((touch.clientX - rect.left) / rect.width) * 2 - 1;
@@ -766,7 +857,7 @@ if (!container) {
             dragStart = null;
         });
 
-        // ===== ЗАКРЫТИЕ ПОПАПА ПО КЛИКУ ВНЕ =====
+        // ===== ЗАКРЫТИЕ ПОПАПА =====
         document.getElementById('popup').addEventListener('click', (e) => {
             if (e.target === e.currentTarget) {
                 e.currentTarget.style.display = 'none';
@@ -824,25 +915,23 @@ if (!container) {
     }
 }
 
-// ===== КНОПКИ (ПЕРЕОПРЕДЕЛЕНИЕ ВНЕ INITCUBE) =====
+// ===== КНОПКИ =====
 document.addEventListener('DOMContentLoaded', function() {
     const btnScramble = document.getElementById('btnScramble');
     const btnSolve = document.getElementById('btnSolve');
 
     if (!btnScramble || !btnSolve) return;
 
-    // Убираем старые обработчики (если есть) через клонирование
     const newBtnScramble = btnScramble.cloneNode(true);
     const newBtnSolve = btnSolve.cloneNode(true);
     btnScramble.parentNode.replaceChild(newBtnScramble, btnScramble);
     btnSolve.parentNode.replaceChild(newBtnSolve, btnSolve);
 
-    // Вешаем новые
     newBtnScramble.addEventListener('click', function() {
         if (window.isScrambling || window.isAnimating || window.isBlocked) return;
         window.isBlocked = true;
         window.isScrambling = true;
-        window.isSolved = false; // <--- ГЛАВНОЕ: разрешаем свайп
+        window.isSolved = false;
         this.style.display = 'none';
         newBtnSolve.style.display = 'inline-block';
 
@@ -859,7 +948,7 @@ document.addEventListener('DOMContentLoaded', function() {
     newBtnSolve.addEventListener('click', function() {
         if (window.isScrambling || window.isAnimating || !window.scrambleMoves || window.scrambleMoves.length === 0) return;
         window.isScrambling = true;
-        window.isSolved = true; // <--- ГЛАВНОЕ: запрещаем свайп
+        window.isSolved = true;
         this.style.display = 'none';
         newBtnScramble.style.display = 'inline-block';
 
