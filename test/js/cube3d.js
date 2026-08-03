@@ -382,6 +382,40 @@ if (!container) {
         let isPointerDown = false;
         let highlightedCubie = null;
 
+        // ===== ВСПОМОГАТЕЛЬНАЯ ФУНКЦИЯ ДЛЯ 3D-ПРОЕКЦИИ =====
+        function get3DDirection(event) {
+            const rect = renderer.domElement.getBoundingClientRect();
+            // Проецируем начальную точку на плоскость, перпендикулярную камере
+            const startNDC = new THREE.Vector2(
+                ((dragStart.x - rect.left) / rect.width) * 2 - 1,
+                -((dragStart.y - rect.top) / rect.height) * 2 + 1
+            );
+            const endNDC = new THREE.Vector2(
+                ((event.clientX - rect.left) / rect.width) * 2 - 1,
+                -((event.clientY - rect.top) / rect.height) * 2 + 1
+            );
+
+            // Создаём луч из камеры через эти точки
+            const startRay = new THREE.Raycaster();
+            startRay.setFromCamera(startNDC, camera);
+            const endRay = new THREE.Raycaster();
+            endRay.setFromCamera(endNDC, camera);
+
+            // Получаем точки на плоскости, проходящей через центр кубика и перпендикулярной камере
+            const planeNormal = new THREE.Vector3(0, 0, 1).applyQuaternion(camera.quaternion);
+            const plane = new THREE.Plane().setFromNormalAndCoplanarPoint(planeNormal, new THREE.Vector3(0, 0, 0));
+
+            const startPoint = new THREE.Vector3();
+            const endPoint = new THREE.Vector3();
+            startRay.ray.intersectPlane(plane, startPoint);
+            endRay.ray.intersectPlane(plane, endPoint);
+
+            if (!startPoint || !endPoint) return null;
+
+            // Возвращаем вектор движения в 3D-пространстве
+            return endPoint.clone().sub(startPoint).normalize();
+        }
+
         // ===== ДЛЯ МЫШИ =====
         renderer.domElement.addEventListener('mousedown', (e) => {
             if (window.isSolved) return;
@@ -445,9 +479,6 @@ if (!container) {
                 y: e.clientY,
                 axis: dragAxis,
                 layer: dragLayer,
-                normalX: nx,
-                normalY: ny,
-                normalZ: nz,
                 moved: false
             };
             isDragging = true;
@@ -457,9 +488,9 @@ if (!container) {
             if (!isDragging || !dragStart) return;
             if (window.isSolved) return;
 
+            const threshold = 10;
             const dx = e.clientX - dragStart.x;
             const dy = e.clientY - dragStart.y;
-            const threshold = 10;
 
             if (!dragStart.moved && Math.abs(dx) < threshold && Math.abs(dy) < threshold) return;
             dragStart.moved = true;
@@ -497,22 +528,48 @@ if (!container) {
             }
 
             if (dragStart.moved) {
-                const dx = e.clientX - dragStart.x;
-                const dy = e.clientY - dragStart.y;
-                
-                let angle = 0;
-                // СТРОГОЕ ПРАВИЛО: ВПРАВО = ПО ЧАСОВОЙ, ВЛЕВО = ПРОТИВ ЧАСОВОЙ
-                if (dragStart.axis === 'y') {
-                    // Для оси Y (верх/низ) — движение вправо/влево
-                    angle = dx > 0 ? Math.PI / 2 : -Math.PI / 2;
-                } else if (dragStart.axis === 'x') {
-                    // Для оси X (лево/право) — движение вверх/вниз
-                    angle = dy > 0 ? -Math.PI / 2 : Math.PI / 2;
-                } else if (dragStart.axis === 'z') {
-                    // Для оси Z (перед/зад) — движение вверх/вниз
-                    angle = dy > 0 ? -Math.PI / 2 : Math.PI / 2;
+                // ===== ИСПОЛЬЗУЕМ 3D-НАПРАВЛЕНИЕ =====
+                const direction = get3DDirection(e);
+                if (!direction) {
+                    controls.enabled = true;
+                    dragStart = null;
+                    return;
                 }
 
+                // Определяем ось и направление по 3D-вектору
+                let angle = 0;
+                // Проецируем направление на оси кубика (в локальных координатах)
+                const localDir = direction.clone().applyQuaternion(cubeGroup.quaternion.clone().invert());
+                
+                // Выбираем ось, которая ближе всего к направлению движения
+                const axes = [
+                    { axis: 'x', vector: new THREE.Vector3(1, 0, 0) },
+                    { axis: 'y', vector: new THREE.Vector3(0, 1, 0) },
+                    { axis: 'z', vector: new THREE.Vector3(0, 0, 1) }
+                ];
+
+                let bestAxis = axes[0];
+                let bestDot = Math.abs(localDir.dot(axes[0].vector));
+                for (let i = 1; i < axes.length; i++) {
+                    const dot = Math.abs(localDir.dot(axes[i].vector));
+                    if (dot > bestDot) {
+                        bestDot = dot;
+                        bestAxis = axes[i];
+                    }
+                }
+
+                // Проверяем, что движение было вдоль выбранной оси
+                if (bestDot < 0.3) {
+                    controls.enabled = true;
+                    dragStart = null;
+                    return;
+                }
+
+                // Определяем знак угла (по часовой/против)
+                const sign = Math.sign(localDir.dot(bestAxis.vector));
+                angle = sign * Math.PI / 2;
+
+                // Применяем поворот
                 rotateLayer(dragStart.axis, dragStart.layer, angle, 150, () => {
                     controls.enabled = true;
                     updateCubeGlow();
@@ -654,9 +711,6 @@ if (!container) {
                 y: touch.clientY,
                 axis: dragAxis,
                 layer: dragLayer,
-                normalX: nx,
-                normalY: ny,
-                normalZ: nz,
                 moved: false
             };
             isDragging = true;
@@ -667,10 +721,10 @@ if (!container) {
             if (window.isSolved) return;
             e.preventDefault();
 
+            const threshold = 10;
             const touch = e.changedTouches[0];
             const dx = touch.clientX - dragStart.x;
             const dy = touch.clientY - dragStart.y;
-            const threshold = 10;
 
             if (!dragStart.moved && Math.abs(dx) < threshold && Math.abs(dy) < threshold) return;
             dragStart.moved = true;
@@ -711,18 +765,42 @@ if (!container) {
             }
 
             if (dragStart.moved) {
-                const dx = touch.clientX - dragStart.x;
-                const dy = touch.clientY - dragStart.y;
-                
-                let angle = 0;
-                // СТРОГОЕ ПРАВИЛО: ВПРАВО = ПО ЧАСОВОЙ, ВЛЕВО = ПРОТИВ ЧАСОВОЙ
-                if (dragStart.axis === 'y') {
-                    angle = dx > 0 ? Math.PI / 2 : -Math.PI / 2;
-                } else if (dragStart.axis === 'x') {
-                    angle = dy > 0 ? -Math.PI / 2 : Math.PI / 2;
-                } else if (dragStart.axis === 'z') {
-                    angle = dy > 0 ? -Math.PI / 2 : Math.PI / 2;
+                // ===== ИСПОЛЬЗУЕМ 3D-НАПРАВЛЕНИЕ =====
+                const direction = get3DDirection(touch);
+                if (!direction) {
+                    controls.enabled = true;
+                    dragStart = null;
+                    return;
                 }
+
+                // Определяем ось и направление по 3D-вектору
+                let angle = 0;
+                const localDir = direction.clone().applyQuaternion(cubeGroup.quaternion.clone().invert());
+                
+                const axes = [
+                    { axis: 'x', vector: new THREE.Vector3(1, 0, 0) },
+                    { axis: 'y', vector: new THREE.Vector3(0, 1, 0) },
+                    { axis: 'z', vector: new THREE.Vector3(0, 0, 1) }
+                ];
+
+                let bestAxis = axes[0];
+                let bestDot = Math.abs(localDir.dot(axes[0].vector));
+                for (let i = 1; i < axes.length; i++) {
+                    const dot = Math.abs(localDir.dot(axes[i].vector));
+                    if (dot > bestDot) {
+                        bestDot = dot;
+                        bestAxis = axes[i];
+                    }
+                }
+
+                if (bestDot < 0.3) {
+                    controls.enabled = true;
+                    dragStart = null;
+                    return;
+                }
+
+                const sign = Math.sign(localDir.dot(bestAxis.vector));
+                angle = sign * Math.PI / 2;
 
                 rotateLayer(dragStart.axis, dragStart.layer, angle, 150, () => {
                     controls.enabled = true;
