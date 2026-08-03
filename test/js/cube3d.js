@@ -7,7 +7,7 @@ window.isSolved = true;
 window.isScrambling = false;
 window.isAnimating = false;
 window.isBlocked = false;
-window.moveHistory = []; // <--- ИСТОРИЯ ВСЕХ ХОДОВ
+window.moveHistory = [];
 window.executeMoveSequence = null;
 window.generateScramble = null;
 window.updateCubeGlow = null;
@@ -402,18 +402,18 @@ if (!container) {
                 // Записываем скрамбл в историю
                 moves.forEach(m => window.moveHistory.push(m));
 
-                const durationPerMove = 5000 / moves.length;
-
+                // === ПЛАВНЫЙ СКРАМБЛ: 150 мс на ход + пауза 10 мс ===
+                const durationPerMove = 150;
                 window.executeMoveSequence(moves, durationPerMove, () => {
                     window.isScrambling = false;
-                    window.isBlocked = false; // <--- ВАЖНО: разблокируем после скрамбла
+                    window.isBlocked = false;
                     if (window.updateCubeGlow) window.updateCubeGlow();
                 });
             });
 
             newBtnSolve.addEventListener('click', function() {
                 if (window.isScrambling || window.isAnimating || window.moveHistory.length === 0) return;
-                if (window.isBlocked) return; // защита от двойного нажатия
+                if (window.isBlocked) return;
                 
                 window.isBlocked = true;
                 window.isScrambling = true;
@@ -428,12 +428,12 @@ if (!container) {
                     return m + "'";
                 });
                 
-                const durationPerMove = 5000 / reverseMoves.length;
-
+                // === ПЛАВНАЯ СБОРКА: 150 мс на ход + пауза 10 мс ===
+                const durationPerMove = 150;
                 window.executeMoveSequence(reverseMoves, durationPerMove, () => {
                     window.isScrambling = false;
-                    window.moveHistory = []; // очищаем историю после успешной сборки
-                    window.isBlocked = false; // разблокируем
+                    window.moveHistory = [];
+                    window.isBlocked = false;
                     if (window.updateCubeGlow) window.updateCubeGlow();
                 });
             });
