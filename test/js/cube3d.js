@@ -486,6 +486,7 @@ if (!container) {
 }
 
 // ===== ГЛАВНАЯ ФУНКЦИЯ ДЛЯ КНОПОК (С RAYCASTER) =====
+// ОБЯЗАТЕЛЬНО ДОЛЖНА БЫТЬ СНАРУЖИ initCube, ЧТОБЫ БЫТЬ ГЛОБАЛЬНОЙ
 window.doMove = function(direction) {
     if (window.isSolved) return;
     if (!direction) return;
