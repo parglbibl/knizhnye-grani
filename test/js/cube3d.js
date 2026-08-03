@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 
 // ===== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ =====
@@ -54,6 +55,15 @@ if (!container) {
         renderer.setSize(size, size);
         renderer.setClearColor(0x000000, 0);
         container.appendChild(renderer.domElement);
+
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.1;
+        controls.enableZoom = true;
+        controls.rotateSpeed = 0.5;
+        controls.target.set(0, 0, 0);
+        controls.minDistance = 3;
+        controls.maxDistance = 8;
 
         const cubeGroup = new THREE.Group();
         scene.add(cubeGroup);
@@ -429,92 +439,6 @@ if (!container) {
             });
         });
 
-        // ===== ПЛАВНЫЙ ПЕРЕВОРОТ НА 180° (вместо OrbitControls) =====
-        let dragStartX = 0, dragStartY = 0;
-        let isDragging = false;
-        let totalAngleX = 0, totalAngleY = 0;
-
-        renderer.domElement.addEventListener('pointerdown', (e) => {
-            // Если кликнули на грань — не переворачиваем сцену
-            const rect = renderer.domElement.getBoundingClientRect();
-            const mouse = new THREE.Vector2(
-                ((e.clientX - rect.left) / rect.width) * 2 - 1,
-                -((e.clientY - rect.top) / rect.height) * 2 + 1
-            );
-            const raycaster = new THREE.Raycaster();
-            raycaster.setFromCamera(mouse, window.camera);
-            const intersects = raycaster.intersectObjects(window.allCubies);
-
-            if (intersects.length > 0 || window.isAnimating || window.isScrambling) return;
-
-            dragStartX = e.clientX;
-            dragStartY = e.clientY;
-            isDragging = true;
-        });
-
-        renderer.domElement.addEventListener('pointermove', (e) => {
-            if (!isDragging || window.isAnimating || window.isScrambling) return;
-
-            const dx = e.clientX - dragStartX;
-            const dy = e.clientY - dragStartY;
-            const sensitivity = 0.005;
-
-            // Поворачиваем кубик плавно
-            const rotX = dy * sensitivity;
-            const rotY = dx * sensitivity;
-
-            const quatX = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), rotX);
-            const quatY = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), rotY);
-
-            window.cubeGroup.quaternion.multiply(quatX);
-            window.cubeGroup.quaternion.multiply(quatY);
-            window.cubeGroup.updateMatrixWorld(true);
-
-            totalAngleX += rotX;
-            totalAngleY += rotY;
-        });
-
-        renderer.domElement.addEventListener('pointerup', (e) => {
-            if (!isDragging) return;
-            isDragging = false;
-
-            // ДОВОРОТ ДО БЛИЖАЙШЕГО 180°
-            const targetX = Math.round(totalAngleX / Math.PI) * Math.PI;
-            const targetY = Math.round(totalAngleY / Math.PI) * Math.PI;
-            const remainingX = targetX - totalAngleX;
-            const remainingY = targetY - totalAngleY;
-
-            if (Math.abs(remainingX) < 0.01 && Math.abs(remainingY) < 0.01) return;
-
-            const duration = 300;
-            const startTime = Date.now();
-            const startQuat = window.cubeGroup.quaternion.clone();
-
-            const quatX = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), remainingX);
-            const quatY = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), remainingY);
-            const endQuat = startQuat.clone().multiply(quatX).multiply(quatY);
-
-            function animateSnap() {
-                const elapsed = Date.now() - startTime;
-                const t = Math.min(elapsed / duration, 1);
-                const ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-
-                window.cubeGroup.quaternion.slerpQuaternions(startQuat, endQuat, ease);
-                window.cubeGroup.updateMatrixWorld(true);
-
-                if (t < 1) {
-                    requestAnimationFrame(animateSnap);
-                } else {
-                    window.cubeGroup.quaternion.copy(endQuat);
-                    window.cubeGroup.updateMatrixWorld(true);
-                    totalAngleX = 0;
-                    totalAngleY = 0;
-                    if (window.updateCubeGlow) window.updateCubeGlow();
-                }
-            }
-            animateSnap();
-        });
-
         // ===== ЗАКРЫТИЕ ПОПАПА =====
         document.getElementById('popup').addEventListener('click', (e) => {
             if (e.target === e.currentTarget) {
@@ -558,6 +482,7 @@ if (!container) {
         // ===== ЦИКЛ РЕНДЕРА =====
         function render() {
             requestAnimationFrame(render);
+            controls.update();
             renderer.render(scene, camera);
         }
         render();
