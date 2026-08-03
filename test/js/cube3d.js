@@ -510,7 +510,6 @@ if (!container) {
                     function animateSnap() {
                         const elapsed = Date.now() - startTime;
                         const t = Math.min(elapsed / duration, 1);
-                        // Эластичная функция (чуть перелёт и возврат)
                         const ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 
                         cubies.forEach((cubie, i) => {
@@ -524,6 +523,9 @@ if (!container) {
                             cubies.forEach((cubie, i) => {
                                 cubie.position.copy(endPositions[i]);
                                 cubie.quaternion.copy(endQuats[i]);
+                                
+                                // === КЛЮЧЕВОЕ ИСПРАВЛЕНИЕ ===
+                                // Переставляем userData.gridX/Y/Z в точном соответствии с новой позицией
                                 cubie.userData.gridX = Math.round(cubie.position.x / offset);
                                 cubie.userData.gridY = Math.round(cubie.position.y / offset);
                                 cubie.userData.gridZ = Math.round(cubie.position.z / offset);
@@ -540,6 +542,7 @@ if (!container) {
                 } else {
                     const cubies = getCubiesInLayer(dragStart.axis, dragStart.layer);
                     cubies.forEach(cubie => {
+                        // === КЛЮЧЕВОЕ ИСПРАВЛЕНИЕ ===
                         cubie.userData.gridX = Math.round(cubie.position.x / offset);
                         cubie.userData.gridY = Math.round(cubie.position.y / offset);
                         cubie.userData.gridZ = Math.round(cubie.position.z / offset);
@@ -773,6 +776,8 @@ if (!container) {
                             cubies.forEach((cubie, i) => {
                                 cubie.position.copy(endPositions[i]);
                                 cubie.quaternion.copy(endQuats[i]);
+                                
+                                // === КЛЮЧЕВОЕ ИСПРАВЛЕНИЕ ===
                                 cubie.userData.gridX = Math.round(cubie.position.x / offset);
                                 cubie.userData.gridY = Math.round(cubie.position.y / offset);
                                 cubie.userData.gridZ = Math.round(cubie.position.z / offset);
@@ -789,6 +794,7 @@ if (!container) {
                 } else {
                     const cubies = getCubiesInLayer(dragStart.axis, dragStart.layer);
                     cubies.forEach(cubie => {
+                        // === КЛЮЧЕВОЕ ИСПРАВЛЕНИЕ ===
                         cubie.userData.gridX = Math.round(cubie.position.x / offset);
                         cubie.userData.gridY = Math.round(cubie.position.y / offset);
                         cubie.userData.gridZ = Math.round(cubie.position.z / offset);
