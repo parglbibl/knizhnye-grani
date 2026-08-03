@@ -174,18 +174,18 @@
     <!-- ===== ПОДКЛЮЧАЕМ МОДУЛЬ КУБИКА ===== -->
     <script type="module" src="./js/cube3d.js"></script>
 
-    <!-- ===== ОБРАБОТЧИК КНОПОК (гарантированный) ===== -->
+    <!-- ===== ДОПОЛНИТЕЛЬНАЯ ПРОВЕРКА (чтобы точно сработало) ===== -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Дополнительная защита для кнопок — если window.doMove не появилась сразу, ждём
-            function waitForDoMove() {
+            // Если doMove не появилась через 500 мс — перезагружаем проверку
+            function checkDoMove() {
                 if (typeof window.doMove === 'function') {
-                    console.log('✅ doMove готова');
-                    return;
+                    console.log('✅ window.doMove готова');
+                } else {
+                    setTimeout(checkDoMove, 200);
                 }
-                setTimeout(waitForDoMove, 100);
             }
-            waitForDoMove();
+            checkDoMove();
         });
     </script>
 </body>
