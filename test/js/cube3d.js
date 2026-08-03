@@ -70,13 +70,14 @@ if (!container) {
         window.cubeGroup = cubeGroup;
 
         const textureLoader = new THREE.TextureLoader();
+        // === ИСПРАВЛЕННЫЕ ПУТИ (относительно grani.html) ===
         const texturePaths = {
-            red: '/images/cube_textures/red.jpg',
-            blue: '/images/cube_textures/blue.jpg',
-            yellow: '/images/cube_textures/yellow.jpg',
-            green: '/images/cube_textures/green.jpg',
-            white: '/images/cube_textures/white.jpg',
-            orange: '/images/cube_textures/orange.jpg'
+            red: '../images/cube_textures/red.jpg',
+            blue: '../images/cube_textures/blue.jpg',
+            yellow: '../images/cube_textures/yellow.jpg',
+            green: '../images/cube_textures/green.jpg',
+            white: '../images/cube_textures/white.jpg',
+            orange: '../images/cube_textures/orange.jpg'
         };
 
         const loadTexture = (url) => {
