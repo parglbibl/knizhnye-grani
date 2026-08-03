@@ -388,6 +388,9 @@ if (!container) {
             });
         });
 
+        // ===== ФЛАГ СОСТОЯНИЯ: СОБРАН ИЛИ РАЗОБРАН =====
+        let isSolved = true; // при загрузке кубик собран
+
         // ===== РУЧНОЕ ВРАЩЕНИЕ (СВАЙП) — ОТДЕЛЬНО ДЛЯ МЫШИ И ПАЛЬЦЕВ =====
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
@@ -407,6 +410,8 @@ if (!container) {
 
         // ===== ДЛЯ МЫШИ (ПК) =====
         renderer.domElement.addEventListener('mousedown', (e) => {
+            // СВАЙП РАБОТАЕТ ТОЛЬКО НА РАЗОБРАННОМ КУБИКЕ
+            if (isSolved) return;
             if (isScrambling || isAnimating || isBlocked) return;
             if (isPointerDown) return;
             isPointerDown = true;
@@ -457,6 +462,7 @@ if (!container) {
 
         renderer.domElement.addEventListener('mousemove', (e) => {
             if (!isDragging || !dragStart) return;
+            if (isSolved) return; // дополнительная защита
 
             const dx = e.clientX - dragStart.x;
             const dy = e.clientY - dragStart.y;
@@ -517,11 +523,15 @@ if (!container) {
                     euler.z = Math.round(euler.z / (Math.PI / 2)) * (Math.PI / 2);
                     cubie.quaternion.setFromEuler(euler);
                 });
+                // После движения проверяем, не собрался ли кубик
+                if (isCubeSolved()) {
+                    isSolved = true;
+                }
                 updateCubeGlow();
             }
 
             // ===== КЛИК БЕЗ ПЕРЕМЕЩЕНИЯ — ТОЛЬКО НА СОБРАННОМ КУБИКЕ =====
-            if (!dragStart.moved && isCubeSolved()) {
+            if (!dragStart.moved && isSolved) {
                 const rect = renderer.domElement.getBoundingClientRect();
                 mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
                 mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
@@ -590,6 +600,8 @@ if (!container) {
 
         // ===== ДЛЯ ПАЛЬЦЕВ (ТЕЛЕФОН) =====
         renderer.domElement.addEventListener('touchstart', (e) => {
+            // СВАЙП РАБОТАЕТ ТОЛЬКО НА РАЗОБРАННОМ КУБИКЕ
+            if (isSolved) return;
             if (isScrambling || isAnimating || isBlocked) return;
             if (isPointerDown) return;
             isPointerDown = true;
@@ -642,6 +654,7 @@ if (!container) {
 
         renderer.domElement.addEventListener('touchmove', (e) => {
             if (!isDragging || !dragStart) return;
+            if (isSolved) return; // дополнительная защита
             e.preventDefault();
 
             const touch = e.changedTouches[0];
@@ -707,11 +720,15 @@ if (!container) {
                     euler.z = Math.round(euler.z / (Math.PI / 2)) * (Math.PI / 2);
                     cubie.quaternion.setFromEuler(euler);
                 });
+                // После движения проверяем, не собрался ли кубик
+                if (isCubeSolved()) {
+                    isSolved = true;
+                }
                 updateCubeGlow();
             }
 
             // ===== КЛИК БЕЗ ПЕРЕМЕЩЕНИЯ — ТОЛЬКО НА СОБРАННОМ КУБИКЕ =====
-            if (!dragStart.moved && isCubeSolved()) {
+            if (!dragStart.moved && isSolved) {
                 const rect = renderer.domElement.getBoundingClientRect();
                 mouse.x = ((touch.clientX - rect.left) / rect.width) * 2 - 1;
                 mouse.y = -((touch.clientY - rect.top) / rect.height) * 2 + 1;
@@ -786,6 +803,48 @@ if (!container) {
             }
         });
 
+        // ===== ОБНОВЛЕНИЕ ФЛАГА ПОСЛЕ СКРАМБЛА И СБОРКИ =====
+        // Переопределяем кнопки с учётом флага isSolved
+        btnScramble.addEventListener('click', function() {
+            if (isScrambling || isAnimating || isBlocked) return;
+            isBlocked = true;
+            isScrambling = true;
+            isSolved = false; // кубик разобран
+            btnScramble.style.display = 'none';
+            btnSolve.style.display = 'inline-block';
+
+            const moves = generateScramble(23);
+            scrambleMoves = moves;
+            const durationPerMove = 5000 / moves.length;
+
+            executeMoveSequence(moves, durationPerMove, () => {
+                isScrambling = false;
+                updateCubeGlow();
+            });
+        });
+
+        btnSolve.addEventListener('click', function() {
+            if (isScrambling || isAnimating || scrambleMoves.length === 0) return;
+            isScrambling = true;
+            isSolved = true; // кубик собран
+            btnSolve.style.display = 'none';
+            btnScramble.style.display = 'inline-block';
+
+            const reverseMoves = scrambleMoves.slice().reverse().map(m => {
+                if (m.endsWith("'")) return m.slice(0, -1);
+                if (m.endsWith("2")) return m;
+                return m + "'";
+            });
+            const durationPerMove = 5000 / reverseMoves.length;
+
+            executeMoveSequence(reverseMoves, durationPerMove, () => {
+                isScrambling = false;
+                scrambleMoves = [];
+                updateCubeGlow();
+                isBlocked = false;
+            });
+        });
+
         // ===== ПОДСВЕТКА =====
         let activeGlowIds = [];
 
@@ -813,9 +872,6 @@ if (!container) {
                     }
                 }
             });
-
-            // Здесь можно добавить логику подсветки, если нужно
-            // Для теста оставляем без изменений
         }
 
         loadGlowFromLocalStorage();
