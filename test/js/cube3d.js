@@ -48,11 +48,6 @@ if (!container) {
         controls.rotateSpeed = 1.0;
         controls.target.set(0, 0, 0);
 
-        // ===== СТОПОР НА ВЕРТИКАЛЬ =====
-        controls.minPolarAngle = 0.05;
-        controls.maxPolarAngle = Math.PI - 0.05;
-        controls.update();
-
         const cubeGroup = new THREE.Group();
         scene.add(cubeGroup);
 
@@ -82,6 +77,7 @@ if (!container) {
             orange: loadTexture(texturePaths.orange)
         };
         const createMat = (color) => new THREE.MeshStandardMaterial({ map: textures[color], ...matConfig });
+        
         const createGlowMat = (color, emissiveHex, intensity) => new THREE.MeshStandardMaterial({ 
             map: textures[color], roughness: 0.3, metalness: 0.2, emissive: emissiveHex, emissiveIntensity: intensity 
         });
@@ -159,7 +155,7 @@ if (!container) {
         buildCubies();
 
         // ============================
-        // ========= ЭТАЛОННЫЙ ПРИГЛУШЁННЫЙ СВЕТ =========
+        // ========= ОСВЕЩЕНИЕ =========
         // ============================
         const ambientLight = new THREE.AmbientLight(0x606080, 0.6);
         scene.add(ambientLight);
@@ -351,7 +347,7 @@ if (!container) {
         const btnSolve = document.getElementById('btnSolve');
 
         btnScramble.addEventListener('click', function() {
-            if (isScrambling || isAnimating) return;
+            if (isScrambling || isAnimating || isBlocked) return;
             
             isBlocked = true;
             isScrambling = true;
@@ -391,10 +387,25 @@ if (!container) {
         });
 
         // ============================
-        // ОБРАБОТЧИК КЛИКА
+        // ===== ЛОГИКА КЛИКА (ИЗ ОРИГИНАЛА) =====
         // ============================
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
+
+        function getGridCoords(position) {
+            const x = Math.round(position.x / offset);
+            const y = Math.round(position.y / offset);
+            const z = Math.round(position.z / offset);
+            return { x, y, z };
+        }
+
+        function openGran(colorName, gx, gy) {
+            gx = Math.min(2, Math.max(0, gx));
+            gy = Math.min(2, Math.max(0, gy));
+            if (window.openBookGran) {
+                window.openBookGran(colorName, gx, gy);
+            }
+        }
 
         function onMouseClick(event) {
             const rect = renderer.domElement.getBoundingClientRect();
@@ -406,6 +417,8 @@ if (!container) {
 
             if (intersects.length > 0) {
                 const clickedCubie = intersects[0].object;
+                const pos = clickedCubie.position;
+                const coords = getGridCoords(pos);
                 
                 const normal = intersects[0].face.normal.clone();
                 normal.applyQuaternion(clickedCubie.quaternion);
@@ -425,13 +438,27 @@ if (!container) {
 
                 const colorName = clickedCubie.userData.faces[materialIndex];
                 if (!colorName) return;
-
-                if (window.openBookGran) {
-                    window.openBookGran(colorName);
+                
+                let gx = 0, gy = 0;
+                
+                if (materialIndex === 0 || materialIndex === 1) {
+                    gx = coords.y + 1;
+                    gy = coords.z + 1;
+                } else if (materialIndex === 2 || materialIndex === 3) {
+                    gx = coords.x + 1;
+                    gy = coords.z + 1;
+                } else {
+                    gx = coords.x + 1;
+                    gy = coords.y + 1;
                 }
+                
+                openGran(colorName, gx, gy);
             }
         }
 
+        // ============================
+        // ОБРАБОТЧИКИ КЛИКА (БЕЗ ПЕРЕТАСКИВАНИЯ)
+        // ============================
         let pointerDownPos = { x: 0, y: 0 };
         let isClick = false;
 
