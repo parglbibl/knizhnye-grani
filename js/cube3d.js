@@ -160,7 +160,7 @@ if (!container) {
         const ambientLight = new THREE.AmbientLight(0x606080, 0.6);
         scene.add(ambientLight);
 
-        const mainLight = new THREE.DirectionalLight(0xffffff, 0.45);
+        const mainLight = new THREE.DirectionalLight(0xffffff, 0.55);
         mainLight.position.set(2, 4, 3);
         camera.add(mainLight);
 
