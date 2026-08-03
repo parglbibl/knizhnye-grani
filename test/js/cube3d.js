@@ -198,7 +198,7 @@ if (!container) {
             return true;
         }
 
-        // ===== ВРАЩЕНИЕ СЛОЁВ (с защитой от быстрых нажатий) =====
+        // ===== ВРАЩЕНИЕ СЛОЁВ =====
         let isAnimating = false;
 
         function getCubiesInLayer(axis, index) {
@@ -220,15 +220,11 @@ if (!container) {
         }
 
         function rotateLayer(axis, index, angle, duration, callback) {
-            if (isAnimating) {
-                if (callback) callback();
-                return;
-            }
+            window.isAnimating = true;
 
-            isAnimating = true;
             const cubies = getCubiesInLayer(axis, index);
             if (cubies.length === 0) {
-                isAnimating = false;
+                window.isAnimating = false;
                 if (callback) callback();
                 return;
             }
@@ -286,7 +282,7 @@ if (!container) {
                         item.cubie.userData.gridZ = Math.round(item.cubie.position.z / offset);
                     });
                     updateCubeGlow();
-                    isAnimating = false;
+                    window.isAnimating = false;
                     if (callback) callback();
                 }
             }
@@ -501,17 +497,13 @@ if (!container) {
     }
 }
 
-// ===== ГЛАВНАЯ ФУНКЦИЯ ДЛЯ КНОПОК (ТОЧНАЯ ЛОГИКА ИЗ СКРИНШОТОВ) =====
+// ===== ГЛАВНАЯ ФУНКЦИЯ ДЛЯ КНОПОК (ИСПРАВЛЕННАЯ) =====
 window.doMove = function(direction) {
     if (window.isSolved) return;
     if (!direction) return;
     if (window.isAnimating) return;
 
-    // ЗАПИСЫВАЕМ КАЖДЫЙ РУЧНОЙ ХОД В ИСТОРИЮ
-    if (!window.isScrambling) {
-        window.moveHistory.push(direction);
-    }
-
+    // Проверяем штрих
     let isReverse = direction.includes("'");
     let cleanDir = direction.replace("'", "");
 
@@ -562,6 +554,24 @@ window.doMove = function(direction) {
     else if (bestFace === '-z') { axis = 'z'; index = -1; }
     else return;
 
+    // === ПРЕОБРАЗУЕМ В НОТАЦИЮ КУБИКА ===
+    let move = '';
+    switch (bestFace) {
+        case '+x': move = 'R'; break;
+        case '-x': move = 'L'; break;
+        case '+y': move = 'U'; break;
+        case '-y': move = 'D'; break;
+        case '+z': move = 'F'; break;
+        case '-z': move = 'B'; break;
+    }
+    if (isReverse) move += "'";
+
+    // === ЗАПИСЫВАЕМ В ИСТОРИЮ (только если не скрамбл) ===
+    if (!window.isScrambling) {
+        window.moveHistory.push(move);
+    }
+
+    // === ВЫЧИСЛЯЕМ УГОЛ ===
     let baseAngle = 0;
     if (axis === 'y') {
         baseAngle = (index === 1) ? -Math.PI/2 : Math.PI/2;
@@ -572,7 +582,7 @@ window.doMove = function(direction) {
 
     const angle = isReverse ? -baseAngle : baseAngle;
 
-    // Длительность 150 мс для ручного поворота
+    // === ПОВОРАЧИВАЕМ СЛОЙ ===
     window.rotateLayer(axis, index, angle, 150, () => {
         if (window.updateCubeGlow) window.updateCubeGlow();
     });
