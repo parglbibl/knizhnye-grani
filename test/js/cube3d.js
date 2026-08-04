@@ -7,7 +7,7 @@ window.isSolved = true;
 window.isScrambling = false;
 window.isAnimating = false;
 window.isBlocked = false;
-window.moveHistory = [];
+window.moveHistory = []; // <--- ТОЛЬКО БУКВЫ
 window.executeMoveSequence = null;
 window.generateScramble = null;
 window.updateCubeGlow = null;
@@ -435,6 +435,7 @@ if (!container) {
                 this.style.display = 'none';
                 newBtnScramble.style.display = 'inline-block';
 
+                // == ПРАВИЛЬНАЯ ИНВЕРСИЯ ==
                 const reverseMoves = window.moveHistory.slice().reverse().map(m => {
                     if (m.endsWith("'")) return m.slice(0, -1);
                     if (m.endsWith("2")) return m;
@@ -519,6 +520,11 @@ window.doMove = function(direction) {
     if (!direction) return;
     if (window.isAnimating) return;
 
+    // === ЗАПИСЫВАЕМ В ИСТОРИЮ (только если не скрамбл) ===
+    if (!window.isScrambling) {
+        window.moveHistory.push(direction);
+    }
+
     // Проверяем штрих
     let isReverse = direction.includes("'");
     let cleanDir = direction.replace("'", "");
@@ -569,23 +575,6 @@ window.doMove = function(direction) {
     else if (bestFace === '+z') { axis = 'z'; index = 1; }
     else if (bestFace === '-z') { axis = 'z'; index = -1; }
     else return;
-
-    // === ПРЕОБРАЗУЕМ В НОТАЦИЮ КУБИКА ===
-    let move = '';
-    switch (bestFace) {
-        case '+x': move = 'R'; break;
-        case '-x': move = 'L'; break;
-        case '+y': move = 'U'; break;
-        case '-y': move = 'D'; break;
-        case '+z': move = 'F'; break;
-        case '-z': move = 'B'; break;
-    }
-    if (isReverse) move += "'";
-
-    // === ЗАПИСЫВАЕМ В ИСТОРИЮ (только если не скрамбл) ===
-    if (!window.isScrambling) {
-        window.moveHistory.push(move);
-    }
 
     // === ВЫЧИСЛЯЕМ УГОЛ ===
     let baseAngle = 0;
