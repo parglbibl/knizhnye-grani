@@ -516,35 +516,33 @@ if (!container) {
         applyGlow();
 
         // ==========================================
-        // ===== ДОБАВЛЕНИЕ КЛИКАБЕЛЬНОСТИ ===========
+        // ===== ИСПРАВЛЕННАЯ ЛОГИКА КЛИКОВ ==========
         // ==========================================
         const raycaster = new THREE.Raycaster();
         const pointer = new THREE.Vector2();
 
         function onPointerDown(event) {
-            // Игнорируем клики, если идет анимация вращения
+            // 1. Игнорируем клики во время анимации
             if (window.isAnimating) return;
 
-            // Получаем координаты клика/тапа
+            // 2. Вычисляем координаты в диапазоне -1 .. 1
             const rect = renderer.domElement.getBoundingClientRect();
+            // Используем clientX/Y вместо pageX/Y для надежности на мобильных
             const x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
             const y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
             pointer.set(x, y);
 
             raycaster.setFromCamera(pointer, camera);
 
-            // Проверяем пересечение со всеми кубиками
+            // 3. Ищем пересечение
             const intersects = raycaster.intersectObjects(allCubies);
 
             if (intersects.length > 0) {
-                // Берем первый попавшийся кубик
                 const hit = intersects[0];
                 const cubie = hit.object;
                 
-                // Получаем индекс грани (материала), в которую попали
-                // У RoundedBoxGeometry индексы граней: 0:+x, 1:-x, 2:+y, 3:-y, 4:+z, 5:-z
+                // RoundedBoxGeometry дает индексы граней: 0:+x, 1:-x, 2:+y, 3:-y, 4:+z, 5:-z
                 const faceIndex = hit.face.materialIndex; 
-                
                 handleStickerClick(cubie, faceIndex);
             }
         }
@@ -553,26 +551,33 @@ if (!container) {
             const state = window.cubeState[cubie.userData.id];
             if (!state) return;
 
-            // Получаем название цвета по индексу грани (0-5)
+            // Получаем индекс грани (0-5)
+            // Убедимся, что индекс в пределах 0-5 (на всякий случай)
+            const safeIndex = (faceIndex >= 0 && faceIndex <= 5) ? faceIndex : 0;
+            
             const colorMap = ['красный', 'оранжевый', 'белый', 'жёлтый', 'зелёный', 'синий'];
-            const colorName = colorMap[faceIndex] || 'неизвестный';
-            const currentColor = state.faces[faceIndex] || 'пусто';
+            const colorName = colorMap[safeIndex] || 'неизвестный';
+            const currentColor = state.faces[safeIndex] || 'пусто';
 
-            // Показываем попап
+            // Обращаемся к вашему HTML попапу
             const popup = document.getElementById('popup');
             const title = document.getElementById('popupTitle');
             const question = document.getElementById('popupQuestion');
 
             if (popup && title && question) {
-                // Заголовок: координаты текущего положения кубика
                 const pos = state.position;
                 title.innerText = `Кубик [${pos.x}, ${pos.y}, ${pos.z}]`;
 
-                // Текст: какая грань и какого она цвета
+                // Определяем название грани
+                const faceName = ['+X (Право)', '-X (Лево)', '+Y (Верх)', '-Y (Низ)', '+Z (Перед)', '-Z (Зад)'][safeIndex];
+                
                 question.innerHTML = `
-                    <strong>Грань:</strong> ${['+X (Право)', '-X (Лево)', '+Y (Верх)', '-Y (Низ)', '+Z (Перед)', '-Z (Зад)'][faceIndex]}<br>
-                    <strong>Цвет наклейки:</strong> <span style="color:${currentColor === 'white' ? '#aaa' : currentColor}; font-weight:bold;">${currentColor || 'нет'}</span><br>
-                    <small style="color:#777;">(Кликните в любое место, чтобы закрыть)</small>
+                    <strong>Грань:</strong> ${faceName}<br>
+                    <strong>Цвет наклейки:</strong> 
+                    <span style="color:${currentColor === 'white' ? '#aaa' : currentColor}; font-weight:bold; text-transform:capitalize;">
+                        ${currentColor || 'нет'}
+                    </span><br>
+                    <small style="color:#777;">(Кликните в любое место вне окна, чтобы закрыть)</small>
                 `;
 
                 popup.style.display = 'flex';
@@ -580,7 +585,7 @@ if (!container) {
             }
         }
 
-        // Навешиваем обработчик события на канвас рендерера
+        // Навешиваем обработчик на сам рендерер
         renderer.domElement.addEventListener('pointerdown', onPointerDown);
         // ==========================================
         // ==========================================
