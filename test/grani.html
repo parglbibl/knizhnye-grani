@@ -527,6 +527,7 @@
   let currentElementId = null;
 
   window.openBookGran = function(colorName, gx, gy) {
+      // Формируем ID как в оригинале: цвет_координаты_1
       const elementId = colorName + '_' + String(gx) + '_' + String(gy) + '_1';
       currentElementId = elementId;
 
