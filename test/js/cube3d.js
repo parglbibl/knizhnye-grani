@@ -553,52 +553,43 @@ if (!container) {
 
         const canvas = renderer.domElement;
 
-        // ===== ИСПРАВЛЕННАЯ ЗАЩИТА ОТ ЛОЖНОГО КЛИКА (ДЛЯ КОМПЬЮТЕРА) =====
-        let mouseClickTimeout = null;
+        // ===== НОВАЯ ПРОСТАЯ ЗАЩИТА ОТ ЛОЖНОГО КЛИКА =====
+        let clickStartPos = { x: 0, y: 0 };
+        let isClick = false;
 
-        canvas.addEventListener('mousedown', function(e) {
-            mouseDownPos.x = e.clientX;
-            mouseDownPos.y = e.clientY;
-            isDraggingOrbit = false;
-            // Сбрасываем таймаут, если он был
-            if (mouseClickTimeout) {
-                clearTimeout(mouseClickTimeout);
-                mouseClickTimeout = null;
-            }
+        canvas.addEventListener('pointerdown', function(e) {
+            clickStartPos.x = e.clientX;
+            clickStartPos.y = e.clientY;
+            isClick = true;
         });
 
-        canvas.addEventListener('mousemove', function(e) {
-            if (mouseDownPos.x !== 0) {
-                const dx = Math.abs(e.clientX - mouseDownPos.x);
-                const dy = Math.abs(e.clientY - mouseDownPos.y);
-                if (dx > 5 || dy > 5) {
-                    isDraggingOrbit = true;
+        canvas.addEventListener('pointermove', function(e) {
+            if (isClick) {
+                const dx = Math.abs(e.clientX - clickStartPos.x);
+                const dy = Math.abs(e.clientY - clickStartPos.y);
+                if (dx > 8 || dy > 8) {
+                    isClick = false;
                 }
             }
         });
 
-        canvas.addEventListener('mouseup', function(e) {
-            // Если мышь не двигалась или двигалась меньше 5px — это клик
-            if (!isDraggingOrbit && window.isSolved) {
-                // Небольшая задержка, чтобы OrbitControls не успел среагировать
-                mouseClickTimeout = setTimeout(() => {
+        canvas.addEventListener('pointerup', function(e) {
+            if (isClick && window.isSolved) {
+                // Проверяем, что это не правый клик
+                if (e.button === 0) {
                     onMouseClick(e);
-                    mouseClickTimeout = null;
-                }, 50);
+                }
             }
-            // Сбрасываем всё
-            mouseDownPos.x = 0;
-            mouseDownPos.y = 0;
-            isDraggingOrbit = false;
+            isClick = false;
         });
 
-        // Отменяем контекстное меню на канвасе
+        // Отключаем контекстное меню
         canvas.addEventListener('contextmenu', function(e) {
             e.preventDefault();
             return false;
         });
 
-        // ===== ДЛЯ ТЕЛЕФОНА (ТАЧ) =====
+        // ===== ДЛЯ ТЕЛЕФОНА (ТАЧ) - оставляем как есть =====
         let touchStartX = 0, touchStartY = 0;
         let touchMoved = false;
 
