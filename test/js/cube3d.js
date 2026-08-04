@@ -7,7 +7,8 @@ window.isSolved = true;
 window.isScrambling = false;
 window.isAnimating = false;
 window.isBlocked = false;
-window.moveHistory = []; // <--- ТОЛЬКО БУКВЫ
+window.scrambleHistory = []; // <--- Только скрамбл
+window.userHistory = [];     // <--- Только ручные ходы
 window.executeMoveSequence = null;
 window.generateScramble = null;
 window.updateCubeGlow = null;
@@ -193,6 +194,7 @@ if (!container) {
                 const gx = Math.round(pos.x / offset);
                 const gy = Math.round(pos.y / offset);
                 const gz = Math.round(pos.z / offset);
+                // Сравниваем с НЕИЗМЕННЫМИ начальными координатами (паспорт)
                 if (gx !== cubie.userData.gridX ||
                     gy !== cubie.userData.gridY ||
                     gz !== cubie.userData.gridZ) {
@@ -239,6 +241,7 @@ if (!container) {
 
             const newPositions = cubies.map(cubie => {
                 const pos = cubie.position.clone();
+                // БЕРЁМ ТЕКУЩУЮ ПОЗИЦИЮ, НО НЕ МЕНЯЕМ userData.grid
                 const gx = Math.round(pos.x / offset);
                 const gy = Math.round(pos.y / offset);
                 const gz = Math.round(pos.z / offset);
@@ -285,9 +288,7 @@ if (!container) {
                     newPositions.forEach(item => {
                         item.cubie.position.copy(item.endPos);
                         item.cubie.quaternion.copy(item.endRot);
-                        item.cubie.userData.gridX = Math.round(item.cubie.position.x / offset);
-                        item.cubie.userData.gridY = Math.round(item.cubie.position.y / offset);
-                        item.cubie.userData.gridZ = Math.round(item.cubie.position.z / offset);
+                        // ВАЖНО: НЕ ПЕРЕЗАПИСЫВАЕМ gridX, gridY, gridZ
                     });
                     updateCubeGlow();
                     isAnimating = false;
@@ -323,6 +324,7 @@ if (!container) {
             return result;
         }
 
+        // ===== ИСПРАВЛЕННЫЙ parseMove =====
         function parseMove(moveStr) {
             const axisMap = { 'U': 'y', 'D': 'y', 'L': 'x', 'R': 'x', 'F': 'z', 'B': 'z' };
             const indexMap = { 'U': 1, 'D': -1, 'L': -1, 'R': 1, 'F': 1, 'B': -1 };
@@ -335,7 +337,7 @@ if (!container) {
             if (mod === "'") angle *= -1;
             else if (mod === "2") count = 2;
 
-            return { axis: axisMap[base], index: indexMap[base], angle: angle * count };
+            return { axis: axisMap[base], index: indexMap[base], angle: angle, count: count };
         }
 
         function executeMove(moveStr, duration, callback) {
@@ -408,10 +410,11 @@ if (!container) {
                 this.style.display = 'none';
                 newBtnSolve.style.display = 'inline-block';
 
-                window.moveHistory = [];
+                window.scrambleHistory = [];
+                window.userHistory = []; // Очищаем и пользовательскую историю
 
                 const moves = window.generateScramble ? window.generateScramble(23) : ['U', "R'", 'F2', 'L', "D'", 'B'];
-                moves.forEach(m => window.moveHistory.push(m));
+                moves.forEach(m => window.scrambleHistory.push(m));
 
                 const durationPerMove = SCRAMBLE_DURATION / moves.length;
                 window.executeMoveSequence(moves, durationPerMove, () => {
@@ -426,7 +429,7 @@ if (!container) {
             });
 
             newBtnSolve.addEventListener('click', function() {
-                if (window.isScrambling || window.isAnimating || window.moveHistory.length === 0) return;
+                if (window.isScrambling || window.isAnimating) return;
                 if (window.isBlocked) return;
                 
                 window.isBlocked = true;
@@ -435,8 +438,11 @@ if (!container) {
                 this.style.display = 'none';
                 newBtnScramble.style.display = 'inline-block';
 
-                // == ПРАВИЛЬНАЯ ИНВЕРСИЯ ==
-                const reverseMoves = window.moveHistory.slice().reverse().map(m => {
+                // 1. Сначала отменяем ВСЕ ручные ходы (userHistory)
+                const allMoves = [...window.userHistory, ...window.scrambleHistory];
+                
+                // 2. Инвертируем ВСЮ историю (от последнего к первому)
+                const reverseMoves = allMoves.slice().reverse().map(m => {
                     if (m.endsWith("'")) return m.slice(0, -1);
                     if (m.endsWith("2")) return m;
                     return m + "'";
@@ -445,7 +451,8 @@ if (!container) {
                 const durationPerMove = SOLVE_DURATION / reverseMoves.length;
                 window.executeMoveSequence(reverseMoves, durationPerMove, () => {
                     window.isScrambling = false;
-                    window.moveHistory = [];
+                    window.scrambleHistory = [];
+                    window.userHistory = [];
                     window.isBlocked = false;
                     if (window.updateCubeGlow) window.updateCubeGlow();
 
@@ -520,9 +527,9 @@ window.doMove = function(direction) {
     if (!direction) return;
     if (window.isAnimating) return;
 
-    // === ЗАПИСЫВАЕМ В ИСТОРИЮ (только если не скрамбл) ===
+    // === ЗАПИСЫВАЕМ ТОЛЬКО В userHistory ===
     if (!window.isScrambling) {
-        window.moveHistory.push(direction);
+        window.userHistory.push(direction);
     }
 
     // Проверяем штрих
