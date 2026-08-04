@@ -407,9 +407,9 @@ if (!container) {
             btnScramble.parentNode.replaceChild(newBtnScramble, btnScramble);
             btnSolve.parentNode.replaceChild(newBtnSolve, btnSolve);
 
-            const SCRAMBLE_DURATION = 4000;
-            const SOLVE_DURATION = 4000;
-            const DELAY_BETWEEN_MOVES = 15;
+            // ===== ОСНОВНЫЕ ПАРАМЕТРЫ СКОРОСТИ =====
+            const SCRAMBLE_DURATION = 4000; // общее время скрамблинга (мс)
+            const DELAY_BETWEEN_MOVES = 15; // пауза между ходами
 
             newBtnScramble.addEventListener('click', function() {
                 if (window.isScrambling || window.isAnimating) return;
@@ -460,18 +460,31 @@ if (!container) {
                     return m + "'";
                 });
                 
-                const durationPerMove = SOLVE_DURATION / reverseMoves.length;
-                window.executeMoveSequence(reverseMoves, durationPerMove, () => {
-                    window.isScrambling = false;
-                    window.scrambleHistory = [];
-                    window.userHistory = [];
-                    window.isBlocked = false;
-                    if (window.updateCubeGlow) window.updateCubeGlow();
+                // ===== ЗАЩИТА ОТ «ЗАХЛЁБЫВАНИЯ»: увеличиваем время на каждый ход =====
+                const baseDurationPerMove = 200; // 200 мс на ход (медленнее, но надёжнее)
+                const solveDelay = 30; // 30 мс пауза между ходами при сборке
+                
+                // Запускаем сборку с новой, более медленной скоростью
+                let solveIndex = 0;
+                function solveNext() {
+                    if (solveIndex >= reverseMoves.length) {
+                        window.isScrambling = false;
+                        window.scrambleHistory = [];
+                        window.userHistory = [];
+                        window.isBlocked = false;
+                        if (window.updateCubeGlow) window.updateCubeGlow();
 
-                    if (typeof window.hideCubeControls === 'function') {
-                        window.hideCubeControls();
+                        if (typeof window.hideCubeControls === 'function') {
+                            window.hideCubeControls();
+                        }
+                        return;
                     }
-                });
+                    executeMove(reverseMoves[solveIndex], baseDurationPerMove, () => {
+                        solveIndex++;
+                        setTimeout(solveNext, solveDelay);
+                    });
+                }
+                solveNext();
             });
         });
 
