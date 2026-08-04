@@ -19,9 +19,9 @@ window.offset = null;
 window.cubeGroup = null;
 window.cubeState = {};
 
-// ===== ЗАЩИТА ОТ ЛОЖНОГО КЛИКА =====
+// ===== ПЕРЕМЕННЫЕ ДЛЯ ЗАЩИТЫ ОТ ЛОЖНЫХ КЛИКОВ =====
 let mouseDownPos = { x: 0, y: 0 };
-let isDraggingOrbit = false;
+let isDragging = false;
 
 const container = document.getElementById('cube-container');
 if (!container) {
@@ -70,8 +70,6 @@ if (!container) {
         controls.target.set(0, 0, 0);
         controls.minDistance = 3;
         controls.maxDistance = 8;
-
-        renderer.domElement.style.touchAction = 'none';
 
         const cubeGroup = new THREE.Group();
         scene.add(cubeGroup);
@@ -483,7 +481,7 @@ if (!container) {
             });
         });
 
-        // ===== ОБРАБОТЧИК КЛИКА ПО КУБИКУ =====
+        // ===== ОБРАБОТЧИК КЛИКА ПО КУБИКУ (ИНТЕГРАЦИЯ С КНИЖНЫМИ ГРАНЯМИ) =====
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
 
@@ -495,9 +493,10 @@ if (!container) {
         }
 
         function onMouseClick(event) {
-            // Дополнительная проверка: если кубик в процессе анимации или скрамбла - не открываем
-            if (window.isAnimating || window.isScrambling) return;
-            if (!window.isSolved) return;
+            // Проверяем, что кубик собран и не в процессе анимации
+            if (!window.isSolved || window.isAnimating || window.isScrambling) {
+                return;
+            }
             
             const rect = renderer.domElement.getBoundingClientRect();
             mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
@@ -543,8 +542,6 @@ if (!container) {
                     gy = coords.y + 1;
                 }
                 
-                console.log('Клик по грани:', colorName, gx, gy); // Отладка
-                
                 if (window.openBookGran) {
                     window.openBookGran(colorName, gx, gy);
                 }
@@ -553,34 +550,32 @@ if (!container) {
 
         const canvas = renderer.domElement;
 
-        // ===== НОВАЯ ПРОСТАЯ ЗАЩИТА ОТ ЛОЖНОГО КЛИКА =====
-        let clickStartPos = { x: 0, y: 0 };
-        let isClick = false;
-
+        // ===== ПРАВИЛЬНАЯ ЗАЩИТА ОТ ЛОЖНЫХ КЛИКОВ =====
         canvas.addEventListener('pointerdown', function(e) {
-            clickStartPos.x = e.clientX;
-            clickStartPos.y = e.clientY;
-            isClick = true;
+            mouseDownPos.x = e.clientX;
+            mouseDownPos.y = e.clientY;
+            isDragging = false;
         });
 
         canvas.addEventListener('pointermove', function(e) {
-            if (isClick) {
-                const dx = Math.abs(e.clientX - clickStartPos.x);
-                const dy = Math.abs(e.clientY - clickStartPos.y);
-                if (dx > 8 || dy > 8) {
-                    isClick = false;
+            if (mouseDownPos.x !== 0) {
+                const dx = Math.abs(e.clientX - mouseDownPos.x);
+                const dy = Math.abs(e.clientY - mouseDownPos.y);
+                if (dx > 6 || dy > 6) {
+                    isDragging = true;
                 }
             }
         });
 
         canvas.addEventListener('pointerup', function(e) {
-            if (isClick && window.isSolved) {
-                // Проверяем, что это не правый клик
-                if (e.button === 0) {
-                    onMouseClick(e);
-                }
+            // Если это был не перетаскивание и левая кнопка мыши
+            if (!isDragging && e.button === 0) {
+                onMouseClick(e);
             }
-            isClick = false;
+            // Сбрасываем
+            mouseDownPos.x = 0;
+            mouseDownPos.y = 0;
+            isDragging = false;
         });
 
         // Отключаем контекстное меню
@@ -589,7 +584,7 @@ if (!container) {
             return false;
         });
 
-        // ===== ДЛЯ ТЕЛЕФОНА (ТАЧ) - оставляем как есть =====
+        // ===== ДЛЯ ТЕЛЕФОНА (ТАЧ) =====
         let touchStartX = 0, touchStartY = 0;
         let touchMoved = false;
 
@@ -632,7 +627,9 @@ if (!container) {
             applyGlow();
         };
 
-        function applyGlow() {}
+        function applyGlow() {
+            // Логика подсветки
+        }
 
         loadGlowFromLocalStorage();
         applyGlow();
