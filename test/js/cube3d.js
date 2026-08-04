@@ -7,8 +7,8 @@ window.isSolved = true;
 window.isScrambling = false;
 window.isAnimating = false;
 window.isBlocked = false;
-window.scrambleHistory = []; // <--- Только скрамбл
-window.userHistory = [];     // <--- Только ручные ходы
+window.scrambleHistory = []; // Только скрамбл
+window.userHistory = [];     // Только ручные ходы
 window.executeMoveSequence = null;
 window.generateScramble = null;
 window.updateCubeGlow = null;
@@ -157,8 +157,14 @@ if (!container) {
                         cubie.position.set(x * offset, y * offset, z * offset);
                         cubeGroup.add(cubie);
 
+                        // === ДОБАВЛЯЕМ ПАСПОРТНЫЕ КООРДИНАТЫ ===
                         cubie.userData = {
-                            gridX: x, gridY: y, gridZ: z,
+                            homeX: x,
+                            homeY: y,
+                            homeZ: z,
+                            gridX: x,
+                            gridY: y,
+                            gridZ: z,
                             faces: faces,
                             mats: mats
                         };
@@ -194,10 +200,10 @@ if (!container) {
                 const gx = Math.round(pos.x / offset);
                 const gy = Math.round(pos.y / offset);
                 const gz = Math.round(pos.z / offset);
-                // Сравниваем с НЕИЗМЕННЫМИ начальными координатами (паспорт)
-                if (gx !== cubie.userData.gridX ||
-                    gy !== cubie.userData.gridY ||
-                    gz !== cubie.userData.gridZ) {
+                // Сравниваем с НЕИЗМЕННЫМИ home-координатами
+                if (gx !== cubie.userData.homeX ||
+                    gy !== cubie.userData.homeY ||
+                    gz !== cubie.userData.homeZ) {
                     return false;
                 }
             }
@@ -210,10 +216,10 @@ if (!container) {
         function getCubiesInLayer(axis, index) {
             const result = [];
             allCubies.forEach(cubie => {
-                const pos = cubie.position;
-                const gx = Math.round(pos.x / offset);
-                const gy = Math.round(pos.y / offset);
-                const gz = Math.round(pos.z / offset);
+                // Используем ТЕКУЩИЕ gridX/Y/Z для определения слоя
+                const gx = cubie.userData.gridX;
+                const gy = cubie.userData.gridY;
+                const gz = cubie.userData.gridZ;
 
                 let match = false;
                 if (axis === 'x' && gx === index) match = true;
@@ -241,7 +247,7 @@ if (!container) {
 
             const newPositions = cubies.map(cubie => {
                 const pos = cubie.position.clone();
-                // БЕРЁМ ТЕКУЩУЮ ПОЗИЦИЮ, НО НЕ МЕНЯЕМ userData.grid
+                // Берём ТЕКУЩУЮ позицию
                 const gx = Math.round(pos.x / offset);
                 const gy = Math.round(pos.y / offset);
                 const gz = Math.round(pos.z / offset);
@@ -288,7 +294,10 @@ if (!container) {
                     newPositions.forEach(item => {
                         item.cubie.position.copy(item.endPos);
                         item.cubie.quaternion.copy(item.endRot);
-                        // ВАЖНО: НЕ ПЕРЕЗАПИСЫВАЕМ gridX, gridY, gridZ
+                        // === ОБНОВЛЯЕМ ТЕКУЩУЮ СЕТКУ ===
+                        item.cubie.userData.gridX = Math.round(item.cubie.position.x / offset);
+                        item.cubie.userData.gridY = Math.round(item.cubie.position.y / offset);
+                        item.cubie.userData.gridZ = Math.round(item.cubie.position.z / offset);
                     });
                     updateCubeGlow();
                     isAnimating = false;
@@ -438,10 +447,13 @@ if (!container) {
                 this.style.display = 'none';
                 newBtnScramble.style.display = 'inline-block';
 
-                // 1. Сначала отменяем ВСЕ ручные ходы (userHistory)
-                const allMoves = [...window.userHistory, ...window.scrambleHistory];
+                // === ПРАВИЛЬНЫЙ ПОРЯДОК: сначала скрамбл, потом пользователь ===
+                const allMoves = [
+                    ...window.scrambleHistory,
+                    ...window.userHistory
+                ];
                 
-                // 2. Инвертируем ВСЮ историю (от последнего к первому)
+                // Инвертируем ВСЮ историю (от последнего к первому)
                 const reverseMoves = allMoves.slice().reverse().map(m => {
                     if (m.endsWith("'")) return m.slice(0, -1);
                     if (m.endsWith("2")) return m;
