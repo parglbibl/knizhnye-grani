@@ -19,7 +19,7 @@ window.offset = null;
 window.cubeGroup = null;
 window.cubeState = {};
 
-// ===== ЗАЩИТА ОТ ЛОЖНОГО КЛИКА (разделение вращения и клика) =====
+// ===== ЗАЩИТА ОТ ЛОЖНОГО КЛИКА =====
 let mouseDownPos = { x: 0, y: 0 };
 let isDraggingOrbit = false;
 
@@ -71,8 +71,6 @@ if (!container) {
         controls.minDistance = 3;
         controls.maxDistance = 8;
 
-        // ===== ОТКЛЮЧАЕМ АВТОМАТИЧЕСКИЕ КЛИКИ =====
-        // Мы будем управлять кликами вручную через mousedown/mouseup
         renderer.domElement.style.touchAction = 'none';
 
         const cubeGroup = new THREE.Group();
@@ -485,7 +483,7 @@ if (!container) {
             });
         });
 
-        // ===== ОБРАБОТЧИК КЛИКА ПО КУБИКУ (С ЗАЩИТОЙ ОТ ЛОЖНОГО КЛИКА) =====
+        // ===== ОБРАБОТЧИК КЛИКА ПО КУБИКУ =====
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
 
@@ -549,7 +547,7 @@ if (!container) {
 
         const canvas = renderer.domElement;
 
-        // ===== ЗАЩИТА ОТ ЛОЖНОГО КЛИКА: разделяем клик и вращение =====
+        // ===== ЗАЩИТА ОТ ЛОЖНОГО КЛИКА (ДЛЯ КОМПЬЮТЕРА) =====
         canvas.addEventListener('mousedown', function(e) {
             mouseDownPos.x = e.clientX;
             mouseDownPos.y = e.clientY;
@@ -577,7 +575,7 @@ if (!container) {
             isDraggingOrbit = false;
         });
 
-        // ===== ТАЧ-ЗАЩИТА (МОБИЛЬНЫЕ) =====
+        // ===== ДЛЯ ТЕЛЕФОНА (ТАЧ) =====
         let touchStartX = 0, touchStartY = 0;
         let touchMoved = false;
 
