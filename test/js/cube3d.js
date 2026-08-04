@@ -164,7 +164,8 @@ if (!container) {
                             gridX: x, gridY: y, gridZ: z,
                             faces: faces,
                             mats: mats,
-                            id: uniqueId
+                            id: uniqueId,
+                            faceNames: faces // <- ДОБАВЛЕНО ДЛЯ ВАШЕЙ ЛОГИКИ КЛИКА
                         };
 
                         // ===== СОХРАНЯЕМ СОСТОЯНИЕ В ОТДЕЛЬНЫЙ ОБЪЕКТ =====
@@ -518,6 +519,79 @@ if (!container) {
 
         loadGlowFromLocalStorage();
         applyGlow();
+
+        // ===== ВАША ЛОГИКА КЛИКА (ВСТАВЛЕНА АККУРАТНО) =====
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+
+        function getGridCoords(position) {
+            const x = Math.round(position.x / offset);
+            const y = Math.round(position.y / offset);
+            const z = Math.round(position.z / offset);
+            return { x, y, z };
+        }
+
+        function openGran(colorName, gx, gy) {
+            gx = Math.min(2, Math.max(0, gx));
+            gy = Math.min(2, Math.max(0, gy));
+            if (window.openBookGran) {
+                window.openBookGran(colorName, gx, gy);
+            }
+        }
+
+        function onMouseClick(event) {
+            const rect = renderer.domElement.getBoundingClientRect();
+            mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+            mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(allCubies);
+
+            if (intersects.length > 0) {
+                const clickedCubie = intersects[0].object;
+                const pos = clickedCubie.position;
+                const coords = getGridCoords(pos);
+                
+                // Определяем грань по нормали (абсолютно надёжно)
+                const normal = intersects[0].face.normal.clone();
+                normal.applyQuaternion(clickedCubie.quaternion);
+                
+                let materialIndex = 0;
+                const nx = Math.round(normal.x);
+                const ny = Math.round(normal.y);
+                const nz = Math.round(normal.z);
+                
+                if (nx === 1) materialIndex = 0;      // Красная
+                else if (nx === -1) materialIndex = 1; // Оранжевая
+                else if (ny === 1) materialIndex = 2;  // Белая
+                else if (ny === -1) materialIndex = 3; // Жёлтая
+                else if (nz === 1) materialIndex = 4;  // Зелёная
+                else if (nz === -1) materialIndex = 5; // Синяя
+                else materialIndex = 0;
+
+                // Берём цвет из userData (без getHex(), чтобы не было unknown)
+                const colorName = clickedCubie.userData.faceNames[materialIndex];
+                if (!colorName) return;
+                
+                let gx = 0, gy = 0;
+                
+                if (materialIndex === 0 || materialIndex === 1) {
+                    gx = coords.y + 1;
+                    gy = coords.z + 1;
+                } else if (materialIndex === 2 || materialIndex === 3) {
+                    gx = coords.x + 1;
+                    gy = coords.z + 1;
+                } else {
+                    gx = coords.x + 1;
+                    gy = coords.y + 1;
+                }
+                
+                openGran(colorName, gx, gy);
+            }
+        }
+
+        const canvas = renderer.domElement;
+        canvas.addEventListener('click', onMouseClick);
 
         // ===== ЦИКЛ РЕНДЕРА =====
         function render() {
