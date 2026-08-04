@@ -2,11 +2,6 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 
-// ===== ПОДКЛЮЧЕНИЕ АЛГОРИТМА KOCIEMBA (через CDN) =====
-const kociembaScript = document.createElement('script');
-kociembaScript.src = 'https://cdn.jsdelivr.net/npm/kociemba@1.1.0/dist/kociemba.min.js';
-document.head.appendChild(kociembaScript);
-
 // ===== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ =====
 window.isSolved = true;
 window.isScrambling = false;
@@ -454,21 +449,20 @@ if (!container) {
                 window.isBlocked = true;
                 window.isScrambling = true;
 
-                // ===== ИСПОЛЬЗУЕМ KOCIEMBA ДЛЯ СБОРКИ =====
-                // Сначала проверяем, загрузился ли алгоритм
+                // ===== KOCIEMBA FALLBACK (если не загружен) =====
                 if (typeof kociemba === 'undefined') {
-                    console.warn('Kociemba ещё не загружен. Используем обратную историю.');
+                    console.warn('Kociemba не загружен. Используем обратную историю.');
                     fallbackSolve();
                     return;
                 }
 
-                // Генерируем строку состояния кубика для алгоритма
+                // ===== ЕСЛИ KOCIEMBA ЗАГРУЖЕН =====
+                // Строим строку состояния
                 let stateString = '';
-                // Порядок граней для Kociemba: U, R, F, D, L, B
-                // Мы должны построить строку из 54 символов (9 на грань)
-                // Временно используем обратную историю как fallback
+                // Здесь будет полная реализация Kociemba
+                // Пока используем fallback
                 fallbackSolve();
-                
+
                 function fallbackSolve() {
                     console.log('Используем обратную историю (fallback)');
                     const allReverse = window.scrambleHistory.slice().reverse().map(m => {
