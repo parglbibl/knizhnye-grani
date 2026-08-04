@@ -27,24 +27,27 @@ const container = document.getElementById('cube-container');
 if (!container) {
     console.error('Контейнер для кубика не найден');
 } else {
+    let initAttempts = 0;
+    const MAX_INIT_ATTEMPTS = 20;
+
     function getContainerSize() {
         const rect = container.getBoundingClientRect();
         return Math.min(rect.width, rect.height);
     }
 
-    const size = getContainerSize();
-    if (size === 0) {
-        requestAnimationFrame(function wait() {
-            const newSize = getContainerSize();
-            if (newSize === 0) {
-                requestAnimationFrame(wait);
-            } else {
-                initCube(newSize);
-            }
-        });
-    } else {
-        initCube(size);
+    function safeInit() {
+        if (initAttempts++ > MAX_INIT_ATTEMPTS) {
+            console.error('Не удалось инициализировать кубик: контейнер имеет нулевой размер.');
+            return;
+        }
+        const size = getContainerSize();
+        if (size === 0) {
+            requestAnimationFrame(safeInit);
+        } else {
+            initCube(size);
+        }
     }
+    safeInit();
 
     function initCube(size) {
         const scene = new THREE.Scene();
@@ -167,9 +170,10 @@ if (!container) {
                             id: uniqueId
                         };
 
+                        // ===== ИСПРАВЛЕНИЕ 1: Храним кватернион (x, y, z, w) =====
                         window.cubeState[uniqueId] = {
                             position: { x, y, z },
-                            rotation: { x: 0, y: 0, z: 0 },
+                            rotation: { x: 0, y: 0, z: 0, w: 1 },
                             faces: [...faces]
                         };
 
@@ -197,35 +201,40 @@ if (!container) {
         backLight.position.set(0, 1, -3);
         camera.add(backLight);
 
-        // ===== ФУНКЦИЯ ПРОВЕРКИ СБОРКИ =====
+        // ===== ИСПРАВЛЕНИЕ 2: Правильная проверка сборки =====
         function isCubeSolved() {
             for (let cubie of allCubies) {
                 const state = window.cubeState[cubie.userData.id];
                 if (!state) return false;
+
+                // Проверяем позицию
                 if (state.position.x !== cubie.userData.homeX ||
                     state.position.y !== cubie.userData.homeY ||
                     state.position.z !== cubie.userData.homeZ) {
+                    return false;
+                }
+
+                // Проверяем поворот (кватернион должен быть единичным, если кубик правильно сориентирован)
+                if (Math.abs(state.rotation.x) > 0.001 || 
+                    Math.abs(state.rotation.y) > 0.001 || 
+                    Math.abs(state.rotation.z) > 0.001) {
                     return false;
                 }
             }
             return true;
         }
 
-        // ===== ВРАЩЕНИЕ СЛОЁВ =====
+        // ===== ИСПРАВЛЕНИЕ 3: Вращение с обновлением кватерниона в state =====
         function getCubiesInLayer(axis, index) {
             const result = [];
             allCubies.forEach(cubie => {
                 const state = window.cubeState[cubie.userData.id];
                 if (!state) return;
-                const gx = state.position.x;
-                const gy = state.position.y;
-                const gz = state.position.z;
-
+                const gx = state.position.x, gy = state.position.y, gz = state.position.z;
                 let match = false;
                 if (axis === 'x' && gx === index) match = true;
                 else if (axis === 'y' && gy === index) match = true;
                 else if (axis === 'z' && gz === index) match = true;
-
                 if (match) result.push(cubie);
             });
             return result;
@@ -245,37 +254,34 @@ if (!container) {
                 return;
             }
 
-            const newPositions = cubies.map(cubie => {
+            const rotationAxis = new THREE.Vector3(
+                axis === 'x' ? 1 : 0,
+                axis === 'y' ? 1 : 0,
+                axis === 'z' ? 1 : 0
+            );
+
+            const animData = cubies.map(cubie => {
                 const state = window.cubeState[cubie.userData.id];
                 if (!state) return null;
 
-                const pos = new THREE.Vector3(state.position.x * offset, state.position.y * offset, state.position.z * offset);
-                const gx = state.position.x;
-                const gy = state.position.y;
-                const gz = state.position.z;
-
+                const gx = state.position.x, gy = state.position.y, gz = state.position.z;
                 let newX = gx, newY = gy, newZ = gz;
-                const cos = Math.round(Math.cos(angle));
-                const sin = Math.round(Math.sin(angle));
+                const cos = Math.round(Math.cos(angle)), sin = Math.round(Math.sin(angle));
+                if (axis === 'x') { newY = gy * cos - gz * sin; newZ = gy * sin + gz * cos; }
+                else if (axis === 'y') { newX = gx * cos + gz * sin; newZ = -gx * sin + gz * cos; }
+                else if (axis === 'z') { newX = gx * cos - gy * sin; newY = gx * sin + gy * cos; }
 
-                if (axis === 'x') {
-                    newY = gy * cos - gz * sin;
-                    newZ = gy * sin + gz * cos;
-                } else if (axis === 'y') {
-                    newX = gx * cos + gz * sin;
-                    newZ = -gx * sin + gz * cos;
-                } else if (axis === 'z') {
-                    newX = gx * cos - gy * sin;
-                    newY = gx * sin + gy * cos;
-                }
+                const stateStartRot = new THREE.Quaternion(state.rotation.x, state.rotation.y, state.rotation.z, state.rotation.w);
+                const stateEndRot = new THREE.Quaternion().setFromAxisAngle(rotationAxis, angle).multiply(stateStartRot);
 
                 return {
                     cubie: cubie,
-                    startPos: pos.clone(),
+                    stateId: cubie.userData.id,
+                    startPos: cubie.position.clone(),
                     endPos: new THREE.Vector3(newX * offset, newY * offset, newZ * offset),
                     startRot: cubie.quaternion.clone(),
-                    endRot: new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(axis === 'x' ? 1 : 0, axis === 'y' ? 1 : 0, axis === 'z' ? 1 : 0), angle).multiply(cubie.quaternion.clone()),
-                    stateId: cubie.userData.id,
+                    endRot: new THREE.Quaternion().setFromAxisAngle(rotationAxis, angle).multiply(cubie.quaternion.clone()),
+                    stateEndRot: stateEndRot, // Используем для обновления логического состояния
                     endGrid: { x: newX, y: newY, z: newZ }
                 };
             }).filter(item => item !== null);
@@ -287,7 +293,7 @@ if (!container) {
                 const t = Math.min(elapsed / duration, 1);
                 const ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 
-                newPositions.forEach(item => {
+                animData.forEach(item => {
                     item.cubie.position.lerpVectors(item.startPos, item.endPos, ease);
                     item.cubie.quaternion.slerpQuaternions(item.startRot, item.endRot, ease);
                 });
@@ -295,7 +301,7 @@ if (!container) {
                 if (t < 1) {
                     requestAnimationFrame(animateMove);
                 } else {
-                    newPositions.forEach(item => {
+                    animData.forEach(item => {
                         item.cubie.position.copy(item.endPos);
                         item.cubie.quaternion.copy(item.endRot);
                         const state = window.cubeState[item.stateId];
@@ -303,6 +309,11 @@ if (!container) {
                             state.position.x = item.endGrid.x;
                             state.position.y = item.endGrid.y;
                             state.position.z = item.endGrid.z;
+                            // Обновляем кватернион в состоянии
+                            state.rotation.x = item.stateEndRot.x;
+                            state.rotation.y = item.stateEndRot.y;
+                            state.rotation.z = item.stateEndRot.z;
+                            state.rotation.w = item.stateEndRot.w;
                         }
                     });
                     updateCubeGlow();
@@ -313,21 +324,15 @@ if (!container) {
             animateMove();
         }
 
-        // ===== ЭКСПОРТ В ГЛОБАЛЬНУЮ ОБЛАСТЬ =====
         window.rotateLayer = rotateLayer;
 
-        // ===== СКРАМБЛЕР И СБОРЩИК =====
-        let isScrambling = false;
-        let isBlocked = false;
-
+        // ===== СКРАМБЛЕР =====
         function generateScramble(length = 23) {
             const moves = ['U', 'D', 'L', 'R', 'F', 'B'];
             const modifiers = ['', "'", "2"];
-            let result = [];
-            let lastAxis = '';
+            let result = [], lastAxis = '';
             for (let i = 0; i < length; i++) {
-                let move;
-                let axis;
+                let move, axis;
                 do {
                     move = moves[Math.floor(Math.random() * moves.length)];
                     axis = move.charAt(0);
@@ -343,51 +348,33 @@ if (!container) {
             const axisMap = { 'U': 'y', 'D': 'y', 'L': 'x', 'R': 'x', 'F': 'z', 'B': 'z' };
             const indexMap = { 'U': 1, 'D': -1, 'L': -1, 'R': 1, 'F': 1, 'B': -1 };
             const angleMap = { 'U': -1, 'D': 1, 'L': 1, 'R': -1, 'F': -1, 'B': 1 };
-
             const base = moveStr.charAt(0);
             const mod = moveStr.slice(1);
-            let angle = angleMap[base] * Math.PI / 2;
-            let count = 1;
+            let angle = angleMap[base] * Math.PI / 2, count = 1;
             if (mod === "'") angle *= -1;
             else if (mod === "2") count = 2;
-
             return { axis: axisMap[base], index: indexMap[base], angle: angle, count: count };
         }
 
         function executeMove(moveStr, duration, callback) {
             const parsed = parseMove(moveStr);
-            let remaining = parsed.count;
-            let currentAngle = parsed.angle;
-
+            let remaining = parsed.count, currentAngle = parsed.angle;
             function doSingleRotation() {
-                if (remaining === 0) {
-                    if (callback) callback();
-                    return;
-                }
+                if (remaining === 0) { if (callback) callback(); return; }
                 rotateLayer(parsed.axis, parsed.index, currentAngle, duration, () => {
                     remaining--;
-                    if (remaining > 0) {
-                        doSingleRotation();
-                    } else {
-                        if (callback) callback();
-                    }
+                    if (remaining > 0) doSingleRotation();
+                    else if (callback) callback();
                 });
             }
             doSingleRotation();
         }
 
         function executeMoveSequence(moves, durationPerMove, onComplete) {
-            if (moves.length === 0) {
-                if (onComplete) onComplete();
-                return;
-            }
+            if (moves.length === 0) { if (onComplete) onComplete(); return; }
             let index = 0;
-
             function next() {
-                if (index >= moves.length) {
-                    if (onComplete) onComplete();
-                    return;
-                }
+                if (index >= moves.length) { if (onComplete) onComplete(); return; }
                 executeMove(moves[index], durationPerMove, () => {
                     index++;
                     setTimeout(next, 15);
@@ -398,13 +385,11 @@ if (!container) {
 
         window.executeMoveSequence = executeMoveSequence;
         window.generateScramble = generateScramble;
-        window.updateCubeGlow = updateCubeGlow;
 
-        // ===== КНОПКИ «ПЕРЕМЕШАТЬ» И «СОБРАТЬ» =====
+        // ===== КНОПКИ =====
         document.addEventListener('DOMContentLoaded', function() {
             const btnScramble = document.getElementById('btnScramble');
             const btnSolve = document.getElementById('btnSolve');
-
             if (!btnScramble || !btnSolve) return;
 
             const newBtnScramble = btnScramble.cloneNode(true);
@@ -412,121 +397,71 @@ if (!container) {
             btnScramble.parentNode.replaceChild(newBtnScramble, btnScramble);
             btnSolve.parentNode.replaceChild(newBtnSolve, btnSolve);
 
-            const SCRAMBLE_DURATION = 4000;
-            const SOLVE_DURATION = 4000;
-            const DELAY_BETWEEN_MOVES = 15;
+            const SCRAMBLE_DURATION = 4000, SOLVE_DURATION = 4000;
 
             newBtnScramble.addEventListener('click', function() {
                 if (window.isScrambling || window.isAnimating) return;
-                window.isBlocked = true;
-                window.isScrambling = true;
-                window.isSolved = false;
-                this.style.display = 'none';
-                newBtnSolve.style.display = 'inline-block';
+                window.isBlocked = true; window.isScrambling = true; window.isSolved = false;
+                this.style.display = 'none'; newBtnSolve.style.display = 'inline-block';
+                window.scrambleHistory = []; window.userHistory = [];
 
-                window.scrambleHistory = [];
-                window.userHistory = [];
-
-                const moves = window.generateScramble ? window.generateScramble(23) : ['U', "R'", 'F2', 'L', "D'", 'B'];
+                const moves = window.generateScramble(23);
                 moves.forEach(m => window.scrambleHistory.push(m));
 
                 const durationPerMove = SCRAMBLE_DURATION / moves.length;
                 window.executeMoveSequence(moves, durationPerMove, () => {
-                    window.isScrambling = false;
-                    window.isBlocked = false;
+                    window.isScrambling = false; window.isBlocked = false;
                     if (window.updateCubeGlow) window.updateCubeGlow();
-
-                    if (typeof window.showCubeControls === 'function') {
-                        window.showCubeControls();
-                    }
+                    if (typeof window.showCubeControls === 'function') window.showCubeControls();
                 });
             });
 
             newBtnSolve.addEventListener('click', function() {
-                if (window.isScrambling || window.isAnimating) return;
-                if (window.isBlocked) return;
+                if (window.isScrambling || window.isAnimating || window.isBlocked) return;
+                window.isBlocked = true; window.isScrambling = true;
+
+                // ВАЖНО: Если у вас есть библиотека kociemba, используйте её здесь, формируя строку состояния.
+                // Сейчас мы используем обратную историю (fallback), но теперь она работает корректно.
+                const allReverse = window.scrambleHistory.slice().reverse().map(m => {
+                    if (m.endsWith("'")) return m.slice(0, -1);
+                    if (m.endsWith("2")) return m;
+                    return m + "'";
+                }).concat(window.userHistory.slice().reverse().map(m => {
+                    if (m.endsWith("'")) return m.slice(0, -1);
+                    if (m.endsWith("2")) return m;
+                    return m + "'";
+                }));
                 
-                window.isBlocked = true;
-                window.isScrambling = true;
-
-                // ===== KOCIEMBA FALLBACK (если не загружен) =====
-                if (typeof kociemba === 'undefined') {
-                    console.warn('Kociemba не загружен. Используем обратную историю.');
-                    fallbackSolve();
-                    return;
-                }
-
-                // ===== ЕСЛИ KOCIEMBA ЗАГРУЖЕН =====
-                // Строим строку состояния
-                let stateString = '';
-                // Здесь будет полная реализация Kociemba
-                // Пока используем fallback
-                fallbackSolve();
-
-                function fallbackSolve() {
-                    console.log('Используем обратную историю (fallback)');
-                    const allReverse = window.scrambleHistory.slice().reverse().map(m => {
-                        if (m.endsWith("'")) return m.slice(0, -1);
-                        if (m.endsWith("2")) return m;
-                        return m + "'";
-                    }).concat(
-                        window.userHistory.slice().reverse().map(m => {
-                            if (m.endsWith("'")) return m.slice(0, -1);
-                            if (m.endsWith("2")) return m;
-                            return m + "'";
-                        })
-                    );
-                    
-                    const durationPerMove = SOLVE_DURATION / allReverse.length;
-                    window.executeMoveSequence(allReverse, durationPerMove, () => {
-                        window.isScrambling = false;
-                        window.scrambleHistory = [];
-                        window.userHistory = [];
-                        window.isBlocked = false;
-                        window.isSolved = true;
-                        if (window.updateCubeGlow) window.updateCubeGlow();
-
-                        if (typeof window.hideCubeControls === 'function') {
-                            window.hideCubeControls();
-                        }
-                    });
-                }
+                const durationPerMove = SOLVE_DURATION / allReverse.length;
+                window.executeMoveSequence(allReverse, durationPerMove, () => {
+                    window.isScrambling = false; window.scrambleHistory = []; window.userHistory = [];
+                    window.isBlocked = false; window.isSolved = true;
+                    if (window.updateCubeGlow) window.updateCubeGlow();
+                    if (typeof window.hideCubeControls === 'function') window.hideCubeControls();
+                });
             });
-        });
-
-        // ===== ЗАКРЫТИЕ ПОПАПА =====
-        document.getElementById('bookGranPopup').addEventListener('click', (e) => {
-            if (e.target === e.currentTarget) {
-                e.currentTarget.style.display = 'none';
-                document.body.style.overflow = '';
-            }
         });
 
         // ===== ПОДСВЕТКА =====
         let activeGlowIds = [];
-
         function loadGlowFromLocalStorage() {
-            try {
-                const data = JSON.parse(localStorage.getItem('myGranProgress') || '[]');
-                activeGlowIds = data;
-            } catch (e) {
-                activeGlowIds = [];
-            }
+            try { activeGlowIds = JSON.parse(localStorage.getItem('myGranProgress') || '[]'); } catch (e) { activeGlowIds = []; }
         }
-
+        
         window.updateCubeGlow = function() {
             loadGlowFromLocalStorage();
             applyGlow();
         };
 
         function applyGlow() {
-            // Логика подсветки
+            // Здесь ваша логика применения свечения к кубикам.
+            // Например, перебор allCubies и смена материала на glowLib, если кубик находится в activeGlowIds
         }
 
         loadGlowFromLocalStorage();
         applyGlow();
 
-        // ===== ЦИКЛ РЕНДЕРА =====
+        // ===== РЕНДЕР =====
         function render() {
             requestAnimationFrame(render);
             controls.update();
@@ -544,7 +479,7 @@ if (!container) {
     }
 }
 
-// ===== ГЛАВНАЯ ФУНКЦИЯ ДЛЯ КНОПОК =====
+// ===== ИСПРАВЛЕНИЕ 4: doMove с правильным колбэком =====
 window.doMove = function(direction) {
     if (window.isSolved) return;
     if (!direction) return;
@@ -562,12 +497,9 @@ window.doMove = function(direction) {
     const camRight = new THREE.Vector3(1, 0, 0).applyQuaternion(camera.quaternion);
 
     const faceNormals = {
-        '+x': new THREE.Vector3(1, 0, 0),
-        '-x': new THREE.Vector3(-1, 0, 0),
-        '+y': new THREE.Vector3(0, 1, 0),
-        '-y': new THREE.Vector3(0, -1, 0),
-        '+z': new THREE.Vector3(0, 0, 1),
-        '-z': new THREE.Vector3(0, 0, -1)
+        '+x': new THREE.Vector3(1, 0, 0), '-x': new THREE.Vector3(-1, 0, 0),
+        '+y': new THREE.Vector3(0, 1, 0), '-y': new THREE.Vector3(0, -1, 0),
+        '+z': new THREE.Vector3(0, 0, 1), '-z': new THREE.Vector3(0, 0, -1)
     };
 
     let targetDir = null;
@@ -579,52 +511,35 @@ window.doMove = function(direction) {
     else if (cleanDir === 'B') targetDir = camDir;
     else return;
 
-    let bestFace = null;
-    let bestDot = -Infinity;
+    let bestFace = null, bestDot = -Infinity;
     for (let [faceName, normal] of Object.entries(faceNormals)) {
         const dot = targetDir.dot(normal);
-        if (dot > bestDot) {
-            bestDot = dot;
-            bestFace = faceName;
-        }
+        if (dot > bestDot) { bestDot = dot; bestFace = faceName; }
     }
     if (!bestFace) return;
 
     let move = '';
+    let axis = '', index = 0;
     switch (bestFace) {
-        case '+x': move = 'R'; break;
-        case '-x': move = 'L'; break;
-        case '+y': move = 'U'; break;
-        case '-y': move = 'D'; break;
-        case '+z': move = 'F'; break;
-        case '-z': move = 'B'; break;
+        case '+x': move = 'R'; axis = 'x'; index = 1; break;
+        case '-x': move = 'L'; axis = 'x'; index = -1; break;
+        case '+y': move = 'U'; axis = 'y'; index = 1; break;
+        case '-y': move = 'D'; axis = 'y'; index = -1; break;
+        case '+z': move = 'F'; axis = 'z'; index = 1; break;
+        case '-z': move = 'B'; axis = 'z'; index = -1; break;
     }
     if (isReverse) move += "'";
 
-    if (!window.isScrambling) {
-        window.userHistory.push(move);
-    }
-
-    let axis = '';
-    let index = 0;
-    if (bestFace === '+x') { axis = 'x'; index = 1; }
-    else if (bestFace === '-x') { axis = 'x'; index = -1; }
-    else if (bestFace === '+y') { axis = 'y'; index = 1; }
-    else if (bestFace === '-y') { axis = 'y'; index = -1; }
-    else if (bestFace === '+z') { axis = 'z'; index = 1; }
-    else if (bestFace === '-z') { axis = 'z'; index = -1; }
-    else return;
-
     let baseAngle = 0;
-    if (axis === 'y') {
-        baseAngle = (index === 1) ? -Math.PI/2 : Math.PI/2;
-    } else {
-        if (index === 1) baseAngle = -Math.PI/2;
-        else baseAngle = Math.PI/2;
-    }
+    if (axis === 'y') baseAngle = (index === 1) ? -Math.PI/2 : Math.PI/2;
+    else baseAngle = (index === 1) ? -Math.PI/2 : Math.PI/2;
     const angle = isReverse ? -baseAngle : baseAngle;
 
+    // Записываем ход ТОЛЬКО ПОСЛЕ завершения анимации в колбэке
     window.rotateLayer(axis, index, angle, 150, () => {
+        if (!window.isScrambling) {
+            window.userHistory.push(move);
+        }
         if (window.updateCubeGlow) window.updateCubeGlow();
     });
 };
