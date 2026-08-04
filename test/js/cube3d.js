@@ -165,7 +165,7 @@ if (!container) {
                             faces: faces,
                             mats: mats,
                             id: uniqueId,
-                            faceNames: faces // <- ДОБАВЛЕНО ДЛЯ ВАШЕЙ ЛОГИКИ КЛИКА
+                            faceNames: faces
                         };
 
                         // ===== СОХРАНЯЕМ СОСТОЯНИЕ В ОТДЕЛЬНЫЙ ОБЪЕКТ =====
@@ -486,14 +486,6 @@ if (!container) {
                     }
                 });
             });
-        });
-
-        // ===== ЗАКРЫТИЕ ПОПАПА =====
-        document.getElementById('popup').addEventListener('click', (e) => {
-            if (e.target === e.currentTarget) {
-                e.currentTarget.style.display = 'none';
-                document.body.style.overflow = '';
-            }
         });
 
         // ===== ПОДСВЕТКА =====
