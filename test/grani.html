@@ -444,6 +444,12 @@
             };
 
             window.openBookGran = function(color, x, y) {
+                // ===== ГЛАВНОЕ УСЛОВИЕ: ВОПРОСЫ ТОЛЬКО В СОБРАННОМ СОСТОЯНИИ =====
+                if (!window.isSolved) {
+                    // Если кубик не собран — просто игнорируем клик
+                    return;
+                }
+
                 const elementId = color + '_' + String(x) + '_' + String(y) + '_1';
                 currentElementId = elementId;
 
@@ -476,7 +482,7 @@
                 }
                 if (!currentElementId) return;
 
-                // Здесь ты можешь добавить сохранение в Firebase, если нужно
+                // Здесь можно добавить сохранение в Firebase
                 alert('Спасибо! Твой ответ сохранён.');
                 popupInput.value = '';
                 popup.style.display = 'none';
