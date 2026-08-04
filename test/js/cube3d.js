@@ -160,7 +160,7 @@ if (!container) {
                             faces: faces,
                             mats: mats,
                             id: uniqueId,
-                            faceNames: faces // ДОБАВЛЕНО ДЛЯ ИНТЕГРАЦИИ С КНИЖНЫМИ ГРАНЯМИ
+                            faceNames: faces
                         };
 
                         window.cubeState[uniqueId] = {
@@ -477,7 +477,7 @@ if (!container) {
             });
         });
 
-        // ===== ОБРАБОТЧИК КЛИКА ПО КУБИКУ (ИНТЕГРАЦИЯ С КНИЖНЫМИ ГРАНЯМИ) =====
+        // ===== ИДЕАЛЬНОЕ РАЗДЕЛЕНИЕ ВРАЩЕНИЯ И КЛИКА =====
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
 
@@ -488,10 +488,45 @@ if (!container) {
             return { x, y, z };
         }
 
-        function onMouseClick(event) {
+        // Определяем клик по разнице координат
+        let pointerDownX = 0;
+        let pointerDownY = 0;
+        let pointerMoved = false;
+        let pointerDownTime = 0;
+
+        function onPointerDown(event) {
             const rect = renderer.domElement.getBoundingClientRect();
-            mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-            mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+            const clientX = event.clientX || event.touches?.[0]?.clientX || 0;
+            const clientY = event.clientY || event.touches?.[0]?.clientY || 0;
+            pointerDownX = clientX;
+            pointerDownY = clientY;
+            pointerMoved = false;
+            pointerDownTime = Date.now();
+        }
+
+        function onPointerMove(event) {
+            const rect = renderer.domElement.getBoundingClientRect();
+            const clientX = event.clientX || event.touches?.[0]?.clientX || 0;
+            const clientY = event.clientY || event.touches?.[0]?.clientY || 0;
+            if (Math.abs(clientX - pointerDownX) > 5 || Math.abs(clientY - pointerDownY) > 5) {
+                pointerMoved = true;
+            }
+        }
+
+        function onPointerUp(event) {
+            // Если двигались — это было вращение, не клик
+            if (pointerMoved) return;
+            
+            // Если прошло слишком много времени — не считаем кликом
+            if (Date.now() - pointerDownTime > 300) return;
+
+            // Иначе выполняем клик
+            const rect = renderer.domElement.getBoundingClientRect();
+            const clientX = event.clientX || event.changedTouches?.[0]?.clientX || 0;
+            const clientY = event.clientY || event.changedTouches?.[0]?.clientY || 0;
+
+            mouse.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+            mouse.y = -((clientY - rect.top) / rect.height) * 2 + 1;
 
             raycaster.setFromCamera(mouse, camera);
             const intersects = raycaster.intersectObjects(allCubies);
@@ -540,7 +575,16 @@ if (!container) {
         }
 
         const canvas = renderer.domElement;
-        canvas.addEventListener('click', onMouseClick);
+        
+        // Мышь
+        canvas.addEventListener('mousedown', onPointerDown);
+        canvas.addEventListener('mousemove', onPointerMove);
+        canvas.addEventListener('mouseup', onPointerUp);
+        
+        // Тач (мобильные)
+        canvas.addEventListener('touchstart', onPointerDown, { passive: true });
+        canvas.addEventListener('touchmove', onPointerMove, { passive: true });
+        canvas.addEventListener('touchend', onPointerUp, { passive: true });
 
         // ===== ПОДСВЕТКА =====
         let activeGlowIds = [];
