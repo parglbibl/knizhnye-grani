@@ -17,7 +17,7 @@ window.camera = null;
 window.allCubies = null;
 window.offset = null;
 window.cubeGroup = null;
-window.cubeState = {}; // <-- Хранилище реального состояния кубика
+window.cubeState = {};
 
 // ===== ФУНКЦИЯ ПОКАЗА/СКРЫТИЯ КНОПОК =====
 window.showCubeControls = null;
@@ -167,7 +167,6 @@ if (!container) {
                             id: uniqueId
                         };
 
-                        // ===== СОХРАНЯЕМ СОСТОЯНИЕ В ОТДЕЛЬНЫЙ ОБЪЕКТ =====
                         window.cubeState[uniqueId] = {
                             position: { x, y, z },
                             rotation: { x: 0, y: 0, z: 0 },
@@ -198,7 +197,7 @@ if (!container) {
         backLight.position.set(0, 1, -3);
         camera.add(backLight);
 
-        // ===== ФУНКЦИЯ ПРОВЕРКИ СБОРКИ (по состоянию) =====
+        // ===== ФУНКЦИЯ ПРОВЕРКИ СБОРКИ =====
         function isCubeSolved() {
             for (let cubie of allCubies) {
                 const state = window.cubeState[cubie.userData.id];
@@ -300,7 +299,6 @@ if (!container) {
                         item.cubie.position.copy(item.endPos);
                         item.cubie.quaternion.copy(item.endRot);
                         
-                        // ===== ОБНОВЛЯЕМ СОСТОЯНИЕ В cubeState =====
                         const state = window.cubeState[item.stateId];
                         if (state) {
                             state.position.x = item.endGrid.x;
@@ -316,7 +314,6 @@ if (!container) {
             animateMove();
         }
 
-        // ===== ЭКСПОРТ В ГЛОБАЛЬНУЮ ОБЛАСТЬ =====
         window.rotateLayer = rotateLayer;
 
         // ===== СКРАМБЛЕР И СБОРЩИК =====
@@ -403,7 +400,7 @@ if (!container) {
         window.generateScramble = generateScramble;
         window.updateCubeGlow = updateCubeGlow;
 
-        // ===== КНОПКИ «ПЕРЕМЕШАТЬ» И «СОБРАТЬ» =====
+        // ===== КНОПКИ =====
         document.addEventListener('DOMContentLoaded', function() {
             const btnScramble = document.getElementById('btnScramble');
             const btnSolve = document.getElementById('btnSolve');
@@ -417,7 +414,6 @@ if (!container) {
 
             const SCRAMBLE_DURATION = 4000;
             const SOLVE_DURATION = 4000;
-            const DELAY_BETWEEN_MOVES = 15;
 
             newBtnScramble.addEventListener('click', function() {
                 if (window.isScrambling || window.isAnimating) return;
@@ -455,15 +451,12 @@ if (!container) {
                 this.style.display = 'none';
                 newBtnScramble.style.display = 'inline-block';
 
-                // ===== АЛГОРИТМ СБОРКИ ЧЕРЕЗ ОТМЕНУ ХОДОВ =====
-                // Сначала отменяем ручные ходы
                 const userReverse = window.userHistory.slice().reverse().map(m => {
                     if (m.endsWith("'")) return m.slice(0, -1);
                     if (m.endsWith("2")) return m;
                     return m + "'";
                 });
                 
-                // Затем отменяем скрамбл
                 const scrambleReverse = window.scrambleHistory.slice().reverse().map(m => {
                     if (m.endsWith("'")) return m.slice(0, -1);
                     if (m.endsWith("2")) return m;
@@ -488,7 +481,6 @@ if (!container) {
         });
 
         // ===== ЗАКРЫТИЕ ПОПАПА =====
-        // Добавлена защитная проверка, чтобы код не падал, если элемента нет в HTML
         const popup = document.getElementById('popup');
         if (popup) {
             popup.addEventListener('click', (e) => {
@@ -517,11 +509,81 @@ if (!container) {
         };
 
         function applyGlow() {
-            // Логика подсветки остаётся без изменений
+            // Логика подсветки
         }
 
         loadGlowFromLocalStorage();
         applyGlow();
+
+        // ==========================================
+        // ===== ДОБАВЛЕНИЕ КЛИКАБЕЛЬНОСТИ ===========
+        // ==========================================
+        const raycaster = new THREE.Raycaster();
+        const pointer = new THREE.Vector2();
+
+        function onPointerDown(event) {
+            // Игнорируем клики, если идет анимация вращения
+            if (window.isAnimating) return;
+
+            // Получаем координаты клика/тапа
+            const rect = renderer.domElement.getBoundingClientRect();
+            const x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+            const y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+            pointer.set(x, y);
+
+            raycaster.setFromCamera(pointer, camera);
+
+            // Проверяем пересечение со всеми кубиками
+            const intersects = raycaster.intersectObjects(allCubies);
+
+            if (intersects.length > 0) {
+                // Берем первый попавшийся кубик
+                const hit = intersects[0];
+                const cubie = hit.object;
+                
+                // Получаем индекс грани (материала), в которую попали
+                // У RoundedBoxGeometry индексы граней: 0:+x, 1:-x, 2:+y, 3:-y, 4:+z, 5:-z
+                const faceIndex = hit.face.materialIndex; 
+                
+                handleStickerClick(cubie, faceIndex);
+            }
+        }
+
+        function handleStickerClick(cubie, faceIndex) {
+            const state = window.cubeState[cubie.userData.id];
+            if (!state) return;
+
+            // Получаем название цвета по индексу грани (0-5)
+            const colorMap = ['красный', 'оранжевый', 'белый', 'жёлтый', 'зелёный', 'синий'];
+            const colorName = colorMap[faceIndex] || 'неизвестный';
+            const currentColor = state.faces[faceIndex] || 'пусто';
+
+            // Показываем попап
+            const popup = document.getElementById('popup');
+            const title = document.getElementById('popupTitle');
+            const question = document.getElementById('popupQuestion');
+
+            if (popup && title && question) {
+                // Заголовок: координаты текущего положения кубика
+                const pos = state.position;
+                title.innerText = `Кубик [${pos.x}, ${pos.y}, ${pos.z}]`;
+
+                // Текст: какая грань и какого она цвета
+                question.innerHTML = `
+                    <strong>Грань:</strong> ${['+X (Право)', '-X (Лево)', '+Y (Верх)', '-Y (Низ)', '+Z (Перед)', '-Z (Зад)'][faceIndex]}<br>
+                    <strong>Цвет наклейки:</strong> <span style="color:${currentColor === 'white' ? '#aaa' : currentColor}; font-weight:bold;">${currentColor || 'нет'}</span><br>
+                    <small style="color:#777;">(Кликните в любое место, чтобы закрыть)</small>
+                `;
+
+                popup.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        // Навешиваем обработчик события на канвас рендерера
+        renderer.domElement.addEventListener('pointerdown', onPointerDown);
+        // ==========================================
+        // ==========================================
 
         // ===== ЦИКЛ РЕНДЕРА =====
         function render() {
@@ -541,13 +603,12 @@ if (!container) {
     }
 }
 
-// ===== ГЛАВНАЯ ФУНКЦИЯ ДЛЯ КНОПОК =====
+// ===== doMove =====
 window.doMove = function(direction) {
     if (window.isSolved) return;
     if (!direction) return;
     if (window.isAnimating) return;
 
-    // Проверяем штрих
     let isReverse = direction.includes("'");
     let cleanDir = direction.replace("'", "");
 
@@ -588,7 +649,6 @@ window.doMove = function(direction) {
     }
     if (!bestFace) return;
 
-    // === ПРЕОБРАЗУЕМ В РЕАЛЬНУЮ БУКВУ КУБИКА ===
     let move = '';
     switch (bestFace) {
         case '+x': move = 'R'; break;
@@ -600,12 +660,10 @@ window.doMove = function(direction) {
     }
     if (isReverse) move += "'";
 
-    // === ЗАПИСЫВАЕМ В ИСТОРИЮ ===
     if (!window.isScrambling) {
         window.userHistory.push(move);
     }
 
-    // === ОПРЕДЕЛЯЕМ ОСЬ И ИНДЕКС ДЛЯ ПОВОРОТА ===
     let axis = '';
     let index = 0;
     if (bestFace === '+x') { axis = 'x'; index = 1; }
@@ -616,7 +674,6 @@ window.doMove = function(direction) {
     else if (bestFace === '-z') { axis = 'z'; index = -1; }
     else return;
 
-    // === ВЫЧИСЛЯЕМ УГОЛ ===
     let baseAngle = 0;
     if (axis === 'y') {
         baseAngle = (index === 1) ? -Math.PI/2 : Math.PI/2;
@@ -626,7 +683,6 @@ window.doMove = function(direction) {
     }
     const angle = isReverse ? -baseAngle : baseAngle;
 
-    // === ПОВОРАЧИВАЕМ СЛОЙ ===
     window.rotateLayer(axis, index, angle, 150, () => {
         if (window.updateCubeGlow) window.updateCubeGlow();
     });
