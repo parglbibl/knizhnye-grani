@@ -7,7 +7,7 @@ window.isSolved = true;
 window.isScrambling = false;
 window.isAnimating = false;
 window.isBlocked = false;
-window.moveHistory = []; // Здесь будут храниться объекты {axis, index, angle}
+window.moveHistory = [];
 window.executeMoveSequence = null;
 window.generateScramble = null;
 window.updateCubeGlow = null;
@@ -411,11 +411,7 @@ if (!container) {
                 window.moveHistory = [];
 
                 const moves = window.generateScramble ? window.generateScramble(23) : ['U', "R'", 'F2', 'L', "D'", 'B'];
-                moves.forEach(m => {
-                    // Записываем скрамбл в историю как объекты поворота
-                    const parsed = parseMove(m);
-                    window.moveHistory.push({ axis: parsed.axis, index: parsed.index, angle: parsed.angle });
-                });
+                moves.forEach(m => window.moveHistory.push(m));
 
                 const durationPerMove = SCRAMBLE_DURATION / moves.length;
                 window.executeMoveSequence(moves, durationPerMove, () => {
@@ -423,7 +419,6 @@ if (!container) {
                     window.isBlocked = false;
                     if (window.updateCubeGlow) window.updateCubeGlow();
 
-                    // ===== ПОКАЗЫВАЕМ КНОПКИ =====
                     if (typeof window.showCubeControls === 'function') {
                         window.showCubeControls();
                     }
@@ -440,38 +435,23 @@ if (!container) {
                 this.style.display = 'none';
                 newBtnScramble.style.display = 'inline-block';
 
-                // Берём всю историю и строим обратную последовательность (инвертируем углы)
-                const reverseMoves = window.moveHistory.slice().reverse().map(item => {
-                    return {
-                        axis: item.axis,
-                        index: item.index,
-                        angle: -item.angle
-                    };
+                const reverseMoves = window.moveHistory.slice().reverse().map(m => {
+                    if (m.endsWith("'")) return m.slice(0, -1);
+                    if (m.endsWith("2")) return m;
+                    return m + "'";
                 });
                 
                 const durationPerMove = SOLVE_DURATION / reverseMoves.length;
+                window.executeMoveSequence(reverseMoves, durationPerMove, () => {
+                    window.isScrambling = false;
+                    window.moveHistory = [];
+                    window.isBlocked = false;
+                    if (window.updateCubeGlow) window.updateCubeGlow();
 
-                // Выполняем обратную последовательность, передавая готовые объекты
-                let idx = 0;
-                function nextReverse() {
-                    if (idx >= reverseMoves.length) {
-                        window.isScrambling = false;
-                        window.moveHistory = [];
-                        window.isBlocked = false;
-                        if (window.updateCubeGlow) window.updateCubeGlow();
-
-                        if (typeof window.hideCubeControls === 'function') {
-                            window.hideCubeControls();
-                        }
-                        return;
+                    if (typeof window.hideCubeControls === 'function') {
+                        window.hideCubeControls();
                     }
-                    const item = reverseMoves[idx];
-                    rotateLayer(item.axis, item.index, item.angle, durationPerMove, () => {
-                        idx++;
-                        setTimeout(nextReverse, 15);
-                    });
-                }
-                nextReverse();
+                });
             });
         });
 
@@ -602,6 +582,11 @@ window.doMove = function(direction) {
     }
     if (isReverse) move += "'";
 
+    // === ЗАПИСЫВАЕМ В ИСТОРИЮ (только если не скрамбл) ===
+    if (!window.isScrambling) {
+        window.moveHistory.push(move);
+    }
+
     // === ВЫЧИСЛЯЕМ УГОЛ ===
     let baseAngle = 0;
     if (axis === 'y') {
@@ -610,13 +595,8 @@ window.doMove = function(direction) {
         if (index === 1) baseAngle = -Math.PI/2;
         else baseAngle = Math.PI/2;
     }
-    const angle = isReverse ? -baseAngle : baseAngle;
 
-    // === ЗАПИСЫВАЕМ В ИСТОРИЮ (только если не скрамбл) ===
-    if (!window.isScrambling) {
-        // ВАЖНО: записываем не букву, а конкретные параметры поворота
-        window.moveHistory.push({ axis: axis, index: index, angle: angle });
-    }
+    const angle = isReverse ? -baseAngle : baseAngle;
 
     // === ПОВОРАЧИВАЕМ СЛОЙ ===
     window.rotateLayer(axis, index, angle, 150, () => {
