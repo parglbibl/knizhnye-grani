@@ -350,7 +350,6 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
     <script>
-        // ===== ТВОЙ FIREBASE КОНФИГ =====
         const firebaseConfig = {
             apiKey: "AIzaSyBH0b4U-EkIIX0fiE3SdYtG0AZ-9bjlEiw",
             authDomain: "knizhnye-grani.firebaseapp.com",
@@ -381,7 +380,7 @@
                 legend.classList.remove('visible');
             };
 
-            // ===== ЛОГИКА ПОПАПА (КНИЖНЫЕ ГРАНИ) =====
+            // ===== ЛОГИКА ПОПАПА =====
             const popup = document.getElementById('popup');
             const popupClose = document.getElementById('popupClose');
             const popupTitle = document.getElementById('popupTitle');
@@ -391,6 +390,8 @@
             const popupSubmit = document.getElementById('popupSubmit');
 
             let currentElementId = null;
+            let mouseDownX = 0, mouseDownY = 0;
+            let mouseMoved = false;
 
             const colorNames = {
                 'red': 'Любовь',
@@ -463,7 +464,6 @@
                 'orange_2_2_1': 'Какая книга научила тебя беречь то, что у тебя есть дома?'
             };
 
-            // ===== ФУНКЦИЯ ЗАГРУЗКИ ОТВЕТОВ ИЗ FIREBASE =====
             function loadAnswers(elementId) {
                 const answersRef = database.ref('answers/' + elementId);
                 answersRef.on('value', (snapshot) => {
@@ -487,11 +487,8 @@
             }
 
             window.openBookGran = function(color, x, y) {
-                // ===== ГЛАВНОЕ УСЛОВИЕ: ВОПРОСЫ ТОЛЬКО В СОБРАННОМ СОСТОЯНИИ =====
-                if (!window.isSolved) {
-                    return;
-                }
-
+                if (!window.isSolved) return;
+                
                 const elementId = color + '_' + String(x) + '_' + String(y) + '_1';
                 currentElementId = elementId;
 
@@ -502,8 +499,6 @@
                 popupInput.value = '';
                 popup.style.display = 'flex';
                 document.body.style.overflow = 'hidden';
-
-                // Загружаем ответы из Firebase
                 loadAnswers(elementId);
             };
 
