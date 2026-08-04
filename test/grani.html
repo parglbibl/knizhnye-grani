@@ -405,4 +405,150 @@
                       </select>
                   </div>
                   <textarea id="popupInput" placeholder="Напиши здесь название книги и свои чувства..." style="width:100%; padding:1rem 1.2rem; border:2px solid #eee; border-radius:18px; font-family:inherit; font-size:0.95rem; min-height:80px; resize:vertical; background:#fafbfc; outline:none;"></textarea>
-                  <button id="popupSubmit
+                  <button id="popupSubmit" style="width:100%; margin-top:1rem; padding:0.9rem; background:#ff2e5a; color:#fff; border:none; border-radius:18px; font-weight:600; font-size:1rem; cursor:pointer; transition: transform 0.15s, box-shadow 0.15s; box-shadow:0 4px 16px rgba(255,46,90,0.25);">Ответить и поделиться</button>
+                  <p style="font-size:0.7rem; color:#999; margin-top:1rem; text-align:center; line-height:1.4;">Твой ответ увидят все, кто откроет этот квадратик</p>
+              </div>
+          </div>
+      `;
+      document.body.insertAdjacentHTML('beforeend', popupHTML);
+  }
+  createPopup();
+
+  const popup = document.getElementById('bookGranPopup');
+  const popupClose = document.getElementById('popupClose');
+  const popupColorTitle = document.getElementById('popupColorTitle');
+  const popupThumb = document.getElementById('popupThumb');
+  const popupQuestion = document.getElementById('popupQuestion');
+  const popupAnswers = document.getElementById('popupAnswers');
+  const popupInput = document.getElementById('popupInput');
+  const popupSubmit = document.getElementById('popupSubmit');
+
+  let currentElementId = null;
+
+  window.openBookGran = function(colorName, gx, gy) {
+      const elementId = colorName + '_' + String(gx) + '_' + String(gy) + '_1';
+      currentElementId = elementId;
+
+      popupColorTitle.textContent = colorNames[colorName] || colorName;
+      popupThumb.src = texturePaths[colorName] || '';
+
+      const question = questionsDB[elementId];
+      popupQuestion.textContent = question || 'Для этого квадратика пока нет вопроса. Придумай свой!';
+      
+      popupAnswers.innerHTML = '<p style="color:#aaa; font-size:0.9rem; text-align:center; margin:0;">Пока никто не ответил на этот вопрос.<br>Будь первым! ✨</p>';
+      popupInput.value = '';
+      popup.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+      
+      loadAnswers(elementId);
+  };
+
+  function loadAnswers(elementId) {
+      const answersRef = database.ref('answers/' + elementId);
+      answersRef.on('value', (snapshot) => {
+          const data = snapshot.val();
+          popupAnswers.innerHTML = '';
+          if (!data) {
+              popupAnswers.innerHTML = '<p style="color:#aaa; font-size:0.9rem; text-align:center; margin:0;">Пока никто не ответил на этот вопрос.<br>Будь первым! ✨</p>';
+              return;
+          }
+          const answersArray = Object.values(data).reverse();
+          answersArray.forEach((item) => {
+              const div = document.createElement('div');
+              div.style.cssText = 'background:#f5f0e8; border-radius:14px; padding:0.8rem 1.2rem; margin-bottom:0.8rem; box-shadow:0 2px 6px rgba(0,0,0,0.02);';
+              div.innerHTML = `
+                  <div style="font-size:0.9rem; color:#333; line-height:1.5;">${item.text}</div>
+                  <div style="font-size:0.65rem; color:#888; margin-top:0.3rem;">
+                      ${item.user || 'Аноним'} · ${item.age || 'Не указан'} · ${item.timestamp || ''}
+                  </div>
+              `;
+              popupAnswers.appendChild(div);
+          });
+      });
+  }
+
+  popupSubmit.addEventListener('click', function() {
+      const text = popupInput.value.trim();
+      const age = document.getElementById('popupAge').value;
+
+      if (!text) {
+          alert('Пожалуйста, напиши свой ответ перед отправкой.');
+          return;
+      }
+      if (!currentElementId) return;
+
+      const newAnswer = {
+          text: text,
+          age: age,
+          user: 'Аноним',
+          timestamp: new Date().toLocaleString('ru-RU')
+      };
+
+      const answersRef = database.ref('answers/' + currentElementId);
+      answersRef.push(newAnswer).then(() => {
+          popupInput.value = '';
+          document.getElementById('popupAge').value = '';
+
+          let myProgress = JSON.parse(localStorage.getItem('myGranProgress') || '[]');
+          if (!myProgress.includes(currentElementId)) {
+              myProgress.push(currentElementId);
+              localStorage.setItem('myGranProgress', JSON.stringify(myProgress));
+              if (window.updateCubeGlow) {
+                  window.updateCubeGlow();
+              }
+          }
+
+          alert('Спасибо! Твой ответ сохранён и теперь виден всем.');
+      }).catch((error) => {
+          console.error('Ошибка сохранения:', error);
+          alert('Произошла ошибка. Попробуй ещё раз.');
+      });
+  });
+
+  popupClose.addEventListener('click', function() {
+      popup.style.display = 'none';
+      document.body.style.overflow = '';
+  });
+
+  popup.addEventListener('click', function(e) {
+      if (e.target === popup) {
+          popup.style.display = 'none';
+          document.body.style.overflow = '';
+      }
+  });
+</script>
+
+<script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.128.0/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.128.0/examples/jsm/"
+        }
+    }
+</script>
+
+<!-- ===== ПОДКЛЮЧАЕМ МОДУЛЬ КУБИКА ===== -->
+<script type="module" src="./js/cube3d.js"></script>
+
+<!-- ===== ПОДКЛЮЧАЕМ KOCIEMBA (НАДЁЖНО) ===== -->
+<script src="https://cdn.jsdelivr.net/npm/kociemba@1.1.0/dist/kociemba.min.js"></script>
+
+<!-- ===== СКРИПТ ПОКАЗА И СКРЫТИЯ ===== -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const cubeButtons = document.getElementById('cubeButtons');
+        const legend = document.getElementById('legend');
+
+        window.showCubeControls = function() {
+            cubeButtons.classList.add('visible');
+            legend.classList.add('visible');
+        };
+
+        window.hideCubeControls = function() {
+            cubeButtons.classList.remove('visible');
+            legend.classList.remove('visible');
+        };
+    });
+</script>
+</body>
+</html>
