@@ -19,6 +19,10 @@ window.offset = null;
 window.cubeGroup = null;
 window.cubeState = {};
 
+// ===== ЗАЩИТА ОТ ЛОЖНОГО КЛИКА (разделение вращения и клика) =====
+let mouseDownPos = { x: 0, y: 0 };
+let isDraggingOrbit = false;
+
 const container = document.getElementById('cube-container');
 if (!container) {
     console.error('Контейнер для кубика не найден');
@@ -66,6 +70,10 @@ if (!container) {
         controls.target.set(0, 0, 0);
         controls.minDistance = 3;
         controls.maxDistance = 8;
+
+        // ===== ОТКЛЮЧАЕМ АВТОМАТИЧЕСКИЕ КЛИКИ =====
+        // Мы будем управлять кликами вручную через mousedown/mouseup
+        renderer.domElement.style.touchAction = 'none';
 
         const cubeGroup = new THREE.Group();
         scene.add(cubeGroup);
@@ -160,7 +168,7 @@ if (!container) {
                             faces: faces,
                             mats: mats,
                             id: uniqueId,
-                            faceNames: faces // ДОБАВЛЕНО ДЛЯ ИНТЕГРАЦИИ С КНИЖНЫМИ ГРАНЯМИ
+                            faceNames: faces
                         };
 
                         window.cubeState[uniqueId] = {
@@ -477,7 +485,7 @@ if (!container) {
             });
         });
 
-        // ===== ОБРАБОТЧИК КЛИКА ПО КУБИКУ (ИНТЕГРАЦИЯ С КНИЖНЫМИ ГРАНЯМИ) =====
+        // ===== ОБРАБОТЧИК КЛИКА ПО КУБИКУ (С ЗАЩИТОЙ ОТ ЛОЖНОГО КЛИКА) =====
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
 
@@ -540,7 +548,60 @@ if (!container) {
         }
 
         const canvas = renderer.domElement;
-        canvas.addEventListener('click', onMouseClick);
+
+        // ===== ЗАЩИТА ОТ ЛОЖНОГО КЛИКА: разделяем клик и вращение =====
+        canvas.addEventListener('mousedown', function(e) {
+            mouseDownPos.x = e.clientX;
+            mouseDownPos.y = e.clientY;
+            isDraggingOrbit = false;
+        });
+
+        canvas.addEventListener('mousemove', function(e) {
+            if (mouseDownPos.x !== 0) {
+                const dx = Math.abs(e.clientX - mouseDownPos.x);
+                const dy = Math.abs(e.clientY - mouseDownPos.y);
+                if (dx > 5 || dy > 5) {
+                    isDraggingOrbit = true;
+                }
+            }
+        });
+
+        canvas.addEventListener('mouseup', function(e) {
+            // Если мышь не двигалась или двигалась меньше 5px — это клик
+            if (!isDraggingOrbit && window.isSolved) {
+                onMouseClick(e);
+            }
+            // Сбрасываем всё
+            mouseDownPos.x = 0;
+            mouseDownPos.y = 0;
+            isDraggingOrbit = false;
+        });
+
+        // ===== ТАЧ-ЗАЩИТА (МОБИЛЬНЫЕ) =====
+        let touchStartX = 0, touchStartY = 0;
+        let touchMoved = false;
+
+        canvas.addEventListener('touchstart', function(e) {
+            const touch = e.touches[0];
+            touchStartX = touch.clientX;
+            touchStartY = touch.clientY;
+            touchMoved = false;
+        }, { passive: true });
+
+        canvas.addEventListener('touchmove', function(e) {
+            const touch = e.touches[0];
+            const dx = Math.abs(touch.clientX - touchStartX);
+            const dy = Math.abs(touch.clientY - touchStartY);
+            if (dx > 10 || dy > 10) {
+                touchMoved = true;
+            }
+        }, { passive: true });
+
+        canvas.addEventListener('touchend', function(e) {
+            if (!touchMoved && window.isSolved) {
+                onMouseClick(e.changedTouches[0]);
+            }
+        }, { passive: true });
 
         // ===== ПОДСВЕТКА =====
         let activeGlowIds = [];
@@ -559,9 +620,7 @@ if (!container) {
             applyGlow();
         };
 
-        function applyGlow() {
-            // Логика подсветки
-        }
+        function applyGlow() {}
 
         loadGlowFromLocalStorage();
         applyGlow();
