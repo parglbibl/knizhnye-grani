@@ -522,27 +522,27 @@ if (!container) {
         const pointer = new THREE.Vector2();
 
         function onPointerDown(event) {
-            // 1. Игнорируем клики во время анимации
+            // Игнорируем клики во время анимации
             if (window.isAnimating) return;
 
-            // 2. Вычисляем координаты в диапазоне -1 .. 1
             const rect = renderer.domElement.getBoundingClientRect();
-            // Используем clientX/Y вместо pageX/Y для надежности на мобильных
             const x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
             const y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
             pointer.set(x, y);
 
             raycaster.setFromCamera(pointer, camera);
 
-            // 3. Ищем пересечение
             const intersects = raycaster.intersectObjects(allCubies);
 
             if (intersects.length > 0) {
                 const hit = intersects[0];
                 const cubie = hit.object;
                 
-                // RoundedBoxGeometry дает индексы граней: 0:+x, 1:-x, 2:+y, 3:-y, 4:+z, 5:-z
-                const faceIndex = hit.face.materialIndex; 
+                // ===== ВОТ ЗДЕСЬ ГЛАВНОЕ ИСПРАВЛЕНИЕ =====
+                // Берем индекс треугольника (faceIndex) и делим на 2 с округлением вниз.
+                // Это дает нам корректный индекс грани от 0 до 5.
+                const faceIndex = Math.floor(hit.faceIndex / 2); 
+                
                 handleStickerClick(cubie, faceIndex);
             }
         }
@@ -551,15 +551,12 @@ if (!container) {
             const state = window.cubeState[cubie.userData.id];
             if (!state) return;
 
-            // Получаем индекс грани (0-5)
-            // Убедимся, что индекс в пределах 0-5 (на всякий случай)
+            // Убедимся, что индекс в пределах 0-5
             const safeIndex = (faceIndex >= 0 && faceIndex <= 5) ? faceIndex : 0;
             
             const colorMap = ['красный', 'оранжевый', 'белый', 'жёлтый', 'зелёный', 'синий'];
-            const colorName = colorMap[safeIndex] || 'неизвестный';
             const currentColor = state.faces[safeIndex] || 'пусто';
 
-            // Обращаемся к вашему HTML попапу
             const popup = document.getElementById('popup');
             const title = document.getElementById('popupTitle');
             const question = document.getElementById('popupQuestion');
@@ -568,7 +565,6 @@ if (!container) {
                 const pos = state.position;
                 title.innerText = `Кубик [${pos.x}, ${pos.y}, ${pos.z}]`;
 
-                // Определяем название грани
                 const faceName = ['+X (Право)', '-X (Лево)', '+Y (Верх)', '-Y (Низ)', '+Z (Перед)', '-Z (Зад)'][safeIndex];
                 
                 question.innerHTML = `
