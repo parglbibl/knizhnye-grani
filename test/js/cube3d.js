@@ -488,16 +488,12 @@ if (!container) {
         });
 
         // ===== ЗАКРЫТИЕ ПОПАПА =====
-        // Добавлена защитная проверка, чтобы код не падал, если элемента нет в HTML
-        const popup = document.getElementById('popup');
-        if (popup) {
-            popup.addEventListener('click', (e) => {
-                if (e.target === e.currentTarget) {
-                    e.currentTarget.style.display = 'none';
-                    document.body.style.overflow = '';
-                }
-            });
-        }
+        document.getElementById('popup').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) {
+                e.currentTarget.style.display = 'none';
+                document.body.style.overflow = '';
+            }
+        });
 
         // ===== ПОДСВЕТКА =====
         let activeGlowIds = [];
