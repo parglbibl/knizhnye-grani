@@ -203,7 +203,8 @@
                 </div>
             </div>
 
-            <div style="flex: 1; min-width: 320px; max-width: 580px; display: flex; justify-content: center; position: relative;">
+            <!-- ===== ВАЖНО: ДОБАВЛЕНА ВЫСОТА 100% ===== -->
+            <div style="flex: 1; min-width: 320px; max-width: 580px; display: flex; justify-content: center; position: relative; height: 100%;">
                 <div id="cube-container" style="width: 100%; aspect-ratio: 1 / 1; max-width: 580px; background: transparent; position: relative; touch-action: none;"></div>
             </div>
         </div>
@@ -545,43 +546,6 @@
             cubeButtons.classList.remove('visible');
             legend.classList.remove('visible');
         };
-    });
-</script>
-
-<!-- ===== ДОБАВЛЕННЫЙ ПЕРЕХВАТЧИК КЛИКОВ (НЕ ЛОМАЕТ СБОРКУ) ===== -->
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Ждем, пока загрузится модуль кубика и появится window.allCubies
-        function checkCube() {
-            if (window.allCubies && window.allCubies.length > 0) {
-                attachClickHandler();
-            } else {
-                setTimeout(checkCube, 200);
-            }
-        }
-
-        function attachClickHandler() {
-            const container = document.getElementById('cube-container');
-            if (!container) return;
-
-            container.addEventListener('click', function(event) {
-                // Если крутится анимация, игнорируем клик
-                if (window.isAnimating) return;
-
-                // Получаем координаты клика внутри контейнера
-                const rect = container.getBoundingClientRect();
-                const x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-                const y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-
-                // Используем функцию, которую предоставляет cube3d.js (если есть)
-                if (window.__cubeClickHandler) {
-                    window.__cubeClickHandler(x, y);
-                    return;
-                }
-            });
-        }
-
-        checkCube();
     });
 </script>
 </body>
