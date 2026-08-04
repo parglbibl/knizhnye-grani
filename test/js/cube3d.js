@@ -314,7 +314,7 @@ if (!container) {
         }
 
         // ===== ЭКСПОРТ В ГЛОБАЛЬНУЮ ОБЛАСТЬ =====
-        window.rotateLayer = rotateLayer; // <--- ВОТ ЭТА СТРОКА ИСПРАВЛЯЕТ ОШИБКУ
+        window.rotateLayer = rotateLayer;
 
         // ===== СКРАМБЛЕР И СБОРЩИК =====
         let isScrambling = false;
@@ -420,7 +420,7 @@ if (!container) {
                 if (window.isScrambling || window.isAnimating) return;
                 window.isBlocked = true;
                 window.isScrambling = true;
-                window.isSolved = false; // <--- Разрешаем кнопкам работать сразу
+                window.isSolved = false;
                 this.style.display = 'none';
                 newBtnSolve.style.display = 'inline-block';
 
@@ -481,8 +481,8 @@ if (!container) {
             });
         });
 
-        // ===== ЗАКРЫТИЕ ПОПАПА =====
-        document.getElementById('popup').addEventListener('click', (e) => {
+        // ===== ЗАКРЫТИЕ ПОПАПА (ИСПРАВЛЕННЫЙ ID) =====
+        document.getElementById('bookGranPopup').addEventListener('click', (e) => {
             if (e.target === e.currentTarget) {
                 e.currentTarget.style.display = 'none';
                 document.body.style.overflow = '';
