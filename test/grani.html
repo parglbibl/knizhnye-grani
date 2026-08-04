@@ -248,6 +248,8 @@
             border-radius: 28px;
             position: relative;
             box-shadow: 0 24px 70px rgba(0,0,0,0.25);
+            max-height: 95vh;
+            overflow-y: auto;
         }
         #popupClose {
             position: absolute;
@@ -262,6 +264,55 @@
         }
         #popupClose:hover {
             color: #ff2e5a;
+        }
+
+        /* ===== СТИЛИ ДЛЯ ВЫБОРА ВОЗРАСТА ===== */
+        .age-selector {
+            margin: 1rem 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+        .age-btn {
+            padding: 0.5rem 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 20px;
+            background: #fafbfc;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #555;
+            transition: all 0.2s ease;
+            touch-action: manipulation;
+        }
+        .age-btn:hover {
+            border-color: #bbb;
+            background: #f0f0f0;
+        }
+        .age-btn.active {
+            border-color: #ff2e5a;
+            background: #ff2e5a;
+            color: #fff;
+        }
+        .age-label {
+            font-size: 0.8rem;
+            color: #888;
+            text-align: center;
+            margin-bottom: 0.3rem;
+            width: 100%;
+        }
+
+        /* ===== СТИЛИ ДЛЯ ОТВЕТОВ С ВОЗРАСТОМ ===== */
+        .answer-age-badge {
+            display: inline-block;
+            font-size: 0.6rem;
+            background: #e8e0d8;
+            color: #666;
+            padding: 0.1rem 0.6rem;
+            border-radius: 10px;
+            margin-left: 0.5rem;
         }
     </style>
 </head>
@@ -325,6 +376,17 @@
             <button id="popupClose">&times;</button>
             <h2 id="popupTitle" style="color:#1e2a3a; margin-bottom:0.5rem;">Грань</h2>
             <p id="popupQuestion" style="font-size:1.05rem; line-height:1.6; color:#333;"></p>
+            
+            <!-- ===== ВЫБОР ВОЗРАСТА ===== -->
+            <div class="age-selector" id="ageSelector">
+                <div class="age-label">👤 Твой возраст</div>
+                <button class="age-btn" data-age="not_specified">Не указан</button>
+                <button class="age-btn" data-age="under_14">До 14 лет</button>
+                <button class="age-btn" data-age="15_17">15–17 лет</button>
+                <button class="age-btn" data-age="18_35">18–35 лет</button>
+                <button class="age-btn" data-age="over_35">Старше 35</button>
+            </div>
+
             <div id="popupAnswers" style="margin-top:1rem; max-height:150px; overflow-y:auto; border-top:1px solid #f0f0f0; padding-top:1rem;"></div>
             <textarea id="popupInput" placeholder="Напиши здесь название книги и свои чувства..." style="width:100%; margin-top:1rem; padding:0.8rem; border:2px solid #eee; border-radius:12px; font-family:inherit; font-size:0.95rem; min-height:80px; resize:vertical; background:#fafbfc; outline:none;"></textarea>
             <button id="popupSubmit" style="width:100%; margin-top:1rem; padding:0.9rem; background:#ff2e5a; color:#fff; border:none; border-radius:12px; font-weight:600; font-size:1rem; cursor:pointer;">Ответить и поделиться</button>
@@ -389,8 +451,58 @@
             const popupAnswers = document.getElementById('popupAnswers');
             const popupInput = document.getElementById('popupInput');
             const popupSubmit = document.getElementById('popupSubmit');
+            const ageSelector = document.getElementById('ageSelector');
 
             let currentElementId = null;
+            let selectedAge = 'not_specified';
+
+            // ===== ОБРАБОТЧИК ВЫБОРА ВОЗРАСТА =====
+            const ageButtons = ageSelector.querySelectorAll('.age-btn');
+            ageButtons.forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    ageButtons.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    selectedAge = this.dataset.age;
+                });
+            });
+
+            // По умолчанию выбираем "Не указан"
+            const defaultAgeBtn = ageSelector.querySelector('[data-age="not_specified"]');
+            if (defaultAgeBtn) {
+                defaultAgeBtn.classList.add('active');
+            }
+
+            // ===== ФУНКЦИЯ ДЛЯ ПРЕОБРАЗОВАНИЯ ВОЗРАСТА В ЧИТАЕМЫЙ ВИД =====
+            function getAgeLabel(age) {
+                // Если возраст не указан
+                if (!age) return 'Не указан';
+                
+                // Поддерживаем оба формата: "18_35" и "18-35"
+                const ageMap = {
+                    'not_specified': 'Не указан',
+                    'under_14': 'До 14 лет',
+                    '15_17': '15–17 лет',
+                    '18_35': '18–35 лет',
+                    'over_35': 'Старше 35',
+                    // Старый формат с дефисом
+                    'under-14': 'До 14 лет',
+                    '15-17': '15–17 лет',
+                    '18-35': '18–35 лет',
+                    'over-35': 'Старше 35'
+                };
+                
+                // Если возраст это число или строка с числом
+                if (typeof age === 'number' || !isNaN(age)) {
+                    const numAge = parseInt(age);
+                    if (numAge < 14) return 'До 14 лет';
+                    if (numAge >= 14 && numAge <= 17) return '15–17 лет';
+                    if (numAge >= 18 && numAge <= 35) return '18–35 лет';
+                    if (numAge > 35) return 'Старше 35';
+                }
+                
+                return ageMap[age] || 'Не указан';
+            }
 
             const colorNames = {
                 'red': 'Любовь',
@@ -477,9 +589,17 @@
                     answersArray.forEach((item) => {
                         const div = document.createElement('div');
                         div.style.cssText = 'background:#f5f0e8; border-radius:14px; padding:0.8rem 1.2rem; margin-bottom:0.8rem; box-shadow:0 2px 6px rgba(0,0,0,0.02);';
+                        
+                        // Используем универсальную функцию для отображения возраста
+                        const ageLabel = getAgeLabel(item.age);
+                        
                         div.innerHTML = `
                             <div style="font-size:0.9rem; color:#333; line-height:1.5;">${item.text}</div>
-                            <div style="font-size:0.65rem; color:#888; margin-top:0.3rem;">${item.user || 'Аноним'} · ${item.timestamp || ''}</div>
+                            <div style="font-size:0.65rem; color:#888; margin-top:0.3rem;">
+                                ${item.user || 'Аноним'} 
+                                <span class="answer-age-badge">${ageLabel}</span>
+                                · ${item.timestamp || ''}
+                            </div>
                         `;
                         popupAnswers.appendChild(div);
                     });
@@ -495,6 +615,12 @@
                 const elementId = color + '_' + String(x) + '_' + String(y) + '_1';
                 currentElementId = elementId;
 
+                // Сбрасываем выбор возраста
+                selectedAge = 'not_specified';
+                ageButtons.forEach(b => b.classList.remove('active'));
+                const defaultBtn = ageSelector.querySelector('[data-age="not_specified"]');
+                if (defaultBtn) defaultBtn.classList.add('active');
+
                 popupTitle.textContent = colorNames[color] || color;
                 const question = questionsDB[elementId];
                 popupQuestion.textContent = question || 'Для этого квадратика пока нет вопроса. Придумай свой!';
@@ -503,46 +629,4 @@
                 popup.style.display = 'flex';
                 document.body.style.overflow = 'hidden';
 
-                // Загружаем ответы из Firebase
-                loadAnswers(elementId);
-            };
-
-            popupClose.addEventListener('click', function() {
-                popup.style.display = 'none';
-                document.body.style.overflow = '';
-            });
-
-            popup.addEventListener('click', function(e) {
-                if (e.target === popup) {
-                    popup.style.display = 'none';
-                    document.body.style.overflow = '';
-                }
-            });
-
-            popupSubmit.addEventListener('click', function() {
-                const text = popupInput.value.trim();
-                if (!text) {
-                    alert('Пожалуйста, напиши свой ответ перед отправкой.');
-                    return;
-                }
-                if (!currentElementId) return;
-
-                const newAnswer = {
-                    text: text,
-                    user: 'Аноним',
-                    timestamp: new Date().toLocaleString('ru-RU')
-                };
-
-                const answersRef = database.ref('answers/' + currentElementId);
-                answersRef.push(newAnswer).then(() => {
-                    popupInput.value = '';
-                    alert('Спасибо! Твой ответ сохранён и теперь виден всем.');
-                }).catch((error) => {
-                    console.error('Ошибка сохранения:', error);
-                    alert('Произошла ошибка. Попробуй ещё раз.');
-                });
-            });
-        });
-    </script>
-</body>
-</html>
+                // Загру
