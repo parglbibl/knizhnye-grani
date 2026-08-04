@@ -495,6 +495,10 @@ if (!container) {
         }
 
         function onMouseClick(event) {
+            // Дополнительная проверка: если кубик в процессе анимации или скрамбла - не открываем
+            if (window.isAnimating || window.isScrambling) return;
+            if (!window.isSolved) return;
+            
             const rect = renderer.domElement.getBoundingClientRect();
             mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
             mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
@@ -539,6 +543,8 @@ if (!container) {
                     gy = coords.y + 1;
                 }
                 
+                console.log('Клик по грани:', colorName, gx, gy); // Отладка
+                
                 if (window.openBookGran) {
                     window.openBookGran(colorName, gx, gy);
                 }
@@ -547,11 +553,18 @@ if (!container) {
 
         const canvas = renderer.domElement;
 
-        // ===== ЗАЩИТА ОТ ЛОЖНОГО КЛИКА (ДЛЯ КОМПЬЮТЕРА) =====
+        // ===== ИСПРАВЛЕННАЯ ЗАЩИТА ОТ ЛОЖНОГО КЛИКА (ДЛЯ КОМПЬЮТЕРА) =====
+        let mouseClickTimeout = null;
+
         canvas.addEventListener('mousedown', function(e) {
             mouseDownPos.x = e.clientX;
             mouseDownPos.y = e.clientY;
             isDraggingOrbit = false;
+            // Сбрасываем таймаут, если он был
+            if (mouseClickTimeout) {
+                clearTimeout(mouseClickTimeout);
+                mouseClickTimeout = null;
+            }
         });
 
         canvas.addEventListener('mousemove', function(e) {
@@ -567,12 +580,22 @@ if (!container) {
         canvas.addEventListener('mouseup', function(e) {
             // Если мышь не двигалась или двигалась меньше 5px — это клик
             if (!isDraggingOrbit && window.isSolved) {
-                onMouseClick(e);
+                // Небольшая задержка, чтобы OrbitControls не успел среагировать
+                mouseClickTimeout = setTimeout(() => {
+                    onMouseClick(e);
+                    mouseClickTimeout = null;
+                }, 50);
             }
             // Сбрасываем всё
             mouseDownPos.x = 0;
             mouseDownPos.y = 0;
             isDraggingOrbit = false;
+        });
+
+        // Отменяем контекстное меню на канвасе
+        canvas.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            return false;
         });
 
         // ===== ДЛЯ ТЕЛЕФОНА (ТАЧ) =====
