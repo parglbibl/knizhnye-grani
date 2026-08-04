@@ -31,7 +31,7 @@
     <meta name="theme-color" content="#fef9f0">
 
     <style>
-        /* ===== КНОПКИ ПОВОРОТА ГРАНЕЙ (ДОБАВЛЕНЫ) ===== */
+        /* ===== КНОПКИ ПОВОРОТА ГРАНЕЙ ===== */
         .cube-buttons {
             margin-top: 1.5rem;
             display: none;
@@ -84,7 +84,7 @@
             background: #4a3a5a;
         }
 
-        /* ===== Легенда (ДОБАВЛЕНА) ===== */
+        /* ===== Легенда ===== */
         .legend {
             margin-top: 2rem;
             max-width: 600px;
@@ -214,7 +214,7 @@
             <button id="btnSolve" class="btn btn-primary" style="background: #2ecc71; color: #fff; border-color: #2ecc71; display: none;">Собрать</button>
         </div>
 
-        <!-- ===== КНОПКИ ПОВОРОТА ГРАНЕЙ (ДОБАВЛЕНО) ===== -->
+        <!-- ===== КНОПКИ ПОВОРОТА ГРАНЕЙ ===== -->
         <div class="cube-buttons" id="cubeButtons">
             <div class="btn-row">
                 <button class="cube-btn" onclick="window.doMove('U')">U</button>
@@ -236,7 +236,7 @@
             </div>
         </div>
 
-        <!-- ===== ЛЕГЕНДА (ДОБАВЛЕНО) ===== -->
+        <!-- ===== ЛЕГЕНДА ===== -->
         <div class="legend" id="legend">
             <h3>📐 Обозначения ходов</h3>
             <div class="legend-grid">
@@ -426,123 +426,4 @@
       const elementId = colorName + '_' + String(gx) + '_' + String(gy) + '_1';
       currentElementId = elementId;
 
-      popupColorTitle.textContent = colorNames[colorName] || colorName;
-      popupThumb.src = texturePaths[colorName] || '';
-
-      const question = questionsDB[elementId];
-      popupQuestion.textContent = question || 'Для этого квадратика пока нет вопроса. Придумай свой!';
-      
-      popupAnswers.innerHTML = '<p style="color:#aaa; font-size:0.9rem; text-align:center; margin:0;">Пока никто не ответил на этот вопрос.<br>Будь первым! ✨</p>';
-      popupInput.value = '';
-      popup.style.display = 'flex';
-      document.body.style.overflow = 'hidden';
-      
-      loadAnswers(elementId);
-  };
-
-  function loadAnswers(elementId) {
-      const answersRef = database.ref('answers/' + elementId);
-      answersRef.on('value', (snapshot) => {
-          const data = snapshot.val();
-          popupAnswers.innerHTML = '';
-          if (!data) {
-              popupAnswers.innerHTML = '<p style="color:#aaa; font-size:0.9rem; text-align:center; margin:0;">Пока никто не ответил на этот вопрос.<br>Будь первым! ✨</p>';
-              return;
-          }
-          const answersArray = Object.values(data).reverse();
-          answersArray.forEach((item) => {
-              const div = document.createElement('div');
-              div.style.cssText = 'background:#f5f0e8; border-radius:14px; padding:0.8rem 1.2rem; margin-bottom:0.8rem; box-shadow:0 2px 6px rgba(0,0,0,0.02);';
-              div.innerHTML = `
-                  <div style="font-size:0.9rem; color:#333; line-height:1.5;">${item.text}</div>
-                  <div style="font-size:0.65rem; color:#888; margin-top:0.3rem;">
-                      ${item.user || 'Аноним'} · ${item.age || 'Не указан'} · ${item.timestamp || ''}
-                  </div>
-              `;
-              popupAnswers.appendChild(div);
-          });
-      });
-  }
-
-  popupSubmit.addEventListener('click', function() {
-      const text = popupInput.value.trim();
-      const age = document.getElementById('popupAge').value;
-
-      if (!text) {
-          alert('Пожалуйста, напиши свой ответ перед отправкой.');
-          return;
-      }
-      if (!currentElementId) return;
-
-      const newAnswer = {
-          text: text,
-          age: age,
-          user: 'Аноним',
-          timestamp: new Date().toLocaleString('ru-RU')
-      };
-
-      const answersRef = database.ref('answers/' + currentElementId);
-      answersRef.push(newAnswer).then(() => {
-          popupInput.value = '';
-          document.getElementById('popupAge').value = '';
-
-          let myProgress = JSON.parse(localStorage.getItem('myGranProgress') || '[]');
-          if (!myProgress.includes(currentElementId)) {
-              myProgress.push(currentElementId);
-              localStorage.setItem('myGranProgress', JSON.stringify(myProgress));
-              if (window.updateCubeGlow) {
-                  window.updateCubeGlow();
-              }
-          }
-
-          alert('Спасибо! Твой ответ сохранён и теперь виден всем.');
-      }).catch((error) => {
-          console.error('Ошибка сохранения:', error);
-          alert('Произошла ошибка. Попробуй ещё раз.');
-      });
-  });
-
-  popupClose.addEventListener('click', function() {
-      popup.style.display = 'none';
-      document.body.style.overflow = '';
-  });
-
-  popup.addEventListener('click', function(e) {
-      if (e.target === popup) {
-          popup.style.display = 'none';
-          document.body.style.overflow = '';
-      }
-  });
-</script>
-
-<script type="importmap">
-    {
-        "imports": {
-            "three": "https://unpkg.com/three@0.128.0/build/three.module.js",
-            "three/addons/": "https://unpkg.com/three@0.128.0/examples/jsm/"
-        }
-    }
-</script>
-
-<!-- ===== ПОДКЛЮЧАЕМ МОДУЛЬ ===== -->
-<script type="module" src="./js/cube3d.js"></script>
-
-<!-- ===== СКРИПТ ПОКАЗА И СКРЫТИЯ (ДОБАВЛЕНО) ===== -->
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const cubeButtons = document.getElementById('cubeButtons');
-        const legend = document.getElementById('legend');
-
-        window.showCubeControls = function() {
-            cubeButtons.classList.add('visible');
-            legend.classList.add('visible');
-        };
-
-        window.hideCubeControls = function() {
-            cubeButtons.classList.remove('visible');
-            legend.classList.remove('visible');
-        };
-    });
-</script>
-</body>
-</html>
+      pop
