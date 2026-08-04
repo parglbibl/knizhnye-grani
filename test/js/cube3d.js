@@ -477,7 +477,7 @@ if (!container) {
             });
         });
 
-        // ===== ИДЕАЛЬНОЕ РАЗДЕЛЕНИЕ ВРАЩЕНИЯ И КЛИКА (УПРОЩЁННОЕ) =====
+        // ===== ИДЕАЛЬНОЕ РАЗДЕЛЕНИЕ ВРАЩЕНИЯ И КЛИКА (ДЛЯ КОМПА) =====
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
 
@@ -488,38 +488,31 @@ if (!container) {
             return { x, y, z };
         }
 
-        let pointerDownX = 0;
-        let pointerDownY = 0;
-        let pointerMoved = false;
+        let mouseDownX = 0;
+        let mouseDownY = 0;
+        let mouseMoved = false;
 
-        function onPointerDown(event) {
-            const clientX = event.clientX || event.touches?.[0]?.clientX || 0;
-            const clientY = event.clientY || event.touches?.[0]?.clientY || 0;
-            pointerDownX = clientX;
-            pointerDownY = clientY;
-            pointerMoved = false;
+        function onMouseDown(event) {
+            mouseDownX = event.clientX;
+            mouseDownY = event.clientY;
+            mouseMoved = false;
         }
 
-        function onPointerMove(event) {
-            const clientX = event.clientX || event.touches?.[0]?.clientX || 0;
-            const clientY = event.clientY || event.touches?.[0]?.clientY || 0;
-            // Если палец/мышь сдвинулись больше чем на 10px — это вращение, а не клик
-            if (Math.abs(clientX - pointerDownX) > 10 || Math.abs(clientY - pointerDownY) > 10) {
-                pointerMoved = true;
+        function onMouseMove(event) {
+            const dx = Math.abs(event.clientX - mouseDownX);
+            const dy = Math.abs(event.clientY - mouseDownY);
+            if (dx > 6 || dy > 6) {
+                mouseMoved = true;
             }
         }
 
-        function onPointerUp(event) {
-            // Если было движение — это вращение, клик игнорируем
-            if (pointerMoved) return;
+        function onMouseUp(event) {
+            // Если мышь двигалась — это вращение, клик игнорируем
+            if (mouseMoved) return;
 
-            // Иначе выполняем клик
             const rect = renderer.domElement.getBoundingClientRect();
-            const clientX = event.clientX || event.changedTouches?.[0]?.clientX || 0;
-            const clientY = event.clientY || event.changedTouches?.[0]?.clientY || 0;
-
-            mouse.x = ((clientX - rect.left) / rect.width) * 2 - 1;
-            mouse.y = -((clientY - rect.top) / rect.height) * 2 + 1;
+            mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+            mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
 
             raycaster.setFromCamera(mouse, camera);
             const intersects = raycaster.intersectObjects(allCubies);
@@ -568,16 +561,9 @@ if (!container) {
         }
 
         const canvas = renderer.domElement;
-        
-        // Мышь (компьютер)
-        canvas.addEventListener('mousedown', onPointerDown);
-        canvas.addEventListener('mousemove', onPointerMove);
-        canvas.addEventListener('mouseup', onPointerUp);
-        
-        // Тач (мобильные устройства)
-        canvas.addEventListener('touchstart', onPointerDown, { passive: true });
-        canvas.addEventListener('touchmove', onPointerMove, { passive: true });
-        canvas.addEventListener('touchend', onPointerUp, { passive: true });
+        canvas.addEventListener('mousedown', onMouseDown);
+        canvas.addEventListener('mousemove', onMouseMove);
+        canvas.addEventListener('mouseup', onMouseUp);
 
         // ===== ПОДСВЕТКА =====
         let activeGlowIds = [];
