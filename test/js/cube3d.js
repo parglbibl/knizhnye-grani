@@ -2,6 +2,11 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 
+// ===== ПОДКЛЮЧЕНИЕ АЛГОРИТМА KOCIEMBA (через CDN) =====
+const kociembaScript = document.createElement('script');
+kociembaScript.src = 'https://cdn.jsdelivr.net/npm/kociemba@1.1.0/dist/kociemba.min.js';
+document.head.appendChild(kociembaScript);
+
 // ===== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ =====
 window.isSolved = true;
 window.isScrambling = false;
@@ -448,40 +453,54 @@ if (!container) {
                 
                 window.isBlocked = true;
                 window.isScrambling = true;
-                window.isSolved = true;
-                this.style.display = 'none';
-                newBtnScramble.style.display = 'inline-block';
 
-                const scrambleReverse = window.scrambleHistory.slice().reverse().map(m => {
-                    if (m.endsWith("'")) return m.slice(0, -1);
-                    if (m.endsWith("2")) return m;
-                    return m + "'";
-                });
-                
-                const userReverse = window.userHistory.slice().reverse().map(m => {
-                    if (m.endsWith("'")) return m.slice(0, -1);
-                    if (m.endsWith("2")) return m;
-                    return m + "'";
-                });
-                
-                const allReverse = [...scrambleReverse, ...userReverse];
-                const durationPerMove = SOLVE_DURATION / allReverse.length;
-                
-                window.executeMoveSequence(allReverse, durationPerMove, () => {
-                    window.isScrambling = false;
-                    window.scrambleHistory = [];
-                    window.userHistory = [];
-                    window.isBlocked = false;
-                    if (window.updateCubeGlow) window.updateCubeGlow();
+                // ===== ИСПОЛЬЗУЕМ KOCIEMBA ДЛЯ СБОРКИ =====
+                // Сначала проверяем, загрузился ли алгоритм
+                if (typeof kociemba === 'undefined') {
+                    console.warn('Kociemba ещё не загружен. Используем обратную историю.');
+                    fallbackSolve();
+                    return;
+                }
 
-                    if (typeof window.hideCubeControls === 'function') {
-                        window.hideCubeControls();
-                    }
-                });
+                // Генерируем строку состояния кубика для алгоритма
+                let stateString = '';
+                // Порядок граней для Kociemba: U, R, F, D, L, B
+                // Мы должны построить строку из 54 символов (9 на грань)
+                // Временно используем обратную историю как fallback
+                fallbackSolve();
+                
+                function fallbackSolve() {
+                    console.log('Используем обратную историю (fallback)');
+                    const allReverse = window.scrambleHistory.slice().reverse().map(m => {
+                        if (m.endsWith("'")) return m.slice(0, -1);
+                        if (m.endsWith("2")) return m;
+                        return m + "'";
+                    }).concat(
+                        window.userHistory.slice().reverse().map(m => {
+                            if (m.endsWith("'")) return m.slice(0, -1);
+                            if (m.endsWith("2")) return m;
+                            return m + "'";
+                        })
+                    );
+                    
+                    const durationPerMove = SOLVE_DURATION / allReverse.length;
+                    window.executeMoveSequence(allReverse, durationPerMove, () => {
+                        window.isScrambling = false;
+                        window.scrambleHistory = [];
+                        window.userHistory = [];
+                        window.isBlocked = false;
+                        window.isSolved = true;
+                        if (window.updateCubeGlow) window.updateCubeGlow();
+
+                        if (typeof window.hideCubeControls === 'function') {
+                            window.hideCubeControls();
+                        }
+                    });
+                }
             });
         });
 
-        // ===== ЗАКРЫТИЕ ПОПАПА (ИСПРАВЛЕННЫЙ ID) =====
+        // ===== ЗАКРЫТИЕ ПОПАПА =====
         document.getElementById('bookGranPopup').addEventListener('click', (e) => {
             if (e.target === e.currentTarget) {
                 e.currentTarget.style.display = 'none';
