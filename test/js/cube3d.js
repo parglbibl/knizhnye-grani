@@ -477,7 +477,7 @@ if (!container) {
             });
         });
 
-        // ===== ИДЕАЛЬНОЕ РАЗДЕЛЕНИЕ ВРАЩЕНИЯ И КЛИКА =====
+        // ===== ИДЕАЛЬНОЕ РАЗДЕЛЕНИЕ ВРАЩЕНИЯ И КЛИКА (УПРОЩЁННОЕ) =====
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
 
@@ -488,37 +488,30 @@ if (!container) {
             return { x, y, z };
         }
 
-        // Определяем клик по разнице координат
         let pointerDownX = 0;
         let pointerDownY = 0;
         let pointerMoved = false;
-        let pointerDownTime = 0;
 
         function onPointerDown(event) {
-            const rect = renderer.domElement.getBoundingClientRect();
             const clientX = event.clientX || event.touches?.[0]?.clientX || 0;
             const clientY = event.clientY || event.touches?.[0]?.clientY || 0;
             pointerDownX = clientX;
             pointerDownY = clientY;
             pointerMoved = false;
-            pointerDownTime = Date.now();
         }
 
         function onPointerMove(event) {
-            const rect = renderer.domElement.getBoundingClientRect();
             const clientX = event.clientX || event.touches?.[0]?.clientX || 0;
             const clientY = event.clientY || event.touches?.[0]?.clientY || 0;
-            if (Math.abs(clientX - pointerDownX) > 5 || Math.abs(clientY - pointerDownY) > 5) {
+            // Если палец/мышь сдвинулись больше чем на 10px — это вращение, а не клик
+            if (Math.abs(clientX - pointerDownX) > 10 || Math.abs(clientY - pointerDownY) > 10) {
                 pointerMoved = true;
             }
         }
 
         function onPointerUp(event) {
-            // Если двигались — это было вращение, не клик
+            // Если было движение — это вращение, клик игнорируем
             if (pointerMoved) return;
-            
-            // Если прошло слишком много времени — не считаем кликом
-            if (Date.now() - pointerDownTime > 300) return;
 
             // Иначе выполняем клик
             const rect = renderer.domElement.getBoundingClientRect();
@@ -576,12 +569,12 @@ if (!container) {
 
         const canvas = renderer.domElement;
         
-        // Мышь
+        // Мышь (компьютер)
         canvas.addEventListener('mousedown', onPointerDown);
         canvas.addEventListener('mousemove', onPointerMove);
         canvas.addEventListener('mouseup', onPointerUp);
         
-        // Тач (мобильные)
+        // Тач (мобильные устройства)
         canvas.addEventListener('touchstart', onPointerDown, { passive: true });
         canvas.addEventListener('touchmove', onPointerMove, { passive: true });
         canvas.addEventListener('touchend', onPointerUp, { passive: true });
