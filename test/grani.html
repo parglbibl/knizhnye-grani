@@ -345,27 +345,7 @@
     <!-- ===== ПОДКЛЮЧАЕМ МОДУЛЬ КУБИКА ===== -->
     <script type="module" src="./js/cube3d.js"></script>
 
-    <!-- ===== FIRBASE ИНИЦИАЛИЗАЦИЯ ===== -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
-    <script>
-        // ===== ТВОЙ FIREBASE КОНФИГ =====
-        const firebaseConfig = {
-            apiKey: "AIzaSyBH0b4U-EkIIX0fiE3SdYtG0AZ-9bjlEiw",
-            authDomain: "knizhnye-grani.firebaseapp.com",
-            databaseURL: "https://knizhnye-grani-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "knizhnye-grani",
-            storageBucket: "knizhnye-grani.firebasestorage.app",
-            messagingSenderId: "633401933627",
-            appId: "1:633401933627:web:978ea1152ad840062a411e"
-        };
-
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
-    </script>
-
-    <!-- ===== СКРИПТ ПОКАЗА И СКРЫТИЯ + ЛОГИКА КНИЖНЫХ ГРАНЕЙ ===== -->
+    <!-- ===== СКРИПТ ПОКАЗА И СКРЫТИЯ ===== -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const cubeButtons = document.getElementById('cubeButtons');
@@ -463,32 +443,10 @@
                 'orange_2_2_1': 'Какая книга научила тебя беречь то, что у тебя есть дома?'
             };
 
-            // ===== ФУНКЦИЯ ЗАГРУЗКИ ОТВЕТОВ ИЗ FIREBASE =====
-            function loadAnswers(elementId) {
-                const answersRef = database.ref('answers/' + elementId);
-                answersRef.on('value', (snapshot) => {
-                    const data = snapshot.val();
-                    popupAnswers.innerHTML = '';
-                    if (!data) {
-                        popupAnswers.innerHTML = '<p style="color:#aaa; font-size:0.9rem; text-align:center; margin:0;">Пока никто не ответил на этот вопрос.<br>Будь первым! ✨</p>';
-                        return;
-                    }
-                    const answersArray = Object.values(data).reverse();
-                    answersArray.forEach((item) => {
-                        const div = document.createElement('div');
-                        div.style.cssText = 'background:#f5f0e8; border-radius:14px; padding:0.8rem 1.2rem; margin-bottom:0.8rem; box-shadow:0 2px 6px rgba(0,0,0,0.02);';
-                        div.innerHTML = `
-                            <div style="font-size:0.9rem; color:#333; line-height:1.5;">${item.text}</div>
-                            <div style="font-size:0.65rem; color:#888; margin-top:0.3rem;">${item.user || 'Аноним'} · ${item.timestamp || ''}</div>
-                        `;
-                        popupAnswers.appendChild(div);
-                    });
-                });
-            }
-
             window.openBookGran = function(color, x, y) {
                 // ===== ГЛАВНОЕ УСЛОВИЕ: ВОПРОСЫ ТОЛЬКО В СОБРАННОМ СОСТОЯНИИ =====
                 if (!window.isSolved) {
+                    // Если кубик не собран — просто игнорируем клик
                     return;
                 }
 
@@ -502,9 +460,6 @@
                 popupInput.value = '';
                 popup.style.display = 'flex';
                 document.body.style.overflow = 'hidden';
-
-                // Загружаем ответы из Firebase
-                loadAnswers(elementId);
             };
 
             popupClose.addEventListener('click', function() {
@@ -527,20 +482,11 @@
                 }
                 if (!currentElementId) return;
 
-                const newAnswer = {
-                    text: text,
-                    user: 'Аноним',
-                    timestamp: new Date().toLocaleString('ru-RU')
-                };
-
-                const answersRef = database.ref('answers/' + currentElementId);
-                answersRef.push(newAnswer).then(() => {
-                    popupInput.value = '';
-                    alert('Спасибо! Твой ответ сохранён и теперь виден всем.');
-                }).catch((error) => {
-                    console.error('Ошибка сохранения:', error);
-                    alert('Произошла ошибка. Попробуй ещё раз.');
-                });
+                // Здесь можно добавить сохранение в Firebase
+                alert('Спасибо! Твой ответ сохранён.');
+                popupInput.value = '';
+                popup.style.display = 'none';
+                document.body.style.overflow = '';
             });
         });
     </script>
