@@ -17,9 +17,8 @@ window.camera = null;
 window.allCubies = null;
 window.offset = null;
 window.cubeGroup = null;
-window.cubeState = {}; // <-- Хранилище реального состояния кубика
+window.cubeState = {};
 
-// ===== ФУНКЦИЯ ПОКАЗА/СКРЫТИЯ КНОПОК =====
 window.showCubeControls = null;
 window.hideCubeControls = null;
 
@@ -168,7 +167,6 @@ if (!container) {
                             faceNames: faces
                         };
 
-                        // ===== СОХРАНЯЕМ СОСТОЯНИЕ В ОТДЕЛЬНЫЙ ОБЪЕКТ =====
                         window.cubeState[uniqueId] = {
                             position: { x, y, z },
                             rotation: { x: 0, y: 0, z: 0 },
@@ -199,7 +197,7 @@ if (!container) {
         backLight.position.set(0, 1, -3);
         camera.add(backLight);
 
-        // ===== ФУНКЦИЯ ПРОВЕРКИ СБОРКИ (по состоянию) =====
+        // ===== ПРОВЕРКА СБОРКИ =====
         function isCubeSolved() {
             for (let cubie of allCubies) {
                 const state = window.cubeState[cubie.userData.id];
@@ -300,8 +298,6 @@ if (!container) {
                     newPositions.forEach(item => {
                         item.cubie.position.copy(item.endPos);
                         item.cubie.quaternion.copy(item.endRot);
-                        
-                        // ===== ОБНОВЛЯЕМ СОСТОЯНИЕ В cubeState =====
                         const state = window.cubeState[item.stateId];
                         if (state) {
                             state.position.x = item.endGrid.x;
@@ -317,13 +313,9 @@ if (!container) {
             animateMove();
         }
 
-        // ===== ЭКСПОРТ В ГЛОБАЛЬНУЮ ОБЛАСТЬ =====
         window.rotateLayer = rotateLayer;
 
         // ===== СКРАМБЛЕР И СБОРЩИК =====
-        let isScrambling = false;
-        let isBlocked = false;
-
         function generateScramble(length = 23) {
             const moves = ['U', 'D', 'L', 'R', 'F', 'B'];
             const modifiers = ['', "'", "2"];
@@ -408,7 +400,6 @@ if (!container) {
         document.addEventListener('DOMContentLoaded', function() {
             const btnScramble = document.getElementById('btnScramble');
             const btnSolve = document.getElementById('btnSolve');
-
             if (!btnScramble || !btnSolve) return;
 
             const newBtnScramble = btnScramble.cloneNode(true);
@@ -439,7 +430,6 @@ if (!container) {
                     window.isScrambling = false;
                     window.isBlocked = false;
                     if (window.updateCubeGlow) window.updateCubeGlow();
-
                     if (typeof window.showCubeControls === 'function') {
                         window.showCubeControls();
                     }
@@ -456,36 +446,37 @@ if (!container) {
                 this.style.display = 'none';
                 newBtnScramble.style.display = 'inline-block';
 
-                // ===== АЛГОРИТМ СБОРКИ ЧЕРЕЗ ОТМЕНУ ХОДОВ =====
-                // Сначала отменяем ручные ходы
                 const userReverse = window.userHistory.slice().reverse().map(m => {
                     if (m.endsWith("'")) return m.slice(0, -1);
                     if (m.endsWith("2")) return m;
                     return m + "'";
                 });
-                
-                // Затем отменяем скрамбл
                 const scrambleReverse = window.scrambleHistory.slice().reverse().map(m => {
                     if (m.endsWith("'")) return m.slice(0, -1);
                     if (m.endsWith("2")) return m;
                     return m + "'";
                 });
-                
                 const allReverse = [...userReverse, ...scrambleReverse];
                 const durationPerMove = SOLVE_DURATION / allReverse.length;
-                
                 window.executeMoveSequence(allReverse, durationPerMove, () => {
                     window.isScrambling = false;
                     window.scrambleHistory = [];
                     window.userHistory = [];
                     window.isBlocked = false;
                     if (window.updateCubeGlow) window.updateCubeGlow();
-
                     if (typeof window.hideCubeControls === 'function') {
                         window.hideCubeControls();
                     }
                 });
             });
+        });
+
+        // ===== ПОПАП И ЛОГИКА ВОПРОСОВ =====
+        document.getElementById('popup').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) {
+                e.currentTarget.style.display = 'none';
+                document.body.style.overflow = '';
+            }
         });
 
         // ===== ПОДСВЕТКА =====
@@ -506,29 +497,24 @@ if (!container) {
         };
 
         function applyGlow() {
-            // Логика подсветки остаётся без изменений
+            // логика подсветки (можно добавить позже)
         }
 
         loadGlowFromLocalStorage();
         applyGlow();
 
-        // ===== ВАША ЛОГИКА КЛИКА (ВСТАВЛЕНА АККУРАТНО) =====
+        // ===== ГЛАВНАЯ ЛОГИКА КЛИКА ПО КВАДРАТИКУ (КНИЖНЫЕ ГРАНИ) =====
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
+        let mouseDownPos = { x: 0, y: 0 };
+        let isMouseDown = false;
 
-        function getGridCoords(position) {
-            const x = Math.round(position.x / offset);
-            const y = Math.round(position.y / offset);
-            const z = Math.round(position.z / offset);
-            return { x, y, z };
-        }
-
-        function openGran(colorName, gx, gy) {
-            gx = Math.min(2, Math.max(0, gx));
-            gy = Math.min(2, Math.max(0, gy));
-            if (window.openBookGran) {
-                window.openBookGran(colorName, gx, gy);
-            }
+        function getGridCoords(pos) {
+            return {
+                x: Math.round(pos.x / offset),
+                y: Math.round(pos.y / offset),
+                z: Math.round(pos.z / offset)
+            };
         }
 
         function onMouseClick(event) {
@@ -540,50 +526,79 @@ if (!container) {
             const intersects = raycaster.intersectObjects(allCubies);
 
             if (intersects.length > 0) {
-                const clickedCubie = intersects[0].object;
-                const pos = clickedCubie.position;
+                const cubie = intersects[0].object;
+                const pos = cubie.position;
                 const coords = getGridCoords(pos);
                 
-                // Определяем грань по нормали (абсолютно надёжно)
                 const normal = intersects[0].face.normal.clone();
-                normal.applyQuaternion(clickedCubie.quaternion);
+                normal.applyQuaternion(cubie.quaternion);
                 
-                let materialIndex = 0;
+                let matIdx = 0;
                 const nx = Math.round(normal.x);
                 const ny = Math.round(normal.y);
                 const nz = Math.round(normal.z);
-                
-                if (nx === 1) materialIndex = 0;      // Красная
-                else if (nx === -1) materialIndex = 1; // Оранжевая
-                else if (ny === 1) materialIndex = 2;  // Белая
-                else if (ny === -1) materialIndex = 3; // Жёлтая
-                else if (nz === 1) materialIndex = 4;  // Зелёная
-                else if (nz === -1) materialIndex = 5; // Синяя
-                else materialIndex = 0;
+                if (nx === 1) matIdx = 0;
+                else if (nx === -1) matIdx = 1;
+                else if (ny === 1) matIdx = 2;
+                else if (ny === -1) matIdx = 3;
+                else if (nz === 1) matIdx = 4;
+                else if (nz === -1) matIdx = 5;
 
-                // Берём цвет из userData (без getHex(), чтобы не было unknown)
-                const colorName = clickedCubie.userData.faceNames[materialIndex];
+                const colorName = cubie.userData.faceNames[matIdx];
                 if (!colorName) return;
-                
+
                 let gx = 0, gy = 0;
-                
-                if (materialIndex === 0 || materialIndex === 1) {
+                if (matIdx === 0 || matIdx === 1) {
                     gx = coords.y + 1;
                     gy = coords.z + 1;
-                } else if (materialIndex === 2 || materialIndex === 3) {
+                } else if (matIdx === 2 || matIdx === 3) {
                     gx = coords.x + 1;
                     gy = coords.z + 1;
                 } else {
                     gx = coords.x + 1;
                     gy = coords.y + 1;
                 }
-                
-                openGran(colorName, gx, gy);
+
+                if (window.openBookGran) {
+                    window.openBookGran(colorName, gx, gy);
+                }
             }
         }
 
-        const canvas = renderer.domElement;
-        canvas.addEventListener('click', onMouseClick);
+        // ===== ЗАЩИТА ОТ ЛОЖНЫХ КЛИКОВ =====
+        renderer.domElement.addEventListener('mousedown', (e) => {
+            mouseDownPos.x = e.clientX;
+            mouseDownPos.y = e.clientY;
+            isMouseDown = true;
+        });
+
+        window.addEventListener('mouseup', (e) => {
+            if (!isMouseDown) return;
+            isMouseDown = false;
+            const dx = Math.abs(e.clientX - mouseDownPos.x);
+            const dy = Math.abs(e.clientY - mouseDownPos.y);
+            if (dx < 6 && dy < 6) {
+                onMouseClick(e);
+            }
+        });
+
+        renderer.domElement.addEventListener('touchstart', (e) => {
+            const touch = e.touches[0];
+            mouseDownPos.x = touch.clientX;
+            mouseDownPos.y = touch.clientY;
+            isMouseDown = true;
+        }, { passive: true });
+
+        renderer.domElement.addEventListener('touchend', (e) => {
+            if (!isMouseDown) return;
+            isMouseDown = false;
+            const touch = e.changedTouches[0];
+            const dx = Math.abs(touch.clientX - mouseDownPos.x);
+            const dy = Math.abs(touch.clientY - mouseDownPos.y);
+            if (dx < 10 && dy < 10) {
+                onMouseClick(e);
+            }
+        }, { passive: true });
 
         // ===== ЦИКЛ РЕНДЕРА =====
         function render() {
@@ -609,7 +624,6 @@ window.doMove = function(direction) {
     if (!direction) return;
     if (window.isAnimating) return;
 
-    // Проверяем штрих
     let isReverse = direction.includes("'");
     let cleanDir = direction.replace("'", "");
 
@@ -650,7 +664,6 @@ window.doMove = function(direction) {
     }
     if (!bestFace) return;
 
-    // === ПРЕОБРАЗУЕМ В РЕАЛЬНУЮ БУКВУ КУБИКА ===
     let move = '';
     switch (bestFace) {
         case '+x': move = 'R'; break;
@@ -662,12 +675,10 @@ window.doMove = function(direction) {
     }
     if (isReverse) move += "'";
 
-    // === ЗАПИСЫВАЕМ В ИСТОРИЮ ===
     if (!window.isScrambling) {
         window.userHistory.push(move);
     }
 
-    // === ОПРЕДЕЛЯЕМ ОСЬ И ИНДЕКС ДЛЯ ПОВОРОТА ===
     let axis = '';
     let index = 0;
     if (bestFace === '+x') { axis = 'x'; index = 1; }
@@ -678,7 +689,6 @@ window.doMove = function(direction) {
     else if (bestFace === '-z') { axis = 'z'; index = -1; }
     else return;
 
-    // === ВЫЧИСЛЯЕМ УГОЛ ===
     let baseAngle = 0;
     if (axis === 'y') {
         baseAngle = (index === 1) ? -Math.PI/2 : Math.PI/2;
@@ -688,7 +698,6 @@ window.doMove = function(direction) {
     }
     const angle = isReverse ? -baseAngle : baseAngle;
 
-    // === ПОВОРАЧИВАЕМ СЛОЙ ===
     window.rotateLayer(axis, index, angle, 150, () => {
         if (window.updateCubeGlow) window.updateCubeGlow();
     });
