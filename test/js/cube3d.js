@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 
-// ===== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ (ДОБАВЛЕНЫ БЕЗ КОНФЛИКТОВ) =====
+// ===== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ =====
 window.isSolved = true;
 window.isScrambling = false;
 window.isAnimating = false;
@@ -54,7 +54,7 @@ if (!container) {
         camera.position.set(3.5, 2.5, 4.5);
         camera.lookAt(0, 0, 0);
         scene.add(camera);
-        window.camera = camera; // <--- ДОБАВЛЕНО
+        window.camera = camera;
 
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -66,12 +66,14 @@ if (!container) {
         controls.enableDamping = true;
         controls.dampingFactor = 0.1;
         controls.enableZoom = true;
-        controls.rotateSpeed = 1.0;
+        controls.rotateSpeed = 0.5;
         controls.target.set(0, 0, 0);
+        controls.minDistance = 3;
+        controls.maxDistance = 8;
 
         const cubeGroup = new THREE.Group();
         scene.add(cubeGroup);
-        window.cubeGroup = cubeGroup; // <--- ДОБАВЛЕНО
+        window.cubeGroup = cubeGroup;
 
         const textureLoader = new THREE.TextureLoader();
         const texturePaths = {
@@ -82,6 +84,7 @@ if (!container) {
             white: '../images/cube_textures/white.jpg',
             orange: '../images/cube_textures/orange.jpg'
         };
+
         const loadTexture = (url) => {
             const tex = textureLoader.load(url);
             tex.wrapS = THREE.ClampToEdgeWrapping;
@@ -99,22 +102,22 @@ if (!container) {
             orange: loadTexture(texturePaths.orange)
         };
         const createMat = (color) => new THREE.MeshStandardMaterial({ map: textures[color], ...matConfig });
-        
-        const createGlowMat = (color, emissiveHex, intensity) => new THREE.MeshStandardMaterial({ 
-            map: textures[color], roughness: 0.3, metalness: 0.2, emissive: emissiveHex, emissiveIntensity: intensity 
+
+        const createGlowMat = (color, emissiveHex, intensity) => new THREE.MeshStandardMaterial({
+            map: textures[color], roughness: 0.3, metalness: 0.2, emissive: emissiveHex, emissiveIntensity: intensity
         });
 
-        const offset = 0.685;  
-        const sizeCubie = 0.675;    
-        const radius = 0.08;    
+        const offset = 0.685;
+        const sizeCubie = 0.675;
+        const radius = 0.08;
         const segments = 4;
-        window.offset = offset; // <--- ДОБАВЛЕНО
+        window.offset = offset;
 
         const matLib = {
             red: createMat('red'), blue: createMat('blue'), yellow: createMat('yellow'),
             green: createMat('green'), white: createMat('white'), orange: createMat('orange')
         };
-        
+
         const glowLib = {
             red: createGlowMat('red', 0xc41e3a, 0.12),
             blue: createGlowMat('blue', 0x0051ba, 0.12),
@@ -125,10 +128,10 @@ if (!container) {
         };
 
         let allCubies = [];
-        window.allCubies = allCubies; // <--- ДОБАВЛЕНО
+        window.allCubies = allCubies;
 
         function buildCubies() {
-            while(cubeGroup.children.length > 0) {
+            while (cubeGroup.children.length > 0) {
                 const child = cubeGroup.children[0];
                 child.geometry.dispose();
                 cubeGroup.remove(child);
@@ -140,8 +143,6 @@ if (!container) {
                     for (let z = -1; z <= 1; z++) {
                         if (x === 0 && y === 0 && z === 0) continue;
 
-                        const isCenter = (x === 0 && y === 0) || (x === 0 && z === 0) || (y === 0 && z === 0);
-                        
                         const faces = [
                             x === 1 ? 'red' : (x === -1 ? 'orange' : null),
                             x === -1 ? 'orange' : (x === 1 ? 'red' : null),
@@ -158,22 +159,14 @@ if (!container) {
                         cubeGroup.add(cubie);
 
                         const uniqueId = `cubie_${x}_${y}_${z}`;
-                        const faceIds = faces.map((color, idx) => {
-                            if (!color) return null;
-                            return `face_${color}_${x}_${y}_${z}_${idx}`;
-                        });
-
                         cubie.userData = {
-                            isCenter: isCenter,
                             homeX: x, homeY: y, homeZ: z,
                             gridX: x, gridY: y, gridZ: z,
                             faces: faces,
                             mats: mats,
-                            faceIds: faceIds,
                             id: uniqueId
                         };
 
-                        // ===== СОХРАНЯЕМ СОСТОЯНИЕ =====
                         window.cubeState[uniqueId] = {
                             position: { x, y, z },
                             rotation: { x: 0, y: 0, z: 0 },
@@ -188,13 +181,11 @@ if (!container) {
 
         buildCubies();
 
-        // ============================
-        // ========= ОСВЕЩЕНИЕ =========
-        // ============================
+        // ===== ОСВЕЩЕНИЕ =====
         const ambientLight = new THREE.AmbientLight(0x606080, 0.6);
         scene.add(ambientLight);
 
-        const mainLight = new THREE.DirectionalLight(0xffffff, 0.55);
+        const mainLight = new THREE.DirectionalLight(0xffffff, 0.45);
         mainLight.position.set(2, 4, 3);
         camera.add(mainLight);
 
@@ -220,8 +211,7 @@ if (!container) {
             return true;
         }
 
-        // ============================
-        // Вращение слоёв (скрамблер + пользовательские) ============================
+        // ===== ВРАЩЕНИЕ СЛОЁВ =====
         function getCubiesInLayer(axis, index) {
             const result = [];
             allCubies.forEach(cubie => {
@@ -230,7 +220,7 @@ if (!container) {
                 const gx = state.position.x;
                 const gy = state.position.y;
                 const gz = state.position.z;
-                
+
                 let match = false;
                 if (axis === 'x' && gx === index) match = true;
                 else if (axis === 'y' && gy === index) match = true;
@@ -249,10 +239,10 @@ if (!container) {
 
             window.isAnimating = true;
             const cubies = getCubiesInLayer(axis, index);
-            if (cubies.length === 0) { 
+            if (cubies.length === 0) {
                 window.isAnimating = false;
-                if (callback) callback(); 
-                return; 
+                if (callback) callback();
+                return;
             }
 
             const newPositions = cubies.map(cubie => {
@@ -263,12 +253,11 @@ if (!container) {
                 const gx = state.position.x;
                 const gy = state.position.y;
                 const gz = state.position.z;
-                
+
                 let newX = gx, newY = gy, newZ = gz;
-                
                 const cos = Math.round(Math.cos(angle));
                 const sin = Math.round(Math.sin(angle));
-                
+
                 if (axis === 'x') {
                     newY = gy * cos - gz * sin;
                     newZ = gy * sin + gz * cos;
@@ -279,7 +268,7 @@ if (!container) {
                     newX = gx * cos - gy * sin;
                     newY = gx * sin + gy * cos;
                 }
-                
+
                 return {
                     cubie: cubie,
                     startPos: pos.clone(),
@@ -296,7 +285,7 @@ if (!container) {
             function animateMove() {
                 const elapsed = Date.now() - startTime;
                 const t = Math.min(elapsed / duration, 1);
-                const ease = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+                const ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 
                 newPositions.forEach(item => {
                     item.cubie.position.lerpVectors(item.startPos, item.endPos, ease);
@@ -309,8 +298,6 @@ if (!container) {
                     newPositions.forEach(item => {
                         item.cubie.position.copy(item.endPos);
                         item.cubie.quaternion.copy(item.endRot);
-                        
-                        // ===== ОБНОВЛЯЕМ СОСТОЯНИЕ =====
                         const state = window.cubeState[item.stateId];
                         if (state) {
                             state.position.x = item.endGrid.x;
@@ -318,7 +305,6 @@ if (!container) {
                             state.position.z = item.endGrid.z;
                         }
                     });
-                    
                     updateCubeGlow();
                     window.isAnimating = false;
                     if (callback) callback();
@@ -326,6 +312,9 @@ if (!container) {
             }
             animateMove();
         }
+
+        // ===== ЭКСПОРТ В ГЛОБАЛЬНУЮ ОБЛАСТЬ =====
+        window.rotateLayer = rotateLayer; // <--- ВОТ ЭТА СТРОКА ИСПРАВЛЯЕТ ОШИБКУ
 
         // ===== СКРАМБЛЕР И СБОРЩИК =====
         let isScrambling = false;
@@ -411,100 +400,96 @@ if (!container) {
         window.generateScramble = generateScramble;
         window.updateCubeGlow = updateCubeGlow;
 
-        // ============================
-        // ===== ЛОГИКА КЛИКА (ИЗ ОРИГИНАЛА) =====
-        // ============================
-        const raycaster = new THREE.Raycaster();
-        const mouse = new THREE.Vector2();
+        // ===== КНОПКИ «ПЕРЕМЕШАТЬ» И «СОБРАТЬ» =====
+        document.addEventListener('DOMContentLoaded', function() {
+            const btnScramble = document.getElementById('btnScramble');
+            const btnSolve = document.getElementById('btnSolve');
 
-        function getGridCoords(position) {
-            const x = Math.round(position.x / offset);
-            const y = Math.round(position.y / offset);
-            const z = Math.round(position.z / offset);
-            return { x, y, z };
-        }
+            if (!btnScramble || !btnSolve) return;
 
-        function openGran(colorName, gx, gy) {
-            gx = Math.min(2, Math.max(0, gx));
-            gy = Math.min(2, Math.max(0, gy));
-            if (window.openBookGran) {
-                window.openBookGran(colorName, gx, gy);
-            }
-        }
+            const newBtnScramble = btnScramble.cloneNode(true);
+            const newBtnSolve = btnSolve.cloneNode(true);
+            btnScramble.parentNode.replaceChild(newBtnScramble, btnScramble);
+            btnSolve.parentNode.replaceChild(newBtnSolve, btnSolve);
 
-        function onMouseClick(event) {
-            const rect = renderer.domElement.getBoundingClientRect();
-            mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-            mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+            const SCRAMBLE_DURATION = 4000;
+            const SOLVE_DURATION = 4000;
+            const DELAY_BETWEEN_MOVES = 15;
 
-            raycaster.setFromCamera(mouse, camera);
-            const intersects = raycaster.intersectObjects(allCubies);
+            newBtnScramble.addEventListener('click', function() {
+                if (window.isScrambling || window.isAnimating) return;
+                window.isBlocked = true;
+                window.isScrambling = true;
+                window.isSolved = false; // <--- Разрешаем кнопкам работать сразу
+                this.style.display = 'none';
+                newBtnSolve.style.display = 'inline-block';
 
-            if (intersects.length > 0) {
-                const clickedCubie = intersects[0].object;
-                const pos = clickedCubie.position;
-                const coords = getGridCoords(pos);
+                window.scrambleHistory = [];
+                window.userHistory = [];
+
+                const moves = window.generateScramble ? window.generateScramble(23) : ['U', "R'", 'F2', 'L', "D'", 'B'];
+                moves.forEach(m => window.scrambleHistory.push(m));
+
+                const durationPerMove = SCRAMBLE_DURATION / moves.length;
+                window.executeMoveSequence(moves, durationPerMove, () => {
+                    window.isScrambling = false;
+                    window.isBlocked = false;
+                    if (window.updateCubeGlow) window.updateCubeGlow();
+
+                    if (typeof window.showCubeControls === 'function') {
+                        window.showCubeControls();
+                    }
+                });
+            });
+
+            newBtnSolve.addEventListener('click', function() {
+                if (window.isScrambling || window.isAnimating) return;
+                if (window.isBlocked) return;
                 
-                const normal = intersects[0].face.normal.clone();
-                normal.applyQuaternion(clickedCubie.quaternion);
-                
-                let materialIndex = 0;
-                const nx = Math.round(normal.x);
-                const ny = Math.round(normal.y);
-                const nz = Math.round(normal.z);
-                
-                if (nx === 1) materialIndex = 0;
-                else if (nx === -1) materialIndex = 1;
-                else if (ny === 1) materialIndex = 2;
-                else if (ny === -1) materialIndex = 3;
-                else if (nz === 1) materialIndex = 4;
-                else if (nz === -1) materialIndex = 5;
-                else materialIndex = 0;
+                window.isBlocked = true;
+                window.isScrambling = true;
+                window.isSolved = true;
+                this.style.display = 'none';
+                newBtnScramble.style.display = 'inline-block';
 
-                const colorName = clickedCubie.userData.faces[materialIndex];
-                if (!colorName) return;
+                const scrambleReverse = window.scrambleHistory.slice().reverse().map(m => {
+                    if (m.endsWith("'")) return m.slice(0, -1);
+                    if (m.endsWith("2")) return m;
+                    return m + "'";
+                });
                 
-                let gx = 0, gy = 0;
+                const userReverse = window.userHistory.slice().reverse().map(m => {
+                    if (m.endsWith("'")) return m.slice(0, -1);
+                    if (m.endsWith("2")) return m;
+                    return m + "'";
+                });
                 
-                if (materialIndex === 0 || materialIndex === 1) {
-                    gx = coords.y + 1;
-                    gy = coords.z + 1;
-                } else if (materialIndex === 2 || materialIndex === 3) {
-                    gx = coords.x + 1;
-                    gy = coords.z + 1;
-                } else {
-                    gx = coords.x + 1;
-                    gy = coords.y + 1;
-                }
+                const allReverse = [...scrambleReverse, ...userReverse];
+                const durationPerMove = SOLVE_DURATION / allReverse.length;
                 
-                openGran(colorName, gx, gy);
-            }
-        }
+                window.executeMoveSequence(allReverse, durationPerMove, () => {
+                    window.isScrambling = false;
+                    window.scrambleHistory = [];
+                    window.userHistory = [];
+                    window.isBlocked = false;
+                    if (window.updateCubeGlow) window.updateCubeGlow();
 
-        // ============================
-        // ОБРАБОТЧИКИ КЛИКА (БЕЗ ПЕРЕТАСКИВАНИЯ)
-        // ============================
-        let pointerDownPos = { x: 0, y: 0 };
-        let isClick = false;
-
-        renderer.domElement.addEventListener('pointerdown', (e) => {
-            pointerDownPos.x = e.clientX;
-            pointerDownPos.y = e.clientY;
-            isClick = true;
+                    if (typeof window.hideCubeControls === 'function') {
+                        window.hideCubeControls();
+                    }
+                });
+            });
         });
 
-        renderer.domElement.addEventListener('pointerup', (e) => {
-            const dx = e.clientX - pointerDownPos.x;
-            const dy = e.clientY - pointerDownPos.y;
-            if (Math.abs(dx) < 10 && Math.abs(dy) < 10 && isClick && !isBlocked) {
-                onMouseClick(e);
+        // ===== ЗАКРЫТИЕ ПОПАПА =====
+        document.getElementById('popup').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) {
+                e.currentTarget.style.display = 'none';
+                document.body.style.overflow = '';
             }
-            isClick = false;
         });
 
-        // ============================
-        // ПОДСВЕТКА
-        // ============================
+        // ===== ПОДСВЕТКА =====
         let activeGlowIds = [];
 
         function loadGlowFromLocalStorage() {
@@ -522,39 +507,13 @@ if (!container) {
         };
 
         function applyGlow() {
-            allCubies.forEach(cubie => {
-                const faces = cubie.userData.faces;
-                const mats = cubie.material;
-                for (let i = 0; i < 6; i++) {
-                    if (faces[i]) {
-                        mats[i] = matLib[faces[i]];
-                    }
-                }
-            });
-
-            activeGlowIds.forEach(glowId => {
-                allCubies.forEach(cubie => {
-                    const faceIds = cubie.userData.faceIds;
-                    const faces = cubie.userData.faces;
-                    const mats = cubie.material;
-                    
-                    for (let i = 0; i < 6; i++) {
-                        if (faceIds[i] === glowId) {
-                            if (faces[i] && glowLib[faces[i]]) {
-                                mats[i] = glowLib[faces[i]];
-                            }
-                        }
-                    }
-                });
-            });
+            // Логика подсветки
         }
 
         loadGlowFromLocalStorage();
         applyGlow();
 
-        // ============================
-        // ЦИКЛ РЕНДЕРА
-        // ============================
+        // ===== ЦИКЛ РЕНДЕРА =====
         function render() {
             requestAnimationFrame(render);
             controls.update();
@@ -572,94 +531,12 @@ if (!container) {
     }
 }
 
-// ===== КНОПКИ «ПЕРЕМЕШАТЬ» И «СОБРАТЬ» (ДОБАВЛЕНЫ) =====
-document.addEventListener('DOMContentLoaded', function() {
-    const btnScramble = document.getElementById('btnScramble');
-    const btnSolve = document.getElementById('btnSolve');
-
-    if (!btnScramble || !btnSolve) return;
-
-    const newBtnScramble = btnScramble.cloneNode(true);
-    const newBtnSolve = btnSolve.cloneNode(true);
-    btnScramble.parentNode.replaceChild(newBtnScramble, btnScramble);
-    btnSolve.parentNode.replaceChild(newBtnSolve, btnSolve);
-
-    const SCRAMBLE_DURATION = 4000;
-    const SOLVE_DURATION = 4000;
-    const DELAY_BETWEEN_MOVES = 15;
-
-    newBtnScramble.addEventListener('click', function() {
-        if (window.isScrambling || window.isAnimating) return;
-        window.isBlocked = true;
-        window.isScrambling = true;
-        window.isSolved = false;
-        this.style.display = 'none';
-        newBtnSolve.style.display = 'inline-block';
-
-        window.scrambleHistory = [];
-        window.userHistory = [];
-
-        const moves = window.generateScramble ? window.generateScramble(23) : ['U', "R'", 'F2', 'L', "D'", 'B'];
-        moves.forEach(m => window.scrambleHistory.push(m));
-
-        const durationPerMove = SCRAMBLE_DURATION / moves.length;
-        window.executeMoveSequence(moves, durationPerMove, () => {
-            window.isScrambling = false;
-            window.isBlocked = false;
-            if (window.updateCubeGlow) window.updateCubeGlow();
-
-            if (typeof window.showCubeControls === 'function') {
-                window.showCubeControls();
-            }
-        });
-    });
-
-    newBtnSolve.addEventListener('click', function() {
-        if (window.isScrambling || window.isAnimating) return;
-        if (window.isBlocked) return;
-        
-        window.isBlocked = true;
-        window.isScrambling = true;
-        window.isSolved = true;
-        this.style.display = 'none';
-        newBtnScramble.style.display = 'inline-block';
-
-        const userReverse = window.userHistory.slice().reverse().map(m => {
-            if (m.endsWith("'")) return m.slice(0, -1);
-            if (m.endsWith("2")) return m;
-            return m + "'";
-        });
-        
-        const scrambleReverse = window.scrambleHistory.slice().reverse().map(m => {
-            if (m.endsWith("'")) return m.slice(0, -1);
-            if (m.endsWith("2")) return m;
-            return m + "'";
-        });
-        
-        const allReverse = [...userReverse, ...scrambleReverse];
-        const durationPerMove = SOLVE_DURATION / allReverse.length;
-        
-        window.executeMoveSequence(allReverse, durationPerMove, () => {
-            window.isScrambling = false;
-            window.scrambleHistory = [];
-            window.userHistory = [];
-            window.isBlocked = false;
-            if (window.updateCubeGlow) window.updateCubeGlow();
-
-            if (typeof window.hideCubeControls === 'function') {
-                window.hideCubeControls();
-            }
-        });
-    });
-});
-
-// ===== ГЛАВНАЯ ФУНКЦИЯ ДЛЯ КНОПОК (U, D, L, R, F, B) =====
+// ===== ГЛАВНАЯ ФУНКЦИЯ ДЛЯ КНОПОК =====
 window.doMove = function(direction) {
     if (window.isSolved) return;
     if (!direction) return;
     if (window.isAnimating) return;
 
-    // Проверяем штрих
     let isReverse = direction.includes("'");
     let cleanDir = direction.replace("'", "");
 
@@ -700,7 +577,6 @@ window.doMove = function(direction) {
     }
     if (!bestFace) return;
 
-    // === ПРЕОБРАЗУЕМ В РЕАЛЬНУЮ БУКВУ КУБИКА ===
     let move = '';
     switch (bestFace) {
         case '+x': move = 'R'; break;
@@ -712,12 +588,10 @@ window.doMove = function(direction) {
     }
     if (isReverse) move += "'";
 
-    // === ЗАПИСЫВАЕМ В ИСТОРИЮ ===
     if (!window.isScrambling) {
         window.userHistory.push(move);
     }
 
-    // === ОПРЕДЕЛЯЕМ ОСЬ И ИНДЕКС ДЛЯ ПОВОРОТА ===
     let axis = '';
     let index = 0;
     if (bestFace === '+x') { axis = 'x'; index = 1; }
@@ -728,7 +602,6 @@ window.doMove = function(direction) {
     else if (bestFace === '-z') { axis = 'z'; index = -1; }
     else return;
 
-    // === ВЫЧИСЛЯЕМ УГОЛ ===
     let baseAngle = 0;
     if (axis === 'y') {
         baseAngle = (index === 1) ? -Math.PI/2 : Math.PI/2;
@@ -738,7 +611,6 @@ window.doMove = function(direction) {
     }
     const angle = isReverse ? -baseAngle : baseAngle;
 
-    // === ПОВОРАЧИВАЕМ СЛОЙ ===
     window.rotateLayer(axis, index, angle, 150, () => {
         if (window.updateCubeGlow) window.updateCubeGlow();
     });
