@@ -96,8 +96,8 @@
         <!-- ===== ЛЕГЕНДА (СЛЕВА) + КУБИК (СПРАВА) С КНОПКАМИ ВНИЗУ ===== -->
         <div style="display: flex; flex-direction: row; justify-content: center; align-items: flex-start; gap: 2rem; width: 100%; max-width: 1000px; margin: 0 auto; flex-wrap: wrap;">
             
-            <!-- ЛЕВАЯ ЧАСТЬ: ЛЕГЕНДА С ЦВЕТАМИ -->
-            <div style="flex: 0 0 280px; display: flex; justify-content: center; align-items: center;">
+            <!-- ЛЕВАЯ ЧАСТЬ: ЛЕГЕНДА С ЦВЕТАМИ (увеличена ширина до 320px) -->
+            <div style="flex: 0 0 320px; display: flex; justify-content: center; align-items: center;">
                 <div style="display: flex; flex-direction: column; gap: 0.9rem; padding: 1.8rem 2rem; background: rgba(255,255,255,0.8); backdrop-filter: blur(6px); border-radius: 28px; box-shadow: 0 12px 40px rgba(0,0,0,0.04); width: 100%; border: 1px solid rgba(255,255,255,0.5);">
                     <div style="display: flex; align-items: center; gap: 1.2rem;">
                         <img src="../images/cube_textures/red.jpg" alt="Любовь" style="width: 40px; height: 40px; border-radius: 10px; object-fit: cover; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
@@ -126,11 +126,11 @@
                 </div>
             </div>
 
-            <!-- ПРАВАЯ ЧАСТЬ: 3D КУБИК И УПРАВЛЕНИЕ -->
-            <div style="flex: 1; min-width: 320px; max-width: 580px; display: flex; flex-direction: column; align-items: center;">
+            <!-- ПРАВАЯ ЧАСТЬ: 3D КУБИК И УПРАВЛЕНИЕ (ширина уменьшена до 440px, добавлен max-height) -->
+            <div style="flex: 1; min-width: 320px; max-width: 440px; display: flex; flex-direction: column; align-items: center;">
                 
-                <!-- САМ КУБИК (теперь он не растягивается на всю высоту, а имеет фиксированный размер) -->
-                <div id="cube-container" style="width: 100%; max-width: 500px; aspect-ratio: 1 / 1; background: transparent; touch-action: none; cursor: pointer; position: relative;"></div>
+                <!-- САМ КУБИК -->
+                <div id="cube-container" style="width: 100%; max-width: 440px; max-height: 440px; aspect-ratio: 1 / 1; background: transparent; touch-action: none; cursor: pointer; position: relative;"></div>
                 
                 <!-- ===== КНОПКИ УПРАВЛЕНИЯ (Перемешать/Собрать) ===== -->
                 <div class="controls" style="margin-top: 1rem; display: flex; gap: 15px; flex-wrap: wrap; justify-content: center;">
