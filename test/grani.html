@@ -55,7 +55,7 @@
 <section class="section" style="padding-top: 2rem; padding-bottom: 2rem;">
     <div class="container" style="max-width: 1000px; text-align: center;">
         
-        <!-- ===== ЗАГОЛОВОК И МАНИФЕСТ (ОРИГИНАЛЬНЫЙ) ===== -->
+        <!-- ===== ЗАГОЛОВОК И МАНИФЕСТ ===== -->
         <div class="grani-header" style="margin-bottom: 2.5rem; text-align: left; max-width: 750px; margin-left: auto; margin-right: auto;">
             <h1 style="font-family: 'KB Tranceform', 'Montserrat', sans-serif; font-weight: 400; text-align: center; letter-spacing: 0.02em; color: #3a4a6e; margin-bottom: 1rem; font-size: 3.8rem;">
                 Шесть граней,<br>из которых складываемся мы
@@ -93,8 +93,8 @@
             </div>
         </div>
 
-        <!-- ===== ЛЕГЕНДА (КВАДРАТИКИ СЛЕВА) + КУБИК СПРАВА ===== -->
-        <div style="display: flex; flex-direction: row; justify-content: center; align-items: flex-start; gap: 4rem; width: 100%; max-width: 1000px; margin: 0 auto; flex-wrap: wrap;">
+        <!-- ===== ЛЕГЕНДА (СЛЕВА) + КУБИК (СПРАВА) ===== -->
+        <div style="display: flex; flex-direction: row; justify-content: center; align-items: flex-start; gap: 2rem; width: 100%; max-width: 1000px; margin: 0 auto; flex-wrap: wrap;">
             
             <!-- ЛЕВАЯ ЧАСТЬ: ЛЕГЕНДА С ЦВЕТАМИ -->
             <div style="flex: 0 0 280px; display: flex; justify-content: center; align-items: center;">
@@ -126,11 +126,13 @@
                 </div>
             </div>
 
-            <!-- ПРАВАЯ ЧАСТЬ: 3D КУБИК -->
+            <!-- ПРАВАЯ ЧАСТЬ: 3D КУБИК И УПРАВЛЕНИЕ -->
             <div style="flex: 1; min-width: 320px; max-width: 580px; display: flex; flex-direction: column; align-items: center;">
+                
+                <!-- САМ КУБИК (квадратный, с aspect-ratio) -->
                 <div id="cube-container" style="width: 100%; aspect-ratio: 1 / 1; background: transparent; touch-action: none; cursor: pointer; position: relative;"></div>
                 
-                <!-- ===== КНОПКИ УПРАВЛЕНИЯ ===== -->
+                <!-- ===== КНОПКИ УПРАВЛЕНИЯ (Перемешать/Собрать) ===== -->
                 <div class="controls" style="margin-top: 1rem; display: flex; gap: 15px; flex-wrap: wrap; justify-content: center;">
                     <button id="btnScramble" style="padding: 10px 24px; border: none; border-radius: 30px; font-weight: 600; font-size: 16px; cursor: pointer; transition: 0.2s; font-family: 'Inter', sans-serif; background: #ff2e5a; color: #fff;">Перемешать</button>
                     <button id="btnSolve" style="padding: 10px 24px; border: none; border-radius: 30px; font-weight: 600; font-size: 16px; cursor: pointer; transition: 0.2s; font-family: 'Inter', sans-serif; background: #2ecc71; color: #fff; display: none;">Собрать</button>
