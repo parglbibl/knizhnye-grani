@@ -31,7 +31,7 @@
     <meta name="theme-color" content="#fef9f0">
 
     <style>
-        /* ===== СТИЛИ ДЛЯ АДАПТИВНОСТИ ===== */
+        /* ===== СТИЛИ ДЛЯ АДАПТИВНОСТИ (КНОПКИ СПРАВА НА ПК, ВНИЗУ НА МОБИЛЬНЫХ) ===== */
         .cube-right-container {
             display: flex;
             flex-direction: row;
@@ -220,7 +220,6 @@
         </div>
 
         <!-- ===== ИГРОВОЙ БЛОК: ПРИЖАТ ВЛЕВО, ВСЁ В ОДНУ СТРОКУ ===== -->
-        <!-- Убрали margin: 0 auto; теперь margin-left: 0 -->
         <div style="display: flex; flex-direction: row; justify-content: flex-start; align-items: center; gap: 2rem; width: 100%; max-width: 1000px; margin-left: 0; flex-wrap: nowrap;">
             
             <!-- ЛЕГЕНДА С ЦВЕТАМИ -->
@@ -292,8 +291,8 @@
                         </div>
                     </div>
 
-                    <!-- ЛЕГЕНДА ОБОЗНАЧЕНИЙ ХОДОВ (ПОКАЗАНА ЧЕРЕЗ CSS .visible) -->
-                    <div class="legend visible" id="legend">
+                    <!-- ЛЕГЕНДА ОБОЗНАЧЕНИЙ ХОДОВ (ИЗНАЧАЛЬНО СКРЫТА) -->
+                    <div class="legend" id="legend">
                         <h3 style="margin: 0 0 0.5rem 0; font-weight: 600; font-size: 1rem; color: #1e2a3a; text-align: center;">📐 Обозначения ходов</h3>
                         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.3rem 1rem;">
                             <div style="display: flex; align-items: baseline; gap: 6px; font-weight: 500;"><span style="font-weight: 700; background: #c41e3a; color: #fff; padding: 0 8px; border-radius: 6px; font-size: 0.85rem; min-width: 28px; text-align: center;">R</span> <span style="color: #444; font-weight: 400; font-size: 0.85rem;">Правая грань ↻</span></div>
