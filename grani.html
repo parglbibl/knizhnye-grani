@@ -31,7 +31,7 @@
     <meta name="theme-color" content="#fef9f0">
 
     <style>
-        /* ===== СТИЛИ ДЛЯ КОМПАКТНОГО РАСПОЛОЖЕНИЯ НА ПК ===== */
+        /* ===== СТИЛИ ДЛЯ РАСПОЛОЖЕНИЯ НА ПК ===== */
         .main-row {
             display: flex;
             flex-direction: row;
@@ -83,13 +83,14 @@
             align-items: center;
         }
 
-        .buttons-col {
-            flex: 0 0 480px; /* Увеличили ширину, чтобы поместились кнопки + легенда в одну строку */
+        .controls-right-col {
+            flex: 0 0 auto;
             display: flex;
-            flex-direction: row; /* На ПК — в одну строку */
+            flex-direction: row; /* Кнопки слева, легенда справа в одной строке */
             align-items: flex-start;
             gap: 1rem;
             padding-top: 0.5rem;
+            min-width: 400px;
         }
 
         /* Стили для видимости кнопок и легенды */
@@ -100,8 +101,7 @@
             flex-direction: column;
             gap: 0.4rem;
             align-items: center;
-            flex: 1; /* Занимает половину ширины */
-            min-width: 140px;
+            flex: 0 0 auto;
         }
         .cube-buttons.visible {
             display: flex !important;
@@ -112,40 +112,40 @@
             display: none !important;
             opacity: 0 !important;
             transition: opacity 0.5s ease;
-            flex: 1; /* Занимает вторую половину ширины */
-            min-width: 140px;
+            flex: 1 1 auto;
+            min-width: 180px;
             background: #f5efe8;
             border-radius: 20px;
-            padding: 0.8rem 1.2rem;
+            padding: 1rem 1.2rem;
             box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-            font-size: 0.8rem; /* Более компактный шрифт */
+            font-size: 0.85rem;
             color: #1e2a3a;
-            line-height: 1.5;
+            line-height: 1.6;
         }
         .legend.visible {
             display: block !important;
             opacity: 1 !important;
         }
 
-        /* Компактная сетка для легенды */
+        /* Легенда в две колонки */
         .legend-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 0.2rem 0.6rem;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.2rem 0.8rem;
         }
         .legend-item {
             display: flex;
             align-items: baseline;
-            gap: 4px;
+            gap: 5px;
             font-weight: 500;
         }
         .legend-item .move {
             font-weight: 700;
             color: #fff;
-            padding: 0 4px;
+            padding: 0 6px;
             border-radius: 4px;
-            font-size: 0.7rem;
-            min-width: 18px;
+            font-size: 0.75rem;
+            min-width: 22px;
             text-align: center;
         }
         .legend-item .move.r { background: #c41e3a; }
@@ -163,7 +163,7 @@
         .legend-item .desc {
             color: #444;
             font-weight: 400;
-            font-size: 0.7rem;
+            font-size: 0.75rem;
         }
         
         .btn-row {
@@ -225,25 +225,24 @@
                 width: 100%;
                 max-width: 440px;
             }
-            .buttons-col {
+            .controls-right-col {
                 flex: 0 0 auto;
                 width: 100%;
                 max-width: 440px;
                 flex-direction: column; /* На мобильных — вертикально */
                 align-items: center;
                 margin-top: 0.8rem;
+                min-width: auto;
             }
             .cube-buttons {
                 width: 100%;
                 max-width: 440px;
                 flex: none;
-                min-width: 0;
             }
             .legend {
                 width: 100%;
                 max-width: 440px;
                 flex: none;
-                min-width: 0;
                 margin-top: 0.8rem;
             }
             .cube-btn {
@@ -259,7 +258,7 @@
                 gap: 0.4rem;
             }
             .legend-grid {
-                grid-template-columns: repeat(3, 1fr); /* На мобильных легенда в 3 колонки */
+                grid-template-columns: repeat(2, 1fr); /* На мобильных тоже 2 колонки */
             }
         }
     </style>
@@ -370,9 +369,9 @@
             </div>
 
             <!-- КНОПКИ ПОВОРОТА + ЛЕГЕНДА (в одну строку на ПК, друг под другом на мобильных) -->
-            <div class="buttons-col">
+            <div class="controls-right-col">
                 
-                <!-- КНОПКИ ПОВОРОТА ГРАНЕЙ -->
+                <!-- КНОПКИ ПОВОРОТА ГРАНЕЙ (слева в колонке) -->
                 <div class="cube-buttons" id="cubeButtons">
                     <div class="btn-row">
                         <button class="cube-btn r" onclick="window.doMove('R')">R</button>
@@ -394,21 +393,21 @@
                     </div>
                 </div>
 
-                <!-- ЛЕГЕНДА ОБОЗНАЧЕНИЙ ХОДОВ (компактная, справа от кнопок на ПК) -->
+                <!-- ЛЕГЕНДА ОБОЗНАЧЕНИЙ ХОДОВ (справа от кнопок на ПК) -->
                 <div class="legend" id="legend">
                     <div class="legend-grid">
-                        <div class="legend-item"><span class="move r">R</span> <span class="desc">↻</span></div>
-                        <div class="legend-item"><span class="move rp">R'</span> <span class="desc">↺</span></div>
-                        <div class="legend-item"><span class="move l">L</span> <span class="desc">↻</span></div>
-                        <div class="legend-item"><span class="move lp">L'</span> <span class="desc">↺</span></div>
-                        <div class="legend-item"><span class="move f">F</span> <span class="desc">↻</span></div>
-                        <div class="legend-item"><span class="move fp">F'</span> <span class="desc">↺</span></div>
-                        <div class="legend-item"><span class="move b">B</span> <span class="desc">↻</span></div>
-                        <div class="legend-item"><span class="move bp">B'</span> <span class="desc">↺</span></div>
-                        <div class="legend-item"><span class="move u">U</span> <span class="desc">↻</span></div>
-                        <div class="legend-item"><span class="move up">U'</span> <span class="desc">↺</span></div>
-                        <div class="legend-item"><span class="move d">D</span> <span class="desc">↻</span></div>
-                        <div class="legend-item"><span class="move dp">D'</span> <span class="desc">↺</span></div>
+                        <div class="legend-item"><span class="move r">R</span> <span class="desc">Правая ↻</span></div>
+                        <div class="legend-item"><span class="move rp">R'</span> <span class="desc">Правая ↺</span></div>
+                        <div class="legend-item"><span class="move l">L</span> <span class="desc">Левая ↻</span></div>
+                        <div class="legend-item"><span class="move lp">L'</span> <span class="desc">Левая ↺</span></div>
+                        <div class="legend-item"><span class="move f">F</span> <span class="desc">Передняя ↻</span></div>
+                        <div class="legend-item"><span class="move fp">F'</span> <span class="desc">Передняя ↺</span></div>
+                        <div class="legend-item"><span class="move b">B</span> <span class="desc">Задняя ↻</span></div>
+                        <div class="legend-item"><span class="move bp">B'</span> <span class="desc">Задняя ↺</span></div>
+                        <div class="legend-item"><span class="move u">U</span> <span class="desc">Верхняя ↻</span></div>
+                        <div class="legend-item"><span class="move up">U'</span> <span class="desc">Верхняя ↺</span></div>
+                        <div class="legend-item"><span class="move d">D</span> <span class="desc">Нижняя ↻</span></div>
+                        <div class="legend-item"><span class="move dp">D'</span> <span class="desc">Нижняя ↺</span></div>
                     </div>
                     <div style="margin-top: 0.4rem; font-size: 0.65rem; color: #888; text-align: center; border-top: 1px solid #ddd; padding-top: 0.4rem;">
                         <span style="background: #1e2a47; color: #fff; padding: 0 4px; border-radius: 3px;">R</span> по часовой, <span style="background: #3a2a4a; color: #fff; padding: 0 4px; border-radius: 3px;">R'</span> против
