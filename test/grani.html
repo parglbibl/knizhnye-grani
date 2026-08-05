@@ -29,6 +29,107 @@
     <link rel="manifest" href="../favicon/site.webmanifest">
     <meta name="msapplication-TileColor" content="#ff2e5a">
     <meta name="theme-color" content="#fef9f0">
+
+    <style>
+        /* ===== СТИЛИ ДЛЯ КНОПОК ПОВОРОТА (СКРЫТЫ ПО УМОЛЧАНИЮ) ===== */
+        .cube-buttons {
+            display: none !important;
+            opacity: 0 !important;
+            transition: opacity 0.5s ease, margin-top 0.5s ease;
+            flex-direction: column;
+            gap: 0.5rem;
+            align-items: center;
+            margin-top: 1.5rem;
+        }
+        .cube-buttons.visible {
+            display: flex !important;
+            opacity: 1 !important;
+        }
+        .legend {
+            display: none !important;
+            opacity: 0 !important;
+            transition: opacity 0.5s ease;
+            margin-top: 1.5rem;
+            max-width: 600px;
+            width: 100%;
+            background: #f5efe8;
+            border-radius: 20px;
+            padding: 1.2rem 1.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+            font-size: 0.9rem;
+            color: #1e2a3a;
+            line-height: 1.7;
+        }
+        .legend.visible {
+            display: block !important;
+            opacity: 1 !important;
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .cube-btn {
+            padding: 0.6rem 1.2rem;
+            font-size: 1rem;
+            font-weight: 700;
+            font-family: 'Inter', sans-serif;
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            touch-action: manipulation;
+            min-width: 56px;
+            min-height: 44px;
+            user-select: none;
+            letter-spacing: 0.5px;
+        }
+        .cube-btn:active {
+            transform: translateY(4px);
+        }
+        /* Цвета кнопок */
+        .cube-btn.r { background: #c41e3a; box-shadow: 0 4px 0 #7a1224; }
+        .cube-btn.r:hover { background: #d42a46; }
+        .cube-btn.prime.r { background: #a01830; box-shadow: 0 4px 0 #5e0e1c; }
+        .cube-btn.prime.r:hover { background: #b81e3a; }
+        
+        .cube-btn.l { background: #f39c12; box-shadow: 0 4px 0 #b36d0b; color: #1e2a47; }
+        .cube-btn.l:hover { background: #f7b731; }
+        .cube-btn.prime.l { background: #d4890b; box-shadow: 0 4px 0 #8a5a07; color: #1e2a47; }
+        .cube-btn.prime.l:hover { background: #e6a017; }
+        
+        .cube-btn.f { background: #27ae60; box-shadow: 0 4px 0 #1a7a42; }
+        .cube-btn.f:hover { background: #2ecc71; }
+        .cube-btn.prime.f { background: #1e8e4a; box-shadow: 0 4px 0 #0f5a2e; }
+        .cube-btn.prime.f:hover { background: #26a85a; }
+        
+        .cube-btn.b { background: #2980b9; box-shadow: 0 4px 0 #1a5276; }
+        .cube-btn.b:hover { background: #3498db; }
+        .cube-btn.prime.b { background: #1f6a93; box-shadow: 0 4px 0 #0f3e5a; }
+        .cube-btn.prime.b:hover { background: #287aa8; }
+        
+        .cube-btn.u { background: #f1c40f; box-shadow: 0 4px 0 #b7950b; color: #1e2a47; }
+        .cube-btn.u:hover { background: #f4d03f; }
+        .cube-btn.prime.u { background: #d4ac0d; box-shadow: 0 4px 0 #8a7007; color: #1e2a47; }
+        .cube-btn.prime.u:hover { background: #e6c019; }
+        
+        .cube-btn.d { background: #8e44ad; box-shadow: 0 4px 0 #5b2d6e; }
+        .cube-btn.d:hover { background: #a569bd; }
+        .cube-btn.prime.d { background: #6f3490; box-shadow: 0 4px 0 #451f5a; }
+        .cube-btn.prime.d:hover { background: #8844a8; }
+
+        @media (max-width: 600px) {
+            .cube-btn {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.8rem;
+                min-width: 48px;
+                min-height: 38px;
+            }
+        }
+    </style>
 </head>
 <body>
 
@@ -53,9 +154,9 @@
 </header>
 
 <section class="section" style="padding-top: 2rem; padding-bottom: 2rem;">
-    <div class="container" style="max-width: 900px; text-align: center;">
+    <div class="container" style="max-width: 950px; text-align: center;">
         
-        <!-- ===== ЗАГОЛОВОК И МАНИФЕСТ (ОРИГИНАЛЬНЫЙ) ===== -->
+        <!-- ===== ЗАГОЛОВОК И МАНИФЕСТ ===== -->
         <div class="grani-header" style="margin-bottom: 2.5rem; text-align: left; max-width: 750px; margin-left: auto; margin-right: auto;">
             <h1 style="font-family: 'KB Tranceform', 'Montserrat', sans-serif; font-weight: 400; text-align: center; letter-spacing: 0.02em; color: #3a4a6e; margin-bottom: 1rem; font-size: 3.8rem;">
                 Шесть граней,<br>из которых складываемся мы
@@ -93,11 +194,11 @@
             </div>
         </div>
 
-        <!-- ===== КУБИК И ЛЕГЕНДА ===== -->
-        <div style="display: flex; flex-direction: row; justify-content: center; align-items: center; gap: 4rem; width: 100%; max-width: 1000px; margin: 0 auto; flex-wrap: wrap;">
+        <!-- ===== ЛЕГЕНДА (СЛЕВА) + КУБИК (СПРАВА) С КНОПКАМИ ВНИЗУ ===== -->
+        <div style="display: flex; flex-direction: row; justify-content: center; align-items: flex-start; gap: 2rem; width: 100%; margin: 0 auto; flex-wrap: wrap;">
             
-            <!-- ЛЕГЕНДА: увеличили ширину с 280px до 320px -->
-            <div style="flex: 0 0 320px; display: flex; justify-content: center; align-items: center;">
+            <!-- ЛЕГЕНДА -->
+            <div style="flex: 0 0 280px; display: flex; justify-content: center; align-items: center;">
                 <div style="display: flex; flex-direction: column; gap: 0.9rem; padding: 1.8rem 2rem; background: rgba(255,255,255,0.8); backdrop-filter: blur(6px); border-radius: 28px; box-shadow: 0 12px 40px rgba(0,0,0,0.04); width: 100%; border: 1px solid rgba(255,255,255,0.5);">
                     <div style="display: flex; align-items: center; gap: 1.2rem;">
                         <img src="../images/cube_textures/red.jpg" alt="Любовь" style="width: 40px; height: 40px; border-radius: 10px; object-fit: cover; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
@@ -126,16 +227,60 @@
                 </div>
             </div>
 
-            <!-- КУБИК: уменьшили max-width с 580px до 440px и добавили max-height -->
-            <div style="flex: 1; min-width: 320px; max-width: 440px; display: flex; justify-content: center;">
-                <div id="cube-container" style="width: 100%; aspect-ratio: 1 / 1; max-width: 440px; max-height: 440px; background: transparent; position: relative; touch-action: none;"></div>
-            </div>
-        </div>
+            <!-- КУБИК И УПРАВЛЕНИЕ -->
+            <div style="flex: 1; min-width: 320px; max-width: 500px; display: flex; flex-direction: column; align-items: center;">
+                <div id="cube-container" style="width: 100%; aspect-ratio: 1 / 1; background: transparent; touch-action: none; cursor: pointer; position: relative;"></div>
+                
+                <!-- КНОПКИ ПЕРЕМЕШАТЬ/СОБРАТЬ -->
+                <div class="controls" style="margin-top: 1.5rem; display: flex; gap: 15px; flex-wrap: wrap; justify-content: center;">
+                    <button id="btnScramble" style="padding: 10px 24px; border: none; border-radius: 30px; font-weight: 600; font-size: 16px; cursor: pointer; transition: 0.2s; font-family: 'Inter', sans-serif; background: #ff2e5a; color: #fff;">Перемешать</button>
+                    <button id="btnSolve" style="padding: 10px 24px; border: none; border-radius: 30px; font-weight: 600; font-size: 16px; cursor: pointer; transition: 0.2s; font-family: 'Inter', sans-serif; background: #2ecc71; color: #fff; display: none;">Собрать</button>
+                </div>
 
-        <!-- ===== КНОПКИ УПРАВЛЕНИЯ ===== -->
-        <div style="display: flex; justify-content: center; gap: 1.5rem; margin-top: 2.5rem; flex-wrap: wrap;">
-            <button id="btnScramble" class="btn btn-primary" style="background: #ff2e5a; color: #fff; border-color: #ff2e5a;">Перемешать</button>
-            <button id="btnSolve" class="btn btn-primary" style="background: #2ecc71; color: #fff; border-color: #2ecc71; display: none;">Собрать</button>
+                <!-- КНОПКИ ПОВОРОТА ГРАНЕЙ -->
+                <div class="cube-buttons" id="cubeButtons">
+                    <div class="btn-row">
+                        <button class="cube-btn r" onclick="window.doMove('R')">R</button>
+                        <button class="cube-btn prime r" onclick="window.doMove('R\'')">R'</button>
+                        <button class="cube-btn l" onclick="window.doMove('L')">L</button>
+                        <button class="cube-btn prime l" onclick="window.doMove('L\'')">L'</button>
+                    </div>
+                    <div class="btn-row">
+                        <button class="cube-btn f" onclick="window.doMove('F')">F</button>
+                        <button class="cube-btn prime f" onclick="window.doMove('F\'')">F'</button>
+                        <button class="cube-btn b" onclick="window.doMove('B')">B</button>
+                        <button class="cube-btn prime b" onclick="window.doMove('B\'')">B'</button>
+                    </div>
+                    <div class="btn-row">
+                        <button class="cube-btn u" onclick="window.doMove('U')">U</button>
+                        <button class="cube-btn prime u" onclick="window.doMove('U\'')">U'</button>
+                        <button class="cube-btn d" onclick="window.doMove('D')">D</button>
+                        <button class="cube-btn prime d" onclick="window.doMove('D\'')">D'</button>
+                    </div>
+                </div>
+
+                <!-- ЛЕГЕНДА ОБОЗНАЧЕНИЙ -->
+                <div class="legend" id="legend">
+                    <h3 style="margin: 0 0 0.5rem 0; font-weight: 600; font-size: 1rem; color: #1e2a3a; text-align: center;">📐 Обозначения ходов</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.3rem 1rem;">
+                        <div style="display: flex; align-items: baseline; gap: 6px; font-weight: 500;"><span style="font-weight: 700; background: #c41e3a; color: #fff; padding: 0 8px; border-radius: 6px; font-size: 0.85rem; min-width: 28px; text-align: center;">R</span> <span style="color: #444; font-weight: 400; font-size: 0.85rem;">Правая грань ↻</span></div>
+                        <div style="display: flex; align-items: baseline; gap: 6px; font-weight: 500;"><span style="font-weight: 700; background: #a01830; color: #fff; padding: 0 8px; border-radius: 6px; font-size: 0.85rem; min-width: 28px; text-align: center;">R'</span> <span style="color: #444; font-weight: 400; font-size: 0.85rem;">Правая грань ↺</span></div>
+                        <div style="display: flex; align-items: baseline; gap: 6px; font-weight: 500;"><span style="font-weight: 700; background: #f39c12; color: #1e2a47; padding: 0 8px; border-radius: 6px; font-size: 0.85rem; min-width: 28px; text-align: center;">L</span> <span style="color: #444; font-weight: 400; font-size: 0.85rem;">Левая грань ↻</span></div>
+                        <div style="display: flex; align-items: baseline; gap: 6px; font-weight: 500;"><span style="font-weight: 700; background: #d4890b; color: #1e2a47; padding: 0 8px; border-radius: 6px; font-size: 0.85rem; min-width: 28px; text-align: center;">L'</span> <span style="color: #444; font-weight: 400; font-size: 0.85rem;">Левая грань ↺</span></div>
+                        <div style="display: flex; align-items: baseline; gap: 6px; font-weight: 500;"><span style="font-weight: 700; background: #27ae60; color: #fff; padding: 0 8px; border-radius: 6px; font-size: 0.85rem; min-width: 28px; text-align: center;">F</span> <span style="color: #444; font-weight: 400; font-size: 0.85rem;">Передняя грань ↻</span></div>
+                        <div style="display: flex; align-items: baseline; gap: 6px; font-weight: 500;"><span style="font-weight: 700; background: #1e8e4a; color: #fff; padding: 0 8px; border-radius: 6px; font-size: 0.85rem; min-width: 28px; text-align: center;">F'</span> <span style="color: #444; font-weight: 400; font-size: 0.85rem;">Передняя грань ↺</span></div>
+                        <div style="display: flex; align-items: baseline; gap: 6px; font-weight: 500;"><span style="font-weight: 700; background: #2980b9; color: #fff; padding: 0 8px; border-radius: 6px; font-size: 0.85rem; min-width: 28px; text-align: center;">B</span> <span style="color: #444; font-weight: 400; font-size: 0.85rem;">Задняя грань ↻</span></div>
+                        <div style="display: flex; align-items: baseline; gap: 6px; font-weight: 500;"><span style="font-weight: 700; background: #1f6a93; color: #fff; padding: 0 8px; border-radius: 6px; font-size: 0.85rem; min-width: 28px; text-align: center;">B'</span> <span style="color: #444; font-weight: 400; font-size: 0.85rem;">Задняя грань ↺</span></div>
+                        <div style="display: flex; align-items: baseline; gap: 6px; font-weight: 500;"><span style="font-weight: 700; background: #f1c40f; color: #1e2a47; padding: 0 8px; border-radius: 6px; font-size: 0.85rem; min-width: 28px; text-align: center;">U</span> <span style="color: #444; font-weight: 400; font-size: 0.85rem;">Верхняя грань ↻</span></div>
+                        <div style="display: flex; align-items: baseline; gap: 6px; font-weight: 500;"><span style="font-weight: 700; background: #d4ac0d; color: #1e2a47; padding: 0 8px; border-radius: 6px; font-size: 0.85rem; min-width: 28px; text-align: center;">U'</span> <span style="color: #444; font-weight: 400; font-size: 0.85rem;">Верхняя грань ↺</span></div>
+                        <div style="display: flex; align-items: baseline; gap: 6px; font-weight: 500;"><span style="font-weight: 700; background: #8e44ad; color: #fff; padding: 0 8px; border-radius: 6px; font-size: 0.85rem; min-width: 28px; text-align: center;">D</span> <span style="color: #444; font-weight: 400; font-size: 0.85rem;">Нижняя грань ↻</span></div>
+                        <div style="display: flex; align-items: baseline; gap: 6px; font-weight: 500;"><span style="font-weight: 700; background: #6f3490; color: #fff; padding: 0 8px; border-radius: 6px; font-size: 0.85rem; min-width: 28px; text-align: center;">D'</span> <span style="color: #444; font-weight: 400; font-size: 0.85rem;">Нижняя грань ↺</span></div>
+                    </div>
+                    <div style="margin-top: 0.6rem; font-size: 0.8rem; color: #666; text-align: center; border-top: 1px solid #ddd; padding-top: 0.6rem;">
+                        <span style="background: #1e2a47; color: #fff; padding: 0 8px; border-radius: 4px;">R</span> — по часовой, <span style="background: #3a2a4a; color: #fff; padding: 0 8px; border-radius: 4px;">R'</span> — против часовой (штрих)
+                    </div>
+                </div>
+            </div>
         </div>
 
     </div>
@@ -172,6 +317,7 @@
     </div>
 </footer>
 
+<!-- ===== ПОДКЛЮЧЕНИЕ СКРИПТОВ ===== -->
 <script src="../js/main.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
