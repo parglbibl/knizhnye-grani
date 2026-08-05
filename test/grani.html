@@ -93,7 +93,7 @@
             </div>
         </div>
 
-        <!-- ===== ЛЕГЕНДА (СЛЕВА) + КУБИК (СПРАВА) ===== -->
+        <!-- ===== ЛЕГЕНДА (СЛЕВА) + КУБИК (СПРАВА) С КНОПКАМИ ВНИЗУ ===== -->
         <div style="display: flex; flex-direction: row; justify-content: center; align-items: flex-start; gap: 2rem; width: 100%; max-width: 1000px; margin: 0 auto; flex-wrap: wrap;">
             
             <!-- ЛЕВАЯ ЧАСТЬ: ЛЕГЕНДА С ЦВЕТАМИ -->
@@ -129,8 +129,8 @@
             <!-- ПРАВАЯ ЧАСТЬ: 3D КУБИК И УПРАВЛЕНИЕ -->
             <div style="flex: 1; min-width: 320px; max-width: 580px; display: flex; flex-direction: column; align-items: center;">
                 
-                <!-- САМ КУБИК (квадратный, с aspect-ratio) -->
-                <div id="cube-container" style="width: 100%; aspect-ratio: 1 / 1; background: transparent; touch-action: none; cursor: pointer; position: relative;"></div>
+                <!-- САМ КУБИК (теперь он не растягивается на всю высоту, а имеет фиксированный размер) -->
+                <div id="cube-container" style="width: 100%; max-width: 500px; aspect-ratio: 1 / 1; background: transparent; touch-action: none; cursor: pointer; position: relative;"></div>
                 
                 <!-- ===== КНОПКИ УПРАВЛЕНИЯ (Перемешать/Собрать) ===== -->
                 <div class="controls" style="margin-top: 1rem; display: flex; gap: 15px; flex-wrap: wrap; justify-content: center;">
@@ -138,7 +138,7 @@
                     <button id="btnSolve" style="padding: 10px 24px; border: none; border-radius: 30px; font-weight: 600; font-size: 16px; cursor: pointer; transition: 0.2s; font-family: 'Inter', sans-serif; background: #2ecc71; color: #fff; display: none;">Собрать</button>
                 </div>
 
-                <!-- ===== КНОПКИ ПОВОРОТА ГРАНЕЙ ===== -->
+                <!-- ===== КНОПКИ ПОВОРОТА ГРАНЕЙ (появляются после скрамблинга) ===== -->
                 <div class="cube-buttons" id="cubeButtons" style="margin-top: 1.5rem; display: none; flex-direction: column; gap: 0.5rem; align-items: center; opacity: 0; transition: opacity 0.5s ease;">
                     <div class="btn-row" style="display: flex; gap: 0.6rem; flex-wrap: wrap; justify-content: center;">
                         <button class="cube-btn r" onclick="window.doMove('R')" style="padding: 0.6rem 1.2rem; font-size: 1rem; font-weight: 700; font-family: 'Inter', sans-serif; border: none; border-radius: 12px; background: #c41e3a; color: #fff; cursor: pointer; transition: all 0.15s ease; touch-action: manipulation; min-width: 56px; min-height: 44px; box-shadow: 0 4px 0 #7a1224; user-select: none; letter-spacing: 0.5px;">R</button>
@@ -277,6 +277,20 @@
     const database = firebase.database();
 
     document.addEventListener('DOMContentLoaded', function() {
+        // ===== ГЛОБАЛЬНЫЕ СТИЛИ ДЛЯ ПОКАЗА КНОПОК =====
+        const style = document.createElement('style');
+        style.textContent = `
+            .cube-buttons.visible {
+                display: flex !important;
+                opacity: 1 !important;
+            }
+            .legend.visible {
+                display: block !important;
+                opacity: 1 !important;
+            }
+        `;
+        document.head.appendChild(style);
+
         // ===== ПОКАЗ И СКРЫТИЕ КНОПОК И ЛЕГЕНДЫ =====
         const cubeButtons = document.getElementById('cubeButtons');
         const legend = document.getElementById('legend');
