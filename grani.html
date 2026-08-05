@@ -285,6 +285,26 @@
                 grid-template-columns: repeat(2, 1fr);
             }
         }
+
+        /* ===== СТИЛИ ПОПАПА ===== */
+        .popup-answers-container {
+            max-height: 150px;
+            overflow-y: auto;
+            border-top: 1px solid #f0f0f0;
+            border-bottom: 1px solid #f0f0f0;
+            padding: 0.8rem 0;
+            margin: 0.8rem 0;
+        }
+        .popup-answer-item {
+            background: #f5f0e8;
+            border-radius: 14px;
+            padding: 0.8rem 1.2rem;
+            margin-bottom: 0.8rem;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+        }
+        .popup-answer-item:last-child {
+            margin-bottom: 0;
+        }
     </style>
 </head>
 <body>
@@ -475,15 +495,24 @@
     </div>
 </footer>
 
-<!-- ===== ПОПАП ===== -->
+<!-- ===== ПОПАП (НОВЫЙ ПОРЯДОК: ВОПРОС → ОТВЕТЫ → ВОЗРАСТ → ПОЛЕ ВВОДА) ===== -->
 <div id="popup" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(6px); z-index: 9999; align-items: center; justify-content: center;">
     <div style="background: #fff; max-width: 500px; width: 90%; padding: 2rem; border-radius: 28px; position: relative; box-shadow: 0 24px 70px rgba(0,0,0,0.25); max-height: 95vh; overflow-y: auto;">
         <button id="popupClose" style="position: absolute; top: 15px; right: 20px; font-size: 28px; background: none; border: none; cursor: pointer; color: #999; transition: color 0.2s;">&times;</button>
-        <h2 id="popupTitle" style="color:#1e2a3a; margin-bottom:0.5rem;">Грань</h2>
-        <p id="popupQuestion" style="font-size:1.05rem; line-height:1.6; color:#333;"></p>
         
-        <!-- ===== ВЫБОР ВОЗРАСТА ===== -->
-        <div class="age-selector" id="ageSelector" style="margin: 1rem 0; display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center;">
+        <div style="display:flex; align-items:center; gap:0.8rem; margin-bottom:0.5rem;">
+            <img id="popupThumb" src="" alt="Грань" style="width:32px; height:32px; border-radius:8px; object-fit:cover;">
+            <h2 id="popupTitle" style="font-size:1.3rem; font-weight:600; margin:0; color:#1e2a3a;">Грань</h2>
+        </div>
+        
+        <!-- 1. ВОПРОС -->
+        <p id="popupQuestion" style="font-size:1.05rem; line-height:1.6; margin:0.5rem 0 1rem 0; color:#333; font-weight:400;"></p>
+        
+        <!-- 2. ОТВЕТЫ ДРУГИХ ПОЛЬЗОВАТЕЛЕЙ -->
+        <div id="popupAnswers" class="popup-answers-container"></div>
+        
+        <!-- 3. ВЫБОР ВОЗРАСТА -->
+        <div class="age-selector" id="ageSelector" style="margin: 0 0 1rem 0; display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center;">
             <div class="age-label" style="font-size: 0.8rem; color: #888; text-align: center; margin-bottom: 0.3rem; width: 100%;">👤 Твой возраст</div>
             <button class="age-btn" data-age="not_specified" style="padding: 0.5rem 1rem; border: 2px solid #e0e0e0; border-radius: 20px; background: #fafbfc; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 500; color: #555; transition: all 0.2s ease; touch-action: manipulation;">Не указан</button>
             <button class="age-btn" data-age="under_14" style="padding: 0.5rem 1rem; border: 2px solid #e0e0e0; border-radius: 20px; background: #fafbfc; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 500; color: #555; transition: all 0.2s ease; touch-action: manipulation;">До 14 лет</button>
@@ -492,9 +521,12 @@
             <button class="age-btn" data-age="over_35" style="padding: 0.5rem 1rem; border: 2px solid #e0e0e0; border-radius: 20px; background: #fafbfc; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 500; color: #555; transition: all 0.2s ease; touch-action: manipulation;">Старше 35</button>
         </div>
 
-        <div id="popupAnswers" style="margin-top:1rem; max-height:150px; overflow-y:auto; border-top:1px solid #f0f0f0; padding-top:1rem;"></div>
-        <textarea id="popupInput" placeholder="Напиши здесь название книги и свои чувства..." style="width:100%; margin-top:1rem; padding:0.8rem; border:2px solid #eee; border-radius:12px; font-family:inherit; font-size:0.95rem; min-height:80px; resize:vertical; background:#fafbfc; outline:none;"></textarea>
-        <button id="popupSubmit" style="width:100%; margin-top:1rem; padding:0.9rem; background:#ff2e5a; color:#fff; border:none; border-radius:12px; font-weight:600; font-size:1rem; cursor:pointer;">Ответить и поделиться</button>
+        <!-- 4. ПОЛЕ ДЛЯ ВВОДА -->
+        <textarea id="popupInput" placeholder="Напиши здесь название книги и свои чувства..." style="width:100%; margin-bottom:1rem; padding:0.8rem; border:2px solid #eee; border-radius:12px; font-family:inherit; font-size:0.95rem; min-height:80px; resize:vertical; background:#fafbfc; outline:none;"></textarea>
+        
+        <!-- 5. КНОПКА ОТПРАВКИ -->
+        <button id="popupSubmit" style="width:100%; padding:0.9rem; background:#ff2e5a; color:#fff; border:none; border-radius:12px; font-weight:600; font-size:1rem; cursor:pointer;">Ответить и поделиться</button>
+        
         <p style="font-size:0.7rem; color:#999; margin-top:1rem; text-align:center;">Твой ответ увидят все, кто откроет этот квадратик</p>
     </div>
 </div>
@@ -564,6 +596,7 @@
         // ===== ЛОГИКА ПОПАПА (КНИЖНЫЕ ГРАНИ) =====
         const popup = document.getElementById('popup');
         const popupClose = document.getElementById('popupClose');
+        const popupThumb = document.getElementById('popupThumb');
         const popupTitle = document.getElementById('popupTitle');
         const popupQuestion = document.getElementById('popupQuestion');
         const popupAnswers = document.getElementById('popupAnswers');
@@ -622,6 +655,15 @@
             'green': 'Добро',
             'white': 'Память',
             'orange': 'Семья'
+        };
+        
+        const texturePaths = {
+            'red': '../images/cube_textures/red.jpg',
+            'blue': '../images/cube_textures/blue.jpg',
+            'yellow': '../images/cube_textures/yellow.jpg',
+            'green': '../images/cube_textures/green.jpg',
+            'white': '../images/cube_textures/white.jpg',
+            'orange': '../images/cube_textures/orange.jpg'
         };
 
         const questionsDB = {
@@ -699,7 +741,7 @@
                 const answersArray = Object.values(data).reverse();
                 answersArray.forEach((item) => {
                     const div = document.createElement('div');
-                    div.style.cssText = 'background:#f5f0e8; border-radius:14px; padding:0.8rem 1.2rem; margin-bottom:0.8rem; box-shadow:0 2px 6px rgba(0,0,0,0.02);';
+                    div.className = 'popup-answer-item';
                     const ageLabel = getAgeLabel(item.age);
                     div.innerHTML = `
                         <div style="font-size:0.9rem; color:#333; line-height:1.5;">${item.text}</div>
@@ -729,10 +771,11 @@
             const defaultBtn = ageSelector.querySelector('[data-age="not_specified"]');
             if (defaultBtn) defaultBtn.classList.add('active');
 
+            popupThumb.src = texturePaths[color] || '';
             popupTitle.textContent = colorNames[color] || color;
             const question = questionsDB[elementId];
             popupQuestion.textContent = question || 'Для этого квадратика пока нет вопроса. Придумай свой!';
-            popupAnswers.innerHTML = '<p style="color:#aaa; font-size:0.9rem; text-align:center; margin:0;">Пока никто не ответил на этот вопрос.<br>Будь первым! ✨</p>';
+            popupAnswers.innerHTML = '<p style="color:#aaa; font-size:0.9rem; text-align:center; margin:0;">Загрузка ответов...</p>';
             popupInput.value = '';
             popup.style.display = 'flex';
             document.body.style.overflow = 'hidden';
