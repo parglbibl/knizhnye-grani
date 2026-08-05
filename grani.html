@@ -305,6 +305,31 @@
         .popup-answer-item:last-child {
             margin-bottom: 0;
         }
+
+        /* ===== СТИЛИ ДЛЯ КНОПОК ВОЗРАСТА (ИСПРАВЛЕНИЕ) ===== */
+        .age-btn {
+            padding: 0.5rem 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 20px;
+            background: #fafbfc;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #555;
+            transition: all 0.2s ease;
+            touch-action: manipulation;
+        }
+        .age-btn:hover {
+            border-color: #bbb;
+            background: #f0f0f0;
+        }
+        /* Активное состояние кнопки возраста */
+        .age-btn.active {
+            border-color: #ff2e5a;
+            background: #ff2e5a;
+            color: #fff;
+        }
     </style>
 </head>
 <body>
@@ -514,11 +539,11 @@
         <!-- 3. ВЫБОР ВОЗРАСТА -->
         <div class="age-selector" id="ageSelector" style="margin: 0 0 1rem 0; display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center;">
             <div class="age-label" style="font-size: 0.8rem; color: #888; text-align: center; margin-bottom: 0.3rem; width: 100%;">👤 Твой возраст</div>
-            <button class="age-btn" data-age="not_specified" style="padding: 0.5rem 1rem; border: 2px solid #e0e0e0; border-radius: 20px; background: #fafbfc; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 500; color: #555; transition: all 0.2s ease; touch-action: manipulation;">Не указан</button>
-            <button class="age-btn" data-age="under_14" style="padding: 0.5rem 1rem; border: 2px solid #e0e0e0; border-radius: 20px; background: #fafbfc; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 500; color: #555; transition: all 0.2s ease; touch-action: manipulation;">До 14 лет</button>
-            <button class="age-btn" data-age="15_17" style="padding: 0.5rem 1rem; border: 2px solid #e0e0e0; border-radius: 20px; background: #fafbfc; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 500; color: #555; transition: all 0.2s ease; touch-action: manipulation;">15–17 лет</button>
-            <button class="age-btn" data-age="18_35" style="padding: 0.5rem 1rem; border: 2px solid #e0e0e0; border-radius: 20px; background: #fafbfc; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 500; color: #555; transition: all 0.2s ease; touch-action: manipulation;">18–35 лет</button>
-            <button class="age-btn" data-age="over_35" style="padding: 0.5rem 1rem; border: 2px solid #e0e0e0; border-radius: 20px; background: #fafbfc; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 500; color: #555; transition: all 0.2s ease; touch-action: manipulation;">Старше 35</button>
+            <button class="age-btn" data-age="not_specified">Не указан</button>
+            <button class="age-btn" data-age="under_14">До 14 лет</button>
+            <button class="age-btn" data-age="15_17">15–17 лет</button>
+            <button class="age-btn" data-age="18_35">18–35 лет</button>
+            <button class="age-btn" data-age="over_35">Старше 35</button>
         </div>
 
         <!-- 4. ПОЛЕ ДЛЯ ВВОДА -->
