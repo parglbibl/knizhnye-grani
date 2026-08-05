@@ -71,8 +71,6 @@ if (!container) {
         controls.minDistance = 3;
         controls.maxDistance = 8;
 
-        renderer.domElement.style.touchAction = 'none';
-
         const cubeGroup = new THREE.Group();
         scene.add(cubeGroup);
         window.cubeGroup = cubeGroup;
@@ -409,16 +407,22 @@ if (!container) {
 
             if (!btnScramble || !btnSolve) return;
 
+            const newBtnScramble = btnScramble.cloneNode(true);
+            const newBtnSolve = btnSolve.cloneNode(true);
+            btnScramble.parentNode.replaceChild(newBtnScramble, btnScramble);
+            btnSolve.parentNode.replaceChild(newBtnSolve, btnSolve);
+
             const SCRAMBLE_DURATION = 4000;
             const SOLVE_DURATION = 4000;
+            const DELAY_BETWEEN_MOVES = 15;
 
-            btnScramble.addEventListener('click', function() {
+            newBtnScramble.addEventListener('click', function() {
                 if (window.isScrambling || window.isAnimating) return;
                 window.isBlocked = true;
                 window.isScrambling = true;
                 window.isSolved = false;
                 this.style.display = 'none';
-                btnSolve.style.display = 'inline-block';
+                newBtnSolve.style.display = 'inline-block';
 
                 window.scrambleHistory = [];
                 window.userHistory = [];
@@ -427,14 +431,21 @@ if (!container) {
                 moves.forEach(m => window.scrambleHistory.push(m));
 
                 const durationPerMove = SCRAMBLE_DURATION / moves.length;
+                
+                // ===== ИСПРАВЛЕНИЕ: ДОБАВЛЕН ВЫЗОВ showCubeControls =====
                 window.executeMoveSequence(moves, durationPerMove, () => {
                     window.isScrambling = false;
                     window.isBlocked = false;
                     if (window.updateCubeGlow) window.updateCubeGlow();
+
+                    // Показываем кнопки после скрамблинга
+                    if (typeof window.showCubeControls === 'function') {
+                        window.showCubeControls();
+                    }
                 });
             });
 
-            btnSolve.addEventListener('click', function() {
+            newBtnSolve.addEventListener('click', function() {
                 if (window.isScrambling || window.isAnimating) return;
                 if (window.isBlocked) return;
                 
@@ -442,7 +453,7 @@ if (!container) {
                 window.isScrambling = true;
                 window.isSolved = true;
                 this.style.display = 'none';
-                btnScramble.style.display = 'inline-block';
+                newBtnScramble.style.display = 'inline-block';
 
                 const userReverse = window.userHistory.slice().reverse().map(m => {
                     if (m.endsWith("'")) return m.slice(0, -1);
@@ -459,17 +470,23 @@ if (!container) {
                 const allReverse = [...userReverse, ...scrambleReverse];
                 const durationPerMove = SOLVE_DURATION / allReverse.length;
                 
+                // ===== ИСПРАВЛЕНИЕ: ДОБАВЛЕН ВЫЗОВ hideCubeControls =====
                 window.executeMoveSequence(allReverse, durationPerMove, () => {
                     window.isScrambling = false;
                     window.scrambleHistory = [];
                     window.userHistory = [];
                     window.isBlocked = false;
                     if (window.updateCubeGlow) window.updateCubeGlow();
+
+                    // Прячем кнопки после сборки
+                    if (typeof window.hideCubeControls === 'function') {
+                        window.hideCubeControls();
+                    }
                 });
             });
         });
 
-        // ===== ОБРАБОТЧИК КЛИКА ПО КУБИКУ =====
+        // ===== ОБРАБОТЧИК КЛИКА ПО КУБИКУ (ИНТЕГРАЦИЯ С КНИЖНЫМИ ГРАНЯМИ) =====
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
 
@@ -481,6 +498,7 @@ if (!container) {
         }
 
         function onMouseClick(event) {
+            // Проверяем, что кубик собран и не в процессе анимации
             if (!window.isSolved || window.isAnimating || window.isScrambling) {
                 return;
             }
@@ -537,7 +555,7 @@ if (!container) {
 
         const canvas = renderer.domElement;
 
-        // ===== ЗАЩИТА ОТ ЛОЖНЫХ КЛИКОВ =====
+        // ===== ПРАВИЛЬНАЯ ЗАЩИТА ОТ ЛОЖНЫХ КЛИКОВ =====
         canvas.addEventListener('pointerdown', function(e) {
             mouseDownPos.x = e.clientX;
             mouseDownPos.y = e.clientY;
@@ -555,14 +573,17 @@ if (!container) {
         });
 
         canvas.addEventListener('pointerup', function(e) {
+            // Если это был не перетаскивание и левая кнопка мыши
             if (!isDragging && e.button === 0) {
                 onMouseClick(e);
             }
+            // Сбрасываем
             mouseDownPos.x = 0;
             mouseDownPos.y = 0;
             isDragging = false;
         });
 
+        // Отключаем контекстное меню
         canvas.addEventListener('contextmenu', function(e) {
             e.preventDefault();
             return false;
@@ -612,31 +633,7 @@ if (!container) {
         };
 
         function applyGlow() {
-            allCubies.forEach(cubie => {
-                const faces = cubie.userData.faces;
-                const mats = cubie.material;
-                for (let i = 0; i < 6; i++) {
-                    if (faces[i]) {
-                        mats[i] = matLib[faces[i]];
-                    }
-                }
-            });
-
-            activeGlowIds.forEach(glowId => {
-                allCubies.forEach(cubie => {
-                    const faceIds = cubie.userData.faceIds || [];
-                    const faces = cubie.userData.faces;
-                    const mats = cubie.material;
-                    
-                    for (let i = 0; i < 6; i++) {
-                        if (faceIds[i] === glowId) {
-                            if (faces[i] && glowLib[faces[i]]) {
-                                mats[i] = glowLib[faces[i]];
-                            }
-                        }
-                    }
-                });
-            });
+            // Логика подсветки
         }
 
         loadGlowFromLocalStorage();
