@@ -53,7 +53,7 @@
 </header>
 
 <section class="section" style="padding-top: 2rem; padding-bottom: 2rem;">
-    <div class="container" style="max-width: 900px; text-align: center;">
+    <div class="container" style="max-width: 1000px; text-align: center;">
         
         <!-- ===== ЗАГОЛОВОК И МАНИФЕСТ (ОРИГИНАЛЬНЫЙ) ===== -->
         <div class="grani-header" style="margin-bottom: 2.5rem; text-align: left; max-width: 750px; margin-left: auto; margin-right: auto;">
@@ -93,13 +93,51 @@
             </div>
         </div>
 
-        <!-- ===== МЕСТО ДЛЯ НОВОГО КОНТЕНТА ===== -->
-        <!-- Здесь будет новый интерактивный элемент или другой контент вместо кубика -->
-        <div style="padding: 3rem 1rem; background: rgba(255,255,255,0.5); border-radius: 24px; border: 2px dashed rgba(0,0,0,0.1); color: var(--text-secondary);">
-            <i class="fas fa-cube" style="font-size: 4rem; color: var(--neon-coral); opacity: 0.4; display: block; margin-bottom: 1rem;"></i>
-            <p style="font-size: 1.1rem;">Новый интерактивный элемент появится здесь</p>
-            <p style="font-size: 0.9rem; margin-top: 0.5rem;">Следите за обновлениями!</p>
+        <!-- ===== ЛЕГЕНДА (КВАДРАТИКИ СЛЕВА) + ПУСТОЕ МЕСТО СПРАВА ===== -->
+        <div style="display: flex; flex-direction: row; justify-content: center; align-items: center; gap: 4rem; width: 100%; max-width: 1000px; margin: 0 auto; flex-wrap: wrap;">
+            
+            <!-- ЛЕВАЯ ЧАСТЬ: ЛЕГЕНДА С ЦВЕТАМИ -->
+            <div style="flex: 0 0 280px; display: flex; justify-content: center; align-items: center;">
+                <div style="display: flex; flex-direction: column; gap: 0.9rem; padding: 1.8rem 2rem; background: rgba(255,255,255,0.8); backdrop-filter: blur(6px); border-radius: 28px; box-shadow: 0 12px 40px rgba(0,0,0,0.04); width: 100%; border: 1px solid rgba(255,255,255,0.5);">
+                    <div style="display: flex; align-items: center; gap: 1.2rem;">
+                        <img src="../images/cube_textures/red.jpg" alt="Любовь" style="width: 40px; height: 40px; border-radius: 10px; object-fit: cover; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+                        <span style="font-weight: 500; font-size: 1rem; color: var(--text-secondary);">Любовь</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 1.2rem;">
+                        <img src="../images/cube_textures/blue.jpg" alt="Надежда" style="width: 40px; height: 40px; border-radius: 10px; object-fit: cover; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+                        <span style="font-weight: 500; font-size: 1rem; color: var(--text-secondary);">Надежда</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 1.2rem;">
+                        <img src="../images/cube_textures/yellow.jpg" alt="Совесть" style="width: 40px; height: 40px; border-radius: 10px; object-fit: cover; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+                        <span style="font-weight: 500; font-size: 1rem; color: var(--text-secondary);">Совесть</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 1.2rem;">
+                        <img src="../images/cube_textures/green.jpg" alt="Добро" style="width: 40px; height: 40px; border-radius: 10px; object-fit: cover; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+                        <span style="font-weight: 500; font-size: 1rem; color: var(--text-secondary);">Добро</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 1.2rem;">
+                        <img src="../images/cube_textures/white.jpg" alt="Память" style="width: 40px; height: 40px; border-radius: 10px; object-fit: cover; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+                        <span style="font-weight: 500; font-size: 1rem; color: var(--text-secondary);">Память</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 1.2rem;">
+                        <img src="../images/cube_textures/orange.jpg" alt="Семья" style="width: 40px; height: 40px; border-radius: 10px; object-fit: cover; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+                        <span style="font-weight: 500; font-size: 1rem; color: var(--text-secondary);">Семья</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ПРАВАЯ ЧАСТЬ: ПУСТОЕ МЕСТО ПОД НОВЫЙ КОНТЕНТ -->
+            <div style="flex: 1; min-width: 320px; max-width: 580px; display: flex; justify-content: center; align-items: center;">
+                <div style="width: 100%; aspect-ratio: 1 / 1; max-width: 580px; background: rgba(255,255,255,0.5); border-radius: 24px; border: 2px dashed rgba(0,0,0,0.1); display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 2rem; color: var(--text-secondary);">
+                    <i class="fas fa-cube" style="font-size: 4rem; color: var(--neon-coral); opacity: 0.3; display: block; margin-bottom: 1rem;"></i>
+                    <p style="font-size: 1.1rem;">Новый интерактивный элемент появится здесь</p>
+                    <p style="font-size: 0.9rem; margin-top: 0.5rem;">Следите за обновлениями!</p>
+                </div>
+            </div>
         </div>
+
+        <!-- ===== КНОПКИ УПРАВЛЕНИЯ (УДАЛЕНЫ, ТАК КАК КУБИКА БОЛЬШЕ НЕТ) ===== -->
+        <!-- Кнопки "Перемешать" и "Собрать" удалены вместе с кубиком -->
 
     </div>
 </section>
