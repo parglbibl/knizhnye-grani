@@ -98,11 +98,11 @@
         .controls-right-side {
             display: flex;
             flex-direction: row;
-            align-items: flex-start;
+            align-items: center; /* ЦЕНТРИРУЕМ ПО ВЕРТИКАЛИ КНОПКИ И ЛЕГЕНДУ */
             gap: 1.2rem;
             flex: 1;
             min-width: 380px;
-            padding-top: 0.5rem;
+            padding-top: 0; /* Убираем лишний отступ сверху */
         }
 
         /* Стили для видимости кнопок и легенды */
@@ -249,6 +249,7 @@
                 align-items: center;
                 width: 100%;
                 min-width: 0;
+                padding-top: 0;
             }
             .cube-buttons {
                 width: 100%;
