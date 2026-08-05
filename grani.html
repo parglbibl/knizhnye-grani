@@ -31,25 +31,24 @@
     <meta name="theme-color" content="#fef9f0">
 
     <style>
-        /* ===== СТИЛИ ПО УМОЛЧАНИЮ (ВСЁ ПО ЦЕНТРУ, ВЕРТИКАЛЬНО) ===== */
+        /* ===== СТИЛИ ПО УМОЛЧАНИЮ (СТРОКА ПО ЦЕНТРУ) ===== */
         .main-row {
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
+            justify-content: center; /* По центру изначально */
             align-items: center;
-            justify-content: center;
             width: 100%;
             max-width: 1200px;
             margin-left: auto;
             margin-right: auto;
             gap: 2rem;
             transition: all 0.6s ease;
+            flex-wrap: wrap;
         }
         
-        /* МИНИАТЮРЫ (в центре) */
+        /* МИНИАТЮРЫ (слева) */
         .miniatures-col {
-            flex: 0 0 auto;
-            width: 100%;
-            max-width: 320px;
+            flex: 0 0 220px;
             display: flex;
             flex-direction: column;
             gap: 0.4rem;
@@ -83,9 +82,7 @@
 
         /* КУБИК (в центре) */
         .cube-wrapper {
-            flex: 0 0 auto;
-            width: 100%;
-            max-width: 440px;
+            flex: 0 0 340px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -98,19 +95,17 @@
             flex-direction: row;
             align-items: center;
             gap: 1.2rem;
-            flex: 1;
-            width: 100%;
-            max-width: 440px;
-            justify-content: center;
+            flex: 0 1 auto;
             opacity: 0;
-            max-height: 0;
+            max-width: 0;
             overflow: hidden;
             transition: all 0.6s ease;
             padding-top: 0;
         }
         .controls-right-side.visible {
             opacity: 1;
-            max-height: 400px;
+            max-width: 500px;
+            flex: 0 1 auto;
         }
 
         /* Стили для видимости кнопок и легенды */
@@ -228,56 +223,40 @@
         .cube-btn.d { background: #8e44ad; }
         .cube-btn.prime.d { background: #6f3490; }
 
-        /* ===== КЛАСС ДЛЯ ГОРИЗОНТАЛЬНОГО РЯДА ПОСЛЕ СКРАМБЛА (ПК) ===== */
+        /* ===== КЛАСС ДЛЯ СДВИГА ВЛЕВО ПОСЛЕ СКРАМБЛА ===== */
         .main-row.is-active {
-            flex-direction: row;
-            justify-content: flex-start;
-            align-items: center;
-            gap: 1.5rem;
+            justify-content: flex-start; /* Прижимаем влево */
             margin-left: 0;
         }
-        .main-row.is-active .miniatures-col {
-            flex: 0 0 220px;
-            width: auto;
-            max-width: none;
-        }
-        .main-row.is-active .cube-wrapper {
-            flex: 0 0 340px;
-            width: auto;
-            max-width: none;
-        }
-        .main-row.is-active .controls-right-side.visible {
-            flex: 1;
-            width: auto;
-            max-width: none;
-            justify-content: flex-start;
-        }
 
-        /* ===== АДАПТАЦИЯ ДЛЯ МОБИЛЬНЫХ (всегда вертикально) ===== */
+        /* ===== АДАПТАЦИЯ ДЛЯ МОБИЛЬНЫХ (всегда вертикально, всё по центру) ===== */
         @media (max-width: 900px) {
-            .main-row.is-active {
+            .main-row {
                 flex-direction: column !important;
                 align-items: center !important;
                 justify-content: center !important;
                 gap: 1.2rem;
-                margin-left: auto;
+                margin-left: auto !important;
             }
-            .main-row.is-active .miniatures-col {
+            .miniatures-col {
                 flex: 0 0 auto !important;
                 width: 100% !important;
                 max-width: 320px !important;
             }
-            .main-row.is-active .cube-wrapper {
+            .cube-wrapper {
                 flex: 0 0 auto !important;
                 width: 100% !important;
                 max-width: 440px !important;
             }
-            .main-row.is-active .controls-right-side.visible {
+            .controls-right-side {
                 flex-direction: column !important;
                 align-items: center !important;
                 width: 100% !important;
                 max-width: 440px !important;
                 justify-content: center !important;
+            }
+            .controls-right-side.visible {
+                max-width: 440px !important;
             }
             .cube-buttons {
                 width: 100% !important;
@@ -413,7 +392,7 @@
                 </div>
             </div>
 
-            <!-- КНОПКИ ПОВОРОТА + ЛЕГЕНДА (появляются плавно) -->
+            <!-- КНОПКИ ПОВОРОТА + ЛЕГЕНДА (появляются плавно справа) -->
             <div class="controls-right-side" id="controlsRightSide">
                 
                 <!-- КНОПКИ ПОВОРОТА ГРАНЕЙ -->
@@ -563,9 +542,9 @@
 
         // ===== ПОКАЗ И СКРЫТИЕ КНОПОК + ПЕРЕКЛЮЧЕНИЕ РЯДА =====
         window.showCubeControls = function() {
-            // Добавляем класс, превращающий вертикальный центр в горизонтальный ряд
+            // Прижимаем контейнер влево
             mainRow.classList.add('is-active');
-            // Показываем контейнер с кнопками
+            // Показываем контейнер с кнопками (справа)
             controlsRightSide.classList.add('visible');
             // Показываем сами кнопки и легенду
             cubeButtons.classList.add('visible');
@@ -578,7 +557,7 @@
             // Прячем кнопки и легенду
             cubeButtons.classList.remove('visible');
             legend.classList.remove('visible');
-            // Убираем класс горизонтального ряда (возвращаем в центр)
+            // Возвращаем контейнер в центр
             mainRow.classList.remove('is-active');
         };
 
