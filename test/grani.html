@@ -634,4 +634,80 @@
                 popupAnswers.innerHTML = '<p style="color:#aaa; font-size:0.9rem; text-align:center; margin:0;">Пока никто не ответил на этот вопрос.<br>Будь первым! ✨</p>';
                 return;
             }
-            const answersArray = Object.values(data).
+            const answersArray = Object.values(data).reverse();
+            answersArray.forEach((item) => {
+                const div = document.createElement('div');
+                div.className = 'popup-answer-item';
+                const ageLabel = getAgeLabel(item.age);
+                div.innerHTML = `
+                    <div class="popup-answer-text">${item.text}</div>
+                    <div class="popup-answer-meta">
+                        ${item.user || 'Аноним'}
+                        <span class="popup-answer-age">${ageLabel}</span>
+                        · ${item.timestamp || ''}
+                    </div>
+                `;
+                popupAnswers.appendChild(div);
+            });
+        });
+    }
+
+    // ===== ОТПРАВКА ОТВЕТА =====
+    popupSubmit.addEventListener('click', function() {
+        const text = popupInput.value.trim();
+        const age = popupAge.value;
+
+        if (!text) {
+            alert('Пожалуйста, напиши свой ответ перед отправкой.');
+            return;
+        }
+        if (!currentElementId) return;
+
+        const newAnswer = {
+            text: text,
+            age: age,
+            user: 'Аноним',
+            timestamp: new Date().toLocaleString('ru-RU')
+        };
+
+        const answersRef = database.ref('answers/' + currentElementId);
+        answersRef.push(newAnswer).then(() => {
+            popupInput.value = '';
+            popupAge.value = '';
+
+            // Сохраняем прогресс
+            let myProgress = JSON.parse(localStorage.getItem('myGranProgress') || '[]');
+            if (!myProgress.includes(currentElementId)) {
+                myProgress.push(currentElementId);
+                localStorage.setItem('myGranProgress', JSON.stringify(myProgress));
+                if (window.updateCubeGlow) {
+                    window.updateCubeGlow();
+                }
+            }
+
+            alert('Спасибо! Твой ответ сохранён и теперь виден всем.');
+        }).catch((error) => {
+            console.error('Ошибка сохранения:', error);
+            alert('Произошла ошибка. Попробуй ещё раз.');
+        });
+    });
+
+    // ===== ЗАКРЫТИЕ ПОПАПА =====
+    popupClose.addEventListener('click', function() {
+        popup.style.display = 'none';
+        document.body.style.overflow = '';
+    });
+
+    popup.addEventListener('click', function(e) {
+        if (e.target === popup) {
+            popup.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+    });
+
+    // ===== ГОД В ПОДВАЛЕ =====
+    document.getElementById('current-year').textContent = new Date().getFullYear();
+</script>
+
+</body>
+</html>
