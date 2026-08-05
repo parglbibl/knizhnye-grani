@@ -38,7 +38,7 @@
             align-items: flex-start;
             gap: 1.5rem;
             width: 100%;
-            justify-content: center;
+            justify-content: flex-start; /* Прижимаем влево */
         }
         .cube-wrapper {
             flex: 0 0 auto;
@@ -63,6 +63,7 @@
             .cube-right-container {
                 flex-direction: column;
                 align-items: center;
+                justify-content: center;
             }
             .controls-side {
                 width: 100%;
@@ -177,16 +178,16 @@
 </header>
 
 <section class="section" style="padding-top: 2rem; padding-bottom: 2rem;">
-    <div class="container" style="max-width: 1000px; text-align: center;">
+    <div class="container" style="max-width: 1000px; text-align: left;"> <!-- text-align: left -->
         
         <!-- ===== ЗАГОЛОВОК И МАНИФЕСТ ===== -->
-        <div class="grani-header" style="margin-bottom: 2.5rem; text-align: left; max-width: 750px; margin-left: auto; margin-right: auto;">
-            <h1 style="font-family: 'KB Tranceform', 'Montserrat', sans-serif; font-weight: 400; text-align: center; letter-spacing: 0.02em; color: #3a4a6e; margin-bottom: 1rem; font-size: 3.8rem;">
+        <div class="grani-header" style="margin-bottom: 2.5rem; text-align: left; max-width: 750px; margin-left: 0;"> <!-- margin-left: 0 -->
+            <h1 style="font-family: 'KB Tranceform', 'Montserrat', sans-serif; font-weight: 400; text-align: left; letter-spacing: 0.02em; color: #3a4a6e; margin-bottom: 1rem; font-size: 3.8rem;">
                 Шесть граней,<br>из которых складываемся мы
             </h1>
             
             <div style="font-size: 0.9rem; line-height: 1.8; color: var(--text-secondary); text-align: justify;">
-                <p style="margin-bottom: 1.5rem; text-align: center; font-weight: 500; color: #1e2a3a;">
+                <p style="margin-bottom: 1.5rem; text-align: left; font-weight: 500; color: #1e2a3a;">
                     Книги — это не просто слова. Это отражение наших чувств, воспоминаний и того, кем мы стали. <br>
                     Шесть граней — шесть ценностей, которые живут в каждом из нас.
                 </p>
@@ -210,7 +211,7 @@
                     <span style="color: #ff8c00; font-weight: 700; font-size: 1.05rem;">Семья</span>, где мы учимся любви, терпению, прощению. Где нас ждут и любят несмотря ни на что.
                 </p>
                 
-                <p style="margin-top: 1.5rem; text-align: center; font-weight: 500; color: #1e2a3a;">
+                <p style="margin-top: 1.5rem; text-align: left; font-weight: 500; color: #1e2a3a;">
                     Нажми на любой квадратик кубика и вспомни книгу, которая откликается твоей душе. <br>
                     Собери свою Книжную Грань.
                 </p>
@@ -218,8 +219,8 @@
         </div>
 
         <!-- ===== ОСНОВНОЙ БЛОК: ЛЕГЕНДА СЛЕВА, КУБИК ПО ЦЕНТРУ, КНОПКИ СПРАВА (НА ПК) ===== -->
-        <!-- ВАЖНО: ДОБАВЛЕНО align-items: center ДЛЯ ВЫРАВНИВАНИЯ ПО ЦЕНТРУ ПО ВЕРТИКАЛИ -->
-        <div style="display: flex; flex-direction: row; justify-content: center; align-items: center; gap: 2rem; width: 100%; max-width: 1000px; margin: 0 auto; flex-wrap: wrap;">
+        <!-- Убрали margin: 0 auto; добавили margin-left: 0; и justify-content: flex-start -->
+        <div style="display: flex; flex-direction: row; justify-content: flex-start; align-items: center; gap: 2rem; width: 100%; max-width: 1000px; margin-left: 0; flex-wrap: wrap;">
             
             <!-- ЛЕГЕНДА С ЦВЕТАМИ (слева) -->
             <div style="flex: 0 0 320px; display: flex; justify-content: center; align-items: center;">
@@ -251,10 +252,10 @@
                 </div>
             </div>
 
-            <!-- ЦЕНТРАЛЬНАЯ ЧАСТЬ: КУБИК И КНОПКИ (в зависимости от экрана) -->
+            <!-- ЦЕНТРАЛЬНАЯ ЧАСТЬ: КУБИК И КНОПКИ -->
             <div class="cube-right-container">
                 
-                <!-- КУБИК (в центре) -->
+                <!-- КУБИК -->
                 <div class="cube-wrapper">
                     <div id="cube-container" style="width: 100%; max-width: 440px; max-height: 440px; aspect-ratio: 1 / 1; background: transparent; touch-action: none; cursor: pointer; position: relative;"></div>
                     
@@ -265,7 +266,7 @@
                     </div>
                 </div>
 
-                <!-- ===== КНОПКИ ПОВОРОТА И ЛЕГЕНДА (справа на ПК, снизу на мобильных) ===== -->
+                <!-- ===== КНОПКИ ПОВОРОТА И ЛЕГЕНДА (справа) ===== -->
                 <div class="controls-side">
                     
                     <!-- КНОПКИ ПОВОРОТА ГРАНЕЙ -->
