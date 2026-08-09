@@ -838,6 +838,7 @@ const timerHTML = `
 `;
 document.body.insertAdjacentHTML('beforeend', timerHTML);
 
+// ===== FIREBASE ДЛЯ РЕКОРДОВ =====
 if (typeof firebase !== 'undefined' && firebase.database) {
     const recordsDb = firebase.database();
 
@@ -950,6 +951,7 @@ window.doMove = function(direction) {
     }
 };
 
+// ===== ИСПРАВЛЕННАЯ ПРОВЕРКА СБОРКИ С ПОЯВЛЕНИЕМ КНОПКИ «РЕКОРДЫ» =====
 setInterval(() => {
     if (window.allCubies && window.allCubies.length > 0) {
         let solved = true;
@@ -968,11 +970,44 @@ setInterval(() => {
             window.isSolved = true;
             window.isBlocked = false;
             
+            // Прячем «Собрать» и показываем «Рекорды»
             const btnSolve = document.getElementById('btnSolve');
             const btnScramble = document.getElementById('btnScramble');
+            const controlsDiv = document.querySelector('.controls');
+            
             if (btnSolve && btnScramble) {
                 btnSolve.style.display = 'none';
                 btnScramble.style.display = 'inline-block';
+            }
+            
+            // Проверяем, есть ли уже кнопка «Рекорды»
+            let recordsBtn = document.getElementById('recordsBtn');
+            if (!recordsBtn && controlsDiv) {
+                // Создаём кнопку «Рекорды»
+                recordsBtn = document.createElement('button');
+                recordsBtn.id = 'recordsBtn';
+                recordsBtn.textContent = '🏆 Рекорды';
+                recordsBtn.style.cssText = `
+                    padding: 8px 20px;
+                    border: none;
+                    border-radius: 30px;
+                    font-weight: 600;
+                    font-size: 14px;
+                    cursor: pointer;
+                    transition: 0.2s;
+                    font-family: 'Inter', sans-serif;
+                    background: #1e2a47;
+                    color: #fff;
+                    display: inline-block;
+                `;
+                recordsBtn.addEventListener('click', function() {
+                    if (typeof window.showRecords === 'function') {
+                        window.showRecords();
+                    }
+                });
+                controlsDiv.appendChild(recordsBtn);
+            } else if (recordsBtn) {
+                recordsBtn.style.display = 'inline-block';
             }
             
             if (typeof window.hideCubeControls === 'function') {
@@ -991,6 +1026,12 @@ setInterval(() => {
                 
                 const popup = document.getElementById('congratsPopup');
                 if (popup) popup.style.display = 'flex';
+            }
+        } else {
+            // Если кубик не собран — прячем кнопку «Рекорды» и показываем «Собрать»
+            const recordsBtn = document.getElementById('recordsBtn');
+            if (recordsBtn) {
+                recordsBtn.style.display = 'none';
             }
         }
     }
