@@ -695,7 +695,7 @@ function rotateWholeCube(axis, angle, callback) {
     if (callback) callback();
 }
 
-// ===== ГЛАВНАЯ ФУНКЦИЯ ДЛЯ КНОПОК =====
+// ===== ГЛАВНАЯ ФУНКЦИЯ ДЛЯ КНОПОК (ИСПРАВЛЕННАЯ) =====
 window.doMove = function(direction) {
     if (window.isSolved) return;
     if (!direction) return;
@@ -707,18 +707,28 @@ window.doMove = function(direction) {
     const camera = window.camera;
     if (!camera) return;
 
+    // Получаем направления камеры в мировом пространстве
     const camDir = new THREE.Vector3();
     camera.getWorldDirection(camDir);
     const camUp = new THREE.Vector3(0, 1, 0).applyQuaternion(camera.quaternion);
     const camRight = new THREE.Vector3(1, 0, 0).applyQuaternion(camera.quaternion);
 
+    // Получаем текущий поворот кубика
+    const cubeQuat = window.cubeGroup.quaternion.clone();
+
+    // ===== ИСПРАВЛЕНИЕ: ОПРЕДЕЛЯЕМ ГРАНИ ОТНОСИТЕЛЬНО ТЕКУЩЕГО ПОВОРОТА КУБИКА =====
+    // Преобразуем мировые направления в локальные координаты кубика
+    const localRight = new THREE.Vector3(1, 0, 0).applyQuaternion(cubeQuat.clone().invert());
+    const localUp = new THREE.Vector3(0, 1, 0).applyQuaternion(cubeQuat.clone().invert());
+    const localDir = new THREE.Vector3(0, 0, -1).applyQuaternion(cubeQuat.clone().invert());
+
     const faceNormals = {
-        '+x': new THREE.Vector3(1, 0, 0),
-        '-x': new THREE.Vector3(-1, 0, 0),
-        '+y': new THREE.Vector3(0, 1, 0),
-        '-y': new THREE.Vector3(0, -1, 0),
-        '+z': new THREE.Vector3(0, 0, 1),
-        '-z': new THREE.Vector3(0, 0, -1)
+        '+x': localRight,
+        '-x': localRight.clone().negate(),
+        '+y': localUp,
+        '-y': localUp.clone().negate(),
+        '+z': localDir,
+        '-z': localDir.clone().negate()
     };
 
     let targetDir = null;
@@ -731,22 +741,20 @@ window.doMove = function(direction) {
     
     // ===== ПОВОРОТ ВСЕГО КУБА (X, Y, Z) МГНОВЕННО =====
     else if (cleanDir === 'x') {
-        // Поворот всего куба вокруг оси X (относительно камеры) на 90°
         rotateWholeCube('x', -Math.PI / 2, () => {});
         return;
     }
     else if (cleanDir === 'y') {
-        // Поворот всего куба вокруг оси Y (относительно камеры) на 90°
         rotateWholeCube('y', -Math.PI / 2, () => {});
         return;
     }
     else if (cleanDir === 'z') {
-        // Поворот всего куба вокруг оси Z (относительно камеры) на 90°
         rotateWholeCube('z', -Math.PI / 2, () => {});
         return;
     }
     else return;
 
+    // Определяем, какая грань кубика сейчас смотрит в нужном направлении
     let bestFace = null;
     let bestDot = -Infinity;
     for (let [faceName, normal] of Object.entries(faceNormals)) {
