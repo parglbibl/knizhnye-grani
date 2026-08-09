@@ -432,7 +432,7 @@ if (!container) {
 
                 const durationPerMove = SCRAMBLE_DURATION / moves.length;
                 
-                // Сбрасываем таймер и показываем его при старте
+                // Показываем таймер на 00:00, но НЕ ЗАПУСКАЕМ
                 resetTimer();
                 showTimer();
 
@@ -793,7 +793,7 @@ window.doMove = function(direction) {
     });
 };
 
-// ===== ТАЙМЕР (СКРЫТ ПО УМОЛЧАНИЮ) =====
+// ===== ТАЙМЕР (СКРЫТ ПО УМОЛЧАНИЮ, ПОЯВЛЯЕТСЯ ПОСЛЕ СКРАМБЛА) =====
 let timerInterval = null;
 let seconds = 0;
 let isTimerRunning = false;
@@ -836,7 +836,7 @@ function showTimer() {
     const el = document.getElementById('timerDisplay');
     if (el) {
         el.style.display = 'block';
-        startTimer();
+        // НЕ ЗАПУСКАЕМ ТАЙМЕР, ПРОСТО ПОКАЗЫВАЕМ
     }
 }
 
@@ -959,6 +959,18 @@ if (typeof firebase !== 'undefined' && firebase.database) {
         return ageMap[age] || 'Не указан';
     }
 }
+
+// ===== ПЕРЕХВАТ ПЕРВОГО ХОДА ДЛЯ ЗАПУСКА ТАЙМЕРА =====
+const originalDoMove = window.doMove;
+window.doMove = function(direction) {
+    const timerEl = document.getElementById('timerDisplay');
+    if (timerEl && timerEl.style.display === 'block' && !hasStarted && !window.isSolved) {
+        startTimer();
+    }
+    if (originalDoMove) {
+        originalDoMove(direction);
+    }
+};
 
 // ===== АВТОМАТИЧЕСКОЕ СНЯТИЕ БЛОКИРОВКИ И ПОЗДРАВЛЕНИЕ =====
 setInterval(() => {
