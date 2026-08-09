@@ -850,7 +850,7 @@ function hideTimer() {
 
 // Создаём элемент таймера (скрытый)
 const timerHTML = `
-<div id="timerDisplay" style="display: none; position: fixed; top: 20px; right: 20px; background: rgba(30,42,71,0.92); color: #fff; padding: 0.5rem 1.2rem; border-radius: 30px; font-size: 1.2rem; font-weight: 600; font-family: 'Inter', sans-serif; z-index: 999; box-shadow: 0 4px 16px rgba(0,0,0,0.15); backdrop-filter: blur(4px); letter-spacing: 0.5px;">
+<div id="timerDisplay" style="display: none; position: fixed; top: 80px; right: 20px; background: rgba(30,42,71,0.92); color: #fff; padding: 0.5rem 1.2rem; border-radius: 30px; font-size: 1.2rem; font-weight: 600; font-family: 'Inter', sans-serif; z-index: 999; box-shadow: 0 4px 16px rgba(0,0,0,0.15); backdrop-filter: blur(4px); letter-spacing: 0.5px;">
     ⏱️ <span id="timerValue">00:00</span>
 </div>
 `;
