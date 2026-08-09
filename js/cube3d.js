@@ -667,16 +667,14 @@ function rotateWholeCube(axis, angle, callback) {
     //    используя направление камеры
     let localAxis = new THREE.Vector3();
     if (axis === 'x') {
-        // Ось X в локальном пространстве кубика = правая грань
         const worldRight = new THREE.Vector3(1, 0, 0).applyQuaternion(window.camera.quaternion);
         localAxis = worldRight.clone().applyQuaternion(cubeQuat.clone().invert());
     } else if (axis === 'y') {
-        // Ось Y в локальном пространстве кубика = верхняя грань
         const worldUp = new THREE.Vector3(0, 1, 0).applyQuaternion(window.camera.quaternion);
         localAxis = worldUp.clone().applyQuaternion(cubeQuat.clone().invert());
     } else if (axis === 'z') {
-        // Ось Z в локальном пространстве кубика = передняя грань
-        const worldDir = new THREE.Vector3(0, 0, -1).applyQuaternion(window.camera.quaternion);
+        // ===== ИСПРАВЛЕНИЕ: ОСЬ Z СМОТРИТ НА НАС (0, 0, 1) =====
+        const worldDir = new THREE.Vector3(0, 0, 1).applyQuaternion(window.camera.quaternion);
         localAxis = worldDir.clone().applyQuaternion(cubeQuat.clone().invert());
     }
 
@@ -716,11 +714,11 @@ window.doMove = function(direction) {
     // Получаем текущий поворот кубика
     const cubeQuat = window.cubeGroup.quaternion.clone();
 
-    // ===== ИСПРАВЛЕНИЕ: ОПРЕДЕЛЯЕМ ГРАНИ ОТНОСИТЕЛЬНО ТЕКУЩЕГО ПОВОРОТА КУБИКА =====
     // Преобразуем мировые направления в локальные координаты кубика
     const localRight = new THREE.Vector3(1, 0, 0).applyQuaternion(cubeQuat.clone().invert());
     const localUp = new THREE.Vector3(0, 1, 0).applyQuaternion(cubeQuat.clone().invert());
-    const localDir = new THREE.Vector3(0, 0, -1).applyQuaternion(cubeQuat.clone().invert());
+    // ===== ИСПРАВЛЕНИЕ: ПЕРЕДНЯЯ ГРАНЬ СМОТРИТ НА НАС (0, 0, 1) =====
+    const localDir = new THREE.Vector3(0, 0, 1).applyQuaternion(cubeQuat.clone().invert());
 
     const faceNormals = {
         '+x': localRight,
