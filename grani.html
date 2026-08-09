@@ -176,6 +176,10 @@
         .legend-item .move.up { background: #d4ac0d; color: #1e2a47; }
         .legend-item .move.d { background: #8e44ad; }
         .legend-item .move.dp { background: #6f3490; }
+        /* Новые обозначения для X, Y, Z */
+        .legend-item .move.x { background: #3498db; }
+        .legend-item .move.y { background: #2ecc71; }
+        .legend-item .move.z { background: #8e44ad; }
         .legend-item .desc {
             color: #444;
             font-weight: 400;
@@ -223,7 +227,7 @@
         .cube-btn.d { background: #8e44ad; }
         .cube-btn.prime.d { background: #6f3490; }
         
-        /* Новые кнопки поворота всего куба */
+        /* Новые кнопки поворота всего куба (X, Y, Z) */
         .cube-btn.x { background: #3498db; box-shadow: 0 3px 0 #217dbb; }
         .cube-btn.x:hover { background: #5dade2; }
         .cube-btn.y { background: #2ecc71; box-shadow: 0 3px 0 #1e8449; }
@@ -469,11 +473,11 @@
                         <button class="cube-btn prime d" onclick="window.doMove('D\'')">D'</button>
                     </div>
                     
-                    <!-- Повороты всего куба (НОВЫЕ КНОПКИ) -->
+                    <!-- Повороты всего куба (НОВЫЕ КНОПКИ X, Y, Z) -->
                     <div class="btn-row" style="border-top: 1px solid rgba(255,255,255,0.2); padding-top: 0.4rem; margin-top: 0.2rem;">
-                        <button class="cube-btn x" onclick="window.doMove('x2')">X2</button>
-                        <button class="cube-btn y" onclick="window.doMove('y2')">Y2</button>
-                        <button class="cube-btn z" onclick="window.doMove('z2')">Z2</button>
+                        <button class="cube-btn x" onclick="window.doMove('x')">X</button>
+                        <button class="cube-btn y" onclick="window.doMove('y')">Y</button>
+                        <button class="cube-btn z" onclick="window.doMove('z')">Z</button>
                     </div>
                 </div>
 
@@ -492,6 +496,10 @@
                         <div class="legend-item"><span class="move up">U'</span> <span class="desc">Верхняя грань ↺</span></div>
                         <div class="legend-item"><span class="move d">D</span> <span class="desc">Нижняя грань ↻</span></div>
                         <div class="legend-item"><span class="move dp">D'</span> <span class="desc">Нижняя грань ↺</span></div>
+                        <!-- Обозначения для поворота всего куба -->
+                        <div class="legend-item"><span class="move x">X</span> <span class="desc">Куб вправо ↻</span></div>
+                        <div class="legend-item"><span class="move y">Y</span> <span class="desc">Куб по горизонтали ↻</span></div>
+                        <div class="legend-item"><span class="move z">Z</span> <span class="desc">Куб по фронтали ↻</span></div>
                     </div>
                     <div style="margin-top: 0.4rem; font-size: 0.65rem; color: #888; text-align: center; border-top: 1px solid #ddd; padding-top: 0.4rem;">
                         <span style="background: #1e2a47; color: #fff; padding: 0 4px; border-radius: 3px;">R</span> по часовой, <span style="background: #3a2a4a; color: #fff; padding: 0 4px; border-radius: 3px;">R'</span> против
