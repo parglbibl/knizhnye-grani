@@ -432,13 +432,11 @@ if (!container) {
 
                 const durationPerMove = SCRAMBLE_DURATION / moves.length;
                 
-                // ===== ИСПРАВЛЕНИЕ: ДОБАВЛЕН ВЫЗОВ showCubeControls =====
                 window.executeMoveSequence(moves, durationPerMove, () => {
                     window.isScrambling = false;
                     window.isBlocked = false;
                     if (window.updateCubeGlow) window.updateCubeGlow();
 
-                    // Показываем кнопки после скрамблинга
                     if (typeof window.showCubeControls === 'function') {
                         window.showCubeControls();
                     }
@@ -470,7 +468,6 @@ if (!container) {
                 const allReverse = [...userReverse, ...scrambleReverse];
                 const durationPerMove = SOLVE_DURATION / allReverse.length;
                 
-                // ===== ИСПРАВЛЕНИЕ: ДОБАВЛЕН ВЫЗОВ hideCubeControls =====
                 window.executeMoveSequence(allReverse, durationPerMove, () => {
                     window.isScrambling = false;
                     window.scrambleHistory = [];
@@ -478,7 +475,6 @@ if (!container) {
                     window.isBlocked = false;
                     if (window.updateCubeGlow) window.updateCubeGlow();
 
-                    // Прячем кнопки после сборки
                     if (typeof window.hideCubeControls === 'function') {
                         window.hideCubeControls();
                     }
@@ -498,7 +494,6 @@ if (!container) {
         }
 
         function onMouseClick(event) {
-            // Проверяем, что кубик собран и не в процессе анимации
             if (!window.isSolved || window.isAnimating || window.isScrambling) {
                 return;
             }
@@ -555,7 +550,7 @@ if (!container) {
 
         const canvas = renderer.domElement;
 
-        // ===== ПРАВИЛЬНАЯ ЗАЩИТА ОТ ЛОЖНЫХ КЛИКОВ =====
+        // ===== ЗАЩИТА ОТ ЛОЖНЫХ КЛИКОВ =====
         canvas.addEventListener('pointerdown', function(e) {
             mouseDownPos.x = e.clientX;
             mouseDownPos.y = e.clientY;
@@ -573,17 +568,14 @@ if (!container) {
         });
 
         canvas.addEventListener('pointerup', function(e) {
-            // Если это был не перетаскивание и левая кнопка мыши
             if (!isDragging && e.button === 0) {
                 onMouseClick(e);
             }
-            // Сбрасываем
             mouseDownPos.x = 0;
             mouseDownPos.y = 0;
             isDragging = false;
         });
 
-        // Отключаем контекстное меню
         canvas.addEventListener('contextmenu', function(e) {
             e.preventDefault();
             return false;
@@ -633,7 +625,31 @@ if (!container) {
         };
 
         function applyGlow() {
-            // Логика подсветки
+            allCubies.forEach(cubie => {
+                const faces = cubie.userData.faces;
+                const mats = cubie.material;
+                for (let i = 0; i < 6; i++) {
+                    if (faces[i]) {
+                        mats[i] = matLib[faces[i]];
+                    }
+                }
+            });
+
+            activeGlowIds.forEach(glowId => {
+                allCubies.forEach(cubie => {
+                    const faceIds = cubie.userData.faceIds;
+                    const faces = cubie.userData.faces;
+                    const mats = cubie.material;
+                    
+                    for (let i = 0; i < 6; i++) {
+                        if (faceIds[i] === glowId) {
+                            if (faces[i] && glowLib[faces[i]]) {
+                                mats[i] = glowLib[faces[i]];
+                            }
+                        }
+                    }
+                });
+            });
         }
 
         loadGlowFromLocalStorage();
@@ -657,7 +673,7 @@ if (!container) {
     }
 }
 
-// ===== ГЛАВНАЯ ФУНКЦИЯ ДЛЯ КНОПОК =====
+// ===== ГЛАВНАЯ ФУНКЦИЯ ДЛЯ КНОПОК (ДОБАВЛЕНА ПОДДЕРЖКА X, Y, Z) =====
 window.doMove = function(direction) {
     if (window.isSolved) return;
     if (!direction) return;
@@ -690,6 +706,29 @@ window.doMove = function(direction) {
     else if (cleanDir === 'L') targetDir = camRight.clone().negate();
     else if (cleanDir === 'F') targetDir = camDir.clone().negate();
     else if (cleanDir === 'B') targetDir = camDir;
+    
+    // ===== ДОБАВЛЕНА ПОДДЕРЖКА X, Y, Z (ПОВОРОТ ВСЕГО КУБА) =====
+    else if (cleanDir === 'x') {
+        // Поворот всего куба вокруг оси X (правая грань)
+        window.rotateLayer('x', 1, -Math.PI / 2, 150, () => {
+            if (window.updateCubeGlow) window.updateCubeGlow();
+        });
+        return;
+    }
+    else if (cleanDir === 'y') {
+        // Поворот всего куба вокруг оси Y (вертикальная ось)
+        window.rotateLayer('y', 1, -Math.PI / 2, 150, () => {
+            if (window.updateCubeGlow) window.updateCubeGlow();
+        });
+        return;
+    }
+    else if (cleanDir === 'z') {
+        // Поворот всего куба вокруг оси Z (передняя грань)
+        window.rotateLayer('z', 1, -Math.PI / 2, 150, () => {
+            if (window.updateCubeGlow) window.updateCubeGlow();
+        });
+        return;
+    }
     else return;
 
     let bestFace = null;
