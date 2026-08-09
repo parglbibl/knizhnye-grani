@@ -1,937 +1,1008 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Книжные грани — собери свою грань</title>
-    <link rel="stylesheet" href="../css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    
-    <!-- Yandex.Metrika counter -->
-    <script type="text/javascript">
-        (function(m,e,t,r,i,k,a){
-            m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-            m[i].l=1*new Date();
-            for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
-            k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
-        })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=109783209', 'ym');
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 
-        ym(109783209, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
-    </script>
-    <noscript><div><img src="https://mc.yandex.ru/watch/109783209" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
-    <!-- /Yandex.Metrika counter -->
+// ===== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ =====
+window.isSolved = true;
+window.isScrambling = false;
+window.isAnimating = false;
+window.isBlocked = false;
+window.scrambleHistory = [];
+window.userHistory = [];
+window.executeMoveSequence = null;
+window.generateScramble = null;
+window.updateCubeGlow = null;
+window.rotateLayer = null;
+window.camera = null;
+window.allCubies = null;
+window.offset = null;
+window.cubeGroup = null;
+window.cubeState = {};
 
-    <link rel="icon" type="image/x-icon" href="../favicon/favicon.ico">
-    <link rel="icon" type="image/png" sizes="16x16" href="../favicon/favicon-16x16.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="../favicon/favicon-32x32.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="../favicon/apple-touch-icon.png">
-    <link rel="manifest" href="../favicon/site.webmanifest">
-    <meta name="msapplication-TileColor" content="#ff2e5a">
-    <meta name="theme-color" content="#fef9f0">
+// ===== ПЕРЕМЕННЫЕ ДЛЯ ЗАЩИТЫ ОТ ЛОЖНЫХ КЛИКОВ =====
+let mouseDownPos = { x: 0, y: 0 };
+let isDragging = false;
 
-    <style>
-        /* ===== СТИЛИ ПО УМОЛЧАНИЮ (СТРОКА ПО ЦЕНТРУ) ===== */
-        .main-row {
-            display: flex;
-            flex-direction: row;
-            justify-content: center; /* По центру изначально */
-            align-items: center;
-            width: 100%;
-            max-width: 1200px;
-            margin-left: auto;
-            margin-right: auto;
-            gap: 2rem;
-            transition: all 0.6s ease;
-            flex-wrap: wrap;
-        }
-        
-        /* МИНИАТЮРЫ (слева) */
-        .miniatures-col {
-            flex: 0 0 220px;
-            display: flex;
-            flex-direction: column;
-            gap: 0.4rem;
-            transition: all 0.6s ease;
-        }
-        
-        .miniature-item {
-            display: flex;
-            align-items: center;
-            gap: 0.8rem;
-            background: rgba(255,255,255,0.8);
-            backdrop-filter: blur(6px);
-            padding: 0.4rem 1rem;
-            border-radius: 14px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
-            border: 1px solid rgba(255,255,255,0.5);
-            transition: 0.2s;
-        }
-        .miniature-item img {
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
-            object-fit: cover;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
-        }
-        .miniature-item span {
-            font-weight: 500;
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-        }
-
-        /* КУБИК (в центре) */
-        .cube-wrapper {
-            flex: 0 0 340px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            transition: all 0.6s ease;
-        }
-
-        /* КНОПКИ И ЛЕГЕНДА (изначально скрыты) */
-        .controls-right-side {
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            gap: 1.2rem;
-            flex: 0 1 auto;
-            opacity: 0;
-            max-width: 0;
-            overflow: hidden;
-            transition: all 0.6s ease;
-            padding-top: 0;
-        }
-        .controls-right-side.visible {
-            opacity: 1;
-            max-width: 500px;
-            flex: 0 1 auto;
-        }
-
-        /* Стили для видимости кнопок и легенды */
-        .cube-buttons {
-            display: none !important;
-            opacity: 0 !important;
-            transition: opacity 0.5s ease;
-            flex-direction: column;
-            gap: 0.4rem;
-            align-items: center;
-            flex: 0 0 auto;
-        }
-        .cube-buttons.visible {
-            display: flex !important;
-            opacity: 1 !important;
-        }
-
-        .legend {
-            display: none !important;
-            opacity: 0 !important;
-            transition: opacity 0.5s ease;
-            flex: 1 1 auto;
-            min-width: 200px;
-            max-width: 260px;
-            background: #f5efe8;
-            border-radius: 20px;
-            padding: 1rem 1.2rem;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-            font-size: 0.8rem;
-            color: #1e2a3a;
-            line-height: 1.6;
-        }
-        .legend.visible {
-            display: block !important;
-            opacity: 1 !important;
-        }
-
-        /* Легенда в две колонки */
-        .legend-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0.2rem 0.8rem;
-        }
-        .legend-item {
-            display: flex;
-            align-items: baseline;
-            gap: 5px;
-            font-weight: 500;
-        }
-        .legend-item .move {
-            font-weight: 700;
-            color: #fff;
-            padding: 0 6px;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            min-width: 22px;
-            text-align: center;
-        }
-        .legend-item .move.r { background: #c41e3a; }
-        .legend-item .move.rp { background: #a01830; }
-        .legend-item .move.l { background: #f39c12; color: #1e2a47; }
-        .legend-item .move.lp { background: #d4890b; color: #1e2a47; }
-        .legend-item .move.f { background: #27ae60; }
-        .legend-item .move.fp { background: #1e8e4a; }
-        .legend-item .move.b { background: #2980b9; }
-        .legend-item .move.bp { background: #1f6a93; }
-        .legend-item .move.u { background: #f1c40f; color: #1e2a47; }
-        .legend-item .move.up { background: #d4ac0d; color: #1e2a47; }
-        .legend-item .move.d { background: #8e44ad; }
-        .legend-item .move.dp { background: #6f3490; }
-        /* Новые обозначения для X, Y, Z */
-        .legend-item .move.x { background: #3498db; }
-        .legend-item .move.y { background: #2ecc71; }
-        .legend-item .move.z { background: #8e44ad; }
-        .legend-item .desc {
-            color: #444;
-            font-weight: 400;
-            font-size: 0.7rem;
-        }
-        
-        .btn-row {
-            display: flex;
-            gap: 0.4rem;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-        .cube-btn {
-            padding: 0.5rem 0.9rem;
-            font-size: 0.9rem;
-            font-weight: 700;
-            font-family: 'Inter', sans-serif;
-            border: none;
-            border-radius: 10px;
-            color: #fff;
-            cursor: pointer;
-            transition: all 0.15s ease;
-            touch-action: manipulation;
-            min-width: 44px;
-            min-height: 38px;
-            user-select: none;
-            letter-spacing: 0.5px;
-            box-shadow: 0 3px 0 rgba(0,0,0,0.2);
-        }
-        .cube-btn:active {
-            transform: translateY(3px);
-            box-shadow: 0 0 0 rgba(0,0,0,0.2);
-        }
-        /* Цвета кнопок */
-        .cube-btn.r { background: #c41e3a; }
-        .cube-btn.prime.r { background: #a01830; }
-        .cube-btn.l { background: #f39c12; color: #1e2a47; }
-        .cube-btn.prime.l { background: #d4890b; color: #1e2a47; }
-        .cube-btn.f { background: #27ae60; }
-        .cube-btn.prime.f { background: #1e8e4a; }
-        .cube-btn.b { background: #2980b9; }
-        .cube-btn.prime.b { background: #1f6a93; }
-        .cube-btn.u { background: #f1c40f; color: #1e2a47; }
-        .cube-btn.prime.u { background: #d4ac0d; color: #1e2a47; }
-        .cube-btn.d { background: #8e44ad; }
-        .cube-btn.prime.d { background: #6f3490; }
-        
-        /* Новые кнопки поворота всего куба (X, Y, Z) */
-        .cube-btn.x { background: #3498db; box-shadow: 0 3px 0 #217dbb; }
-        .cube-btn.x:hover { background: #5dade2; }
-        .cube-btn.y { background: #2ecc71; box-shadow: 0 3px 0 #1e8449; }
-        .cube-btn.y:hover { background: #58d68d; }
-        .cube-btn.z { background: #8e44ad; box-shadow: 0 3px 0 #5b2d6e; }
-        .cube-btn.z:hover { background: #9b59b6; }
-
-        /* ===== КЛАСС ДЛЯ СДВИГА ВЛЕВО ПОСЛЕ СКРАМБЛА ===== */
-        .main-row.is-active {
-            justify-content: flex-start; /* Прижимаем влево */
-            margin-left: 0;
-        }
-
-        /* ===== АДАПТАЦИЯ ДЛЯ МОБИЛЬНЫХ (всегда вертикально, всё по центру) ===== */
-        @media (max-width: 900px) {
-            .main-row {
-                flex-direction: column !important;
-                align-items: center !important;
-                justify-content: center !important;
-                gap: 1.2rem;
-                margin-left: auto !important;
-            }
-            .miniatures-col {
-                flex: 0 0 auto !important;
-                width: 100% !important;
-                max-width: 320px !important;
-            }
-            .cube-wrapper {
-                flex: 0 0 auto !important;
-                width: 100% !important;
-                max-width: 440px !important;
-            }
-            .controls-right-side {
-                flex-direction: column !important;
-                align-items: center !important;
-                width: 100% !important;
-                max-width: 440px !important;
-                justify-content: center !important;
-            }
-            .controls-right-side.visible {
-                max-width: 440px !important;
-            }
-            .cube-buttons {
-                width: 100% !important;
-                max-width: 440px !important;
-                flex: none !important;
-            }
-            .legend {
-                width: 100% !important;
-                max-width: 440px !important;
-                flex: none !important;
-                margin-top: 0.8rem !important;
-            }
-            .cube-btn {
-                padding: 0.4rem 0.8rem;
-                font-size: 0.8rem;
-                min-width: 40px;
-                min-height: 34px;
-            }
-            .cube-buttons {
-                gap: 0.5rem;
-            }
-            .btn-row {
-                gap: 0.4rem;
-            }
-            .legend-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        /* ===== СТИЛИ ПОПАПА ===== */
-        .popup-answers-container {
-            max-height: 150px;
-            overflow-y: auto;
-            border-top: 1px solid #f0f0f0;
-            border-bottom: 1px solid #f0f0f0;
-            padding: 0.8rem 0;
-            margin: 0.8rem 0;
-        }
-        .popup-answer-item {
-            background: #f5f0e8;
-            border-radius: 14px;
-            padding: 0.8rem 1.2rem;
-            margin-bottom: 0.8rem;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
-        }
-        .popup-answer-item:last-child {
-            margin-bottom: 0;
-        }
-
-        /* ===== СТИЛИ ДЛЯ КНОПОК ВОЗРАСТА ===== */
-        .age-btn {
-            padding: 0.5rem 1rem;
-            border: 2px solid #e0e0e0;
-            border-radius: 20px;
-            background: #fafbfc;
-            cursor: pointer;
-            font-family: 'Inter', sans-serif;
-            font-size: 0.85rem;
-            font-weight: 500;
-            color: #555;
-            transition: all 0.2s ease;
-            touch-action: manipulation;
-        }
-        .age-btn:hover {
-            border-color: #bbb;
-            background: #f0f0f0;
-        }
-        .age-btn.active {
-            border-color: #ff2e5a;
-            background: #ff2e5a;
-            color: #fff;
-        }
-
-        /* ===== СТИЛИ ДЛЯ ПОЗДРАВЛЕНИЯ ===== */
-        #congratsPopup input {
-            width: 100%;
-            padding: 0.7rem 1rem;
-            border: 2px solid #eee;
-            border-radius: 30px;
-            font-family: 'Inter', sans-serif;
-            font-size: 0.95rem;
-            background: #fafbfc;
-            outline: none;
-            text-align: center;
-        }
-        #congratsPopup input:focus {
-            border-color: #ff2e5a;
-        }
-    </style>
-</head>
-<body>
-
-<header>
-    <div class="container header-inner">
-        <div class="logo">
-            <div class="logo-cbs">
-                <img src="../images/logo-cbs.png" alt="ЦБС Выборгского района">
-            </div>
-            <div class="logo-rost">
-                <img src="../images/logo-rost.png" alt="Проектный офис РОСТ">
-            </div>
-            <a href="../index.html">
-                <img src="../images/logo-grani.png" alt="Книжные грани" style="height: 40px; width: auto;">
-            </a>
-        </div>
-        <div class="menu-toggle" id="menuToggle">
-            <i class="fas fa-bars"></i>
-        </div>
-        <nav class="nav" id="nav"></nav>
-    </div>
-</header>
-
-<section class="section" style="padding-top: 2rem; padding-bottom: 2rem;">
-    <div class="container" style="max-width: 1200px; text-align: left;">
-        
-        <!-- ===== ЗАГОЛОВОК И МАНИФЕСТ (всегда по центру) ===== -->
-        <div class="grani-header" style="margin-bottom: 2.5rem; text-align: center; max-width: 750px; margin-left: auto; margin-right: auto;">
-            <h1 style="font-family: 'KB Tranceform', 'Montserrat', sans-serif; font-weight: 400; text-align: center; letter-spacing: 0.02em; color: #3a4a6e; margin-bottom: 1rem; font-size: 3.8rem;">
-                Шесть граней,<br>из которых складываемся мы
-            </h1>
-            
-            <div style="font-size: 0.9rem; line-height: 1.8; color: var(--text-secondary); text-align: justify;">
-                <p style="margin-bottom: 1.5rem; text-align: center; font-weight: 500; color: #1e2a3a;">
-                    Книги — это не просто слова. Это отражение наших чувств, воспоминаний и того, кем мы стали. <br>
-                    Шесть граней — шесть ценностей, которые живут в каждом из нас.
-                </p>
-
-                <p style="margin-bottom: 1rem;">
-                    <span style="color: #c41e3a; font-weight: 700; font-size: 1.05rem;">Любовь</span>, «что движет солнцем и светилами», как сказал когда-то Данте, и без неё мы – всего лишь пустые оболочки.
-                </p>
-                <p style="margin-bottom: 1rem;">
-                    <span style="color: #0051ba; font-weight: 700; font-size: 1.05rem;">Надежда</span>, которая держит нас в самые тёмные времена, когда кажется, что выхода нет. Именно она заставляет нас просыпаться утром, брать в руки книгу, верить, что завтра будет лучше.
-                </p>
-                <p style="margin-bottom: 1rem;">
-                    <span style="color: #ffd700; font-weight: 700; font-size: 1.05rem;">Совесть</span> помогает нам выбирать, даже когда выбор труден. Если мы заглушаем этот голос, мы теряем себя.
-                </p>
-                <p style="margin-bottom: 1rem;">
-                    <span style="color: #009e60; font-weight: 700; font-size: 1.05rem;">Добро</span> — чтобы, прочитав книгу, мы вышли и сделали пусть маленькое, но хорошее дело. Просто так, безвозмездно.
-                </p>
-                <p style="margin-bottom: 1rem;">
-                    <span style="color: #b0b0b0; font-weight: 700; font-size: 1.05rem;">Память</span> — как связь поколений, как благодарность нашим родным, нашей большой и малой Родине.
-                </p>
-                <p style="margin-bottom: 1rem;">
-                    <span style="color: #ff8c00; font-weight: 700; font-size: 1.05rem;">Семья</span>, где мы учимся любви, терпению, прощению. Где нас ждут и любят несмотря ни на что.
-                </p>
-                
-                <p style="margin-top: 1.5rem; text-align: center; font-weight: 500; color: #1e2a3a;">
-                    Нажми на любой квадратик кубика и вспомни книгу, которая откликается твоей душе. <br>
-                    Собери свою Книжную Грань.
-                </p>
-            </div>
-        </div>
-
-        <!-- ===== ОСНОВНОЙ РЯД: меняется через JS при нажатии "Перемешать" ===== -->
-        <div class="main-row" id="mainRow">
-            
-            <!-- МИНИАТЮРЫ -->
-            <div class="miniatures-col">
-                <div class="miniature-item">
-                    <img src="../images/cube_textures/red.jpg" alt="Любовь">
-                    <span>Любовь</span>
-                </div>
-                <div class="miniature-item">
-                    <img src="../images/cube_textures/blue.jpg" alt="Надежда">
-                    <span>Надежда</span>
-                </div>
-                <div class="miniature-item">
-                    <img src="../images/cube_textures/yellow.jpg" alt="Совесть">
-                    <span>Совесть</span>
-                </div>
-                <div class="miniature-item">
-                    <img src="../images/cube_textures/green.jpg" alt="Добро">
-                    <span>Добро</span>
-                </div>
-                <div class="miniature-item">
-                    <img src="../images/cube_textures/white.jpg" alt="Память">
-                    <span>Память</span>
-                </div>
-                <div class="miniature-item">
-                    <img src="../images/cube_textures/orange.jpg" alt="Семья">
-                    <span>Семья</span>
-                </div>
-            </div>
-
-            <!-- КУБИК -->
-            <div class="cube-wrapper">
-                <div id="cube-container" style="width: 100%; max-width: 340px; max-height: 340px; aspect-ratio: 1 / 1; background: transparent; touch-action: none; cursor: pointer; position: relative;"></div>
-                
-                <!-- ===== КНОПКИ УПРАВЛЕНИЯ (Перемешать/Собрать) ===== -->
-                <div class="controls" style="margin-top: 1rem; display: flex; gap: 15px; flex-wrap: wrap; justify-content: center;">
-                    <button id="btnScramble" style="padding: 8px 20px; border: none; border-radius: 30px; font-weight: 600; font-size: 14px; cursor: pointer; transition: 0.2s; font-family: 'Inter', sans-serif; background: #ff2e5a; color: #fff;">Перемешать</button>
-                    <button id="btnSolve" style="padding: 8px 20px; border: none; border-radius: 30px; font-weight: 600; font-size: 14px; cursor: pointer; transition: 0.2s; font-family: 'Inter', sans-serif; background: #2ecc71; color: #fff; display: none;">Собрать</button>
-                </div>
-            </div>
-
-            <!-- КНОПКИ ПОВОРОТА + ЛЕГЕНДА (появляются плавно справа) -->
-            <div class="controls-right-side" id="controlsRightSide">
-                
-                <!-- КНОПКИ ПОВОРОТА ГРАНЕЙ И ВСЕГО КУБА -->
-                <div class="cube-buttons" id="cubeButtons">
-                    <!-- Грани -->
-                    <div class="btn-row">
-                        <button class="cube-btn r" onclick="window.doMove('R')">R</button>
-                        <button class="cube-btn prime r" onclick="window.doMove('R\'')">R'</button>
-                        <button class="cube-btn l" onclick="window.doMove('L')">L</button>
-                        <button class="cube-btn prime l" onclick="window.doMove('L\'')">L'</button>
-                    </div>
-                    <div class="btn-row">
-                        <button class="cube-btn f" onclick="window.doMove('F')">F</button>
-                        <button class="cube-btn prime f" onclick="window.doMove('F\'')">F'</button>
-                        <button class="cube-btn b" onclick="window.doMove('B')">B</button>
-                        <button class="cube-btn prime b" onclick="window.doMove('B\'')">B'</button>
-                    </div>
-                    <div class="btn-row">
-                        <button class="cube-btn u" onclick="window.doMove('U')">U</button>
-                        <button class="cube-btn prime u" onclick="window.doMove('U\'')">U'</button>
-                        <button class="cube-btn d" onclick="window.doMove('D')">D</button>
-                        <button class="cube-btn prime d" onclick="window.doMove('D\'')">D'</button>
-                    </div>
-                    
-                    <!-- Повороты всего куба (X, Y, Z) -->
-                    <div class="btn-row" style="border-top: 1px solid rgba(255,255,255,0.2); padding-top: 0.4rem; margin-top: 0.2rem;">
-                        <button class="cube-btn x" onclick="window.doMove('x')">X</button>
-                        <button class="cube-btn y" onclick="window.doMove('y')">Y</button>
-                        <button class="cube-btn z" onclick="window.doMove('z')">Z</button>
-                    </div>
-                </div>
-
-                <!-- ЛЕГЕНДА ОБОЗНАЧЕНИЙ ХОДОВ -->
-                <div class="legend" id="legend">
-                    <div class="legend-grid">
-                        <div class="legend-item"><span class="move r">R</span> <span class="desc">Правая грань ↻</span></div>
-                        <div class="legend-item"><span class="move rp">R'</span> <span class="desc">Правая грань ↺</span></div>
-                        <div class="legend-item"><span class="move l">L</span> <span class="desc">Левая грань ↻</span></div>
-                        <div class="legend-item"><span class="move lp">L'</span> <span class="desc">Левая грань ↺</span></div>
-                        <div class="legend-item"><span class="move f">F</span> <span class="desc">Передняя грань ↻</span></div>
-                        <div class="legend-item"><span class="move fp">F'</span> <span class="desc">Передняя грань ↺</span></div>
-                        <div class="legend-item"><span class="move b">B</span> <span class="desc">Задняя грань ↻</span></div>
-                        <div class="legend-item"><span class="move bp">B'</span> <span class="desc">Задняя грань ↺</span></div>
-                        <div class="legend-item"><span class="move u">U</span> <span class="desc">Верхняя грань ↻</span></div>
-                        <div class="legend-item"><span class="move up">U'</span> <span class="desc">Верхняя грань ↺</span></div>
-                        <div class="legend-item"><span class="move d">D</span> <span class="desc">Нижняя грань ↻</span></div>
-                        <div class="legend-item"><span class="move dp">D'</span> <span class="desc">Нижняя грань ↺</span></div>
-                        <!-- Обозначения для поворота всего куба -->
-                        <div class="legend-item"><span class="move x">X</span> <span class="desc">Поворот вокруг правой грани</span></div>
-                        <div class="legend-item"><span class="move y">Y</span> <span class="desc">Поворот вокруг вертикальной оси</span></div>
-                        <div class="legend-item"><span class="move z">Z</span> <span class="desc">Поворот вокруг передней грани</span></div>
-                    </div>
-                    <div style="margin-top: 0.4rem; font-size: 0.65rem; color: #888; text-align: center; border-top: 1px solid #ddd; padding-top: 0.4rem;">
-                        <span style="background: #1e2a47; color: #fff; padding: 0 4px; border-radius: 3px;">R</span> по часовой, <span style="background: #3a2a4a; color: #fff; padding: 0 4px; border-radius: 3px;">R'</span> против
-                    </div>
-                </div>
-            </div>
-
-        </div>
-
-    </div>
-</section>
-
-<footer>
-    <div class="container">
-        <div class="footer-grid">
-            <div class="footer-col">
-                <h3>Книжные грани</h3>
-                <p>Проект ЦБС Выборгского района</p>
-                <p>Работает на базе <strong>Библиотеки-мастерской</strong></p>
-                <p>пр. Просвещения, 43, ТРК «Парк-Молл», 2 этаж</p>
-                <p><strong>+7 (812) 246-93-15</strong></p>
-            </div>
-            <div class="footer-col">
-                <h3>Разделы</h3>
-                <p><a href="../index.html">Главная</a></p>
-                <p><a href="../about.html">О проекте</a></p>
-                <p><a href="../events.html">Мероприятия</a></p>
-                <p><a href="../contacts.html">Контакты</a></p>
-            </div>
-            <div class="footer-col">
-                <h3>Мы в соцсетях</h3>
-                <div class="footer-social">
-                    <a href="https://vk.com/officecbsbvib" target="_blank"><i class="fab fa-vk"></i></a>
-                </div>
-                <p style="margin-top:1.5rem;">Следите за анонсами в нашей группе ВКонтакте</p>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <p>© <span id="current-year"></span> Книжные грани | ЦБС Выборгского района</p>
-        </div>
-    </div>
-</footer>
-
-<!-- ===== ПОПАП (ВОПРОСЫ) ===== -->
-<div id="popup" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(6px); z-index: 9999; align-items: center; justify-content: center;">
-    <div style="background: #fff; max-width: 500px; width: 90%; padding: 2rem; border-radius: 28px; position: relative; box-shadow: 0 24px 70px rgba(0,0,0,0.25); max-height: 95vh; overflow-y: auto;">
-        <button id="popupClose" style="position: absolute; top: 15px; right: 20px; font-size: 28px; background: none; border: none; cursor: pointer; color: #999; transition: color 0.2s;">&times;</button>
-        
-        <div style="display:flex; align-items:center; gap:0.8rem; margin-bottom:0.5rem;">
-            <img id="popupThumb" src="" alt="Грань" style="width:32px; height:32px; border-radius:8px; object-fit:cover;">
-            <h2 id="popupTitle" style="font-size:1.3rem; font-weight:600; margin:0; color:#1e2a3a;">Грань</h2>
-        </div>
-        
-        <!-- 1. ВОПРОС -->
-        <p id="popupQuestion" style="font-size:1.05rem; line-height:1.6; margin:0.5rem 0 1rem 0; color:#333; font-weight:400;"></p>
-        
-        <!-- 2. ОТВЕТЫ ДРУГИХ ПОЛЬЗОВАТЕЛЕЙ -->
-        <div id="popupAnswers" class="popup-answers-container"></div>
-        
-        <!-- 3. ВЫБОР ВОЗРАСТА -->
-        <div class="age-selector" id="ageSelector" style="margin: 0 0 1rem 0; display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center;">
-            <div class="age-label" style="font-size: 0.8rem; color: #888; text-align: center; margin-bottom: 0.3rem; width: 100%;">👤 Твой возраст</div>
-            <button class="age-btn" data-age="not_specified">Не указан</button>
-            <button class="age-btn" data-age="under_14">До 14 лет</button>
-            <button class="age-btn" data-age="15_17">15–17 лет</button>
-            <button class="age-btn" data-age="18_35">18–35 лет</button>
-            <button class="age-btn" data-age="over_35">Старше 35</button>
-        </div>
-
-        <!-- 4. ПОЛЕ ДЛЯ ВВОДА -->
-        <textarea id="popupInput" placeholder="Напиши здесь название книги и свои чувства..." style="width:100%; margin-bottom:1rem; padding:0.8rem; border:2px solid #eee; border-radius:12px; font-family:inherit; font-size:0.95rem; min-height:80px; resize:vertical; background:#fafbfc; outline:none;"></textarea>
-        
-        <!-- 5. КНОПКА ОТПРАВКИ -->
-        <button id="popupSubmit" style="width:100%; padding:0.9rem; background:#ff2e5a; color:#fff; border:none; border-radius:12px; font-weight:600; font-size:1rem; cursor:pointer;">Ответить и поделиться</button>
-        
-        <p style="font-size:0.7rem; color:#999; margin-top:1rem; text-align:center;">Твой ответ увидят все, кто откроет этот квадратик</p>
-    </div>
-</div>
-
-<!-- ===== ДУШЕВНОЕ ПОЗДРАВЛЕНИЕ (с полем для имени) ===== -->
-<div id="congratsPopup" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 10, 20, 0.75); backdrop-filter: blur(10px); z-index: 99999; align-items: center; justify-content: center;">
-    <div style="background: #fef9f0; max-width: 460px; width: 90%; padding: 2.8rem 2rem 2.2rem; border-radius: 40px; text-align: center; box-shadow: 0 40px 100px rgba(0,0,0,0.5); position: relative; border: 1px solid rgba(255,255,255,0.2);">
-        
-        <div style="position: absolute; top: -30px; left: 50%; transform: translateX(-50%); font-size: 3rem; line-height: 1; filter: drop-shadow(0 4px 12px rgba(255,215,0,0.3));">✨✨✨</div>
-        
-        <h2 style="font-family: 'KB Tranceform', 'Montserrat', sans-serif; font-weight: 400; font-size: 2rem; color: #3a4a6e; margin: 0.5rem 0 0.2rem 0; letter-spacing: 0.02em;">Ты — молодец!</h2>
-        
-        <p style="font-size: 1.05rem; line-height: 1.6; color: #1e2a3a; margin: 0.5rem 0 0.2rem 0; font-weight: 400;">
-            Каждая грань — это целая история.<br>
-            А сегодня <strong>твоя история сложилась</strong> в единое целое.
-        </p>
-        
-        <p style="font-size: 0.95rem; line-height: 1.5; color: #555; margin: 0 0 0.8rem 0;">
-            Как в хорошей книге — ты прошёл путь от первой страницы<br>
-            до финала, и он оказался именно таким, каким должен был быть.
-        </p>
-        
-        <div style="font-size: 0.9rem; color: #888; margin-bottom: 0.3rem;">Твоё время:</div>
-        <div style="font-size: 2.8rem; font-weight: 700; color: #ff2e5a; margin: 0 0 0.5rem 0; font-variant-numeric: tabular-nums;" id="finalTime">00:00</div>
-        
-        <!-- ПОЛЕ ДЛЯ ИМЕНИ (НЕОБЯЗАТЕЛЬНОЕ) -->
-        <div style="margin-bottom: 0.8rem;">
-            <input type="text" id="recordNameInput" placeholder="Твоё имя (по желанию)">
-        </div>
-        
-        <button onclick="saveRecordWithName()" style="padding: 0.9rem 2.8rem; background: #ff2e5a; color: #fff; border: none; border-radius: 40px; font-size: 1rem; cursor: pointer; font-weight: 600; font-family: 'Inter', sans-serif; transition: transform 0.2s; box-shadow: 0 4px 20px rgba(255,46,90,0.3);">
-            Сохранить мой рекорд ✨
-        </button>
-        
-        <p style="font-size: 0.75rem; color: #999; margin-top: 0.8rem;">Имя не обязательно — останешься Анонимом</p>
-    </div>
-</div>
-
-<!-- ===== ТАБЛИЦА РЕКОРДОВ (ОБЩАЯ) ===== -->
-<div id="recordsPopup" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); z-index: 99999; align-items: center; justify-content: center;">
-    <div style="background: #fff; max-width: 480px; width: 90%; padding: 2rem 1.8rem; border-radius: 32px; position: relative; box-shadow: 0 30px 80px rgba(0,0,0,0.3); max-height: 90vh; overflow-y: auto;">
-        <button onclick="document.getElementById('recordsPopup').style.display='none'" style="position: absolute; top: 15px; right: 20px; font-size: 28px; background: none; border: none; cursor: pointer; color: #999;">&times;</button>
-        
-        <h2 style="font-size: 1.6rem; color: #1e2a3a; margin: 0 0 1rem 0; text-align: center;">🏆 Таблица рекордов</h2>
-        
-        <div id="recordsList" style="margin-bottom: 1rem; max-height: 300px; overflow-y: auto;">
-            <p style="color:#aaa; text-align:center; font-size:0.95rem;">Загрузка рекордов...</p>
-        </div>
-        
-        <button onclick="document.getElementById('recordsPopup').style.display='none'" style="width: 100%; padding: 0.8rem; background: #1e2a47; color: #fff; border: none; border-radius: 30px; font-size: 1rem; cursor: pointer; font-weight: 600;">Закрыть</button>
-    </div>
-</div>
-
-<!-- ===== КНОПКА ДЛЯ ОТКРЫТИЯ РЕКОРДОВ ===== -->
-<div style="text-align: center; margin-top: 1.5rem;">
-    <button onclick="showRecords()" style="padding: 0.6rem 2rem; background: #1e2a47; color: #fff; border: none; border-radius: 30px; font-size: 0.9rem; cursor: pointer; font-weight: 500; font-family: 'Inter', sans-serif; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-        🏆 Рекорды
-    </button>
-</div>
-
-<script src="../js/main.js"></script>
-
-<!-- ===== ПОДКЛЮЧАЕМ THREE.JS ===== -->
-<script type="importmap">
-    {
-        "imports": {
-            "three": "https://unpkg.com/three@0.128.0/build/three.module.js",
-            "three/addons/": "https://unpkg.com/three@0.128.0/examples/jsm/"
-        }
+const container = document.getElementById('cube-container');
+if (!container) {
+    console.error('Контейнер для кубика не найден');
+} else {
+    function getContainerSize() {
+        const rect = container.getBoundingClientRect();
+        return Math.min(rect.width, rect.height);
     }
-</script>
 
-<!-- ===== ПОДКЛЮЧАЕМ МОДУЛЬ КУБИКА ===== -->
-<script type="module" src="/js/cube3d.js"></script>
+    const size = getContainerSize();
+    if (size === 0) {
+        requestAnimationFrame(function wait() {
+            const newSize = getContainerSize();
+            if (newSize === 0) {
+                requestAnimationFrame(wait);
+            } else {
+                initCube(newSize);
+            }
+        });
+    } else {
+        initCube(size);
+    }
 
-<!-- ===== FIRBASE ИНИЦИАЛИЗАЦИЯ ===== -->
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    function initCube(size) {
+        const scene = new THREE.Scene();
+        scene.background = null;
 
-<script>
-    // ===== ТВОЙ FIREBASE КОНФИГ =====
-    const firebaseConfig = {
-        apiKey: "AIzaSyBH0b4U-EkIIX0fiE3SdYtG0AZ-9bjlEiw",
-        authDomain: "knizhnye-grani.firebaseapp.com",
-        databaseURL: "https://knizhnye-grani-default-rtdb.europe-west1.firebasedatabase.app",
-        projectId: "knizhnye-grani",
-        storageBucket: "knizhnye-grani.firebasestorage.app",
-        messagingSenderId: "633401933627",
-        appId: "1:633401933627:web:978ea1152ad840062a411e"
-    };
+        const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 1000);
+        camera.position.set(3.5, 2.5, 4.5);
+        camera.lookAt(0, 0, 0);
+        scene.add(camera);
+        window.camera = camera;
 
-    firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.setSize(size, size);
+        renderer.setClearColor(0x000000, 0);
+        container.appendChild(renderer.domElement);
 
-    document.addEventListener('DOMContentLoaded', function() {
-        // ===== ССЫЛКИ НА ЭЛЕМЕНТЫ =====
-        const mainRow = document.getElementById('mainRow');
-        const controlsRightSide = document.getElementById('controlsRightSide');
-        const cubeButtons = document.getElementById('cubeButtons');
-        const legend = document.getElementById('legend');
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.1;
+        controls.enableZoom = true;
+        controls.rotateSpeed = 0.5;
+        controls.target.set(0, 0, 0);
+        controls.minDistance = 3;
+        controls.maxDistance = 8;
 
-        // ===== ПОКАЗ И СКРЫТИЕ КНОПОК + ПЕРЕКЛЮЧЕНИЕ РЯДА =====
-        window.showCubeControls = function() {
-            mainRow.classList.add('is-active');
-            controlsRightSide.classList.add('visible');
-            cubeButtons.classList.add('visible');
-            legend.classList.add('visible');
+        const cubeGroup = new THREE.Group();
+        scene.add(cubeGroup);
+        window.cubeGroup = cubeGroup;
+
+        const textureLoader = new THREE.TextureLoader();
+        const texturePaths = {
+            red: '../images/cube_textures/red.jpg',
+            blue: '../images/cube_textures/blue.jpg',
+            yellow: '../images/cube_textures/yellow.jpg',
+            green: '../images/cube_textures/green.jpg',
+            white: '../images/cube_textures/white.jpg',
+            orange: '../images/cube_textures/orange.jpg'
         };
 
-        window.hideCubeControls = function() {
-            controlsRightSide.classList.remove('visible');
-            cubeButtons.classList.remove('visible');
-            legend.classList.remove('visible');
-            mainRow.classList.remove('is-active');
+        const loadTexture = (url) => {
+            const tex = textureLoader.load(url);
+            tex.wrapS = THREE.ClampToEdgeWrapping;
+            tex.wrapT = THREE.ClampToEdgeWrapping;
+            return tex;
         };
 
-        // ===== ЛОГИКА ПОПАПА (КНИЖНЫЕ ГРАНИ) =====
-        const popup = document.getElementById('popup');
-        const popupClose = document.getElementById('popupClose');
-        const popupThumb = document.getElementById('popupThumb');
-        const popupTitle = document.getElementById('popupTitle');
-        const popupQuestion = document.getElementById('popupQuestion');
-        const popupAnswers = document.getElementById('popupAnswers');
-        const popupInput = document.getElementById('popupInput');
-        const popupSubmit = document.getElementById('popupSubmit');
-        const ageSelector = document.getElementById('ageSelector');
-
-        let currentElementId = null;
-        let selectedAge = 'not_specified';
-
-        // ===== ОБРАБОТЧИК ВЫБОРА ВОЗРАСТА =====
-        const ageButtons = ageSelector.querySelectorAll('.age-btn');
-        ageButtons.forEach(btn => {
-            btn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                ageButtons.forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                selectedAge = this.dataset.age;
-            });
+        const matConfig = { roughness: 0.9, metalness: 0.0 };
+        const textures = {
+            red: loadTexture(texturePaths.red),
+            blue: loadTexture(texturePaths.blue),
+            yellow: loadTexture(texturePaths.yellow),
+            green: loadTexture(texturePaths.green),
+            white: loadTexture(texturePaths.white),
+            orange: loadTexture(texturePaths.orange)
+        };
+        const createMat = (color) => new THREE.MeshStandardMaterial({ map: textures[color], ...matConfig });
+        const createGlowMat = (color, emissiveHex, intensity) => new THREE.MeshStandardMaterial({
+            map: textures[color], roughness: 0.3, metalness: 0.2, emissive: emissiveHex, emissiveIntensity: intensity
         });
 
-        const defaultAgeBtn = ageSelector.querySelector('[data-age="not_specified"]');
-        if (defaultAgeBtn) {
-            defaultAgeBtn.classList.add('active');
-        }
+        const offset = 0.685;
+        const sizeCubie = 0.675;
+        const radius = 0.08;
+        const segments = 4;
+        window.offset = offset;
 
-        // ===== ФУНКЦИЯ ДЛЯ ПРЕОБРАЗОВАНИЯ ВОЗРАСТА =====
-        function getAgeLabel(age) {
-            if (!age) return 'Не указан';
-            const ageMap = {
-                'not_specified': 'Не указан',
-                'under_14': 'До 14 лет',
-                '15_17': '15–17 лет',
-                '18_35': '18–35 лет',
-                'over_35': 'Старше 35',
-                'under-14': 'До 14 лет',
-                '15-17': '15–17 лет',
-                '18-35': '18–35 лет',
-                'over-35': 'Старше 35'
-            };
-            if (typeof age === 'number' || !isNaN(age)) {
-                const numAge = parseInt(age);
-                if (numAge < 14) return 'До 14 лет';
-                if (numAge >= 14 && numAge <= 17) return '15–17 лет';
-                if (numAge >= 18 && numAge <= 35) return '18–35 лет';
-                if (numAge > 35) return 'Старше 35';
+        const matLib = {
+            red: createMat('red'), blue: createMat('blue'), yellow: createMat('yellow'),
+            green: createMat('green'), white: createMat('white'), orange: createMat('orange')
+        };
+
+        const glowLib = {
+            red: createGlowMat('red', 0xc41e3a, 0.12),
+            blue: createGlowMat('blue', 0x0051ba, 0.12),
+            yellow: createGlowMat('yellow', 0xffd700, 0.12),
+            green: createGlowMat('green', 0x009e60, 0.12),
+            white: createGlowMat('white', 0xffffff, 0.04),
+            orange: createGlowMat('orange', 0xff8c00, 0.12)
+        };
+
+        let allCubies = [];
+        window.allCubies = allCubies;
+
+        function buildCubies() {
+            while (cubeGroup.children.length > 0) {
+                const child = cubeGroup.children[0];
+                child.geometry.dispose();
+                cubeGroup.remove(child);
             }
-            return ageMap[age] || 'Не указан';
+            allCubies = [];
+
+            for (let x = -1; x <= 1; x++) {
+                for (let y = -1; y <= 1; y++) {
+                    for (let z = -1; z <= 1; z++) {
+                        if (x === 0 && y === 0 && z === 0) continue;
+
+                        const faces = [
+                            x === 1 ? 'red' : (x === -1 ? 'orange' : null),
+                            x === -1 ? 'orange' : (x === 1 ? 'red' : null),
+                            y === 1 ? 'white' : (y === -1 ? 'yellow' : null),
+                            y === -1 ? 'yellow' : (y === 1 ? 'white' : null),
+                            z === 1 ? 'green' : (z === -1 ? 'blue' : null),
+                            z === -1 ? 'blue' : (z === 1 ? 'green' : null)
+                        ];
+                        const mats = faces.map(f => f ? matLib[f] : matLib['red']);
+
+                        const geometry = new RoundedBoxGeometry(sizeCubie, sizeCubie, sizeCubie, segments, radius);
+                        const cubie = new THREE.Mesh(geometry, mats);
+                        cubie.position.set(x * offset, y * offset, z * offset);
+                        cubeGroup.add(cubie);
+
+                        const uniqueId = `cubie_${x}_${y}_${z}`;
+                        cubie.userData = {
+                            homeX: x, homeY: y, homeZ: z,
+                            gridX: x, gridY: y, gridZ: z,
+                            faces: faces,
+                            mats: mats,
+                            id: uniqueId,
+                            faceNames: faces
+                        };
+
+                        window.cubeState[uniqueId] = {
+                            position: { x, y, z },
+                            rotation: { x: 0, y: 0, z: 0 },
+                            faces: [...faces]
+                        };
+
+                        allCubies.push(cubie);
+                    }
+                }
+            }
         }
 
-        const colorNames = {
-            'red': 'Любовь',
-            'blue': 'Надежда',
-            'yellow': 'Совесть',
-            'green': 'Добро',
-            'white': 'Память',
-            'orange': 'Семья'
-        };
-        
-        const texturePaths = {
-            'red': '../images/cube_textures/red.jpg',
-            'blue': '../images/cube_textures/blue.jpg',
-            'yellow': '../images/cube_textures/yellow.jpg',
-            'green': '../images/cube_textures/green.jpg',
-            'white': '../images/cube_textures/white.jpg',
-            'orange': '../images/cube_textures/orange.jpg'
-        };
+        buildCubies();
 
-        const questionsDB = {
-            'red_0_0_1': 'Какая книга подарила тебе ощущение дома, даже если ты был далеко?',
-            'red_0_1_1': 'Какая книга заставила тебя почувствовать гордость за место, где ты живёшь?',
-            'red_0_2_1': 'Какую книгу ты бы отправил своему прошлому "я" со словами "ты справишься"?',
-            'red_1_0_1': 'От какой книги у тебя загорелись глаза и захотелось что-то делать?',
-            'red_1_1_1': 'Какую книгу ты бы взял с собой в отпуск с самыми близкими друзьями?',
-            'red_1_2_1': 'Какая книга заставила тебя выйти на улицу и увидеть красоту вокруг?',
-            'red_2_0_1': 'Какая книга навсегда изменила твоё представление о красоте?',
-            'red_2_1_1': 'Какая книга напоминает тебе о твоей юности и первых чувствах?',
-            'red_2_2_1': 'Есть ли книга, которая научила тебя принимать людей такими, какие они есть?',
-            
-            'blue_0_0_1': 'Какая книга помогла тебе проснуться утром, даже когда не хотелось вставать?',
-            'blue_0_1_1': 'От какой книги у тебя появилась вера, что завтра будет лучше?',
-            'blue_0_2_1': 'Какая книга стала для тебя светом в самом длинном тоннеле?',
-            'blue_1_0_1': 'Какая книга подарила тебе силу бороться, когда казалось, что всё рухнуло?',
-            'blue_1_1_1': 'Вспомни книгу, которая заставила тебя поверить в чудо.',
-            'blue_1_2_1': 'От какой книги у тебя появилось желание жить и дышать полной грудью?',
-            'blue_2_0_1': 'Какая книга вернула тебе улыбку, когда мир казался серым?',
-            'blue_2_1_1': 'Назови книгу, которая доказала тебе: "Всё обязательно наладится".',
-            'blue_2_2_1': 'Какая книга оставила после себя ощущение, что ты не сдашься?',
+        // ===== ОСВЕЩЕНИЕ =====
+        const ambientLight = new THREE.AmbientLight(0x606080, 0.6);
+        scene.add(ambientLight);
 
-            'yellow_0_0_1': 'Какая книга помогла тебе услышать свой тихий внутренний голос?',
-            'yellow_0_1_1': 'Назови книгу, где герой сделал трудный, но правильный выбор.',
-            'yellow_0_2_1': 'Какая книга научила тебя не идти за толпой, а идти за собой?',
-            'yellow_1_0_1': 'Вспомни книгу, после которой ты перестал оправдывать то, что неправильно.',
-            'yellow_1_1_1': 'Какая книга заставила тебя спросить себя: "А я бы поступил так же?"',
-            'yellow_1_2_1': 'От какой книги у тебя проснулась совесть и захотелось что-то исправить?',
-            'yellow_2_0_1': 'Назови книгу, где герой выбирает честность, даже если это больно.',
-            'yellow_2_1_1': 'Какая книга помогла тебе разобраться в себе, когда было много сомнений?',
-            'yellow_2_2_1': 'Какая книга оставила тебе чувство, что ты не имеешь права молчать?',
+        const mainLight = new THREE.DirectionalLight(0xffffff, 0.45);
+        mainLight.position.set(2, 4, 3);
+        camera.add(mainLight);
 
-            'green_0_0_1': 'Назови книгу, которая вдохновила тебя сделать кому-то приятное просто так.',
-            'green_0_1_1': 'Какая книга научила тебя замечать тех, кому нужна помощь?',
-            'green_0_2_1': 'Вспомни книгу, где доброта оказалась сильнее любой ссоры.',
-            'green_1_0_1': 'От какой книги у тебя появилось желание улыбнуться незнакомцу?',
-            'green_1_1_1': 'Какая книга заставила тебя поверить, что мир держится на добрых людях?',
-            'green_1_2_1': 'Назови книгу, которая показала, что "просто так" — это самое важное.',
-            'green_2_0_1': 'Какая книга напомнила тебе, что маленький поступок меняет многое?',
-            'green_2_1_1': 'Вспомни книгу, которую ты бы подарил тому, кто сегодня грустит.',
-            'green_2_2_1': 'Какая книга подарила тебе ощущение, что ты можешь быть чьим-то лучом света?',
+        const fillLight = new THREE.DirectionalLight(0xffffff, 0.3);
+        fillLight.position.set(-2, 1, 2);
+        camera.add(fillLight);
 
-            'white_0_0_1': 'Какая книга заставила тебя вспомнить голос бабушки или дедушки?',
-            'white_0_1_1': 'Назови книгу, которая помогла тебе почувствовать связь с твоими корнями.',
-            'white_0_2_1': 'Какая книга напомнила тебе о великой истории, которую нельзя забывать?',
-            'white_1_0_1': 'Вспомни книгу, которая стала для тебя семейной реликвией.',
-            'white_1_1_1': 'Какая книга помогла тебе сохранить память о том, кто ушёл?',
-            'white_1_2_1': 'Назови книгу, которая научила тебя благодарить за прошлое.',
-            'white_2_0_1': 'Какая книга вернула тебя в твоё детство, в твой самый родной уголок?',
-            'white_2_1_1': 'Вспомни книгу, которая заставила тебя позвонить родителям и сказать спасибо.',
-            'white_2_2_1': 'Какая книга напомнила тебе: "Пока мы помним – мы живы"?',
+        const backLight = new THREE.DirectionalLight(0xffffff, 0.1);
+        backLight.position.set(0, 1, -3);
+        camera.add(backLight);
 
-            'orange_0_0_1': 'Какая книга подарила тебе ощущение, что ты всегда можешь вернуться домой?',
-            'orange_0_1_1': 'Назови книгу, которую ты хотел бы прочитать вслух всем своим близким.',
-            'orange_0_2_1': 'Какая книга заставила тебя собрать всю семью за одним столом?',
-            'orange_1_0_1': 'Вспомни книгу, которая научила тебя прощать родных, когда это трудно.',
-            'orange_1_1_1': 'Какая книга оставила тебе чувство, что твоя семья – это твоя крепость?',
-            'orange_1_2_1': 'Назови книгу, которая показала, что семья – это не кровь, а те, кто рядом.',
-            'orange_2_0_1': 'Какая книга помогла тебе понять своих родителей, когда они были далеко?',
-            'orange_2_1_1': 'Вспомни книгу, где семейные традиции спасали героев.',
-            'orange_2_2_1': 'Какая книга научила тебя беречь то, что у тебя есть дома?'
-        };
+        // ===== ФУНКЦИЯ ПРОВЕРКИ СБОРКИ =====
+        function isCubeSolved() {
+            for (let cubie of allCubies) {
+                const state = window.cubeState[cubie.userData.id];
+                if (!state) return false;
+                if (state.position.x !== cubie.userData.homeX ||
+                    state.position.y !== cubie.userData.homeY ||
+                    state.position.z !== cubie.userData.homeZ) {
+                    return false;
+                }
+            }
+            return true;
+        }
 
-        // ===== ФУНКЦИЯ ЗАГРУЗКИ ОТВЕТОВ ИЗ FIREBASE =====
-        function loadAnswers(elementId) {
-            const answersRef = database.ref('answers/' + elementId);
-            answersRef.on('value', (snapshot) => {
-                const data = snapshot.val();
-                popupAnswers.innerHTML = '';
-                if (!data) {
-                    popupAnswers.innerHTML = '<p style="color:#aaa; font-size:0.9rem; text-align:center; margin:0;">Пока никто не ответил на этот вопрос.<br>Будь первым! ✨</p>';
+        // ===== ВРАЩЕНИЕ СЛОЁВ =====
+        function getCubiesInLayer(axis, index) {
+            const result = [];
+            allCubies.forEach(cubie => {
+                const state = window.cubeState[cubie.userData.id];
+                if (!state) return;
+                const gx = state.position.x;
+                const gy = state.position.y;
+                const gz = state.position.z;
+
+                let match = false;
+                if (axis === 'x' && gx === index) match = true;
+                else if (axis === 'y' && gy === index) match = true;
+                else if (axis === 'z' && gz === index) match = true;
+
+                if (match) result.push(cubie);
+            });
+            return result;
+        }
+
+        function rotateLayer(axis, index, angle, duration, callback) {
+            if (window.isAnimating) {
+                if (callback) callback();
+                return;
+            }
+
+            window.isAnimating = true;
+            const cubies = getCubiesInLayer(axis, index);
+            if (cubies.length === 0) {
+                window.isAnimating = false;
+                if (callback) callback();
+                return;
+            }
+
+            const newPositions = cubies.map(cubie => {
+                const state = window.cubeState[cubie.userData.id];
+                if (!state) return null;
+                
+                const pos = new THREE.Vector3(state.position.x * offset, state.position.y * offset, state.position.z * offset);
+                const gx = state.position.x;
+                const gy = state.position.y;
+                const gz = state.position.z;
+
+                let newX = gx, newY = gy, newZ = gz;
+                const cos = Math.round(Math.cos(angle));
+                const sin = Math.round(Math.sin(angle));
+
+                if (axis === 'x') {
+                    newY = gy * cos - gz * sin;
+                    newZ = gy * sin + gz * cos;
+                } else if (axis === 'y') {
+                    newX = gx * cos + gz * sin;
+                    newZ = -gx * sin + gz * cos;
+                } else if (axis === 'z') {
+                    newX = gx * cos - gy * sin;
+                    newY = gx * sin + gy * cos;
+                }
+
+                return {
+                    cubie: cubie,
+                    startPos: pos.clone(),
+                    endPos: new THREE.Vector3(newX * offset, newY * offset, newZ * offset),
+                    startRot: cubie.quaternion.clone(),
+                    endRot: new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(axis === 'x' ? 1 : 0, axis === 'y' ? 1 : 0, axis === 'z' ? 1 : 0), angle).multiply(cubie.quaternion.clone()),
+                    stateId: cubie.userData.id,
+                    endGrid: { x: newX, y: newY, z: newZ }
+                };
+            }).filter(item => item !== null);
+
+            const startTime = Date.now();
+
+            function animateMove() {
+                const elapsed = Date.now() - startTime;
+                const t = Math.min(elapsed / duration, 1);
+                const ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
+                newPositions.forEach(item => {
+                    item.cubie.position.lerpVectors(item.startPos, item.endPos, ease);
+                    item.cubie.quaternion.slerpQuaternions(item.startRot, item.endRot, ease);
+                });
+
+                if (t < 1) {
+                    requestAnimationFrame(animateMove);
+                } else {
+                    newPositions.forEach(item => {
+                        item.cubie.position.copy(item.endPos);
+                        item.cubie.quaternion.copy(item.endRot);
+                        
+                        const state = window.cubeState[item.stateId];
+                        if (state) {
+                            state.position.x = item.endGrid.x;
+                            state.position.y = item.endGrid.y;
+                            state.position.z = item.endGrid.z;
+                        }
+                    });
+                    updateCubeGlow();
+                    window.isAnimating = false;
+                    if (callback) callback();
+                }
+            }
+            animateMove();
+        }
+
+        window.rotateLayer = rotateLayer;
+
+        // ===== СКРАМБЛЕР И СБОРЩИК =====
+        let isScrambling = false;
+        let isBlocked = false;
+
+        function generateScramble(length = 23) {
+            const moves = ['U', 'D', 'L', 'R', 'F', 'B'];
+            const modifiers = ['', "'", "2"];
+            let result = [];
+            let lastAxis = '';
+            for (let i = 0; i < length; i++) {
+                let move;
+                let axis;
+                do {
+                    move = moves[Math.floor(Math.random() * moves.length)];
+                    axis = move.charAt(0);
+                } while (axis === lastAxis);
+                lastAxis = axis;
+                const mod = modifiers[Math.floor(Math.random() * modifiers.length)];
+                result.push(move + mod);
+            }
+            return result;
+        }
+
+        function parseMove(moveStr) {
+            const axisMap = { 'U': 'y', 'D': 'y', 'L': 'x', 'R': 'x', 'F': 'z', 'B': 'z' };
+            const indexMap = { 'U': 1, 'D': -1, 'L': -1, 'R': 1, 'F': 1, 'B': -1 };
+            const angleMap = { 'U': -1, 'D': 1, 'L': 1, 'R': -1, 'F': -1, 'B': 1 };
+
+            const base = moveStr.charAt(0);
+            const mod = moveStr.slice(1);
+            let angle = angleMap[base] * Math.PI / 2;
+            let count = 1;
+            if (mod === "'") angle *= -1;
+            else if (mod === "2") count = 2;
+
+            return { axis: axisMap[base], index: indexMap[base], angle: angle, count: count };
+        }
+
+        function executeMove(moveStr, duration, callback) {
+            const parsed = parseMove(moveStr);
+            let remaining = parsed.count;
+            let currentAngle = parsed.angle;
+
+            function doSingleRotation() {
+                if (remaining === 0) {
+                    if (callback) callback();
                     return;
                 }
-                const answersArray = Object.values(data).reverse();
-                answersArray.forEach((item) => {
-                    const div = document.createElement('div');
-                    div.className = 'popup-answer-item';
-                    const ageLabel = getAgeLabel(item.age);
-                    div.innerHTML = `
-                        <div style="font-size:0.9rem; color:#333; line-height:1.5;">${item.text}</div>
-                        <div style="font-size:0.65rem; color:#888; margin-top:0.3rem;">
-                            ${item.user || 'Аноним'} 
-                            <span style="display: inline-block; font-size: 0.6rem; background: #e8e0d8; color: #666; padding: 0.1rem 0.6rem; border-radius: 10px; margin-left: 0.5rem;">${ageLabel}</span>
-                            · ${item.timestamp || ''}
-                        </div>
-                    `;
-                    popupAnswers.appendChild(div);
+                rotateLayer(parsed.axis, parsed.index, currentAngle, duration, () => {
+                    remaining--;
+                    if (remaining > 0) {
+                        doSingleRotation();
+                    } else {
+                        if (callback) callback();
+                    }
                 });
-            });
+            }
+            doSingleRotation();
         }
 
-        window.openBookGran = function(color, x, y) {
-            if (!window.isSolved) {
+        function executeMoveSequence(moves, durationPerMove, onComplete) {
+            if (moves.length === 0) {
+                if (onComplete) onComplete();
                 return;
             }
+            let index = 0;
 
-            const elementId = color + '_' + String(x) + '_' + String(y) + '_1';
-            currentElementId = elementId;
-
-            selectedAge = 'not_specified';
-            ageButtons.forEach(b => b.classList.remove('active'));
-            const defaultBtn = ageSelector.querySelector('[data-age="not_specified"]');
-            if (defaultBtn) defaultBtn.classList.add('active');
-
-            popupThumb.src = texturePaths[color] || '';
-            popupTitle.textContent = colorNames[color] || color;
-            const question = questionsDB[elementId];
-            popupQuestion.textContent = question || 'Для этого квадратика пока нет вопроса. Придумай свой!';
-            popupAnswers.innerHTML = '<p style="color:#aaa; font-size:0.9rem; text-align:center; margin:0;">Загрузка ответов...</p>';
-            popupInput.value = '';
-            popup.style.display = 'flex';
-            document.body.style.overflow = 'hidden';
-
-            loadAnswers(elementId);
-        };
-
-        popupClose.addEventListener('click', function() {
-            popup.style.display = 'none';
-            document.body.style.overflow = '';
-        });
-
-        popup.addEventListener('click', function(e) {
-            if (e.target === popup) {
-                popup.style.display = 'none';
-                document.body.style.overflow = '';
+            function next() {
+                if (index >= moves.length) {
+                    if (onComplete) onComplete();
+                    return;
+                }
+                executeMove(moves[index], durationPerMove, () => {
+                    index++;
+                    setTimeout(next, 15);
+                });
             }
-        });
+            next();
+        }
 
-        popupSubmit.addEventListener('click', function() {
-            const text = popupInput.value.trim();
-            if (!text) {
-                alert('Пожалуйста, напиши свой ответ перед отправкой.');
-                return;
-            }
-            if (!currentElementId) return;
+        window.executeMoveSequence = executeMoveSequence;
+        window.generateScramble = generateScramble;
+        window.updateCubeGlow = updateCubeGlow;
 
-            const newAnswer = {
-                text: text,
-                user: 'Аноним',
-                age: selectedAge,
-                timestamp: new Date().toLocaleString('ru-RU')
-            };
+        // ===== КНОПКИ «ПЕРЕМЕШАТЬ» И «СОБРАТЬ» =====
+        document.addEventListener('DOMContentLoaded', function() {
+            const btnScramble = document.getElementById('btnScramble');
+            const btnSolve = document.getElementById('btnSolve');
 
-            const answersRef = database.ref('answers/' + currentElementId);
-            answersRef.push(newAnswer).then(() => {
-                popupInput.value = '';
-                alert('Спасибо! Твой ответ сохранён и теперь виден всем.');
-            }).catch((error) => {
-                console.error('Ошибка сохранения:', error);
-                alert('Произошла ошибка. Попробуй ещё раз.');
+            if (!btnScramble || !btnSolve) return;
+
+            const newBtnScramble = btnScramble.cloneNode(true);
+            const newBtnSolve = btnSolve.cloneNode(true);
+            btnScramble.parentNode.replaceChild(newBtnScramble, btnScramble);
+            btnSolve.parentNode.replaceChild(newBtnSolve, btnSolve);
+
+            const SCRAMBLE_DURATION = 4000;
+            const SOLVE_DURATION = 4000;
+            const DELAY_BETWEEN_MOVES = 15;
+
+            newBtnScramble.addEventListener('click', function() {
+                if (window.isScrambling || window.isAnimating) return;
+                window.isBlocked = true;
+                window.isScrambling = true;
+                window.isSolved = false;
+                this.style.display = 'none';
+                newBtnSolve.style.display = 'inline-block';
+
+                window.scrambleHistory = [];
+                window.userHistory = [];
+
+                const moves = window.generateScramble ? window.generateScramble(23) : ['U', "R'", 'F2', 'L', "D'", 'B'];
+                moves.forEach(m => window.scrambleHistory.push(m));
+
+                const durationPerMove = SCRAMBLE_DURATION / moves.length;
+                
+                // Сбрасываем таймер и показываем его при старте
+                resetTimer();
+                showTimer();
+
+                window.executeMoveSequence(moves, durationPerMove, () => {
+                    window.isScrambling = false;
+                    window.isBlocked = false;
+                    if (window.updateCubeGlow) window.updateCubeGlow();
+
+                    if (typeof window.showCubeControls === 'function') {
+                        window.showCubeControls();
+                    }
+                });
+            });
+
+            newBtnSolve.addEventListener('click', function() {
+                if (window.isScrambling || window.isAnimating) return;
+                if (window.isBlocked) return;
+                
+                window.isBlocked = true;
+                window.isScrambling = true;
+                window.isSolved = true;
+                this.style.display = 'none';
+                newBtnScramble.style.display = 'inline-block';
+
+                const userReverse = window.userHistory.slice().reverse().map(m => {
+                    if (m.endsWith("'")) return m.slice(0, -1);
+                    if (m.endsWith("2")) return m;
+                    return m + "'";
+                });
+                
+                const scrambleReverse = window.scrambleHistory.slice().reverse().map(m => {
+                    if (m.endsWith("'")) return m.slice(0, -1);
+                    if (m.endsWith("2")) return m;
+                    return m + "'";
+                });
+                
+                const allReverse = [...userReverse, ...scrambleReverse];
+                const durationPerMove = SOLVE_DURATION / allReverse.length;
+                
+                window.executeMoveSequence(allReverse, durationPerMove, () => {
+                    window.isScrambling = false;
+                    window.scrambleHistory = [];
+                    window.userHistory = [];
+                    window.isBlocked = false;
+                    if (window.updateCubeGlow) window.updateCubeGlow();
+
+                    if (typeof window.hideCubeControls === 'function') {
+                        window.hideCubeControls();
+                    }
+                });
             });
         });
-    });
-</script>
 
-</body>
-</html>
+        // ===== ОБРАБОТЧИК КЛИКА ПО КУБИКУ (ИНТЕГРАЦИЯ С КНИЖНЫМИ ГРАНЯМИ) =====
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+
+        function getGridCoords(position) {
+            const x = Math.round(position.x / offset);
+            const y = Math.round(position.y / offset);
+            const z = Math.round(position.z / offset);
+            return { x, y, z };
+        }
+
+        function onMouseClick(event) {
+            if (!window.isSolved || window.isAnimating || window.isScrambling) {
+                return;
+            }
+            
+            const rect = renderer.domElement.getBoundingClientRect();
+            mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+            mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(allCubies);
+
+            if (intersects.length > 0) {
+                const clickedCubie = intersects[0].object;
+                const pos = clickedCubie.position;
+                const coords = getGridCoords(pos);
+                
+                const normal = intersects[0].face.normal.clone();
+                normal.applyQuaternion(clickedCubie.quaternion);
+                
+                let materialIndex = 0;
+                const nx = Math.round(normal.x);
+                const ny = Math.round(normal.y);
+                const nz = Math.round(normal.z);
+                
+                if (nx === 1) materialIndex = 0;
+                else if (nx === -1) materialIndex = 1;
+                else if (ny === 1) materialIndex = 2;
+                else if (ny === -1) materialIndex = 3;
+                else if (nz === 1) materialIndex = 4;
+                else if (nz === -1) materialIndex = 5;
+                else materialIndex = 0;
+
+                const colorName = clickedCubie.userData.faceNames[materialIndex];
+                if (!colorName) return;
+                
+                let gx = 0, gy = 0;
+                
+                if (materialIndex === 0 || materialIndex === 1) {
+                    gx = coords.y + 1;
+                    gy = coords.z + 1;
+                } else if (materialIndex === 2 || materialIndex === 3) {
+                    gx = coords.x + 1;
+                    gy = coords.z + 1;
+                } else {
+                    gx = coords.x + 1;
+                    gy = coords.y + 1;
+                }
+                
+                if (window.openBookGran) {
+                    window.openBookGran(colorName, gx, gy);
+                }
+            }
+        }
+
+        const canvas = renderer.domElement;
+
+        // ===== ЗАЩИТА ОТ ЛОЖНЫХ КЛИКОВ =====
+        canvas.addEventListener('pointerdown', function(e) {
+            mouseDownPos.x = e.clientX;
+            mouseDownPos.y = e.clientY;
+            isDragging = false;
+        });
+
+        canvas.addEventListener('pointermove', function(e) {
+            if (mouseDownPos.x !== 0) {
+                const dx = Math.abs(e.clientX - mouseDownPos.x);
+                const dy = Math.abs(e.clientY - mouseDownPos.y);
+                if (dx > 6 || dy > 6) {
+                    isDragging = true;
+                }
+            }
+        });
+
+        canvas.addEventListener('pointerup', function(e) {
+            if (!isDragging && e.button === 0) {
+                onMouseClick(e);
+            }
+            mouseDownPos.x = 0;
+            mouseDownPos.y = 0;
+            isDragging = false;
+        });
+
+        canvas.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            return false;
+        });
+
+        // ===== ДЛЯ ТЕЛЕФОНА (ТАЧ) =====
+        let touchStartX = 0, touchStartY = 0;
+        let touchMoved = false;
+
+        canvas.addEventListener('touchstart', function(e) {
+            const touch = e.touches[0];
+            touchStartX = touch.clientX;
+            touchStartY = touch.clientY;
+            touchMoved = false;
+        }, { passive: true });
+
+        canvas.addEventListener('touchmove', function(e) {
+            const touch = e.touches[0];
+            const dx = Math.abs(touch.clientX - touchStartX);
+            const dy = Math.abs(touch.clientY - touchStartY);
+            if (dx > 10 || dy > 10) {
+                touchMoved = true;
+            }
+        }, { passive: true });
+
+        canvas.addEventListener('touchend', function(e) {
+            if (!touchMoved && window.isSolved) {
+                onMouseClick(e.changedTouches[0]);
+            }
+        }, { passive: true });
+
+        // ===== ПОДСВЕТКА =====
+        let activeGlowIds = [];
+
+        function loadGlowFromLocalStorage() {
+            try {
+                const data = JSON.parse(localStorage.getItem('myGranProgress') || '[]');
+                activeGlowIds = data;
+            } catch (e) {
+                activeGlowIds = [];
+            }
+        }
+
+        window.updateCubeGlow = function() {
+            loadGlowFromLocalStorage();
+            applyGlow();
+        };
+
+        function applyGlow() {
+            // Логика подсветки
+        }
+
+        loadGlowFromLocalStorage();
+        applyGlow();
+
+        // ===== ЦИКЛ РЕНДЕРА =====
+        function render() {
+            requestAnimationFrame(render);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+        render();
+
+        window.addEventListener('resize', () => {
+            const rect = container.getBoundingClientRect();
+            const newSize = Math.min(rect.width, rect.height);
+            renderer.setSize(newSize, newSize);
+            camera.aspect = 1;
+            camera.updateProjectionMatrix();
+        });
+    }
+}
+
+// ===== ФУНКЦИЯ ДЛЯ ПОВОРОТА ВСЕГО КУБА (ГРУППЫ) МГНОВЕННО =====
+function rotateWholeCube(axis, angle, callback) {
+    const cubeMatrix = window.cubeGroup.matrix.clone();
+    const cubePos = new THREE.Vector3();
+    const cubeQuat = new THREE.Quaternion();
+    const cubeScale = new THREE.Vector3();
+    cubeMatrix.decompose(cubePos, cubeQuat, cubeScale);
+
+    const tempGroup = new THREE.Group();
+    tempGroup.quaternion.copy(cubeQuat);
+    tempGroup.updateMatrixWorld(true);
+
+    let localAxis = new THREE.Vector3();
+    if (axis === 'x') {
+        const worldRight = new THREE.Vector3(1, 0, 0).applyQuaternion(window.camera.quaternion);
+        localAxis = worldRight.clone().applyQuaternion(cubeQuat.clone().invert());
+    } else if (axis === 'y') {
+        const worldUp = new THREE.Vector3(0, 1, 0).applyQuaternion(window.camera.quaternion);
+        localAxis = worldUp.clone().applyQuaternion(cubeQuat.clone().invert());
+    } else if (axis === 'z') {
+        const worldDir = new THREE.Vector3(0, 0, 1).applyQuaternion(window.camera.quaternion);
+        localAxis = worldDir.clone().applyQuaternion(cubeQuat.clone().invert());
+    }
+
+    const rotQuat = new THREE.Quaternion().setFromAxisAngle(localAxis.normalize(), angle);
+    tempGroup.quaternion.multiply(rotQuat);
+    tempGroup.updateMatrixWorld(true);
+
+    window.cubeGroup.quaternion.copy(tempGroup.quaternion);
+    window.cubeGroup.updateMatrixWorld(true);
+
+    if (window.updateCubeGlow) window.updateCubeGlow();
+    
+    if (callback) callback();
+}
+
+// ===== ГЛАВНАЯ ФУНКЦИЯ ДЛЯ КНОПОК =====
+window.doMove = function(direction) {
+    if (window.isSolved) return;
+    if (!direction) return;
+    if (window.isAnimating) return;
+
+    let isReverse = direction.includes("'");
+    let cleanDir = direction.replace("'", "");
+
+    const camera = window.camera;
+    if (!camera) return;
+
+    const camDir = new THREE.Vector3();
+    camera.getWorldDirection(camDir);
+    const camUp = new THREE.Vector3(0, 1, 0).applyQuaternion(camera.quaternion);
+    const camRight = new THREE.Vector3(1, 0, 0).applyQuaternion(camera.quaternion);
+
+    const cubeQuat = window.cubeGroup.quaternion.clone();
+
+    const localRight = new THREE.Vector3(1, 0, 0).applyQuaternion(cubeQuat.clone().invert());
+    const localUp = new THREE.Vector3(0, 1, 0).applyQuaternion(cubeQuat.clone().invert());
+    const localDir = new THREE.Vector3(0, 0, 1).applyQuaternion(cubeQuat.clone().invert());
+
+    const faceNormals = {
+        '+x': localRight,
+        '-x': localRight.clone().negate(),
+        '+y': localUp,
+        '-y': localUp.clone().negate(),
+        '+z': localDir,
+        '-z': localDir.clone().negate()
+    };
+
+    let targetDir = null;
+    if (cleanDir === 'U') targetDir = camUp;
+    else if (cleanDir === 'D') targetDir = camUp.clone().negate();
+    else if (cleanDir === 'R') targetDir = camRight;
+    else if (cleanDir === 'L') targetDir = camRight.clone().negate();
+    else if (cleanDir === 'F') targetDir = camDir.clone().negate();
+    else if (cleanDir === 'B') targetDir = camDir;
+    
+    else if (cleanDir === 'x') {
+        rotateWholeCube('x', -Math.PI / 2, () => {});
+        return;
+    }
+    else if (cleanDir === 'y') {
+        rotateWholeCube('y', -Math.PI / 2, () => {});
+        return;
+    }
+    else if (cleanDir === 'z') {
+        rotateWholeCube('z', -Math.PI / 2, () => {});
+        return;
+    }
+    else return;
+
+    let bestFace = null;
+    let bestDot = -Infinity;
+    for (let [faceName, normal] of Object.entries(faceNormals)) {
+        const dot = targetDir.dot(normal);
+        if (dot > bestDot) {
+            bestDot = dot;
+            bestFace = faceName;
+        }
+    }
+    if (!bestFace) return;
+
+    let move = '';
+    switch (bestFace) {
+        case '+x': move = 'R'; break;
+        case '-x': move = 'L'; break;
+        case '+y': move = 'U'; break;
+        case '-y': move = 'D'; break;
+        case '+z': move = 'F'; break;
+        case '-z': move = 'B'; break;
+    }
+    if (isReverse) move += "'";
+
+    if (!window.isScrambling) {
+        window.userHistory.push(move);
+    }
+
+    let axis = '';
+    let index = 0;
+    if (bestFace === '+x') { axis = 'x'; index = 1; }
+    else if (bestFace === '-x') { axis = 'x'; index = -1; }
+    else if (bestFace === '+y') { axis = 'y'; index = 1; }
+    else if (bestFace === '-y') { axis = 'y'; index = -1; }
+    else if (bestFace === '+z') { axis = 'z'; index = 1; }
+    else if (bestFace === '-z') { axis = 'z'; index = -1; }
+    else return;
+
+    let baseAngle = 0;
+    if (axis === 'y') {
+        baseAngle = (index === 1) ? -Math.PI/2 : Math.PI/2;
+    } else {
+        if (index === 1) baseAngle = -Math.PI/2;
+        else baseAngle = Math.PI/2;
+    }
+    const angle = isReverse ? -baseAngle : baseAngle;
+
+    window.rotateLayer(axis, index, angle, 150, () => {
+        if (window.updateCubeGlow) window.updateCubeGlow();
+    });
+};
+
+// ===== ТАЙМЕР (СКРЫТ ПО УМОЛЧАНИЮ) =====
+let timerInterval = null;
+let seconds = 0;
+let isTimerRunning = false;
+let hasStarted = false;
+
+function startTimer() {
+    if (isTimerRunning || hasStarted) return;
+    hasStarted = true;
+    isTimerRunning = true;
+    seconds = 0;
+    timerInterval = setInterval(() => {
+        seconds++;
+        updateTimerDisplay();
+    }, 1000);
+}
+
+function stopTimer() {
+    if (!isTimerRunning) return;
+    isTimerRunning = false;
+    clearInterval(timerInterval);
+}
+
+function resetTimer() {
+    stopTimer();
+    hasStarted = false;
+    seconds = 0;
+    updateTimerDisplay();
+}
+
+function updateTimerDisplay() {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    const display = document.getElementById('timerValue');
+    if (display) {
+        display.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    }
+}
+
+function showTimer() {
+    const el = document.getElementById('timerDisplay');
+    if (el) {
+        el.style.display = 'block';
+        startTimer();
+    }
+}
+
+function hideTimer() {
+    const el = document.getElementById('timerDisplay');
+    if (el) {
+        el.style.display = 'none';
+    }
+    stopTimer();
+}
+
+// Создаём элемент таймера (скрытый)
+const timerHTML = `
+<div id="timerDisplay" style="display: none; position: fixed; top: 20px; right: 20px; background: rgba(30,42,71,0.92); color: #fff; padding: 0.5rem 1.2rem; border-radius: 30px; font-size: 1.2rem; font-weight: 600; font-family: 'Inter', sans-serif; z-index: 999; box-shadow: 0 4px 16px rgba(0,0,0,0.15); backdrop-filter: blur(4px); letter-spacing: 0.5px;">
+    ⏱️ <span id="timerValue">00:00</span>
+</div>
+`;
+document.body.insertAdjacentHTML('beforeend', timerHTML);
+
+// ===== FIREBASE ДЛЯ РЕКОРДОВ (с именем и возрастом) =====
+if (typeof firebase !== 'undefined' && firebase.database) {
+    const recordsDb = firebase.database();
+
+    // ===== ПОКАЗ РЕКОРДОВ =====
+    window.showRecords = function() {
+        const popup = document.getElementById('recordsPopup');
+        const list = document.getElementById('recordsList');
+        if (!popup || !list) return;
+        
+        popup.style.display = 'flex';
+        list.innerHTML = '<p style="color:#aaa; text-align:center; font-size:0.95rem;">Загрузка...</p>';
+        
+        recordsDb.ref('records').orderByChild('time').limitToLast(50).on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (!data) {
+                list.innerHTML = '<p style="color:#888; font-size:0.95rem; text-align:center;">Пока нет рекордов. Собери кубик — и стань первым! 🏆</p>';
+                return;
+            }
+            
+            const records = Object.values(data).sort((a, b) => a.time - b.time);
+            const top10 = records.slice(0, 10);
+            
+            let html = '<table style="width:100%; border-collapse:collapse; font-size:0.9rem;">';
+            html += `<tr style="border-bottom:2px solid #eee; text-align:left; color:#888;">
+                        <th style="padding:0.4rem 0.2rem;">#</th>
+                        <th style="padding:0.4rem 0.2rem;">Время</th>
+                        <th style="padding:0.4rem 0.2rem;">Имя</th>
+                        <th style="padding:0.4rem 0.2rem;">Возраст</th>
+                        <th style="padding:0.4rem 0.2rem; text-align:right;">Дата</th>
+                    </tr>`;
+            
+            top10.forEach((rec, i) => {
+                const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '';
+                const timeStr = formatTime(rec.time);
+                const userName = rec.user || 'Аноним';
+                const userAge = rec.age ? getAgeLabel(rec.age) : 'Не указан';
+                
+                html += `<tr style="border-bottom:1px solid #f0f0f0;">
+                            <td style="padding:0.4rem 0.2rem; font-weight:600;">${medal || i+1}</td>
+                            <td style="padding:0.4rem 0.2rem; font-weight:600; color:#ff2e5a;">${timeStr}</td>
+                            <td style="padding:0.4rem 0.2rem;">${userName}</td>
+                            <td style="padding:0.4rem 0.2rem;">${userAge}</td>
+                            <td style="padding:0.4rem 0.2rem; text-align:right; color:#888; font-size:0.8rem;">${rec.date || ''}</td>
+                        </tr>`;
+            });
+            html += '</table>';
+            list.innerHTML = html;
+        });
+    };
+
+    // ===== СОХРАНЕНИЕ РЕКОРДА С ИМЕНЕМ =====
+    window.saveRecordWithName = function() {
+        const nameInput = document.getElementById('recordNameInput');
+        const userName = nameInput ? nameInput.value.trim() : '';
+        
+        let userAge = 'not_specified';
+        const ageSelect = document.getElementById('popupAge');
+        if (ageSelect) {
+            userAge = ageSelect.value || 'not_specified';
+        }
+        
+        const now = new Date();
+        const dateStr = now.toLocaleDateString('ru-RU') + ' ' + now.toLocaleTimeString('ru-RU', {hour: '2-digit', minute:'2-digit'});
+        
+        const newRecord = {
+            time: seconds,
+            moves: 0,
+            date: dateStr,
+            user: userName || 'Аноним',
+            age: userAge
+        };
+        
+        recordsDb.ref('records').push(newRecord).then(() => {
+            document.getElementById('congratsPopup').style.display = 'none';
+            setTimeout(() => window.showRecords(), 300);
+        }).catch((error) => {
+            console.error('Ошибка сохранения рекорда:', error);
+            alert('Не удалось сохранить рекорд. Попробуй ещё раз.');
+        });
+    };
+
+    function formatTime(seconds) {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    }
+
+    function getAgeLabel(age) {
+        const ageMap = {
+            'not_specified': 'Не указан',
+            'under_14': 'До 14 лет',
+            '15_17': '15–17 лет',
+            '18_35': '18–35 лет',
+            'over_35': 'Старше 35',
+            'under-14': 'До 14 лет',
+            '15-17': '15–17 лет',
+            '18-35': '18–35 лет',
+            'over-35': 'Старше 35'
+        };
+        return ageMap[age] || 'Не указан';
+    }
+}
+
+// ===== АВТОМАТИЧЕСКОЕ СНЯТИЕ БЛОКИРОВКИ И ПОЗДРАВЛЕНИЕ =====
+setInterval(() => {
+    if (window.allCubies && window.allCubies.length > 0) {
+        let solved = true;
+        for (let cubie of window.allCubies) {
+            const state = window.cubeState[cubie.userData.id];
+            if (!state) { solved = false; break; }
+            if (state.position.x !== cubie.userData.homeX ||
+                state.position.y !== cubie.userData.homeY ||
+                state.position.z !== cubie.userData.homeZ) {
+                solved = false;
+                break;
+            }
+        }
+        
+        if (solved) {
+            window.isSolved = true;
+            window.isBlocked = false;
+            
+            const btnSolve = document.getElementById('btnSolve');
+            const btnScramble = document.getElementById('btnScramble');
+            if (btnSolve && btnScramble) {
+                btnSolve.style.display = 'none';
+                btnScramble.style.display = 'inline-block';
+            }
+            
+            if (typeof window.hideCubeControls === 'function') {
+                window.hideCubeControls();
+            }
+            
+            if (hasStarted) {
+                stopTimer();
+                const mins = Math.floor(seconds / 60);
+                const secs = seconds % 60;
+                const timeStr = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+                const finalTimeEl = document.getElementById('finalTime');
+                if (finalTimeEl) finalTimeEl.textContent = timeStr;
+                
+                const popup = document.getElementById('congratsPopup');
+                if (popup) popup.style.display = 'flex';
+                
+                hideTimer();
+            }
+        }
+    }
+}, 500);
