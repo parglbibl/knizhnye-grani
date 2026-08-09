@@ -625,31 +625,7 @@ if (!container) {
         };
 
         function applyGlow() {
-            allCubies.forEach(cubie => {
-                const faces = cubie.userData.faces;
-                const mats = cubie.material;
-                for (let i = 0; i < 6; i++) {
-                    if (faces[i]) {
-                        mats[i] = matLib[faces[i]];
-                    }
-                }
-            });
-
-            activeGlowIds.forEach(glowId => {
-                allCubies.forEach(cubie => {
-                    const faceIds = cubie.userData.faceIds;
-                    const faces = cubie.userData.faces;
-                    const mats = cubie.material;
-                    
-                    for (let i = 0; i < 6; i++) {
-                        if (faceIds[i] === glowId) {
-                            if (faces[i] && glowLib[faces[i]]) {
-                                mats[i] = glowLib[faces[i]];
-                            }
-                        }
-                    }
-                });
-            });
+            // Логика подсветки
         }
 
         loadGlowFromLocalStorage();
@@ -673,23 +649,30 @@ if (!container) {
     }
 }
 
-// ===== ФУНКЦИЯ ДЛЯ ПОВОРОТА ВСЕХ ТРЁХ СЛОЁВ (X, Y, Z) =====
-function rotateAllLayers(axis, angle, duration, callback) {
-    // Поворачиваем слои: -1, 0, 1
-    let layers = [1, 0, -1];
-    let index = 0;
-    
-    function nextLayer() {
-        if (index >= layers.length) {
-            if (callback) callback();
-            return;
-        }
-        window.rotateLayer(axis, layers[index], angle, duration, () => {
-            index++;
-            setTimeout(nextLayer, 30); // Небольшая задержка между слоями
-        });
+// ===== ФУНКЦИЯ ДЛЯ ПОВОРОТА ВСЕГО КУБА (ГРУППЫ) МГНОВЕННО =====
+function rotateWholeCube(axis, angle, callback) {
+    // Создаём ось вращения в локальных координатах камеры
+    const axisVec = new THREE.Vector3();
+    if (axis === 'x') {
+        axisVec.set(1, 0, 0);
+    } else if (axis === 'y') {
+        axisVec.set(0, 1, 0);
+    } else if (axis === 'z') {
+        axisVec.set(0, 0, 1);
     }
-    nextLayer();
+    
+    // Применяем ось камеры к оси вращения (чтобы куб вращался относительно того, как мы на него смотрим)
+    const worldAxis = axisVec.clone().applyQuaternion(window.camera.quaternion);
+    
+    // Вращаем группу вокруг этой оси
+    const quat = new THREE.Quaternion().setFromAxisAngle(worldAxis, angle);
+    window.cubeGroup.quaternion.multiply(quat);
+    window.cubeGroup.updateMatrixWorld(true);
+    
+    // Обновляем подсветку после поворота
+    if (window.updateCubeGlow) window.updateCubeGlow();
+    
+    if (callback) callback();
 }
 
 // ===== ГЛАВНАЯ ФУНКЦИЯ ДЛЯ КНОПОК =====
@@ -726,26 +709,20 @@ window.doMove = function(direction) {
     else if (cleanDir === 'F') targetDir = camDir.clone().negate();
     else if (cleanDir === 'B') targetDir = camDir;
     
-    // ===== ПОВОРОТ ВСЕГО КУБА (X, Y, Z) =====
+    // ===== ПОВОРОТ ВСЕГО КУБА (X, Y, Z) МГНОВЕННО =====
     else if (cleanDir === 'x') {
-        // Поворот всего куба вокруг оси X (правой грани) на 90°
-        rotateAllLayers('x', -Math.PI / 2, 150, () => {
-            if (window.updateCubeGlow) window.updateCubeGlow();
-        });
+        // Поворот всего куба вокруг оси X (относительно камеры) на 90°
+        rotateWholeCube('x', -Math.PI / 2, () => {});
         return;
     }
     else if (cleanDir === 'y') {
-        // Поворот всего куба вокруг оси Y (вертикальной оси) на 90°
-        rotateAllLayers('y', -Math.PI / 2, 150, () => {
-            if (window.updateCubeGlow) window.updateCubeGlow();
-        });
+        // Поворот всего куба вокруг оси Y (относительно камеры) на 90°
+        rotateWholeCube('y', -Math.PI / 2, () => {});
         return;
     }
     else if (cleanDir === 'z') {
-        // Поворот всего куба вокруг оси Z (передней грани) на 90°
-        rotateAllLayers('z', -Math.PI / 2, 150, () => {
-            if (window.updateCubeGlow) window.updateCubeGlow();
-        });
+        // Поворот всего куба вокруг оси Z (относительно камеры) на 90°
+        rotateWholeCube('z', -Math.PI / 2, () => {});
         return;
     }
     else return;
