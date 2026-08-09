@@ -35,7 +35,7 @@
         .main-row {
             display: flex;
             flex-direction: row;
-            justify-content: center; /* По центру изначально */
+            justify-content: center;
             align-items: center;
             width: 100%;
             max-width: 1200px;
@@ -176,7 +176,6 @@
         .legend-item .move.up { background: #d4ac0d; color: #1e2a47; }
         .legend-item .move.d { background: #8e44ad; }
         .legend-item .move.dp { background: #6f3490; }
-        /* Новые обозначения для X, Y, Z */
         .legend-item .move.x { background: #3498db; }
         .legend-item .move.y { background: #2ecc71; }
         .legend-item .move.z { background: #8e44ad; }
@@ -213,7 +212,6 @@
             transform: translateY(3px);
             box-shadow: 0 0 0 rgba(0,0,0,0.2);
         }
-        /* Цвета кнопок */
         .cube-btn.r { background: #c41e3a; }
         .cube-btn.prime.r { background: #a01830; }
         .cube-btn.l { background: #f39c12; color: #1e2a47; }
@@ -226,8 +224,6 @@
         .cube-btn.prime.u { background: #d4ac0d; color: #1e2a47; }
         .cube-btn.d { background: #8e44ad; }
         .cube-btn.prime.d { background: #6f3490; }
-        
-        /* Новые кнопки поворота всего куба (X, Y, Z) */
         .cube-btn.x { background: #3498db; box-shadow: 0 3px 0 #217dbb; }
         .cube-btn.x:hover { background: #5dade2; }
         .cube-btn.y { background: #2ecc71; box-shadow: 0 3px 0 #1e8449; }
@@ -237,11 +233,11 @@
 
         /* ===== КЛАСС ДЛЯ СДВИГА ВЛЕВО ПОСЛЕ СКРАМБЛА ===== */
         .main-row.is-active {
-            justify-content: flex-start; /* Прижимаем влево */
+            justify-content: flex-start;
             margin-left: 0;
         }
 
-        /* ===== АДАПТАЦИЯ ДЛЯ МОБИЛЬНЫХ (всегда вертикально, всё по центру) ===== */
+        /* ===== АДАПТАЦИЯ ДЛЯ МОБИЛЬНЫХ ===== */
         @media (max-width: 900px) {
             .main-row {
                 flex-direction: column !important;
@@ -384,7 +380,7 @@
 <section class="section" style="padding-top: 2rem; padding-bottom: 2rem;">
     <div class="container" style="max-width: 1200px; text-align: left;">
         
-        <!-- ===== ЗАГОЛОВОК И МАНИФЕСТ (всегда по центру) ===== -->
+        <!-- ===== ЗАГОЛОВОК И МАНИФЕСТ ===== -->
         <div class="grani-header" style="margin-bottom: 2.5rem; text-align: center; max-width: 750px; margin-left: auto; margin-right: auto;">
             <h1 style="font-family: 'KB Tranceform', 'Montserrat', sans-serif; font-weight: 400; text-align: center; letter-spacing: 0.02em; color: #3a4a6e; margin-bottom: 1rem; font-size: 3.8rem;">
                 Шесть граней,<br>из которых складываемся мы
@@ -422,7 +418,7 @@
             </div>
         </div>
 
-        <!-- ===== ОСНОВНОЙ РЯД: меняется через JS при нажатии "Перемешать" ===== -->
+        <!-- ===== ОСНОВНОЙ РЯД ===== -->
         <div class="main-row" id="mainRow">
             
             <!-- МИНИАТЮРЫ -->
@@ -457,19 +453,18 @@
             <div class="cube-wrapper">
                 <div id="cube-container" style="width: 100%; max-width: 340px; max-height: 340px; aspect-ratio: 1 / 1; background: transparent; touch-action: none; cursor: pointer; position: relative;"></div>
                 
-                <!-- ===== КНОПКИ УПРАВЛЕНИЯ (Перемешать/Собрать) ===== -->
+                <!-- ===== КНОПКИ УПРАВЛЕНИЯ ===== -->
                 <div class="controls" style="margin-top: 1rem; display: flex; gap: 15px; flex-wrap: wrap; justify-content: center;">
                     <button id="btnScramble" style="padding: 8px 20px; border: none; border-radius: 30px; font-weight: 600; font-size: 14px; cursor: pointer; transition: 0.2s; font-family: 'Inter', sans-serif; background: #ff2e5a; color: #fff;">Перемешать</button>
                     <button id="btnSolve" style="padding: 8px 20px; border: none; border-radius: 30px; font-weight: 600; font-size: 14px; cursor: pointer; transition: 0.2s; font-family: 'Inter', sans-serif; background: #2ecc71; color: #fff; display: none;">Собрать</button>
                 </div>
             </div>
 
-            <!-- КНОПКИ ПОВОРОТА + ЛЕГЕНДА (появляются плавно справа) -->
+            <!-- КНОПКИ ПОВОРОТА + ЛЕГЕНДА -->
             <div class="controls-right-side" id="controlsRightSide">
                 
-                <!-- КНОПКИ ПОВОРОТА ГРАНЕЙ И ВСЕГО КУБА -->
+                <!-- КНОПКИ ПОВОРОТА -->
                 <div class="cube-buttons" id="cubeButtons">
-                    <!-- Грани -->
                     <div class="btn-row">
                         <button class="cube-btn r" onclick="window.doMove('R')">R</button>
                         <button class="cube-btn prime r" onclick="window.doMove('R\'')">R'</button>
@@ -488,8 +483,6 @@
                         <button class="cube-btn d" onclick="window.doMove('D')">D</button>
                         <button class="cube-btn prime d" onclick="window.doMove('D\'')">D'</button>
                     </div>
-                    
-                    <!-- Повороты всего куба (X, Y, Z) -->
                     <div class="btn-row" style="border-top: 1px solid rgba(255,255,255,0.2); padding-top: 0.4rem; margin-top: 0.2rem;">
                         <button class="cube-btn x" onclick="window.doMove('x')">X</button>
                         <button class="cube-btn y" onclick="window.doMove('y')">Y</button>
@@ -497,7 +490,7 @@
                     </div>
                 </div>
 
-                <!-- ЛЕГЕНДА ОБОЗНАЧЕНИЙ ХОДОВ -->
+                <!-- ЛЕГЕНДА -->
                 <div class="legend" id="legend">
                     <div class="legend-grid">
                         <div class="legend-item"><span class="move r">R</span> <span class="desc">Правая грань ↻</span></div>
@@ -512,7 +505,6 @@
                         <div class="legend-item"><span class="move up">U'</span> <span class="desc">Верхняя грань ↺</span></div>
                         <div class="legend-item"><span class="move d">D</span> <span class="desc">Нижняя грань ↻</span></div>
                         <div class="legend-item"><span class="move dp">D'</span> <span class="desc">Нижняя грань ↺</span></div>
-                        <!-- Обозначения для поворота всего куба -->
                         <div class="legend-item"><span class="move x">X</span> <span class="desc">Поворот вокруг правой грани</span></div>
                         <div class="legend-item"><span class="move y">Y</span> <span class="desc">Поворот вокруг вертикальной оси</span></div>
                         <div class="legend-item"><span class="move z">Z</span> <span class="desc">Поворот вокруг передней грани</span></div>
@@ -569,13 +561,10 @@
             <h2 id="popupTitle" style="font-size:1.3rem; font-weight:600; margin:0; color:#1e2a3a;">Грань</h2>
         </div>
         
-        <!-- 1. ВОПРОС -->
         <p id="popupQuestion" style="font-size:1.05rem; line-height:1.6; margin:0.5rem 0 1rem 0; color:#333; font-weight:400;"></p>
         
-        <!-- 2. ОТВЕТЫ ДРУГИХ ПОЛЬЗОВАТЕЛЕЙ -->
         <div id="popupAnswers" class="popup-answers-container"></div>
         
-        <!-- 3. ВЫБОР ВОЗРАСТА -->
         <div class="age-selector" id="ageSelector" style="margin: 0 0 1rem 0; display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center;">
             <div class="age-label" style="font-size: 0.8rem; color: #888; text-align: center; margin-bottom: 0.3rem; width: 100%;">👤 Твой возраст</div>
             <button class="age-btn" data-age="not_specified">Не указан</button>
@@ -585,17 +574,15 @@
             <button class="age-btn" data-age="over_35">Старше 35</button>
         </div>
 
-        <!-- 4. ПОЛЕ ДЛЯ ВВОДА -->
         <textarea id="popupInput" placeholder="Напиши здесь название книги и свои чувства..." style="width:100%; margin-bottom:1rem; padding:0.8rem; border:2px solid #eee; border-radius:12px; font-family:inherit; font-size:0.95rem; min-height:80px; resize:vertical; background:#fafbfc; outline:none;"></textarea>
         
-        <!-- 5. КНОПКА ОТПРАВКИ -->
         <button id="popupSubmit" style="width:100%; padding:0.9rem; background:#ff2e5a; color:#fff; border:none; border-radius:12px; font-weight:600; font-size:1rem; cursor:pointer;">Ответить и поделиться</button>
         
         <p style="font-size:0.7rem; color:#999; margin-top:1rem; text-align:center;">Твой ответ увидят все, кто откроет этот квадратик</p>
     </div>
 </div>
 
-<!-- ===== ДУШЕВНОЕ ПОЗДРАВЛЕНИЕ (с полем для имени) ===== -->
+<!-- ===== ПОЗДРАВЛЕНИЕ ===== -->
 <div id="congratsPopup" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 10, 20, 0.75); backdrop-filter: blur(10px); z-index: 99999; align-items: center; justify-content: center;">
     <div style="background: #fef9f0; max-width: 460px; width: 90%; padding: 2.8rem 2rem 2.2rem; border-radius: 40px; text-align: center; box-shadow: 0 40px 100px rgba(0,0,0,0.5); position: relative; border: 1px solid rgba(255,255,255,0.2);">
         
@@ -616,7 +603,6 @@
         <div style="font-size: 0.9rem; color: #888; margin-bottom: 0.3rem;">Твоё время:</div>
         <div style="font-size: 2.8rem; font-weight: 700; color: #ff2e5a; margin: 0 0 0.5rem 0; font-variant-numeric: tabular-nums;" id="finalTime">00:00</div>
         
-        <!-- ПОЛЕ ДЛЯ ИМЕНИ (НЕОБЯЗАТЕЛЬНОЕ) -->
         <div style="margin-bottom: 0.8rem;">
             <input type="text" id="recordNameInput" placeholder="Твоё имя (по желанию)">
         </div>
@@ -629,7 +615,7 @@
     </div>
 </div>
 
-<!-- ===== ТАБЛИЦА РЕКОРДОВ (ОБЩАЯ) ===== -->
+<!-- ===== ТАБЛИЦА РЕКОРДОВ ===== -->
 <div id="recordsPopup" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); z-index: 99999; align-items: center; justify-content: center;">
     <div style="background: #fff; max-width: 480px; width: 90%; padding: 2rem 1.8rem; border-radius: 32px; position: relative; box-shadow: 0 30px 80px rgba(0,0,0,0.3); max-height: 90vh; overflow-y: auto;">
         <button onclick="document.getElementById('recordsPopup').style.display='none'" style="position: absolute; top: 15px; right: 20px; font-size: 28px; background: none; border: none; cursor: pointer; color: #999;">&times;</button>
@@ -644,16 +630,8 @@
     </div>
 </div>
 
-<!-- ===== КНОПКА ДЛЯ ОТКРЫТИЯ РЕКОРДОВ ===== -->
-<div style="text-align: center; margin-top: 1.5rem;">
-    <button onclick="showRecords()" style="padding: 0.6rem 2rem; background: #1e2a47; color: #fff; border: none; border-radius: 30px; font-size: 0.9rem; cursor: pointer; font-weight: 500; font-family: 'Inter', sans-serif; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-        🏆 Рекорды
-    </button>
-</div>
-
 <script src="../js/main.js"></script>
 
-<!-- ===== ПОДКЛЮЧАЕМ THREE.JS ===== -->
 <script type="importmap">
     {
         "imports": {
@@ -663,15 +641,12 @@
     }
 </script>
 
-<!-- ===== ПОДКЛЮЧАЕМ МОДУЛЬ КУБИКА ===== -->
 <script type="module" src="/js/cube3d.js"></script>
 
-<!-- ===== FIRBASE ИНИЦИАЛИЗАЦИЯ ===== -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
 <script>
-    // ===== ТВОЙ FIREBASE КОНФИГ =====
     const firebaseConfig = {
         apiKey: "AIzaSyBH0b4U-EkIIX0fiE3SdYtG0AZ-9bjlEiw",
         authDomain: "knizhnye-grani.firebaseapp.com",
@@ -681,18 +656,15 @@
         messagingSenderId: "633401933627",
         appId: "1:633401933627:web:978ea1152ad840062a411e"
     };
-
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
 
     document.addEventListener('DOMContentLoaded', function() {
-        // ===== ССЫЛКИ НА ЭЛЕМЕНТЫ =====
         const mainRow = document.getElementById('mainRow');
         const controlsRightSide = document.getElementById('controlsRightSide');
         const cubeButtons = document.getElementById('cubeButtons');
         const legend = document.getElementById('legend');
 
-        // ===== ПОКАЗ И СКРЫТИЕ КНОПОК + ПЕРЕКЛЮЧЕНИЕ РЯДА =====
         window.showCubeControls = function() {
             mainRow.classList.add('is-active');
             controlsRightSide.classList.add('visible');
@@ -707,7 +679,6 @@
             mainRow.classList.remove('is-active');
         };
 
-        // ===== ЛОГИКА ПОПАПА (КНИЖНЫЕ ГРАНИ) =====
         const popup = document.getElementById('popup');
         const popupClose = document.getElementById('popupClose');
         const popupThumb = document.getElementById('popupThumb');
@@ -721,7 +692,6 @@
         let currentElementId = null;
         let selectedAge = 'not_specified';
 
-        // ===== ОБРАБОТЧИК ВЫБОРА ВОЗРАСТА =====
         const ageButtons = ageSelector.querySelectorAll('.age-btn');
         ageButtons.forEach(btn => {
             btn.addEventListener('click', function(e) {
@@ -733,11 +703,8 @@
         });
 
         const defaultAgeBtn = ageSelector.querySelector('[data-age="not_specified"]');
-        if (defaultAgeBtn) {
-            defaultAgeBtn.classList.add('active');
-        }
+        if (defaultAgeBtn) defaultAgeBtn.classList.add('active');
 
-        // ===== ФУНКЦИЯ ДЛЯ ПРЕОБРАЗОВАНИЯ ВОЗРАСТА =====
         function getAgeLabel(age) {
             if (!age) return 'Не указан';
             const ageMap = {
@@ -769,7 +736,6 @@
             'white': 'Память',
             'orange': 'Семья'
         };
-        
         const texturePaths = {
             'red': '../images/cube_textures/red.jpg',
             'blue': '../images/cube_textures/blue.jpg',
@@ -841,7 +807,6 @@
             'orange_2_2_1': 'Какая книга научила тебя беречь то, что у тебя есть дома?'
         };
 
-        // ===== ФУНКЦИЯ ЗАГРУЗКИ ОТВЕТОВ ИЗ FIREBASE =====
         function loadAnswers(elementId) {
             const answersRef = database.ref('answers/' + elementId);
             answersRef.on('value', (snapshot) => {
@@ -870,18 +835,13 @@
         }
 
         window.openBookGran = function(color, x, y) {
-            if (!window.isSolved) {
-                return;
-            }
-
+            if (!window.isSolved) return;
             const elementId = color + '_' + String(x) + '_' + String(y) + '_1';
             currentElementId = elementId;
-
             selectedAge = 'not_specified';
             ageButtons.forEach(b => b.classList.remove('active'));
             const defaultBtn = ageSelector.querySelector('[data-age="not_specified"]');
             if (defaultBtn) defaultBtn.classList.add('active');
-
             popupThumb.src = texturePaths[color] || '';
             popupTitle.textContent = colorNames[color] || color;
             const question = questionsDB[elementId];
@@ -890,7 +850,6 @@
             popupInput.value = '';
             popup.style.display = 'flex';
             document.body.style.overflow = 'hidden';
-
             loadAnswers(elementId);
         };
 
@@ -913,14 +872,12 @@
                 return;
             }
             if (!currentElementId) return;
-
             const newAnswer = {
                 text: text,
                 user: 'Аноним',
                 age: selectedAge,
                 timestamp: new Date().toLocaleString('ru-RU')
             };
-
             const answersRef = database.ref('answers/' + currentElementId);
             answersRef.push(newAnswer).then(() => {
                 popupInput.value = '';
