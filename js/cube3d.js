@@ -793,7 +793,7 @@ window.doMove = function(direction) {
     });
 };
 
-// ===== ТАЙМЕР (СКРЫТ ПО УМОЛЧАНИЮ, ПОЯВЛЯЕТСЯ ПОСЛЕ СКРАМБЛА) =====
+// ===== ТАЙМЕР (СКРЫТ ПО УМОЛЧАНИЮ) =====
 let timerInterval = null;
 let seconds = 0;
 let isTimerRunning = false;
@@ -836,7 +836,7 @@ function showTimer() {
     const el = document.getElementById('timerDisplay');
     if (el) {
         el.style.display = 'block';
-        // НЕ ЗАПУСКАЕМ ТАЙМЕР, ПРОСТО ПОКАЗЫВАЕМ
+        // НЕ ЗАПУСКАЕМ ТАЙМЕР
     }
 }
 
@@ -846,6 +846,7 @@ function hideTimer() {
         el.style.display = 'none';
     }
     stopTimer();
+    hasStarted = false;
 }
 
 // Создаём элемент таймера (скрытый)
@@ -964,6 +965,7 @@ if (typeof firebase !== 'undefined' && firebase.database) {
 const originalDoMove = window.doMove;
 window.doMove = function(direction) {
     const timerEl = document.getElementById('timerDisplay');
+    // Если таймер виден, но ещё не запущен — запускаем
     if (timerEl && timerEl.style.display === 'block' && !hasStarted && !window.isSolved) {
         startTimer();
     }
@@ -1002,8 +1004,11 @@ setInterval(() => {
                 window.hideCubeControls();
             }
             
+            // ЕСЛИ ТАЙМЕР БЫЛ ЗАПУЩЕН — ОСТАНАВЛИВАЕМ И ПРЯЧЕМ ЕГО НЕМЕДЛЕННО
             if (hasStarted) {
                 stopTimer();
+                hideTimer();
+                
                 const mins = Math.floor(seconds / 60);
                 const secs = seconds % 60;
                 const timeStr = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
@@ -1012,8 +1017,6 @@ setInterval(() => {
                 
                 const popup = document.getElementById('congratsPopup');
                 if (popup) popup.style.display = 'flex';
-                
-                hideTimer();
             }
         }
     }
