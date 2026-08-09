@@ -2,7 +2,6 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 
-// ===== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ =====
 window.isSolved = true;
 window.isScrambling = false;
 window.isAnimating = false;
@@ -19,7 +18,6 @@ window.offset = null;
 window.cubeGroup = null;
 window.cubeState = {};
 
-// ===== ПЕРЕМЕННЫЕ ДЛЯ ЗАЩИТЫ ОТ ЛОЖНЫХ КЛИКОВ =====
 let mouseDownPos = { x: 0, y: 0 };
 let isDragging = false;
 
@@ -181,7 +179,6 @@ if (!container) {
 
         buildCubies();
 
-        // ===== ОСВЕЩЕНИЕ =====
         const ambientLight = new THREE.AmbientLight(0x606080, 0.6);
         scene.add(ambientLight);
 
@@ -197,7 +194,6 @@ if (!container) {
         backLight.position.set(0, 1, -3);
         camera.add(backLight);
 
-        // ===== ФУНКЦИЯ ПРОВЕРКИ СБОРКИ =====
         function isCubeSolved() {
             for (let cubie of allCubies) {
                 const state = window.cubeState[cubie.userData.id];
@@ -211,7 +207,6 @@ if (!container) {
             return true;
         }
 
-        // ===== ВРАЩЕНИЕ СЛОЁВ =====
         function getCubiesInLayer(axis, index) {
             const result = [];
             allCubies.forEach(cubie => {
@@ -316,7 +311,6 @@ if (!container) {
 
         window.rotateLayer = rotateLayer;
 
-        // ===== СКРАМБЛЕР И СБОРЩИК =====
         let isScrambling = false;
         let isBlocked = false;
 
@@ -400,7 +394,6 @@ if (!container) {
         window.generateScramble = generateScramble;
         window.updateCubeGlow = updateCubeGlow;
 
-        // ===== КНОПКИ «ПЕРЕМЕШАТЬ» И «СОБРАТЬ» =====
         document.addEventListener('DOMContentLoaded', function() {
             const btnScramble = document.getElementById('btnScramble');
             const btnSolve = document.getElementById('btnSolve');
@@ -432,7 +425,6 @@ if (!container) {
 
                 const durationPerMove = SCRAMBLE_DURATION / moves.length;
                 
-                // Показываем таймер на 00:00, но НЕ ЗАПУСКАЕМ
                 resetTimer();
                 showTimer();
 
@@ -486,7 +478,6 @@ if (!container) {
             });
         });
 
-        // ===== ОБРАБОТЧИК КЛИКА ПО КУБИКУ (ИНТЕГРАЦИЯ С КНИЖНЫМИ ГРАНЯМИ) =====
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
 
@@ -554,7 +545,6 @@ if (!container) {
 
         const canvas = renderer.domElement;
 
-        // ===== ЗАЩИТА ОТ ЛОЖНЫХ КЛИКОВ =====
         canvas.addEventListener('pointerdown', function(e) {
             mouseDownPos.x = e.clientX;
             mouseDownPos.y = e.clientY;
@@ -585,7 +575,6 @@ if (!container) {
             return false;
         });
 
-        // ===== ДЛЯ ТЕЛЕФОНА (ТАЧ) =====
         let touchStartX = 0, touchStartY = 0;
         let touchMoved = false;
 
@@ -611,7 +600,6 @@ if (!container) {
             }
         }, { passive: true });
 
-        // ===== ПОДСВЕТКА =====
         let activeGlowIds = [];
 
         function loadGlowFromLocalStorage() {
@@ -629,13 +617,11 @@ if (!container) {
         };
 
         function applyGlow() {
-            // Логика подсветки
         }
 
         loadGlowFromLocalStorage();
         applyGlow();
 
-        // ===== ЦИКЛ РЕНДЕРА =====
         function render() {
             requestAnimationFrame(render);
             controls.update();
@@ -653,7 +639,6 @@ if (!container) {
     }
 }
 
-// ===== ФУНКЦИЯ ДЛЯ ПОВОРОТА ВСЕГО КУБА (ГРУППЫ) МГНОВЕННО =====
 function rotateWholeCube(axis, angle, callback) {
     const cubeMatrix = window.cubeGroup.matrix.clone();
     const cubePos = new THREE.Vector3();
@@ -689,7 +674,6 @@ function rotateWholeCube(axis, angle, callback) {
     if (callback) callback();
 }
 
-// ===== ГЛАВНАЯ ФУНКЦИЯ ДЛЯ КНОПОК =====
 window.doMove = function(direction) {
     if (window.isSolved) return;
     if (!direction) return;
@@ -793,7 +777,6 @@ window.doMove = function(direction) {
     });
 };
 
-// ===== ТАЙМЕР (СКРЫТ ПО УМОЛЧАНИЮ) =====
 let timerInterval = null;
 let seconds = 0;
 let isTimerRunning = false;
@@ -836,7 +819,6 @@ function showTimer() {
     const el = document.getElementById('timerDisplay');
     if (el) {
         el.style.display = 'block';
-        // НЕ ЗАПУСКАЕМ ТАЙМЕР
     }
 }
 
@@ -849,7 +831,6 @@ function hideTimer() {
     hasStarted = false;
 }
 
-// Создаём элемент таймера (скрытый)
 const timerHTML = `
 <div id="timerDisplay" style="display: none; position: fixed; top: 80px; right: 20px; background: rgba(30,42,71,0.92); color: #fff; padding: 0.5rem 1.2rem; border-radius: 30px; font-size: 1.2rem; font-weight: 600; font-family: 'Inter', sans-serif; z-index: 999; box-shadow: 0 4px 16px rgba(0,0,0,0.15); backdrop-filter: blur(4px); letter-spacing: 0.5px;">
     ⏱️ <span id="timerValue">00:00</span>
@@ -857,11 +838,9 @@ const timerHTML = `
 `;
 document.body.insertAdjacentHTML('beforeend', timerHTML);
 
-// ===== FIREBASE ДЛЯ РЕКОРДОВ (с именем и возрастом) =====
 if (typeof firebase !== 'undefined' && firebase.database) {
     const recordsDb = firebase.database();
 
-    // ===== ПОКАЗ РЕКОРДОВ =====
     window.showRecords = function() {
         const popup = document.getElementById('recordsPopup');
         const list = document.getElementById('recordsList');
@@ -908,7 +887,6 @@ if (typeof firebase !== 'undefined' && firebase.database) {
         });
     };
 
-    // ===== СОХРАНЕНИЕ РЕКОРДА С ИМЕНЕМ =====
     window.saveRecordWithName = function() {
         const nameInput = document.getElementById('recordNameInput');
         const userName = nameInput ? nameInput.value.trim() : '';
@@ -961,11 +939,9 @@ if (typeof firebase !== 'undefined' && firebase.database) {
     }
 }
 
-// ===== ПЕРЕХВАТ ПЕРВОГО ХОДА ДЛЯ ЗАПУСКА ТАЙМЕРА =====
 const originalDoMove = window.doMove;
 window.doMove = function(direction) {
     const timerEl = document.getElementById('timerDisplay');
-    // Если таймер виден, но ещё не запущен — запускаем
     if (timerEl && timerEl.style.display === 'block' && !hasStarted && !window.isSolved) {
         startTimer();
     }
@@ -974,7 +950,6 @@ window.doMove = function(direction) {
     }
 };
 
-// ===== АВТОМАТИЧЕСКОЕ СНЯТИЕ БЛОКИРОВКИ И ПОЗДРАВЛЕНИЕ =====
 setInterval(() => {
     if (window.allCubies && window.allCubies.length > 0) {
         let solved = true;
@@ -1004,7 +979,6 @@ setInterval(() => {
                 window.hideCubeControls();
             }
             
-            // ЕСЛИ ТАЙМЕР БЫЛ ЗАПУЩЕН — ОСТАНАВЛИВАЕМ И ПРЯЧЕМ ЕГО НЕМЕДЛЕННО
             if (hasStarted) {
                 stopTimer();
                 hideTimer();
