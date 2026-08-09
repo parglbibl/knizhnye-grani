@@ -673,7 +673,26 @@ if (!container) {
     }
 }
 
-// ===== ГЛАВНАЯ ФУНКЦИЯ ДЛЯ КНОПОК (ДОБАВЛЕНА ПОДДЕРЖКА X, Y, Z) =====
+// ===== ФУНКЦИЯ ДЛЯ ПОВОРОТА ВСЕХ ТРЁХ СЛОЁВ (X, Y, Z) =====
+function rotateAllLayers(axis, angle, duration, callback) {
+    // Поворачиваем слои: -1, 0, 1
+    let layers = [1, 0, -1];
+    let index = 0;
+    
+    function nextLayer() {
+        if (index >= layers.length) {
+            if (callback) callback();
+            return;
+        }
+        window.rotateLayer(axis, layers[index], angle, duration, () => {
+            index++;
+            setTimeout(nextLayer, 30); // Небольшая задержка между слоями
+        });
+    }
+    nextLayer();
+}
+
+// ===== ГЛАВНАЯ ФУНКЦИЯ ДЛЯ КНОПОК =====
 window.doMove = function(direction) {
     if (window.isSolved) return;
     if (!direction) return;
@@ -707,24 +726,24 @@ window.doMove = function(direction) {
     else if (cleanDir === 'F') targetDir = camDir.clone().negate();
     else if (cleanDir === 'B') targetDir = camDir;
     
-    // ===== ДОБАВЛЕНА ПОДДЕРЖКА X, Y, Z (ПОВОРОТ ВСЕГО КУБА) =====
+    // ===== ПОВОРОТ ВСЕГО КУБА (X, Y, Z) =====
     else if (cleanDir === 'x') {
-        // Поворот всего куба вокруг оси X (правая грань)
-        window.rotateLayer('x', 1, -Math.PI / 2, 150, () => {
+        // Поворот всего куба вокруг оси X (правой грани) на 90°
+        rotateAllLayers('x', -Math.PI / 2, 150, () => {
             if (window.updateCubeGlow) window.updateCubeGlow();
         });
         return;
     }
     else if (cleanDir === 'y') {
-        // Поворот всего куба вокруг оси Y (вертикальная ось)
-        window.rotateLayer('y', 1, -Math.PI / 2, 150, () => {
+        // Поворот всего куба вокруг оси Y (вертикальной оси) на 90°
+        rotateAllLayers('y', -Math.PI / 2, 150, () => {
             if (window.updateCubeGlow) window.updateCubeGlow();
         });
         return;
     }
     else if (cleanDir === 'z') {
-        // Поворот всего куба вокруг оси Z (передняя грань)
-        window.rotateLayer('z', 1, -Math.PI / 2, 150, () => {
+        // Поворот всего куба вокруг оси Z (передней грани) на 90°
+        rotateAllLayers('z', -Math.PI / 2, 150, () => {
             if (window.updateCubeGlow) window.updateCubeGlow();
         });
         return;
