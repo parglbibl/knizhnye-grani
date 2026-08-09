@@ -651,24 +651,44 @@ if (!container) {
 
 // ===== ФУНКЦИЯ ДЛЯ ПОВОРОТА ВСЕГО КУБА (ГРУППЫ) МГНОВЕННО =====
 function rotateWholeCube(axis, angle, callback) {
-    // Создаём ось вращения в локальных координатах камеры
-    const axisVec = new THREE.Vector3();
+    // 1. Получаем текущую мировую матрицу кубика
+    const cubeMatrix = window.cubeGroup.matrix.clone();
+    const cubePos = new THREE.Vector3();
+    const cubeQuat = new THREE.Quaternion();
+    const cubeScale = new THREE.Vector3();
+    cubeMatrix.decompose(cubePos, cubeQuat, cubeScale);
+
+    // 2. Создаём временную группу с тем же поворотом, что и у кубика
+    const tempGroup = new THREE.Group();
+    tempGroup.quaternion.copy(cubeQuat);
+    tempGroup.updateMatrixWorld(true);
+
+    // 3. Определяем ось вращения в ЛОКАЛЬНОЙ системе координат кубика,
+    //    используя направление камеры
+    let localAxis = new THREE.Vector3();
     if (axis === 'x') {
-        axisVec.set(1, 0, 0);
+        // Ось X в локальном пространстве кубика = правая грань
+        const worldRight = new THREE.Vector3(1, 0, 0).applyQuaternion(window.camera.quaternion);
+        localAxis = worldRight.clone().applyQuaternion(cubeQuat.clone().invert());
     } else if (axis === 'y') {
-        axisVec.set(0, 1, 0);
+        // Ось Y в локальном пространстве кубика = верхняя грань
+        const worldUp = new THREE.Vector3(0, 1, 0).applyQuaternion(window.camera.quaternion);
+        localAxis = worldUp.clone().applyQuaternion(cubeQuat.clone().invert());
     } else if (axis === 'z') {
-        axisVec.set(0, 0, 1);
+        // Ось Z в локальном пространстве кубика = передняя грань
+        const worldDir = new THREE.Vector3(0, 0, -1).applyQuaternion(window.camera.quaternion);
+        localAxis = worldDir.clone().applyQuaternion(cubeQuat.clone().invert());
     }
-    
-    // Применяем ось камеры к оси вращения (чтобы куб вращался относительно того, как мы на него смотрим)
-    const worldAxis = axisVec.clone().applyQuaternion(window.camera.quaternion);
-    
-    // Вращаем группу вокруг этой оси
-    const quat = new THREE.Quaternion().setFromAxisAngle(worldAxis, angle);
-    window.cubeGroup.quaternion.multiply(quat);
+
+    // 4. Применяем вращение к временной группе
+    const rotQuat = new THREE.Quaternion().setFromAxisAngle(localAxis.normalize(), angle);
+    tempGroup.quaternion.multiply(rotQuat);
+    tempGroup.updateMatrixWorld(true);
+
+    // 5. Переносим новый поворот обратно на кубик
+    window.cubeGroup.quaternion.copy(tempGroup.quaternion);
     window.cubeGroup.updateMatrixWorld(true);
-    
+
     // Обновляем подсветку после поворота
     if (window.updateCubeGlow) window.updateCubeGlow();
     
