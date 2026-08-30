@@ -443,6 +443,9 @@ if (!container) {
                 if (window.isScrambling || window.isAnimating) return;
                 if (window.isBlocked) return;
                 
+                // ===== ОСТАНАВЛИВАЕМ ТАЙМЕР ПЕРЕД СБОРКОЙ =====
+                stopTimer();  // <-- ДОБАВЛЕНО
+                
                 window.isBlocked = true;
                 window.isScrambling = true;
                 window.isSolved = true;
